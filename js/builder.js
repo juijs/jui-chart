@@ -1,10 +1,14 @@
-jui.defineUI("chart.builder", [ "jquery", "util.base", "util.svg", "util.color", "chart.axis" ],
-    function($, _, SVGUtil, ColorUtil, Axis) {
+jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.axis" ],
+    function(_, SVGUtil, ColorUtil, Axis) {
 
     var win_width = 0;
 
     _.resize(function() {
-        if(win_width == $(window).width()) return;
+        var new_width  = window.innerWidth
+            || document.documentElement.clientWidth
+            || document.body.clientWidth;
+
+        if(win_width == new_width) return;
 
         var call_list = jui.get("chart.builder");
         for(var i = 0; i < call_list.length; i++) {
@@ -21,7 +25,7 @@ jui.defineUI("chart.builder", [ "jquery", "util.base", "util.svg", "util.color",
             }
         }
 
-        win_width = $(window).width();
+        win_width = new_width;
     }, 300);
 
 
@@ -248,14 +252,8 @@ jui.defineUI("chart.builder", [ "jquery", "util.base", "util.svg", "util.color",
                 }
             });
 
-            // 드래그 이벤트 막기
-            self.addEvent(self.root, "selectstart", function(e) {
-                e.preventDefault();
-                return false;
-            });
-
             function checkPosition(e) {
-                var pos = $(self.root).offset(),
+                var pos = _.offset(self.root),
                     offsetX = e.pageX - pos.left,
                     offsetY = e.pageY - pos.top;
 
@@ -503,12 +501,22 @@ jui.defineUI("chart.builder", [ "jquery", "util.base", "util.svg", "util.color",
             return text;
         }
 
+        function preventTextSelection(root) {
+            root.style.userSelect = "none";
+            root.style.webkitUserSelect = "none";
+            root.style.MozUserSelect = "none";
+            root.setAttribute("unselectable", "on");
+        }
+
         this.init = function() {
             // 기본 옵션 설정
             setDefaultOptions(this);
 
             // 차트 테마 설정 (+옵션 스타일)
             setThemeStyle(_options.theme);
+
+            // 텍스트 드래그 막기
+            preventTextSelection(this.root);
 
             // svg 기본 객체 생성
             /** @property {chart.svg} svg Refers to an SVG utility object. */

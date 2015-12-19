@@ -1,4 +1,4 @@
-jui.define("chart.brush.map.selector", [ "jquery" ], function($) {
+jui.define("chart.brush.map.selector", [ "util.base" ], function(_) {
 
     /**
      * @class chart.brush.over 
@@ -52,7 +52,7 @@ jui.define("chart.brush.map.selector", [ "jquery" ], function($) {
 				activePath = [];
 
 				axis.map.each(function(i, obj) {
-					if($.inArray(axis.getValue(obj.data, "id"), brush.active) != -1) {
+					if(_.inArray(axis.getValue(obj.data, "id"), brush.active) != -1) {
 						activePath.push(obj.path);
 
 						obj.path.css({

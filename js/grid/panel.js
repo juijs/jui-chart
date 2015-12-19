@@ -1,4 +1,4 @@
-jui.define("chart.grid.panel", [  ], function() {
+jui.define("chart.grid.panel", [ "util.base" ], function(_) {
 
     /**
      * @class chart.grid.panel
@@ -9,11 +9,11 @@ jui.define("chart.grid.panel", [  ], function() {
         this.custom = function(g) {
             var obj = this.scale(0);
 
-            obj.x -= this.axis.area('x');
-            obj.y -= this.axis.area('y');
+            obj.x -= this.axis.area("x");
+            obj.y -= this.axis.area("y");
 
-            var rect = this.chart.svg.rect($.extend(obj, {
-                fill : 'tranparent',
+            var rect = this.chart.svg.rect(_.extend(obj, {
+                fill : "tranparent",
                 stroke : "white"
             }));
 
@@ -25,10 +25,10 @@ jui.define("chart.grid.panel", [  ], function() {
                 return function(i) {
 
                     return {
-                        x : axis.area('x'),
-                        y : axis.area('y'),
-                        width : axis.area('width'),
-                        height : axis.area('height')
+                        x : axis.area("x"),
+                        y : axis.area("y"),
+                        width : axis.area("width"),
+                        height : axis.area("height")
                     }
                 }
             })(this.axis);

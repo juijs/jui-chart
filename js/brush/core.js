@@ -1,4 +1,4 @@
-jui.define("chart.brush.core", [ "jquery", "util.base" ], function($, _) {
+jui.define("chart.brush.core", [ "util.base" ], function(_) {
     /**
      * @class chart.brush.core
      *
@@ -403,7 +403,7 @@ jui.define("chart.brush.core", [ "jquery", "util.base" ], function($, _) {
             });
 
             function setMouseEvent(e) {
-                var pos = $(chart.root).offset(),
+                var pos = _.offset(chart.root),
                     offsetX = e.pageX - pos.left,
                     offsetY = e.pageY - pos.top;
 

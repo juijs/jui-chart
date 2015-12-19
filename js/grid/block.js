@@ -88,7 +88,7 @@ jui.define("chart.grid.block", [ "util.scale", "util.base" ], function(UtilScale
 				return old_scale(len - i - 1);
 			}
 
-			return (this.grid.reverse) ? $.extend(new_scale, old_scale) : old_scale;
+			return (this.grid.reverse) ? _.extend(new_scale, old_scale) : old_scale;
 		}
 
 		this.drawBefore = function() {

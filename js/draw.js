@@ -1,4 +1,4 @@
-jui.define("chart.draw", [ "jquery", "util.base" ], function($, _) {
+jui.define("chart.draw", [ "util.base" ], function(_) {
     /**
      * @class chart.draw
      * @alias Draw

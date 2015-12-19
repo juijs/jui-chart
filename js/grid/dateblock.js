@@ -100,7 +100,7 @@ jui.define("chart.grid.dateblock", [ "util.time", "util.scale", "util.base" ], f
 				this.values[i] = time(this.ticks[i]);
 			}
 
-			this.scale = $.extend((function(i) {
+			this.scale = _.extend((function(i) {
 				return  i * unit;
 			}), time);
 

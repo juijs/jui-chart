@@ -194,7 +194,7 @@ jui.define("chart.grid.rule", [ "util.scale", "util.base" ], function(UtilScale,
                 return old_scale(self.axis.data[i][key]);
             }
 
-            return (key) ? $.extend(new_scale, old_scale) : old_scale;
+            return (key) ? _.extend(new_scale, old_scale) : old_scale;
         }
 
         this.initDomain = function() {

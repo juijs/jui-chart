@@ -1,4 +1,4 @@
-jui.define("chart.brush.map.core", [ "jquery", "util.base" ], function($, _) {
+jui.define("chart.brush.map.core", [], function() {
     /**
      * @class chart.brush.map.core
      * @abstract

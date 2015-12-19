@@ -1,4 +1,4 @@
-jui.define("chart.widget.tooltip", [ "jquery", "util.base", "util.color" ], function($, _, ColorUtil) {
+jui.define("chart.widget.tooltip", [ "util.base", "util.color" ], function(_, ColorUtil) {
     var PADDING = 7, ANCHOR = 7, RATIO = 1.2;
 
     /**
@@ -90,7 +90,7 @@ jui.define("chart.widget.tooltip", [ "jquery", "util.base", "util.color" ], func
         function existBrush(index) {
             var list = self.getIndexArray(self.widget.brush);
 
-            return ($.inArray(index, list) == -1) ? false : true;
+            return (_.inArray(index, list) == -1) ? false : true;
         }
 
         function getColorByKey(obj) {

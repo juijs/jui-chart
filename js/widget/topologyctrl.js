@@ -41,7 +41,10 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
         }
 
         function initZoomEvent() {
-            $(chart.root).bind("mousewheel DOMMouseScroll", function(e){
+            chart.root.addEventListener("mousewheel", on);
+            chart.root.addEventListener("DOMMouseScroll", on);
+
+            function on(e) {
                 if(e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0) {
                     if(scale < 2) {
                         scale += 0.1;
@@ -54,7 +57,7 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
 
                 chart.scale(scale);
                 return false;
-            });
+            }
         }
 
         function initMoveEvent() {

@@ -243,7 +243,7 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
                     });
 
                 // 설정된 키 활성화
-                if (active == target[i] || $.inArray(target[i], active) != -1) {
+                if (active == target[i] || _.inArray(target[i], active) != -1) {
                     this.setActiveEvent(donut, centerX, centerY, centerAngle);
                     cache_active[centerAngle] = true;
                 }

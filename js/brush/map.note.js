@@ -1,4 +1,4 @@
-jui.define("chart.brush.map.note", [ "jquery", "util.base" ], function($, _) {
+jui.define("chart.brush.map.note", [ "util.base" ], function(_) {
 	var PADDING = 7,
 		ANCHOR = 7,
 		TEXT_Y = 14;
@@ -46,7 +46,7 @@ jui.define("chart.brush.map.note", [ "jquery", "util.base" ], function($, _) {
 
 				if(xy != null) {
 					var tooltip = chart.svg.group({
-						visibility: ($.inArray(id, brush.active) != -1) ? "visibility" : "hidden"
+						visibility: (_.inArray(id, brush.active) != -1) ? "visibility" : "hidden"
 					}, function() {
 						chart.svg.polygon({
 							points: self.balloonPoints("top", w, h, ANCHOR),

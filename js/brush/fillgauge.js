@@ -1,4 +1,4 @@
-jui.define("chart.brush.fillgauge", [ "jquery", "util.base" ], function($, _) {
+jui.define("chart.brush.fillgauge", [ "util.base" ], function(_) {
 
 	var FillGaugeBrush = function(chart, axis, brush) {
         var self = this;
@@ -89,6 +89,7 @@ jui.define("chart.brush.fillgauge", [ "jquery", "util.base" ], function($, _) {
 
             if (brush.svg != "" || brush.path != "") {
                 if (brush.svg != "") {
+                    /*/
                     $.ajax({
                         url : brush.svg,
                         async : false,
@@ -97,6 +98,7 @@ jui.define("chart.brush.fillgauge", [ "jquery", "util.base" ], function($, _) {
                             createPath(group, path);
                         }
                     });
+                    /**/
                 } else {
                     createPath(group, brush.path);
                 }

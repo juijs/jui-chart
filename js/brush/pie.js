@@ -195,7 +195,7 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                     pie = this.drawPie(centerX, centerY, outerRadius, startAngle, endAngle, this.color(i));
 
                 // 설정된 키 활성화
-                if (active == target[i] || $.inArray(target[i], active) != -1) {
+                if (active == target[i] || _.inArray(target[i], active) != -1) {
                     this.setActiveEvent(pie, centerX, centerY, centerAngle);
                     cache_active[centerAngle] = true;
                 }

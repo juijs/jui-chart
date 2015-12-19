@@ -1,4 +1,4 @@
-jui.define("chart.axis", [ "jquery", "util.base" ], function($, _) {
+jui.define("chart.axis", [ "util.base" ], function(_) {
 
     /**
      * @class chart.axis

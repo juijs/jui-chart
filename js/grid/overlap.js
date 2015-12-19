@@ -1,4 +1,4 @@
-jui.define("chart.grid.overlap", [  ], function() {
+jui.define("chart.grid.overlap", [ "util.base" ], function(_) {
 
     /**
      * @class chart.grid.overlap
@@ -14,7 +14,7 @@ jui.define("chart.grid.overlap", [  ], function() {
                 obj.x -= this.axis.area("x");
                 obj.y -= this.axis.area("y");
 
-                this.chart.svg.rect($.extend(obj, {
+                this.chart.svg.rect(_.extend(obj, {
                     fill : "transparent",
                     stroke : "transparent"
                 }));

@@ -47,7 +47,7 @@ jui.define("chart.grid.date", [ "util.time", "util.scale", "util.base" ], functi
 				}
 			}
 
-			return (key) ? $.extend(new_scale, old_scale) : old_scale;
+			return (key) ? _.extend(new_scale, old_scale) : old_scale;
 		}
 
 		this.initDomain = function() {
