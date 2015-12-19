@@ -14457,7 +14457,10 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
             chart.root.addEventListener("DOMMouseScroll", on);
 
             function on(e) {
-                if(e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0) {
+                var e = window.event || e,
+                    delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+
+                if(delta > 0) {
                     if(scale < 2) {
                         scale += 0.1;
                     }
