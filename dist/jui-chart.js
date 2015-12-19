@@ -4964,9 +4964,7 @@ jui.define("chart.grid.date", [ "util.time", "util.scale", "util.base" ], functi
 			/** @cfg {"years"/"months"/"days"/"hours"/"minutes"/"seconds"/"milliseconds"} [realtime=""] Determines whether to use as a real-time grid. */
 			realtime: null,
 			/** @cfg {Boolean} [hideText=false] Determines whether to show text across the grid. */
-			hideText: false,
-
-			clamp : true
+			hideText: false
 		};
 	}
 
