@@ -46,28 +46,7 @@
              },
              widget : [
                  { type : "title", text : "Scatter Sample"}
-             ],
-            event: {
-                click: function(obj, e) {
-                    console.log(obj);
-                },
-                mouseover: function(obj, e) {
-                    var $tooltip = $(this.tpl.tooltip(obj));
-
-                    $(this.root).append($tooltip);
-
-                    $tooltip.css({
-                        left: e.pageX - $tooltip.width() / 2,
-                        top: e.pageY - $tooltip.height() - 15
-                    });
-                },
-                mouseout: function(obj, e) {
-                    $(this.root).find(".tooltip").remove();
-                }
-            },
-            tpl: {
-                tooltip: $("#tpl_tooltip").html()
-            }
+             ]
         });
 	})
 </script>
