@@ -1,4 +1,4 @@
-jui.define("chart.map", [ "jquery", "util.base", "util.math", "util.svg" ], function($, _, math, SVG) {
+jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, math, SVG) {
     /**
      * @class chart.grid.core
      * @extends chart.draw
@@ -54,7 +54,7 @@ jui.define("chart.map", [ "jquery", "util.base", "util.math", "util.svg" ], func
                     if(list[i].indexOf(":") != -1) {
                         var obj = list[i].split(":");
 
-                        style[$.trim(obj[0])] = $.trim(obj[1]);
+                        style[_.trim(obj[0])] = _.trim(obj[1]);
                     }
                 }
 
@@ -67,21 +67,25 @@ jui.define("chart.map", [ "jquery", "util.base", "util.math", "util.svg" ], func
         function getPathList(root) {
             if(!_.typeCheck("string", root.id)) return;
 
-            var pathData = [];
+            var pathData = [],
+                children = root.children;
 
-            $(root).children().each(function(i) {
-                var name = this.nodeName.toLowerCase();
+            for(var i = 0; i < root.childElementCount; i++) {
+                var elem = children[i],
+                    name = elem.nodeName.toLowerCase();
 
                 if(name == "g") {
-                    pathData = pathData.concat(getPathList(this));
+                    pathData = pathData.concat(getPathList(elem));
                 } else if(name == "path" || name == "polygon") {
                     var obj = { group: root.id };
 
-                    $.each(this.attributes, function() {
-                        if(this.specified && isLoadAttribute(this.name)) {
-                            obj[this.name] = this.value;
+                    for(var key in elem.attributes) {
+                        var attr = elem.attributes[key];
+
+                        if(attr.specified && isLoadAttribute(attr.name)) {
+                            obj[attr.name] = attr.value;
                         }
-                    });
+                    }
 
                     if(_.typeCheck("string", obj.id)) {
                         _.extend(obj, getDataById(obj.id));
@@ -89,7 +93,7 @@ jui.define("chart.map", [ "jquery", "util.base", "util.math", "util.svg" ], func
 
                     pathData.push(obj);
                 }
-            });
+            }
 
             return pathData;
         }
@@ -239,7 +243,7 @@ jui.define("chart.map", [ "jquery", "util.base", "util.math", "util.svg" ], func
             });
 
             function setMouseEvent(e) {
-                var pos = $(chart.root).offset(),
+                var pos = _.offset(chart.root),
                     offsetX = e.pageX - pos.left,
                     offsetY = e.pageY - pos.top;
 

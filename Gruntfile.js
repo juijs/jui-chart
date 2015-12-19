@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         "js/vector.js",
         "js/draw.js",
         "js/axis.js",
-        //"js/map.js",
+        "js/map.js",
         "js/builder.js",
 
         // chart.theme
@@ -105,7 +105,6 @@ module.exports = function(grunt) {
         "js/brush/pin.js",  // brush supporter
 
         // map brush
-        /*/
         "js/brush/map.core.js",
         "js/brush/map.selector.js",
         "js/brush/map.note.js",
@@ -114,7 +113,6 @@ module.exports = function(grunt) {
         "js/brush/map.flightroute.js",
         "js/brush/map.marker.js",
         "js/brush/map.weather.js",
-        /**/
 
         // polygon brush (full 3d)
         "js/brush/polygon.core.js",
@@ -136,11 +134,9 @@ module.exports = function(grunt) {
         "js/widget/dragselect.js",
 
         // map widget
-        /*/
         "js/widget/map.core.js",
         "js/widget/map.control.js",
         "js/widget/map.tooltip.js",
-        /**/
 
         // polygon widget (full 3d)
         "js/widget/polygon.core.js",

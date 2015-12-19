@@ -877,6 +877,445 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
     return Axis;
 });
 
+jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, math, SVG) {
+    /**
+     * @class chart.grid.core
+     * @extends chart.draw
+     * @abstract
+     */
+    var Map = function() {
+        var self = this;
+        var pathData = {},
+            pathGroup = null,
+            pathIndex = {},
+            pathScale = 1,
+            pathX = 0,
+            pathY = 0;
+
+        function loadArray(data) {
+            var children = [];
+
+            for(var i = 0, len = data.length; i < len; i++) {
+                if(_.typeCheck("object", data[i])) {
+                    var style = {};
+
+                    if(_.typeCheck("string", data[i].style)) {
+                        style = getStyleObj(data[i].style);
+                        delete data[i].style;
+                    }
+
+                    var elem = SVG.createObject({
+                        type: (data[i].d != null) ? "path" : "polygon",
+                        attr: data[i]
+                    });
+
+                    // Set styles
+                    elem.attr(_.extend(style, {
+                        fill: self.chart.theme("mapPathBackgroundColor"),
+                        "fill-opacity": self.chart.theme("mapPathBackgroundOpacity"),
+                        stroke: self.chart.theme("mapPathBorderColor"),
+                        "stroke-width": self.chart.theme("mapPathBorderWidth"),
+                        "stroke-opacity": self.chart.theme("mapPathBorderOpacity")
+                    }));
+
+                    children.push({
+                        path: elem,
+                        data: data[i]
+                    });
+                }
+            }
+
+            function getStyleObj(str) {
+                var style = {},
+                    list = str.split(";");
+
+                for(var i = 0; i < list.length; i++) {
+                    if(list[i].indexOf(":") != -1) {
+                        var obj = list[i].split(":");
+
+                        style[_.trim(obj[0])] = _.trim(obj[1]);
+                    }
+                }
+
+                return style;
+            }
+
+            return children;
+        }
+
+        function getPathList(root) {
+            if(!_.typeCheck("string", root.id)) return;
+
+            var pathData = [],
+                children = root.children;
+
+            for(var i = 0; i < root.childElementCount; i++) {
+                var elem = children[i],
+                    name = elem.nodeName.toLowerCase();
+
+                if(name == "g") {
+                    pathData = pathData.concat(getPathList(elem));
+                } else if(name == "path" || name == "polygon") {
+                    var obj = { group: root.id };
+
+                    for(var key in elem.attributes) {
+                        var attr = elem.attributes[key];
+
+                        if(attr.specified && isLoadAttribute(attr.name)) {
+                            obj[attr.name] = attr.value;
+                        }
+                    }
+
+                    if(_.typeCheck("string", obj.id)) {
+                        _.extend(obj, getDataById(obj.id));
+                    }
+
+                    pathData.push(obj);
+                }
+            }
+
+            return pathData;
+        }
+
+        function loadPath(uri) {
+            // 해당 URI의 데이터가 존재할 경우
+            if(_.typeCheck("array", pathData[uri])) {
+                return loadArray(pathData[uri]);
+            }
+
+            // 해당 URI의 데이터가 없을 경우
+            pathData[uri] = [];
+
+            $.ajax({
+                url: uri,
+                async: false,
+                success: function(xml) {
+                    var $path = $(xml).find("svg").children(),
+                        $style = $(xml).find("style");
+
+                    $path.each(function() {
+                        var name = this.nodeName.toLowerCase();
+
+                        if(name == "g") {
+                            pathData[uri] = pathData[uri].concat(getPathList(this));
+                        } else if(name == "path" || name == "polygon") {
+                            var obj = {};
+
+                            $.each(this.attributes, function() {
+                                if(this.specified && isLoadAttribute(this.name)) {
+                                    obj[this.name] = this.value;
+                                }
+                            });
+
+                            if(_.typeCheck("string", obj.id)) {
+                                _.extend(obj, getDataById(obj.id));
+                            }
+
+                            pathData[uri].push(obj);
+                        }
+                    });
+
+                    $style.each(function () {
+                        self.chart.svg.root.element.appendChild(this);
+                    });
+                }
+            });
+
+            return loadArray(pathData[uri]);
+        }
+
+        function isLoadAttribute(name) {
+            return (
+                name == "group" || name == "id" || name == "title" || name == "x" || name == "y" ||
+                name == "d" || name == "points" || name == "class" || name == "style"
+            );
+        }
+
+        function getDataById(id) {
+            var list = self.axis.data;
+
+            for(var i = 0; i < list.length; i++) {
+                var dataId = self.axis.getValue(list[i], "id", null);
+
+                if(dataId == id) {
+                    return list[i];
+                }
+            }
+
+            return null;
+        }
+
+        function makePathGroup() {
+            var group = self.chart.svg.group(),
+                list = loadPath(self.map.path);
+
+            for(var i = 0, len = list.length; i < len; i++) {
+                var path = list[i].path,
+                    data = list[i].data;
+
+                addEvent(path, list[i]);
+                group.append(path);
+
+                if(_.typeCheck("string", data.id)) {
+                    pathIndex[data.id] = list[i];
+                }
+            }
+
+            return group;
+        }
+
+        function getScaleXY() {
+            // 현재 스케일에 따른 계산이 필요함
+            var w = self.map.width,
+                h = self.map.height,
+                px = ((w * pathScale) - w) / 2,
+                py = ((h * pathScale) - h) / 2;
+
+            return {
+                x: px + pathX,
+                y: py + pathY
+            }
+        }
+
+        function addEvent(elem, obj) {
+            var chart = self.chart;
+
+            elem.on("click", function(e) {
+                setMouseEvent(e);
+                chart.emit("map.click", [ obj, e ]);
+            });
+
+            elem.on("dblclick", function(e) {
+                setMouseEvent(e);
+                chart.emit("map.dblclick", [ obj, e ]);
+            });
+
+            elem.on("contextmenu", function(e) {
+                setMouseEvent(e);
+                chart.emit("map.rclick", [ obj, e ]);
+                e.preventDefault();
+            });
+
+            elem.on("mouseover", function(e) {
+                setMouseEvent(e);
+                chart.emit("map.mouseover", [ obj, e ]);
+            });
+
+            elem.on("mouseout", function(e) {
+                setMouseEvent(e);
+                chart.emit("map.mouseout", [ obj, e ]);
+            });
+
+            elem.on("mousemove", function(e) {
+                setMouseEvent(e);
+                chart.emit("map.mousemove", [ obj, e ]);
+            });
+
+            elem.on("mousedown", function(e) {
+                setMouseEvent(e);
+                chart.emit("map.mousedown", [ obj, e ]);
+            });
+
+            elem.on("mouseup", function(e) {
+                setMouseEvent(e);
+                chart.emit("map.mouseup", [ obj, e ]);
+            });
+
+            function setMouseEvent(e) {
+                var pos = _.offset(chart.root),
+                    offsetX = e.pageX - pos.left,
+                    offsetY = e.pageY - pos.top;
+
+                e.bgX = offsetX;
+                e.bgY = offsetY;
+                e.chartX = offsetX - chart.padding("left");
+                e.chartY = offsetY - chart.padding("top");
+            }
+        }
+
+        this.scale = function(id) {
+            if(!_.typeCheck("string", id)) return;
+
+            var x = null,
+                y = null,
+                path = null,
+                data = null,
+                pxy = getScaleXY();
+
+            if(_.typeCheck("object", pathIndex[id])) {
+                path = pathIndex[id].path;
+                data = pathIndex[id].data;
+
+                if(data.x != null) {
+                    var dx = self.axis.getValue(data, "dx", 0),
+                        cx = parseFloat(data.x) + dx;
+                    x = (cx * pathScale) - pxy.x;
+                }
+
+                if(data.y != null) {
+                    var dy = self.axis.getValue(data, "dy", 0),
+                        cy = parseFloat(data.y) + dy;
+                    y = (cy * pathScale) - pxy.y;
+                }
+            }
+
+            return {
+                x: x,
+                y: y,
+                path: path,
+                data: data
+            }
+        }
+
+        this.scale.each = function(callback) {
+            var self = this;
+
+            for(var id in pathIndex) {
+                callback.apply(self, [ id, pathIndex[id] ]);
+            }
+        }
+
+        this.scale.size = function() {
+            return {
+                width: self.map.width,
+                height: self.map.height
+            }
+        }
+
+        this.scale.scale = function(scale) {
+            if(!scale || scale < 0) return pathScale;
+
+            pathScale = scale;
+            pathGroup.scale(pathScale);
+            this.view(pathX, pathY);
+
+            return pathScale;
+        }
+
+        this.scale.view = function(x, y) {
+            var xy = { x: pathX, y: pathY };
+
+            if(!_.typeCheck("number", x) || !_.typeCheck("number", y))
+                return xy;
+
+            pathX = x;
+            pathY = y;
+
+            var pxy = getScaleXY();
+            pathGroup.translate(-pxy.x, -pxy.y);
+
+            return {
+                x: pathX,
+                y: pathY
+            }
+        }
+
+        this.draw = function() {
+            var root = this.chart.svg.group();
+
+            pathScale = this.map.scale;
+            pathX = this.map.viewX;
+            pathY = this.map.viewY;
+            pathGroup = makePathGroup();
+
+            // pathGroup 루트에 추가
+            root.append(pathGroup);
+
+            if(this.map.scale != 1) {
+                this.scale.scale(pathScale);
+            }
+
+            if(this.map.viewX != 0 || this.map.viewY != 0) {
+                this.scale.view(pathX, pathY);
+            }
+
+            if(this.map.hide) {
+                root.attr({ visibility: "hidden" });
+            }
+
+            return {
+                root: root,
+                scale: this.scale
+            };
+        }
+
+        this.drawAfter = function(obj) {
+            obj.root.attr({ "clip-path": "url(#" + this.axis.get("clipRectId") + ")" });
+        }
+    }
+
+    Map.setup = function() {
+        /** @property {chart.builder} chart */
+        /** @property {chart.axis} axis */
+        /** @property {Object} map */
+
+        return {
+            scale: 1,
+            viewX: 0,
+            viewY: 0,
+
+            /** @cfg {Boolean} [hide=false] Determines whether to display an applicable grid.  */
+            hide: false,
+            /** @cfg {String} [map=''] Set a map file's name */
+            path: "",
+            /** @cfg {Number} [width=-1] Set map's width */
+            width: -1,
+            /** @cfg {Number} [height=-1] Set map's height */
+            height: -1
+        };
+    }
+
+    /**
+     * @event map_click
+     * Event that occurs when clicking on the map area. (real name ``` map.click ```)
+     * @param {jQueryEvent} e The event object.
+     * @param {Number} index Axis index.
+     */
+    /**
+     * @event map_dblclick
+     * Event that occurs when double clicking on the map area. (real name ``` map.dblclick ```)
+     * @param {jQueryEvent} e The event object.
+     * @param {Number} index Axis index.
+     */
+    /**
+     * @event map_rclick
+     * Event that occurs when right clicking on the map area. (real name ``` map.rclick ```)
+     * @param {jQueryEvent} e The event object.
+     * @param {Number} index Axis index.
+     */
+    /**
+     * @event map_mouseover
+     * Event that occurs when placing the mouse over the map area. (real name ``` map.mouseover ```)
+     * @param {jQueryEvent} e The event object.
+     * @param {Number} index Axis index.
+     */
+    /**
+     * @event map_mouseout
+     * Event that occurs when moving the mouse out of the map area. (real name ``` map.mouseout ```)
+     * @param {jQueryEvent} e The event object.
+     * @param {Number} index Axis index.
+     */
+    /**
+     * @event map_mousemove
+     * Event that occurs when moving the mouse over the map area. (real name ``` map.mousemove ```)
+     * @param {jQueryEvent} e The event object.
+     * @param {Number} index Axis index.
+     */
+    /**
+     * @event map_mousedown
+     * Event that occurs when left clicking on the map area. (real name ``` map.mousedown ```)
+     * @param {jQueryEvent} e The event object.
+     * @param {Number} index Axis index.
+     */
+    /**
+     * @event map_mouseup
+     * Event that occurs after left clicking on the map area. (real name ``` map.mouseup ```)
+     * @param {jQueryEvent} e The event object.
+     * @param {Number} index Axis index.
+     */
+
+    return Map;
+}, "chart.draw"); 
 jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.axis" ],
     function(_, SVGUtil, ColorUtil, Axis) {
 
@@ -12520,6 +12959,746 @@ jui.define("chart.brush.pin", [], function() {
 
     return PinBrush;
 }, "chart.brush.core");
+jui.define("chart.brush.map.core", [], function() {
+    /**
+     * @class chart.brush.map.core
+     * @abstract
+     * @extends chart.brush.core
+     * @requires jquery
+     * @requires util.base
+     */
+	var MapCoreBrush = function() {
+	}
+
+	return MapCoreBrush;
+}, "chart.brush.core");
+jui.define("chart.brush.map.selector", [ "util.base" ], function(_) {
+
+    /**
+     * @class chart.brush.over 
+     * @extends chart.brush.core
+     */
+	var MapSelectorBrush = function(chart, axis, brush) {
+		var g = null,
+			activePath = null;
+
+		this.drawBefore = function() {
+			g = chart.svg.group();
+		}
+
+		this.draw = function() {
+			var originFill = null;
+
+			this.on("map.mouseover", function(obj, e) {
+				if(activePath == obj.path) return;
+
+				originFill = obj.path.styles.fill || obj.path.attributes.fill;
+				obj.path.css({
+					fill: chart.theme("mapSelectorHoverColor")
+				});
+			});
+
+			this.on("map.mouseout", function(obj, e) {
+				if(activePath == obj.path) return;
+
+				obj.path.css({
+					fill: originFill
+				});
+			});
+
+			if(brush.activeEvent != null) {
+				this.on(brush.activeEvent, function(obj, e) {
+					activePath = obj.path;
+
+					axis.map.each(function(i, obj) {
+						obj.path.css({
+							fill: originFill
+						});
+					});
+
+					obj.path.css({
+						fill: chart.theme("mapSelectorActiveColor")
+					});
+				});
+			}
+
+			if(brush.active.length > 0) {
+				activePath = [];
+
+				axis.map.each(function(i, obj) {
+					if(_.inArray(axis.getValue(obj.data, "id"), brush.active) != -1) {
+						activePath.push(obj.path);
+
+						obj.path.css({
+							fill: chart.theme("mapSelectorActiveColor")
+						});
+					}
+				});
+			}
+
+			return g;
+		}
+	}
+
+	MapSelectorBrush.setup = function() {
+		return {
+			active: [],
+			activeEvent: null
+		}
+	}
+
+	return MapSelectorBrush;
+}, "chart.brush.map.core");
+
+jui.define("chart.brush.map.note", [ "util.base" ], function(_) {
+	var PADDING = 7,
+		ANCHOR = 7,
+		TEXT_Y = 14;
+
+    /**
+     * @class chart.brush.over 
+     * @extends chart.brush.core
+     */
+	var MapNoteBrush = function(chart, axis, brush) {
+		var self = this;
+		var g = null,
+			tooltips = {};
+
+		this.drawBefore = function() {
+			g = chart.svg.group();
+		}
+
+		this.draw = function() {
+			if(brush.activeEvent != null) {
+				this.on(brush.activeEvent, function(obj, e) {
+					var targetId = axis.getValue(obj.data, "id");
+
+					if(tooltips[targetId]) {
+						for (var id in tooltips) {
+							tooltips[id].attr({ visibility: (targetId == id) ? "visibility" : "hidden" });
+						}
+					}
+				});
+			}
+
+			this.eachData(function(i, d) {
+				var id = axis.getValue(d, "id"),
+					value = axis.getValue(d, "value", 0),
+					texts = axis.getValue(d, "texts", []),
+					text = id + ": " + value,
+					xy = axis.map(id);
+
+				if(_.typeCheck("function", brush.format)) {
+					text = self.format(d);
+				}
+
+				var size = chart.svg.getTextSize(text),
+					w = size.width + (PADDING * 2),
+					h = size.height;
+
+				if(xy != null) {
+					var tooltip = chart.svg.group({
+						visibility: (_.inArray(id, brush.active) != -1) ? "visibility" : "hidden"
+					}, function() {
+						chart.svg.polygon({
+							points: self.balloonPoints("top", w, h, ANCHOR),
+							fill: chart.theme("tooltipBackgroundColor"),
+							"fill-opacity": chart.theme("tooltipBackgroundOpacity"),
+							stroke: chart.theme("tooltipBorderColor"),
+							"stroke-width": 1
+						});
+
+						chart.text({
+							"font-size": chart.theme("tooltipFontSize"),
+							"fill": chart.theme("tooltipFontColor"),
+							"text-anchor": "middle",
+							x: w / 2,
+							y: TEXT_Y
+						}, text);
+
+						chart.texts({
+							"font-size": chart.theme("tooltipFontSize"),
+							"fill": chart.theme("tooltipFontColor"),
+							"text-anchor": "start"
+						}, texts, 1.2).translate(0, -(TEXT_Y * texts.length));
+
+					}).translate(xy.x - (w / 2), xy.y - h - ANCHOR);
+
+					tooltips[id] = tooltip;
+					g.append(tooltip);
+				}
+			});
+
+			return g;
+		}
+	}
+
+	MapNoteBrush.setup = function() {
+		return {
+			active: [],
+			activeEvent: null,
+			format: null
+		}
+	}
+
+	return MapNoteBrush;
+}, "chart.brush.map.core");
+
+jui.define("chart.brush.map.bubble", [ "util.base", "util.math" ], function(_, math) {
+
+    /**
+     * @class chart.brush.map.bubble
+     * @extends chart.brush.core
+     */
+	var MapBubbleBrush = function(chart, axis, brush) {
+        var self = this;
+
+        function getMinMaxValues() {
+            var min = 0,
+                max = 0,
+                dataList = self.listData();
+
+            for(var i = 0; i < dataList.length; i++) {
+                var value = axis.getValue(dataList[i], "value", 0);
+
+                min = (i == 0) ? value : Math.min(value, min);
+                max = (i == 0) ? value : Math.max(value, max);
+            }
+
+            return {
+                min: min,
+                max: max
+            }
+        }
+
+        this.drawText = function(value, x, y) {
+            var text = value;
+
+            if(_.typeCheck("function", this.brush.format)) {
+                text = this.format(value);
+            }
+
+            var elem = this.chart.text({
+                "font-size" : this.chart.theme("mapBubbleFontSize"),
+                fill : this.chart.theme("mapBubbleFontColor"),
+                x : x,
+                y : y + 3,
+                "text-anchor" : "middle"
+            }, text);
+
+            return elem;
+        }
+
+		this.draw = function() {
+            var g = chart.svg.group(),
+                minmax = getMinMaxValues();
+
+            this.eachData(function(i, d) {
+                var value = axis.getValue(d, "value", 0),
+                    size = math.scaleValue(value, minmax.min, minmax.max, brush.min, brush.max),
+                    xy = axis.map(axis.getValue(d, "id", null)),
+                    color = this.color(i, 0);
+
+                if(xy != null) {
+                    var c = chart.svg.circle({
+                        cx: xy.x,
+                        cy: xy.y,
+                        r: size,
+                        "fill": color,
+                        "fill-opacity": chart.theme("mapBubbleBackgroundOpacity"),
+                        "stroke": color,
+                        "stroke-width": chart.theme("mapBubbleBorderWidth")
+                    });
+
+                    g.append(c);
+
+                    // 가운데 텍스트 보이기
+                    if(this.brush.showText) {
+                        g.append(this.drawText(value, xy.x, xy.y));
+                    }
+                }
+            });
+
+			return g;
+		}
+	}
+
+    MapBubbleBrush.setup = function() {
+        return {
+            min : 10,
+            max : 30,
+            showText : false,
+            format : null
+        }
+    }
+
+	return MapBubbleBrush;
+}, "chart.brush.map.core");
+
+jui.define("chart.brush.map.comparebubble", [ "util.base", "util.math" ], function(_, math) {
+    var BORDER_WIDTH = 1.5,
+        MAX_OPACITY = 0.8,
+        MIN_OPACITY = 0.6,
+        LINE_ANGLE = 315,
+        TITLE_RATE = 0.6;
+
+    /**
+     * @class chart.brush.map.bubble
+     * @extends chart.brush.core
+     */
+	var MapCompareBubbleBrush = function(chart, axis, brush) {
+        var self = this;
+        var g, min, max, minValue, maxValue;
+
+        function getTextInBubble(color, align, size, title, value, x, y) {
+            return self.chart.svg.text({
+                fill: color,
+                "text-anchor": align,
+                y: 7
+            }, function() {
+                self.chart.svg.tspan({
+                    "font-size": size
+                }, value);
+                self.chart.svg.tspan({
+                    "font-size": size * TITLE_RATE,
+                    x: 0,
+                    y: size
+                }, title);
+            }).translate(x, y);
+        }
+
+        this.drawBefore = function() {
+            var data = this.listData();
+            g = chart.svg.group();
+
+            if(data.length == 2) {
+                min = data[0];
+                max = data[1];
+                minValue = axis.getValue(min, "value");
+                maxValue = axis.getValue(max, "value");
+
+                // 맥스 값 설정
+                if (minValue > maxValue) {
+                    min = data[1];
+                    max = data[0];
+                    minValue = axis.getValue(min, "value");
+                    maxValue = axis.getValue(max, "value");
+                }
+            }
+        }
+
+        this.drawMaxText = function(centerX, centerY, gap) {
+            var r = gap * 2.5,
+                cx = centerX + Math.cos(math.radian(LINE_ANGLE)),
+                cy = centerY + Math.sin(math.radian(LINE_ANGLE)),
+                tx = centerX + (Math.cos(math.radian(LINE_ANGLE)) * r),
+                ty = centerY + (Math.sin(math.radian(LINE_ANGLE)) * r),
+                ex = tx + brush.size,
+                title = axis.getValue(max, "title", ""),
+                value = axis.getValue(max, "value", 0),
+                size = self.chart.theme("mapCompareBubbleMaxFontSize");
+
+            if(_.typeCheck("function", brush.format)) {
+                value = this.format(value);
+            }
+
+            var group = chart.svg.group({}, function() {
+                var path = self.chart.svg.path({
+                    fill: "transparent",
+                    stroke: self.chart.theme("mapCompareBubbleMaxLineColor"),
+                    "stroke-width": BORDER_WIDTH,
+                    "stroke-dasharray": self.chart.theme("mapCompareBubbleMaxLineDashArray")
+                });
+
+                path.MoveTo(cx, cy)
+                    .LineTo(tx, ty)
+                    .LineTo(ex, ty);
+
+                self.chart.svg.circle({
+                    cx: cx,
+                    cy: cy,
+                    r: 3,
+                    fill: self.chart.theme("mapCompareBubbleMaxLineColor")
+                });
+            });
+
+            group.append(getTextInBubble(
+                self.chart.theme("mapCompareBubbleMaxFontColor"), "start",
+                size, title, value, ex + 5, ty
+            ));
+
+            return group;
+        }
+
+        this.drawMinText = function(centerX, centerY) {
+            var title = axis.getValue(min, "title", ""),
+                value = axis.getValue(min, "value", 0),
+                group = chart.svg.group(),
+                size = self.chart.theme("mapCompareBubbleMinFontSize");
+
+            if(_.typeCheck("function", brush.format)) {
+                value = this.format(value);
+            }
+
+            group.append(getTextInBubble(
+                self.chart.theme("mapCompareBubbleMinFontColor"), "middle",
+                size, title, value, centerX, centerY - (size * TITLE_RATE / 2)
+            ));
+        }
+
+		this.draw = function() {
+            if(min != null && max != null) {
+                var maxSize = brush.size,
+                    minSize = brush.size * (minValue / maxValue),
+                    gap = maxSize - minSize,
+                    cx = axis.area("width") / 2,
+                    cy = axis.area("height") / 2;
+
+                var c1 = chart.svg.circle({
+                    r: maxSize,
+                    fill: this.color(0),
+                    "fill-opacity": MAX_OPACITY,
+                    stroke: chart.theme("mapCompareBubbleMaxBorderColor"),
+                    "stroke-width": BORDER_WIDTH,
+                    cx: cx,
+                    cy: cy
+                });
+
+                var c2 = chart.svg.circle({
+                    r: minSize,
+                    fill: this.color(1),
+                    "fill-opacity": MIN_OPACITY,
+                    stroke: chart.theme("mapCompareBubbleMinBorderColor"),
+                    "stroke-width": BORDER_WIDTH,
+                    cx: cx,
+                    cy: cy + gap - BORDER_WIDTH
+                });
+
+                g.append(c1);
+                g.append(c2);
+                g.append(this.drawMaxText(cx, cy - minSize, gap));
+                g.append(this.drawMinText(cx, cy + gap - BORDER_WIDTH));
+            }
+
+			return g;
+		}
+	}
+
+    MapCompareBubbleBrush.setup = function() {
+        return {
+            size: 100,
+            format: null
+        }
+    }
+
+	return MapCompareBubbleBrush;
+}, "chart.brush.map.core");
+
+jui.define("chart.brush.map.flightroute", [ "util.base" ], function(_) {
+
+    /**
+     * @class chart.brush.map.flightroute
+     * @extends chart.brush.core
+     */
+	var MapFlightRouteBrush = function(chart, axis, brush) {
+        var self = this;
+        var g, tooltip;
+        var smallColor, largeColor, borderWidth, lineColor, lineWidth, outerSize;
+        var smallRate = 0.4, largeRate = 1.33, padding = 7, anchor = 7, textY = 14;
+
+        function printTooltip(obj) {
+            var msg = obj.data.title;
+
+            if(_.typeCheck("string", msg) && msg != "") {
+                tooltip.get(1).text(msg);
+                tooltip.get(1).attr({ "text-anchor": "middle" });
+            }
+
+            return msg;
+        }
+
+        function setOverEffect(type, xy, outer, inner) {
+            outer.hover(over, out);
+            inner.hover(over, out);
+
+            function over(e) {
+                if(!printTooltip(xy)) return;
+
+                var color = (type == "large") ? smallColor : largeColor,
+                    size = tooltip.get(1).size(),
+                    innerSize = outerSize * smallRate,
+                    w = size.width + (padding * 2),
+                    h = size.height + padding;
+
+                tooltip.get(1).attr({ x: w / 2 });
+                tooltip.get(0).attr({
+                    points: self.balloonPoints("top", w, h, anchor),
+                    stroke: color
+                });
+                tooltip.attr({ visibility: "visible" });
+                tooltip.translate(xy.x - (w / 2), xy.y - h - anchor - innerSize);
+
+                outer.attr({ stroke: color });
+                inner.attr({ fill: color });
+            }
+
+            function out(e) {
+                var color = (type == "large") ? largeColor : smallColor;
+
+                tooltip.attr({ visibility: "hidden" });
+                outer.attr({ stroke: color });
+                inner.attr({ fill: color });
+            }
+        }
+
+        this.drawAirport = function(type, xy) {
+            var color = (type == "large") ? largeColor : smallColor,
+                innerSize = outerSize * smallRate;
+
+            var outer = chart.svg.circle({
+                r: (type == "large") ? outerSize * largeRate : outerSize,
+                "stroke-width": (type == "large") ? borderWidth * largeRate : borderWidth,
+                "fill": "transparent",
+                "fill-opacity": 0,
+                "stroke": color
+            }).translate(xy.x, xy.y);
+
+            var inner = chart.svg.circle({
+                r: (type == "large") ? innerSize * largeRate : innerSize,
+                "stroke-width": 0,
+                "fill": color
+            }).translate(xy.x, xy.y);
+
+            g.append(outer);
+            g.append(inner);
+
+            // 마우스오버 이벤트 설정
+            setOverEffect(type, xy, outer, inner);
+        }
+
+        this.drawRoutes = function(target, xy) {
+            var line = chart.svg.line({
+                x1: xy.x,
+                y1: xy.y,
+                x2: target.x,
+                y2: target.y,
+                stroke: lineColor,
+                "stroke-width": lineWidth
+            });
+
+            g.append(line);
+        }
+
+        this.drawBefore = function() {
+            g = chart.svg.group();
+            tooltip = chart.svg.group({
+                visibility: "hidden"
+            }, function() {
+                chart.svg.polygon({
+                    fill: chart.theme("tooltipBackgroundColor"),
+                    "fill-opacity": chart.theme("tooltipBackgroundOpacity"),
+                    stroke: chart.theme("tooltipBorderColor"),
+                    "stroke-width": 2
+                });
+
+                chart.text({
+                    "font-size": chart.theme("tooltipFontSize"),
+                    "fill": chart.theme("tooltipFontColor"),
+                    y: textY
+                });
+            });
+
+            smallColor = chart.theme("mapFlightRouteAirportSmallColor");
+            largeColor = chart.theme("mapFlightRouteAirportLargeColor");
+            borderWidth = chart.theme("mapFlightRouteAirportBorderWidth");
+            outerSize = chart.theme("mapFlightRouteAirportRadius");
+            lineColor = chart.theme("mapFlightRouteLineColor");
+            lineWidth = chart.theme("mapFlightRouteLineWidth");
+        }
+
+		this.draw = function() {
+            this.eachData(function(i, d) {
+                var id = axis.getValue(d, "id", null),
+                    type = axis.getValue(d, "airport", null),
+                    routes = axis.getValue(d, "routes", []),
+                    xy = axis.map(id);
+
+                if(type != null && xy != null) {
+                    for(var j = 0; j < routes.length; j++) {
+                        var target = axis.map(routes[j]);
+
+                        if(target != null) {
+                            this.drawRoutes(target, xy);
+                        }
+                    }
+
+                    this.drawAirport(type, xy);
+                }
+            });
+
+			return g;
+		}
+	}
+
+	return MapFlightRouteBrush;
+}, "chart.brush.map.core");
+
+jui.define("chart.brush.map.marker", [ "util.base" ], function(_) {
+
+    /**
+     * @class chart.brush.map.flightroute
+     * @extends chart.brush.core
+     */
+	var MapMarkerBrush = function(chart, axis, brush) {
+		this.draw = function() {
+            var g = chart.svg.group(),
+                w = brush.width,
+                h = brush.height;
+
+            this.eachData(function(i, d) {
+                var id = axis.getValue(d, "id", null),
+                    xy = axis.map(id);
+
+                if(xy != null) {
+                    var html = _.typeCheck("function", brush.html) ? brush.html.call(chart, d) : brush.html,
+                        svg = _.typeCheck("function", brush.svg) ? brush.svg.call(chart, d) : brush.svg,
+                        cx = xy.x - w / 2,
+                        cy = xy.y - h / 2;
+
+                    if(_.typeCheck("string", html) && html != "") {
+                        var obj = chart.svg.foreignObject({
+                            width: w,
+                            height: h
+                        }).html(html).translate(cx, cy);
+
+                        g.append(obj);
+                    }
+
+                    if(_.typeCheck("string", svg) && svg != "") {
+                        var obj = chart.svg.group();
+                        obj.html(svg).translate(cx, cy);
+
+                        g.append(obj);
+                    }
+                }
+            });
+
+			return g;
+		}
+	}
+
+    MapMarkerBrush.setup = function() {
+        return {
+            width : 0,
+            height : 0,
+            html : null,
+            svg : null
+        }
+    }
+
+	return MapMarkerBrush;
+}, "chart.brush.map.core");
+
+jui.define("chart.brush.map.weather", [ "util.base" ], function(_) {
+
+    /**
+     * @class chart.brush.map.bubble
+     * @extends chart.brush.core
+     */
+	var MapWeatherBrush = function(chart, axis, brush) {
+        var self = this;
+        var W = 66,
+            H = 60,
+            R = 5,
+            IMAGES = {
+                sunny: "data:image/gif;base64,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",
+                cloudy: "data:image/gif;base64,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",
+                murky: "data:image/gif;base64,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",
+                rain: "data:image/gif;base64,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",
+                snow: "data:image/gif;base64,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"
+            };
+
+        function getFormat(id) {
+            var name = null;
+
+            if(_.typeCheck("function", brush.format)) {
+                name = self.format(id);
+            }
+
+            return (name && name != "") ? name : id;
+        }
+
+        function createWeather(id, name, uri, temp) {
+            var xy = axis.map(id);
+            if(xy == null) return;
+
+            var g = chart.svg.group(),
+                rect = chart.svg.rect({
+                    width: W + 2,
+                    height: H,
+                    rx: R,
+                    ry: R,
+                    fill: chart.theme("mapWeatherBackgroundColor"),
+                    stroke: chart.theme("mapWeatherBorderColor"),
+                    "stroke-width": 1
+                }),
+                img = chart.svg.image({
+                    x: 1,
+                    y: 2,
+                    width: W,
+                    height: 45,
+                    "xmlns:xlink": "http://www.w3.org/1999/xlink",
+                    "xlink:href": uri
+                }),
+                title = chart.svg.text({
+                    x: W / 2,
+                    dy: -4,
+                    "font-size" : chart.theme("mapWeatherFontSize"),
+                    "font-weight": "bold",
+                    "text-anchor": "middle",
+                    fill: chart.theme("mapWeatherTitleFontColor")
+                }).text(name),
+                info = chart.svg.text({
+                    x: W / 2,
+                    dy: 54,
+                    "font-size" : chart.theme("mapWeatherFontSize"),
+                    "text-anchor": "middle",
+                    fill: chart.theme("mapWeatherInfoFontColor")
+                }).text(temp);
+
+            g.append(rect);
+            g.append(img);
+            g.append(title);
+            g.append(info);
+            g.translate(xy.x - W/2, xy.y - H/2);
+
+            return g;
+        }
+
+		this.draw = function() {
+            var g = chart.svg.group();
+
+            this.eachData(function(i, d) {
+                var id = axis.getValue(d, "id", null),
+                    temp = axis.getValue(d, "temperature", 0),
+                    icon = axis.getValue(d, "weather", "sunny");
+
+                g.append(createWeather(id, getFormat(id), IMAGES[icon], temp));
+            });
+
+			return g;
+		}
+	}
+
+    MapWeatherBrush.setup = function() {
+        return {
+            format: null
+        }
+    }
+
+	return MapWeatherBrush;
+}, "chart.brush.map.core");
+
 jui.define("chart.brush.polygon.core", [], function() {
     var PolygonCoreBrush = function() {
         this.drawPolygon = function(polygon, callback) {
@@ -14777,6 +15956,385 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
 
     return DragSelectWidget;
 }, "chart.widget.core");
+jui.define("chart.widget.map.core", [], function() {
+
+    /**
+     * @class chart.widget.map.core
+     * @extends chart.widget.core
+     */
+    var MapCoreWidget = function(chart, axis, widget) {
+    }
+
+    MapCoreWidget.setup = function() {
+        return {
+            axis: 0
+        }
+    }
+
+    return MapCoreWidget;
+}, "chart.widget.core");
+jui.define("chart.widget.map.control", [ "util.base" ], function(_) {
+    var SCROLL_MIN_Y = 21.5,
+        SCROLL_MAX_Y = 149;
+
+    /**
+     * @class chart.widget.map.control
+     * @extends chart.widget.map.core
+     */
+    var MapControlWidget = function(chart, axis, widget) {
+        var self = this;
+        var scale = 1,
+            viewX = 0,
+            viewY = 0,
+            blockX = 0,
+            blockY = 0,
+            scrollY = 0,
+            btn = { top: null, right: null, bottom: null, left: null, home: null, up: null, down: null, thumb: null };
+
+        function createBtnGroup(type, opacity, x, y, url) {
+            btn[type] = chart.svg.group({
+                cursor: (url != null) ? "pointer" : "move"
+            }, function() {
+                chart.svg.rect({
+                    x: 0.5,
+                    y: 0.5,
+                    width: 20,
+                    height: 20,
+                    rx: 2,
+                    ry: 2,
+                    stroke: 0,
+                    fill: chart.theme("mapControlButtonColor"),
+                    "fill-opacity": opacity
+                });
+
+                if(url != null) {
+                    chart.svg.image({
+                        x: 4.5,
+                        y: 4.5,
+                        width: 11,
+                        height: 11,
+                        "xmlns:xlink": "http://www.w3.org/1999/xlink",
+                        "xlink:href": url,
+                        opacity: 0.6
+                    });
+                }
+            }).translate(x, y);
+
+            return btn[type];
+        }
+
+        function createScrollThumbLines() {
+            return chart.svg.group({}, function() {
+                for(var i = 0; i < 6; i++) {
+                    var y = 22 * i;
+
+                    chart.svg.path({
+                        fill: "none",
+                        "stroke-width": 1,
+                        "stroke-opacity": 0.6,
+                        stroke: chart.theme("mapControlScrollLineColor")
+                    }).MoveTo(1.5, 41.5 + y).LineTo(18.5, 41.5 + y);
+                }
+            });
+        }
+
+        function getScrollThumbY(scale) {
+            return self.getScaleToValue(scale, widget.min, widget.max, SCROLL_MIN_Y, SCROLL_MAX_Y);
+        }
+
+        function getScrollScale(y) {
+            return self.getValueToScale(y, SCROLL_MIN_Y, SCROLL_MAX_Y, widget.min, widget.max);
+        }
+
+        function setButtonEvents() {
+            var originViewX = viewX,
+                originViewY = viewY;
+
+            btn.top.on("click", function(e) {
+                viewY -= blockY;
+                move();
+            });
+            btn.right.on("click", function(e) {
+                viewX += blockX;
+                move();
+            });
+            btn.bottom.on("click", function(e) {
+                viewY += blockY;
+                move();
+            });
+            btn.left.on("click", function(e) {
+                viewX -= blockX;
+                move();
+            });
+            btn.home.on("click", function(e) {
+                viewX = originViewX;
+                viewY = originViewY;
+                move();
+            });
+
+            btn.up.on("click", function(e) {
+                if(scale > widget.max) return;
+
+                scale += 0.1;
+                zoom();
+            });
+            btn.down.on("click", function(e) {
+                if(scale - 0.09 < widget.min) return;
+
+                scale -= 0.1;
+                zoom();
+            });
+
+            function move() {
+                axis.updateGrid("map", {
+                    scale: scale,
+                    viewX: viewX,
+                    viewY: viewY
+                });
+
+                axis.map.view(viewX, viewY);
+            }
+            function zoom() {
+                axis.updateGrid("map", {
+                    scale: scale,
+                    viewX: viewX,
+                    viewY: viewY
+                });
+
+                scrollY = getScrollThumbY(scale);
+                axis.map.scale(scale);
+                btn.thumb.translate(0, scrollY);
+            }
+        }
+
+        function setScrollEvent(bar) {
+            var startY = 0,
+                moveY = 0;
+
+            btn.thumb.on("mousedown", function(e) {
+                if(startY > 0) return;
+
+                startY = e.y;
+            });
+
+            btn.thumb.on("mousemove", moveThumb);
+            bar.on("mousemove", moveThumb);
+
+            btn.thumb.on("mouseup", endMoveThumb);
+            bar.on("mouseup", endMoveThumb);
+            bar.on("mouseout", endMoveThumb);
+
+            function moveThumb(e) {
+                if(startY == 0) return;
+                var sy = scrollY + e.y - startY;
+
+                if(sy >= SCROLL_MIN_Y && sy <= SCROLL_MAX_Y) {
+                    moveY = e.y - startY;
+                    scale = getScrollScale(sy);
+
+                    axis.updateGrid("map", {
+                        scale: scale,
+                        viewX: viewX,
+                        viewY: viewY
+                    });
+
+                    axis.map.scale(scale);
+                    btn.thumb.translate(0, getScrollThumbY(scale));
+                }
+            }
+
+            function endMoveThumb(e) {
+                if(startY == 0) return;
+
+                startY = 0;
+                scrollY += moveY;
+            }
+        }
+
+        this.drawBefore = function() {
+            scale = axis.map.scale();
+            viewX = axis.map.view().x;
+            viewY = axis.map.view().y;
+            blockX = axis.map.size().width / 10;
+            blockY = axis.map.size().height / 10;
+            scrollY = getScrollThumbY(scale);
+        }
+
+        this.draw = function() {
+            var g = chart.svg.group({}, function() {
+                var top = chart.svg.group(),
+                    bottom = chart.svg.group().translate(20, 80),
+                    bar = chart.svg.rect({
+                        x: 0.5,
+                        y: 0.5,
+                        width: 26,
+                        height: 196,
+                        rx: 4,
+                        ry: 4,
+                        stroke: 0,
+                        fill: chart.theme("mapControlScrollColor"),
+                        "fill-opacity": 0.15
+                    }).translate(-3, -3);
+
+                top.append(createBtnGroup("left", 0.8, 0, 20, "data:image/gif;base64,R0lGODlhCwALAPABAP///wAAACH5BAUAAAEALAAAAAALAAsAAAIQjI9poMcdXpOKTujw0pGjAgA7"));
+                top.append(createBtnGroup("right", 0.8, 40, 20, "data:image/gif;base64,R0lGODlhCwALAPABAP///wAAACH5BAUAAAEALAAAAAALAAsAAAIQjI8JycvonomSKhksxBqbAgA7"));
+                top.append(createBtnGroup("top", 0.8, 20, 0, "data:image/gif;base64,R0lGODlhCwALAPABAP///wAAACH5BAUAAAEALAAAAAALAAsAAAIQjI+pCmvd2IkzUYqw27yfAgA7"));
+                top.append(createBtnGroup("bottom", 0.8, 20, 40, "data:image/gif;base64,R0lGODlhCwALAPABAP///wAAACH5BAUAAAEALAAAAAALAAsAAAIQjI+pyw37TDxTUhhq0q2fAgA7"));
+                top.append(createBtnGroup("home", 0, 20, 20, "data:image/gif;base64,R0lGODlhCwALAPABAAAAAAAAACH5BAUAAAEALAAAAAALAAsAAAIZjI8ZoAffIERzMVMxm+9KvIBh6Imb2aVMAQA7"));
+
+                bottom.append(bar);
+                bottom.append(createScrollThumbLines());
+                bottom.append(createBtnGroup("up", 0.8, 0, 0, "data:image/gif;base64,R0lGODlhCwALAPABAP///wAAACH5BAUAAAEALAAAAAALAAsAAAISjI8ZoMhtHpQH2HsV1TD29SkFADs="));
+                bottom.append(createBtnGroup("down", 0.8, 0, 170, "data:image/gif;base64,R0lGODlhCwALAPABAP///wAAACH5BAUAAAEALAAAAAALAAsAAAIMjI+py+0BopSv2qsKADs="));
+                bottom.append(createBtnGroup("thumb", 0.8, 0, scrollY));
+
+                setButtonEvents();
+                setScrollEvent(bar);
+            });
+
+            var ot = widget.orient,
+                ag = widget.align,
+                dx = widget.dx,
+                dy = widget.dy,
+                x2 = axis.area("x2"),
+                y2 = axis.area("y2");
+
+            if(ot == "bottom" && ag == "start") {
+                g.translate(dx, y2 - (273 + dy));
+            } else if(ot == "bottom" && ag == "end") {
+                g.translate(x2 - (60 + dx), y2 - (273 + dy));
+            } else if(ot == "top" && ag == "end") {
+                g.translate(x2 - (60 + dx), dy);
+            } else {
+                g.translate(dx, dy);
+            }
+
+            return g;
+        }
+    }
+
+    MapControlWidget.setup = function() {
+        return {
+            /** @cfg {"top"/"bottom" } Sets the location where the label is displayed (top, bottom). */
+            orient: "top",
+            /** @cfg {"start"/"end" } Aligns the label (center, start, end). */
+            align: "start",
+
+            min: 1,
+            max: 3,
+
+            dx: 5,
+            dy: 5
+        }
+    }
+
+    return MapControlWidget;
+}, "chart.widget.map.core");
+jui.define("chart.widget.map.tooltip", [ "util.base" ], function(_) {
+
+    /**
+     * @class chart.widget.map.core
+     * @extends chart.widget.core
+     */
+    var MapTooltipWidget = function(chart, axis, widget) {
+        var self = this;
+        var g, text, rect;
+        var padding = 7, anchor = 7, textY = 14;
+
+        function getFormat(data) {
+            if(_.typeCheck("function", widget.format)) {
+                return self.format(data);
+            }
+
+            return data.id;
+        }
+
+        function printTooltip(obj) {
+            var msg = getFormat(obj);
+
+            if(widget.orient == "bottom") {
+                text.attr({ y: textY + anchor });
+            }
+
+            if(_.typeCheck("string", msg) && msg != "") {
+                text.text(msg);
+                text.attr({ "text-anchor": "middle" });
+            }
+
+            return msg;
+        }
+
+        this.drawBefore = function() {
+            g = chart.svg.group({
+                visibility: "hidden"
+            }, function() {
+                rect = chart.svg.polygon({
+                    fill: chart.theme("tooltipBackgroundColor"),
+                    "fill-opacity": chart.theme("tooltipBackgroundOpacity"),
+                    stroke: chart.theme("tooltipBorderColor"),
+                    "stroke-width": 1
+                });
+
+                text = chart.text({
+                    "font-size": chart.theme("tooltipFontSize"),
+                    "fill": chart.theme("tooltipFontColor"),
+                    y: textY
+                });
+            });
+        }
+
+        this.draw = function() {
+            var isActive = false,
+                w, h;
+
+            this.on("map.mouseover", function(obj, e) {
+                if(!printTooltip(obj)) return;
+
+                var size = text.size();
+                w = size.width + (padding * 2);
+                h = size.height + padding;
+
+                text.attr({ x: w / 2 });
+                rect.attr({ points: self.balloonPoints(widget.orient, w, h, anchor) });
+                g.attr({ visibility: "visible" });
+
+                isActive = true;
+            });
+
+            this.on("map.mousemove", function(obj, e) {
+                if(!isActive) return;
+
+                var x = e.bgX - (w / 2),
+                    y = e.bgY - h - anchor - (padding / 2);
+
+                if(widget.orient == "left" || widget.orient == "right") {
+                    y = e.bgY - (h / 2) - (padding / 2);
+                }
+
+                if(widget.orient == "left") {
+                    x = e.bgX - w - anchor;
+                } else if(widget.orient == "right") {
+                    x = e.bgX + anchor;
+                } else if(widget.orient == "bottom") {
+                    y = e.bgY + (anchor * 2);
+                }
+
+                g.translate(x, y);
+            });
+
+            this.on("map.mouseout", function(obj, e) {
+                if(!isActive) return;
+
+                g.attr({ visibility: "hidden" });
+                isActive = false;
+            });
+
+            return g;
+        }
+    }
+
+    return MapTooltipWidget;
+}, "chart.widget.tooltip");
 jui.define("chart.widget.polygon.core", [], function() {
 
     /**
