@@ -27,6 +27,8 @@
             data.push({ name : getNumber(), name2 : getNumber(), value : time.add(start, time.minutes, i*10)} )
         }
 
+        data.push({ name : getNumber(), name2 : getNumber(), value : end } )
+
         c = chart("#chart", {
             width: 400,
             height : 400,

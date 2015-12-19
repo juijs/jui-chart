@@ -31,6 +31,7 @@
     "url": "https://github.com/juijs/jui-chart/issues"
   },
   "devDependencies": {
+    "css": "^2.2.1",
     "datauri": "^0.6.0",
     "grunt": "~0.4.4",
     "grunt-contrib-concat": "~0.3.0",

@@ -94,9 +94,9 @@ jui.define("chart.grid.date", [ "util.time", "util.scale", "util.base" ], functi
 			}
 
 			if (_.typeCheck("function", interval)) {
-				domain.interval = interval.call(this.chart, domain);
+				this.interval = interval.call(this.chart, domain);
 			} else {
-				domain.interval = interval;
+				this.interval = interval;
 			}
 
 			return domain;
@@ -110,13 +110,15 @@ jui.define("chart.grid.date", [ "util.time", "util.scale", "util.base" ], functi
 
 			this.scale = UtilScale.time().domain(domain).range(range);
 
+			this.scale.clamp(this.grid.clamp);
+
 			// 기본값 설정
 			this.ticks = [];
 
 			if (this.grid.realtime != null && UtilTime[this.grid.realtime] == this.grid.realtime) {
-				this.ticks = this.scale.realTicks(this.grid.realtime, domain.interval);
+				this.ticks = this.scale.realTicks(this.grid.realtime, this.interval);
 			} else {
-				this.ticks = this.scale.ticks("milliseconds", domain.interval);
+				this.ticks = this.scale.ticks("milliseconds", this.interval);
 			}
 
 			/* data 없을 때도 기본 설정만으로 보여야 하기 때문에. 지우겠음
