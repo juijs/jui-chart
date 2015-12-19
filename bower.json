@@ -1,0 +1,12 @@
+{
+  "name": "jui-chart",
+  "version": "2.0.0",
+  "main": "jui-chart.min.js",
+  "ignore": [
+    ".jshintrc",
+    "**/*.txt"
+  ],
+  "dependencies": {
+    "jquery": ">1.8.0"
+  }
+}
