@@ -1,6 +1,7 @@
 jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.axis" ],
     function(_, SVGUtil, ColorUtil, Axis) {
 
+    /*/
     var win_width = 0;
 
     _.resize(function() {
@@ -15,19 +16,13 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
             var ui_list = call_list[i];
 
             for(var j = 0; j < ui_list.length; j++) {
-                if(ui_list[j].isFullSize()) {
-                    ui_list[j].setSize();
-                }
-
-                if(!ui_list[j].isRender()) {
-                    ui_list[j].render(true);
-                }
+                ui_list[j].resize();
             }
         }
 
         win_width = new_width;
     }, 300);
-
+    /**/
 
     /**
      * @class chart.builder
@@ -908,6 +903,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
             _options.brush.splice(index, 1);
             if(this.isRender()) this.render();
         }
+
         /**
          * @method updateBrush 
          * Updates the brush of a specified index and performs rendering again.
@@ -963,7 +959,6 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
             if(this.isRender()) this.render();
         }
 
-
         /**
          * Changes a chart to a specified theme and renders the chart again.
          *
@@ -1000,6 +995,20 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
                 return true;
 
             return true;
+        }
+
+        /**
+         * Resize the chart to fit the screen width.
+         *
+         */
+        this.resize = function() {
+            if(this.isFullSize()) {
+                this.setSize();
+            }
+
+            if(!this.isRender()) {
+                this.render(true);
+            }
         }
 
         /**

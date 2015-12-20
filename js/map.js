@@ -68,11 +68,13 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
             if(!_.typeCheck("string", root.id)) return;
 
             var pathData = [],
-                children = root.children;
+                children = root.childNodes;
 
-            for(var i = 0; i < root.childElementCount; i++) {
+            for(var i = 0, len = children.length; i < len; i++) {
                 var elem = children[i],
                     name = elem.nodeName.toLowerCase();
+
+                if(elem.nodeType != 1) continue;
 
                 if(name == "g") {
                     pathData = pathData.concat(getPathList(elem));
@@ -116,10 +118,13 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
                         style = xml.getElementsByTagName("style");
 
                     if(svg.length != 1) return;
+                    var children = svg[0].childNodes;
 
-                    for(var i = 0; i < svg[0].childElementCount; i++) {
-                        var elem = svg[0].children[i],
+                    for(var i = 0, len = children.length; i < len; i++) {
+                        var elem = children[i],
                             name = elem.nodeName.toLowerCase();
+
+                        if(elem.nodeType != 1) continue;
 
                         if(name == "g") {
                             pathData[uri] = pathData[uri].concat(getPathList(elem));

@@ -947,11 +947,13 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
             if(!_.typeCheck("string", root.id)) return;
 
             var pathData = [],
-                children = root.children;
+                children = root.childNodes;
 
-            for(var i = 0; i < root.childElementCount; i++) {
+            for(var i = 0, len = children.length; i < len; i++) {
                 var elem = children[i],
                     name = elem.nodeName.toLowerCase();
+
+                if(elem.nodeType != 1) continue;
 
                 if(name == "g") {
                     pathData = pathData.concat(getPathList(elem));
@@ -995,10 +997,13 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
                         style = xml.getElementsByTagName("style");
 
                     if(svg.length != 1) return;
+                    var children = svg[0].childNodes;
 
-                    for(var i = 0; i < svg[0].childElementCount; i++) {
-                        var elem = svg[0].children[i],
+                    for(var i = 0, len = children.length; i < len; i++) {
+                        var elem = children[i],
                             name = elem.nodeName.toLowerCase();
+
+                        if(elem.nodeType != 1) continue;
 
                         if(name == "g") {
                             pathData[uri] = pathData[uri].concat(getPathList(elem));
@@ -1326,6 +1331,7 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
 jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.axis" ],
     function(_, SVGUtil, ColorUtil, Axis) {
 
+    /*/
     var win_width = 0;
 
     _.resize(function() {
@@ -1340,19 +1346,13 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
             var ui_list = call_list[i];
 
             for(var j = 0; j < ui_list.length; j++) {
-                if(ui_list[j].isFullSize()) {
-                    ui_list[j].setSize();
-                }
-
-                if(!ui_list[j].isRender()) {
-                    ui_list[j].render(true);
-                }
+                ui_list[j].resize();
             }
         }
 
         win_width = new_width;
     }, 300);
-
+    /**/
 
     /**
      * @class chart.builder
@@ -2233,6 +2233,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
             _options.brush.splice(index, 1);
             if(this.isRender()) this.render();
         }
+
         /**
          * @method updateBrush 
          * Updates the brush of a specified index and performs rendering again.
@@ -2288,7 +2289,6 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
             if(this.isRender()) this.render();
         }
 
-
         /**
          * Changes a chart to a specified theme and renders the chart again.
          *
@@ -2325,6 +2325,20 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
                 return true;
 
             return true;
+        }
+
+        /**
+         * Resize the chart to fit the screen width.
+         *
+         */
+        this.resize = function() {
+            if(this.isFullSize()) {
+                this.setSize();
+            }
+
+            if(!this.isRender()) {
+                this.render(true);
+            }
         }
 
         /**
