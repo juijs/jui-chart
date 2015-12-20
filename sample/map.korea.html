@@ -35,10 +35,9 @@
             width : 500,
             height : 650,
             padding : 0,
-            theme : "pattern",
             axis : [{
                 map : {
-                    path : "../../dist/img/map/korea-500x650.svg",
+                    path : "resource/map/korea-500x650.svg",
                     width : 500,
                     height : 650
                 },
@@ -46,7 +45,7 @@
             }],
             brush : [{
                 type : "map.bubble",
-                color : function(d) {
+                colors : function(d) {
                     if(d.value > 70) {
                         return "linear(top) #ff686c,0.9 #fa5559";
                     } else if(d.value > 35) {
@@ -58,10 +57,7 @@
             }, {
                 type : "map.selector",
                 activeEvent : "map.click"
-            }],
-            style : {
-                mapPathBackgroundColor : "pattern-jennifer-01"
-            }
+            }]
         });
 	})
 </script>
