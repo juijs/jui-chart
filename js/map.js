@@ -151,6 +151,9 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
                     for(var i = 0; i < style.length; i++) {
                         self.svg.root.element.appendChild(style[i]);
                     }
+                },
+                fail: function(xhr) {
+                    throw new Error("JUI_CRITICAL_ERR: Failed to load resource");
                 }
             });
 

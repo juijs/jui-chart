@@ -3,14 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>[JENNIFER UI Test] - Chart.Draw</title>
-<link rel="stylesheet" href="../../lib/qunit-1.14.0.css">
-
-<script src="../../lib/qunit-1.14.0.js"></script>
+<link rel="stylesheet" href="../lib/qunit-1.14.0.css">
+<script src="../lib/qunit-1.14.0.js"></script>
 <script src="../lib/jui-core.js"></script>
-
-<script src="../../js/base.js"></script>
-<script src="../../js/core.js"></script>
-<script src="../../js/chart/draw.js"></script>
+<script src="../dist/jui-chart.js"></script>
 
 <script>
 
@@ -23,7 +19,9 @@ jui.define("chart.draw.sample", [], function() {
         }
 
         this.draw = function() {
-            $("#draw").html(html);
+            var elem = document.getElementById("draw");
+            elem.innerHTML = html;
+
             return {};
         }
 
@@ -44,11 +42,13 @@ jui.ready([ "util.base", "chart.draw.sample" ], function(_, Sample) {
         var obj = new Sample();
         obj.render();
 
-        assert.ok($("#draw").html() == "draw", "렌더링 마크업 확인");
+        var elem = document.getElementById("draw");
+        assert.ok(elem.innerHTML == "draw", "렌더링 마크업 확인");
     });
 
     QUnit.testDone(function() {
-        $("#draw").remove();
+        var elem = document.getElementById("draw");
+        elem.innerHTML = "";
     });
 });
 </script>

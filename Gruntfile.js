@@ -174,11 +174,11 @@ module.exports = function(grunt) {
             }
         },
         icon : {
-            css : "dist/jui.css",
+            css : "lib/jui.css",
             dist : "js/icon/jennifer.js"
         },
         pattern : {
-            src : "dist/img/pattern/*.png",
+            src : "img/pattern/*.png",
             dist : "js/pattern/jennifer.js"
         },
         pkg: grunt.file.readJSON("package.json")
@@ -246,8 +246,8 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks("grunt-contrib-watch");
-    //grunt.registerTask("js", [ "icon", "pattern", "concat", "uglify" ]);
     grunt.registerTask("js", [ "concat", "uglify" ]);
     grunt.registerTask("test", [ "qunit" ]);
+    grunt.registerTask("make", [ "icon", "pattern" ]);
     grunt.registerTask("default", [ "test", "js" ]);
 };
