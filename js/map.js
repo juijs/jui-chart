@@ -107,26 +107,32 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
             // 해당 URI의 데이터가 없을 경우
             pathData[uri] = [];
 
-            $.ajax({
+            _.ajax({
                 url: uri,
                 async: false,
-                success: function(xml) {
-                    var $path = $(xml).find("svg").children(),
-                        $style = $(xml).find("style");
+                success: function(xhr) {
+                    var xml = xhr.responseXML,
+                        svg = xml.getElementsByTagName("svg"),
+                        style = xml.getElementsByTagName("style");
 
-                    $path.each(function() {
-                        var name = this.nodeName.toLowerCase();
+                    if(svg.length != 1) return;
+
+                    for(var i = 0; i < svg[0].childElementCount; i++) {
+                        var elem = svg[0].children[i],
+                            name = elem.nodeName.toLowerCase();
 
                         if(name == "g") {
-                            pathData[uri] = pathData[uri].concat(getPathList(this));
+                            pathData[uri] = pathData[uri].concat(getPathList(elem));
                         } else if(name == "path" || name == "polygon") {
                             var obj = {};
 
-                            $.each(this.attributes, function() {
-                                if(this.specified && isLoadAttribute(this.name)) {
-                                    obj[this.name] = this.value;
+                            for(var key in elem.attributes) {
+                                var attr = elem.attributes[key];
+
+                                if(attr.specified && isLoadAttribute(attr.name)) {
+                                    obj[attr.name] = attr.value;
                                 }
-                            });
+                            }
 
                             if(_.typeCheck("string", obj.id)) {
                                 _.extend(obj, getDataById(obj.id));
@@ -134,11 +140,12 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
 
                             pathData[uri].push(obj);
                         }
-                    });
+                    }
 
-                    $style.each(function () {
-                        self.chart.svg.root.element.appendChild(this);
-                    });
+                    // 스타일 태그가 정의되어 있을 경우
+                    for(var i = 0; i < style.length; i++) {
+                        self.svg.root.element.appendChild(style[i]);
+                    }
                 }
             });
 
