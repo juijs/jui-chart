@@ -2487,7 +2487,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
      */
 
     return UI;
-});
+}, "core");
 
 jui.define("chart.theme.jennifer", [], function() {
 
