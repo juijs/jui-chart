@@ -163,13 +163,13 @@ module.exports = function(grunt) {
             // jui chart
             dist : {
                 src : chart_src,
-                dest : "dist/jui-chart.js"
+                dest : "dist/chart.js"
             }            
         },
         uglify: {
             dist : {
                 files : {
-                    "dist/jui-chart.min.js" : [ "dist/jui-chart.js" ]
+                    "dist/chart.min.js" : [ "dist/chart.js" ]
                 }
             }
         },
