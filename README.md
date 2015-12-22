@@ -1,28 +1,20 @@
 ## Getting Started
 
 #### Install
-JUI library only requires the user to load a single package file.
-Access to the jui class must then be configured in the markup.
+JUI charts are now available without loading the jQuery.
 ```html
-<link rel="stylesheet" href="dist/jui.min.css" />
-<link rel="stylesheet" href="dist/jennifer.theme.min.css" />
-<body class="jui">...</body>
-```
-
-As the script works only with jQuery 1.8 or higher, it is necessary to load the jQuery library first.
-```html
-<script src="lib/jquery.min.js"></script>
-<script src="dist/jui.min.js"></script>
+<script src="lib/core.min.js"></script>
+<script src="dist/chart.min.js"></script>
 ```
 
 #### Install with Bower
 ```
-bower install jui
+bower install jui-chart
 ```
 
 #### Install with JamJS
 ```
-jamjs install jui
+jamjs install jui-chart
 ```
 
 #### Build
@@ -30,23 +22,12 @@ Build using a grunt in JUI Library
 ```
 grunt       // Build all processes
 grunt js    // Merge and Minifiy JavaScript files
-grunt css   // Compile LESS files
 grunt test  // Unit Tests
 ```
 After the build output is shown below.
 ```
-dist/jui.js
-dist/jui.min.js
-dist/jui.table.js
-dist/jui.table.min.js
-dist/jui.chart.js
-dist/jui.chart.min.js
-dist/jui.css
-dist/jui.min.css
-dist/jennifer.theme.css
-dist/jennifer.theme.min.css
-dist/dark.theme.css
-dist/dark.theme.min.css
+dist/chart.js
+dist/chart.min.js
 ```
 
 ## Using in NodeJS
@@ -55,7 +36,7 @@ Get started right now in NodeJS.
 
 #### Install
 ```
-npm install jui
+npm install jui-chart
 ```
 
 #### Example
@@ -112,7 +93,7 @@ Created by Alvin and Jayden, Yoha
 
 MIT License 
 
-Copyright (C) 2015 (```JenniferSoft Inc.```)
+Copyright (C) 2016 (```JenniferSoft Inc.```)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
