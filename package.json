@@ -1,7 +1,7 @@
 {
   "name": "jui-chart",
   "version": "2.0.0",
-  "description": "JENNIFER UI is all free. a simple, fast, many: JUI is all-in-one desktop UI framework. Bootstrap support, Independent style & script components, SVG-based chart components.",
+  "description": "SVG-based JUI chart that can be used in the browser and Node.js. Support many types of charts. (Dashboard, Map, Topology, Full 3D)",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
