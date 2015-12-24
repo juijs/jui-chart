@@ -2079,13 +2079,13 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
         this.bindUI = function(axisIndex, uiObj) {
             var self = this;
 
-            if(uiObj.module.type == "uix.table") {
+            if(uiObj.module.type == "grid.table") {
                 uiObj.callAfter("update", updateTable);
                 uiObj.callAfter("sort", updateTable);
                 uiObj.callAfter("append", updateTable);
                 uiObj.callAfter("insert", updateTable);
                 uiObj.callAfter("remove", updateTable);
-            } else if(uiObj.module.type == "uix.xtable") {
+            } else if(uiObj.module.type == "grid.xtable") {
                 uiObj.callAfter("update", updateTable);
                 uiObj.callAfter("sort", updateTable);
             }
