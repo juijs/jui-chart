@@ -877,7 +877,7 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
     return Axis;
 });
 
-jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, math, SVG) {
+jui.define("chart.map", [ "util.base", "util.dom", "util.math", "util.svg" ], function(_, $, math, SVG) {
     /**
      * @class chart.grid.core
      * @extends chart.draw
@@ -1137,7 +1137,7 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
             });
 
             function setMouseEvent(e) {
-                var pos = _.offset(chart.root),
+                var pos = $.offset(chart.root),
                     offsetX = e.pageX - pos.left,
                     offsetY = e.pageY - pos.top;
 
@@ -1331,8 +1331,8 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
 
     return Map;
 }, "chart.draw"); 
-jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.axis" ],
-    function(_, SVGUtil, ColorUtil, Axis) {
+jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color", "chart.axis" ],
+    function(_, $, SVGUtil, ColorUtil, Axis) {
 
     /*/
     var win_width = 0;
@@ -1581,7 +1581,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
             });
 
             function checkPosition(e) {
-                var pos = _.offset(self.root),
+                var pos = $.offset(self.root),
                     offsetX = e.pageX - pos.left,
                     offsetY = e.pageY - pos.top;
 
@@ -7120,7 +7120,7 @@ jui.define("chart.grid.grid3d", [ "util.base", "util.math" ], function(_, math) 
     return Grid3D;
 }, "chart.grid.core");
 
-jui.define("chart.brush.core", [ "util.base" ], function(_) {
+jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
     /**
      * @class chart.brush.core
      *
@@ -7525,7 +7525,7 @@ jui.define("chart.brush.core", [ "util.base" ], function(_) {
             });
 
             function setMouseEvent(e) {
-                var pos = _.offset(chart.root),
+                var pos = $.offset(chart.root),
                     offsetX = e.pageX - pos.left,
                     offsetY = e.pageY - pos.top;
 

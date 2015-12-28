@@ -1,5 +1,5 @@
-jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.axis" ],
-    function(_, SVGUtil, ColorUtil, Axis) {
+jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color", "chart.axis" ],
+    function(_, $, SVGUtil, ColorUtil, Axis) {
 
     /*/
     var win_width = 0;
@@ -248,7 +248,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.svg", "util.color", "chart.ax
             });
 
             function checkPosition(e) {
-                var pos = _.offset(self.root),
+                var pos = $.offset(self.root),
                     offsetX = e.pageX - pos.left,
                     offsetY = e.pageY - pos.top;
 

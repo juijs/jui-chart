@@ -1,4 +1,4 @@
-jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, math, SVG) {
+jui.define("chart.map", [ "util.base", "util.dom", "util.math", "util.svg" ], function(_, $, math, SVG) {
     /**
      * @class chart.grid.core
      * @extends chart.draw
@@ -258,7 +258,7 @@ jui.define("chart.map", [ "util.base", "util.math", "util.svg" ], function(_, ma
             });
 
             function setMouseEvent(e) {
-                var pos = _.offset(chart.root),
+                var pos = $.offset(chart.root),
                     offsetX = e.pageX - pos.left,
                     offsetY = e.pageY - pos.top;
 

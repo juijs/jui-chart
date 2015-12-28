@@ -249,5 +249,5 @@ module.exports = function(grunt) {
     grunt.registerTask("js", [ "concat", "uglify" ]);
     grunt.registerTask("test", [ "qunit" ]);
     grunt.registerTask("make", [ "icon", "pattern" ]);
-    grunt.registerTask("default", [ "test", "js" ]);
+    grunt.registerTask("default", [ "js", "test" ]);
 };
