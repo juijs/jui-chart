@@ -1,7 +1,9 @@
 {
   "name": "jui-chart",
   "version": "2.0.0",
-  "main": "dist/chart.min.js",
+  "main": [
+    "dist/chart.min.js"
+  ],
   "ignore": [
     ".jshintrc",
     "**/*.txt"
