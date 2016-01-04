@@ -41,34 +41,37 @@ npm install jui-chart
 
 #### Example
 ```js
-var jui = require("jui");   // use jui package 
+require("../../dist/node");
+
 var fs = require("fs");
 
 // create jui chart 
-var chart = jui.create("chart.builder", $("<div></div>"), {
+var chart = jui.create("chart.builder", null, {
     width : 800,
     height : 800,
     axis : {
         x : {
-           type : "block",
-           domain : "quarter",
-           line : true
+            type : "block",
+            domain : "quarter",
+            line : true
         },
         y : {
             type : "range",
-            domain : [ -100, 50 ],
-            step : 10,
+            domain : function(d) {
+                return Math.max(d.sales, d.profit);
+            },
+            step : 20,
             line : true,
             orient : "right"
         },
         data : [
-          { quarter : "1Q", sales : 50, profit : 35 },
-          { quarter : "2Q", sales : -20, profit : -100 },
-          { quarter : "3Q", sales : 10, profit : -5 },
-          { quarter : "4Q", sales : 30, profit : 25 }
+            { quarter : "1Q", sales : 50, profit : 35 },
+            { quarter : "2Q", sales : -20, profit : -100 },
+            { quarter : "3Q", sales : 10, profit : -5 },
+            { quarter : "4Q", sales : 30, profit : 25 }
         ]
 
-    }, 
+    },
     brush : {
         type : "column",
         target : [ "sales", "profit" ]
@@ -76,13 +79,12 @@ var chart = jui.create("chart.builder", $("<div></div>"), {
 });
 
 // save file as xml  
-fs.writeFileSync("test.svg", chart.svg.toXml());
+fs.writeFileSync("test.svg", chart.svg.toXML());
 ```
 
 ## Documentation
 
 ##### http://jui.io
-##### http://uiplay.jui.io
 ##### http://chartplay.jui.io
 
 ## Maintainers
