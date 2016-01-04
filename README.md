@@ -1,23 +1,20 @@
 ## Getting Started
 
-#### Install
+#### Loading resources
 JUI charts are now available without loading the jQuery.
 ```html
 <script src="lib/core.min.js"></script>
 <script src="dist/chart.min.js"></script>
 ```
 
-#### Install with Bower
+#### Installing in command
 ```
+npm install jui-chart
 bower install jui-chart
-```
-
-#### Install with JamJS
-```
 jamjs install jui-chart
 ```
 
-#### Build
+#### To build the project
 Build using a grunt in JUI Library
 ```
 grunt       // Build all processes
