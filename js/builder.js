@@ -1,17 +1,9 @@
 jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color", "chart.axis" ],
     function(_, $, SVGUtil, ColorUtil, Axis) {
 
-    /*/
-    var win_width = 0;
-
     _.resize(function() {
-        var new_width  = window.innerWidth
-            || document.documentElement.clientWidth
-            || document.body.clientWidth;
-
-        if(win_width == new_width) return;
-
         var call_list = jui.get("chart.builder");
+
         for(var i = 0; i < call_list.length; i++) {
             var ui_list = call_list[i];
 
@@ -19,10 +11,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                 ui_list[j].resize();
             }
         }
-
-        win_width = new_width;
-    }, 300);
-    /**/
+    }, 1000);
 
     /**
      * @class chart.builder
