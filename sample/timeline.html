@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    jui.ready([ "chart.builder" ], function(chart) {
+
+         chart("#chart", {
+            width: 400,
+            height : 400,
+            theme : "jennifer",
+            axis : {
+                x : {
+                    domain : [ "봄", "여름", "가을", "겨울" ],
+                    line : true
+                },
+                y : {
+                    type : 'range',
+                    domain : "name",
+                    step : 10
+                },
+                data : [
+                    { name : 2, value : 15, test : 20 },
+                    { name : 15, value : 6, test : 20 },
+                    { name : 8, value : 10, test : 20 },
+                    { name : 18, value : 5, test : 20 }
+                ]
+            },
+            brush : [{
+                type : 'timeline'
+            }]
+        });
+	})
+</script>
+
+
+</body>
+</html>
