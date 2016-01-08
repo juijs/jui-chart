@@ -10798,7 +10798,7 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
             return this.chart.text({
                 y: -this.brush.size,
                 "text-anchor" : "middle",
-                fill : self.chart.theme("tooltipPointFontColor"),
+                fill : this.chart.theme("tooltipPointFontColor"),
                 "font-size" : this.chart.theme("tooltipPointFontSize"),
                 "font-weight" : this.chart.theme("tooltipPointFontWeight")
             }, text).translate(x, y);
