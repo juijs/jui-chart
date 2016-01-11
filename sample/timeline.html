@@ -10,32 +10,65 @@
 <div id="chart"></div>
 
 <script id="script_code">
+    var data = [
+        {
+            stime: 0,
+            etime: 3,
+            type: "Method"
+        },
+        {
+            stime: 3,
+            etime: 7786,
+            type: "External Call"
+        },
+        {
+            stime: 7786,
+            etime: 9891,
+            type: "Method"
+        },
+        {
+            stime: 9891,
+            etime: 19293,
+            type: "External Call"
+        },
+        {
+            stime: 19293,
+            etime: 22166,
+            type: "Method"
+        }
+    ];
+
     jui.ready([ "chart.builder" ], function(chart) {
 
-         chart("#chart", {
-            width: 400,
-            height : 400,
+        chart("#chart", {
+            width: 1000,
+            height : 125,
+            padding : {
+                top : 25,
+                bottom : 25,
+                left : 75
+            },
             theme : "jennifer",
             axis : {
                 x : {
-                    domain : [ "봄", "여름", "가을", "겨울" ],
-                    line : true
+                    type : "range",
+                    domain : "etime",
+                    step : 19,
+                    hide : false,
+                    format : function(d, i) {
+                        return d;
+                    }
                 },
                 y : {
-                    type : 'range',
-                    domain : "name",
-                    step : 10
+                    domain : [ "Name", "Method", "SQL", "External Call" ],
+                    hide : true
                 },
-                data : [
-                    { name : 2, value : 15, test : 20 },
-                    { name : 15, value : 6, test : 20 },
-                    { name : 8, value : 10, test : 20 },
-                    { name : 18, value : 5, test : 20 }
-                ]
+                data : data
             },
             brush : [{
-                type : 'timeline'
+                type : "timeline"
             }]
+
         });
 	})
 </script>
