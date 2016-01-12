@@ -8792,22 +8792,24 @@ jui.define("chart.brush.stackcolumn", [], function() {
 	 * @extends chart.brush.stackbar
 	 */
 	var ColumnStackBrush = function(chart, axis, brush) {
-		var g, zeroY, width, bar_width;
+		var g, zeroY, bar_width;
 
 		this.getTargetSize = function() {
-			var width = this.axis.x.rangeBand();
+			var width = this.axis.x.rangeBand(),
+				r_width = 0;
 
 			if(this.brush.size > 0) {
-				return this.brush.size;
+				r_width = this.brush.size;
 			} else {
-				return width - this.brush.outerPadding * 2;
+				r_width = width - this.brush.outerPadding * 2;
 			}
+
+			return (r_width < 0) ? 0 : r_width;
 		}
 
 		this.drawBefore = function() {
 			g = chart.svg.group();
 			zeroY = axis.y(0);
-			width = axis.x.rangeBand();
 			bar_width = this.getTargetSize();
 		}
 
@@ -9100,22 +9102,24 @@ jui.define("chart.brush.fullstackcolumn", [], function() {
      * @extends chart.brush.fullstackbar
      */
 	var FullStackColumnBrush = function(chart, axis, brush) {
-		var g, zeroY, width, bar_width;
+		var g, zeroY, bar_width;
 
 		this.getTargetSize = function() {
-			var width = this.axis.x.rangeBand();
+			var width = this.axis.x.rangeBand(),
+				r_width = 0;
 
 			if(this.brush.size > 0) {
-				return this.brush.size;
+				r_width = this.brush.size;
 			} else {
-				return width - this.brush.outerPadding * 2;
+				r_width = width - this.brush.outerPadding * 2;
 			}
+
+			return (r_width < 0) ? 0 : r_width;
 		}
 
 		this.drawBefore = function() {
 			g = chart.svg.group();
 			zeroY = axis.y(0);
-			width = axis.x.rangeBand();
 			bar_width = this.getTargetSize();
 		}
 
