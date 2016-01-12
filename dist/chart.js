@@ -12981,7 +12981,30 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
      */
     var TimelineBrush = function() {
         var g, padding, domains, height, width, ticks;
-        var keyToIndex = {};
+        var keyToIndex = {}, cacheRect = [], cacheRectIndex = null;
+
+        this.setActiveRect = function(target) {
+            for (var k = 0; k < cacheRect.length; k++) {
+                var r1 = cacheRect[k].r1,
+                    r2 = cacheRect[k].r2,
+                    isTarget = r2.element == target;
+
+                r1.attr({
+                    "fill": (isTarget) ? "#9262cf" : "#4dbfd9"
+                })
+
+                r2.attr({
+                    "fill": (isTarget) ? "#A75CFF" : "#DEC2FF",
+                    "stroke": (isTarget) ? "#caa4f5" : "#caa4f5",
+                    "fill-opacity": (isTarget) ? 0.15 : 0,
+                    "stroke-width": (isTarget) ? 1 : 0
+                });
+
+                if (isTarget) {
+                    cacheRectIndex = k;
+                }
+            }
+        }
 
         this.drawBefore = function() {
             g = this.svg.group();
@@ -13101,6 +13124,10 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
         }
 
         this.drawData = function() {
+            var bg_height = this.axis.area("height"),
+                evt_type = this.brush.activeEvent,
+                act_index = this.brush.active;
+
             for(var i = 0, len = this.axis.data.length; i < len; i++) {
                 var d = this.axis.data[i],
                     x1 = this.axis.x(this.getValue(d, "stime", 0)),
@@ -13108,12 +13135,33 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     y = this.axis.y(keyToIndex[this.getValue(d, "type")]),
                     h = 7;
 
-                var r = this.svg.rect({
+                var r1 = this.svg.rect({
                     width: x2 - x1,
                     height: h,
                     fill: "#4dbfd9",
                     x: x1,
                     y: y - h / 2
+                });
+
+                var r2 = this.svg.rect({
+                    width: x2 - x1,
+                    height: bg_height,
+                    "fill-opacity": 0,
+                    "stroke-width": 0,
+                    x: x1,
+                    cursor: (evt_type != null) ? "pointer" : "default"
+                }).on("mouseover", function(e) {
+                    for(var k = 0; k < cacheRect.length; k++) {
+                        var r2 = cacheRect[k].r2,
+                            isTarget = r2.element == e.target;
+
+                        r2.attr({
+                            "fill": (isTarget && cacheRectIndex == k) ? "#A75CFF" : "#DEC2FF",
+                            "stroke": (isTarget && cacheRectIndex == k) ? "#caa4f5" : "#caa4f5",
+                            "fill-opacity": (isTarget || cacheRectIndex == k) ? 0.15 : 0,
+                            "stroke-width": (isTarget || cacheRectIndex == k) ? 1 : 0
+                        });
+                    }
                 });
 
                 if(i < len - 1) {
@@ -13133,7 +13181,29 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     g.append(l);
                 }
 
-                g.append(r);
+                g.append(r1);
+                g.append(r2);
+
+                // ���콺 ���� ȿ�� ������Ʈ
+                cacheRect[i] = {
+                    r1: r1,
+                    r2: r2
+                };
+
+                // ��Ƽ�� �̺�Ʈ ����
+                if(_.typeCheck("string", evt_type)) {
+                    var self = this;
+
+                    r2.on(evt_type, function (e) {
+                        self.setActiveRect(e.target);
+                    });
+                }
+            }
+
+            // ��Ƽ�� ���� ȿ�� ����
+            if(_.typeCheck("integer", act_index)) {
+                cacheRectIndex = act_index;
+                this.setActiveRect(cacheRect[cacheRectIndex].r2.element);
             }
         }
 
@@ -13152,6 +13222,8 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
     TimelineBrush.setup = function() {
         return {
+            active: null,
+            activeEvent: null,
             clip : false
         };
     }
