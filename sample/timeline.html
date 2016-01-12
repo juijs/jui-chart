@@ -42,10 +42,10 @@
 
         window.c = chart("#chart", {
             width: 1000,
-            height : 125,
+            height : 200,
             padding : {
-                top : 25,
-                bottom : 25,
+                top : 0,
+                bottom : 0,
                 left : 75,
                 right : 0
             },
@@ -69,7 +69,8 @@
             brush : [{
                 type : "timeline",
                 activeEvent : "click",
-                active : 2
+                active : 2,
+                barSize : 10
             }]
 
         });

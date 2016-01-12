@@ -71,7 +71,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
                 for (var j = 0; j < domains.length; j++) {
                     var domain = domains[j],
-                        y = this.axis.y(j) - height / 2;
+                        y = this.axis.y(j);
 
                     if(i < ticks.length - 1) {
                         var fill = (j == 0) ? this.chart.theme("timelineColumnBackgroundColor") :
@@ -82,7 +82,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                             height: height,
                             fill: fill,
                             x: x,
-                            y: y
+                            y: y - height / 2
                         });
 
                         g.append(bg);
@@ -92,7 +92,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                         var txt = this.chart.text({
                             "text-anchor": "start",
                             dx: 5,
-                            dy: 12,
+                            dy: this.chart.theme("timelineTitleFontSize") / 2,
                             "font-size": this.chart.theme("timelineTitleFontSize"),
                             fill: this.chart.theme("timelineTitleFontColor"),
                             "font-weight": 700
@@ -130,11 +130,11 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     var txt = this.chart.text({
                         "text-anchor": "end",
                         dx: -5,
-                        dy: 12,
+                        dy: this.chart.theme("timelineColumnFontSize") / 2,
                         "font-size": this.chart.theme("timelineColumnFontSize"),
                         fill: this.chart.theme("timelineColumnFontColor")
                     })
-                    .translate(x, y);
+                    .translate(x, this.axis.y(0));
 
                     if (_.typeCheck("function", format)) {
                         txt.text(format.apply(this.chart, [ticks[i], i]));
@@ -168,7 +168,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     x1 = this.axis.x(this.getValue(d, "stime", 0)),
                     x2 = this.axis.x(this.getValue(d, "etime", this.axis.x.max())),
                     y = this.axis.y(keyToIndex[this.getValue(d, "type")]),
-                    h = 7;
+                    h = this.brush.barSize;
 
                 var r1 = this.svg.rect({
                     width: x2 - x1,
@@ -180,10 +180,11 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
                 var r2 = this.svg.rect({
                     width: x2 - x1,
-                    height: bg_height,
+                    height: bg_height - 6,
                     "fill-opacity": 0,
                     "stroke-width": 0,
                     x: x1,
+                    y: 3,
                     cursor: (evt_type != null) ? "pointer" : "default"
                 }).on("mouseover", function(e) {
                     self.setHoverRect(e.target);
@@ -200,7 +201,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                         x2: xx1,
                         y2: yy,
                         stroke: this.chart.theme("timelineBarBackgroundColor"),
-                        "stroke-width": 1
+                        "stroke-width": this.brush.lineWidth
                     });
 
                     g.append(l);
@@ -248,6 +249,8 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
     TimelineBrush.setup = function() {
         return {
+            barSize: 7,
+            lineWidth: 1,
             active: null,
             activeEvent: null,
             clip : false
