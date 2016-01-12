@@ -146,6 +146,23 @@ jui.define("chart.theme.dark", [], function() {
         topologyTooltipFontSize : 11,
         topologyTooltipFontColor : "#c5c5c5",
 
+        timelineTitleFontSize: 11,
+        timelineTitleFontColor: "#c5c5c5",
+        timelineColumnFontSize: 10,
+        timelineColumnFontColor: "#c5c5c5",
+        timelineColumnBackgroundColor: "linear(top) #3f3f3f,1 #343434",
+        timelineEvenRowBackgroundColor: "#1c1c1c",
+        timelineOddRowBackgroundColor: "#2f2f2f",
+        timelineBarBackgroundColor: "#057e94",
+        timelineActiveBarBackgroundColor: "#6f32ba",
+        timelineLayerBackgroundOpacity: 0.1,
+        timelineActiveLayerBackgroundColor: "#7F5FA4",
+        timelineActiveLayerBorderColor: "#7f5fa4",
+        timelineHoverLayerBackgroundColor: "#7F5FA4",
+        timelineHoverLayerBorderColor: "#7f5fa4",
+        timelineVerticalLineColor: "#4d4d4d",
+        timelineHorizontalLineColor: "#404040",
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,
