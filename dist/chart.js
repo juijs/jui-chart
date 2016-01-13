@@ -5332,8 +5332,6 @@ jui.define("chart.grid.date", [ "util.time", "util.scale", "util.base" ], functi
 			if (_.typeCheck("undefined", min) && value_list.length > 0 ) min = Math.min.apply(Math, value_list);
 			if (_.typeCheck("undefined", max) && value_list.length > 0 ) max = Math.max.apply(Math, value_list);
 
-			this.grid.max = max;
-			this.grid.min = min;
 			domain = [ this.grid.min, this.grid.max ];
 			interval = this.grid.interval;
 
@@ -5474,8 +5472,6 @@ jui.define("chart.grid.dateblock", [ "util.time", "util.scale", "util.base" ], f
 			if (_.typeCheck("undefined", min)) min = Math.min.apply(Math, value_list);
 			if (_.typeCheck("undefined", max)) max = Math.max.apply(Math, value_list);
 
-			this.grid.max = max;
-			this.grid.min = min;
 			domain = [ this.grid.min, this.grid.max ];
 			interval = this.grid.interval;
 
@@ -6084,9 +6080,6 @@ jui.define("chart.grid.range", [ "util.scale", "util.base", "util.math" ], funct
 				if (typeof max == 'undefined' || max < tempMax) max = tempMax;
 			}
 
-			this.grid.max = max;
-			this.grid.min = min;
-
 			var unit;
 			var hasUnit = true;
 			if (_.typeCheck("function", this.grid.unit)) {
@@ -6123,7 +6116,7 @@ jui.define("chart.grid.range", [ "util.scale", "util.base", "util.math" ], funct
         
 				domain = [end, start];
 
-				this.grid.step = (Math.abs(end - start) / unit);
+				domain.step = (Math.abs(end - start) / unit);
 
 			}
 
@@ -6153,7 +6146,7 @@ jui.define("chart.grid.range", [ "util.scale", "util.base", "util.math" ], funct
 			this.start = obj.start;
 			this.size = obj.size;
 			this.end = obj.end;
-			this.step = this.grid.step;
+			this.step = domain.step;
 			this.nice = this.grid.nice;
 			this.ticks = this.scale.ticks(this.step, this.nice);
 

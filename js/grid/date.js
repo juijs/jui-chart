@@ -84,8 +84,6 @@ jui.define("chart.grid.date", [ "util.time", "util.scale", "util.base" ], functi
 			if (_.typeCheck("undefined", min) && value_list.length > 0 ) min = Math.min.apply(Math, value_list);
 			if (_.typeCheck("undefined", max) && value_list.length > 0 ) max = Math.max.apply(Math, value_list);
 
-			this.grid.max = max;
-			this.grid.min = min;
 			domain = [ this.grid.min, this.grid.max ];
 			interval = this.grid.interval;
 

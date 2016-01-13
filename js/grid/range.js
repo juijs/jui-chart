@@ -134,9 +134,6 @@ jui.define("chart.grid.range", [ "util.scale", "util.base", "util.math" ], funct
 				if (typeof max == 'undefined' || max < tempMax) max = tempMax;
 			}
 
-			this.grid.max = max;
-			this.grid.min = min;
-
 			var unit;
 			var hasUnit = true;
 			if (_.typeCheck("function", this.grid.unit)) {
@@ -173,7 +170,7 @@ jui.define("chart.grid.range", [ "util.scale", "util.base", "util.math" ], funct
         
 				domain = [end, start];
 
-				this.grid.step = (Math.abs(end - start) / unit);
+				domain.step = (Math.abs(end - start) / unit);
 
 			}
 
@@ -203,7 +200,7 @@ jui.define("chart.grid.range", [ "util.scale", "util.base", "util.math" ], funct
 			this.start = obj.start;
 			this.size = obj.size;
 			this.end = obj.end;
-			this.step = this.grid.step;
+			this.step = domain.step;
 			this.nice = this.grid.nice;
 			this.ticks = this.scale.ticks(this.step, this.nice);
 
