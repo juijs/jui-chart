@@ -103,6 +103,7 @@ module.exports = function(grunt) {
         "js/brush/topologynode.js",
         "js/brush/focus.js", // brush supporter
         "js/brush/pin.js",  // brush supporter
+        "js/brush/timeline.js",  // brush supporter
 
         // map brush
         "js/brush/map.core.js",

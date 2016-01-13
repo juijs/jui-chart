@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    var data = [
+        {
+            stime: 0,
+            etime: 3,
+            type: "Method"
+        },
+        {
+            stime: 3,
+            etime: 7786,
+            type: "External Call"
+        },
+        {
+            stime: 7786,
+            etime: 9891,
+            type: "Method"
+        },
+        {
+            stime: 9891,
+            etime: 19293,
+            type: "External Call"
+        },
+        {
+            stime: 19293,
+            etime: 22166,
+            type: "Method"
+        }
+    ];
+
+    jui.ready([ "chart.builder", "util.base" ], function(chart, _) {
+
+        window.c = chart("#chart", {
+            width: 1000,
+            height : 200,
+            padding : {
+                top : 0,
+                bottom : 0,
+                left : 100,
+                right : 0
+            },
+            theme : "dark",
+            axis : {
+                x : {
+                    type : "range",
+                    domain : "etime",
+                    step : 19,
+                    hide : true,
+                    format : function(d, i) {
+                        return d;
+                    }
+                },
+                y : {
+                    domain : [ "Name", "Method", "SQL", "External Call" ],
+                    hide : true
+                },
+                data : data
+            },
+            brush : [{
+                type : "timeline",
+                activeEvent : "click",
+                active : 2,
+                barSize : 10,
+                lineWidth : 1,
+                colors : function(d) {
+                    console.log(d);
+
+                    // jennifer: #4dbfd9, dark: #057e94
+                    return "#057e94";
+                }
+            }]
+
+        });
+	})
+</script>
+
+
+</body>
+</html>
