@@ -38,7 +38,7 @@
         }
     ];
 
-    jui.ready([ "chart.builder" ], function(chart) {
+    jui.ready([ "chart.builder", "util.base" ], function(chart, _) {
 
         window.c = chart("#chart", {
             width: 1000,
@@ -46,7 +46,7 @@
             padding : {
                 top : 0,
                 bottom : 0,
-                left : 75,
+                left : 100,
                 right : 0
             },
             theme : "dark",
@@ -70,7 +70,14 @@
                 type : "timeline",
                 activeEvent : "click",
                 active : 2,
-                barSize : 10
+                barSize : 10,
+                lineWidth : 1,
+                colors : function(d) {
+                    console.log(d);
+
+                    // jennifer: #4dbfd9, dark: #057e94
+                    return "#057e94";
+                }
             }]
 
         });

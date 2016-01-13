@@ -13,11 +13,12 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             for (var k = 0; k < cacheRect.length; k++) {
                 var r1 = cacheRect[k].r1,
                     r2 = cacheRect[k].r2,
+                    color = cacheRect[k].color,
                     isTarget = r2.element == target;
 
                 r1.attr({
                     "fill": (isTarget) ?
-                        this.chart.theme("timelineActiveBarBackgroundColor") : this.chart.theme("timelineBarBackgroundColor")
+                        this.chart.theme("timelineActiveBarBackgroundColor") : color
                 })
 
                 r2.attr({
@@ -161,19 +162,21 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
         this.drawData = function() {
             var bg_height = this.axis.area("height"),
                 evt_type = this.brush.activeEvent,
-                act_index = this.brush.active;
+                act_index = this.brush.active,
+                len = this.axis.data.length;
 
-            for(var i = 0, len = this.axis.data.length; i < len; i++) {
+            for(var i = 0; i < len; i++) {
                 var d = this.axis.data[i],
                     x1 = this.axis.x(this.getValue(d, "stime", 0)),
                     x2 = this.axis.x(this.getValue(d, "etime", this.axis.x.max())),
                     y = this.axis.y(keyToIndex[this.getValue(d, "type")]),
-                    h = this.brush.barSize;
+                    h = this.brush.barSize,
+                    color = this.color(i, 0);
 
                 var r1 = this.svg.rect({
                     width: x2 - x1,
                     height: h,
-                    fill: this.chart.theme("timelineBarBackgroundColor"),
+                    fill: color,
                     x: x1,
                     y: y - h / 2
                 });
@@ -200,7 +203,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                         y1: y,
                         x2: xx1,
                         y2: yy,
-                        stroke: this.chart.theme("timelineBarBackgroundColor"),
+                        stroke: color,
                         "stroke-width": this.brush.lineWidth
                     });
 
@@ -213,7 +216,8 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 // 마우스 오버 효과 엘리먼트
                 cacheRect[i] = {
                     r1: r1,
-                    r2: r2
+                    r2: r2,
+                    color: color
                 };
 
                 // 액티브 이벤트 설정

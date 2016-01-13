@@ -2641,7 +2641,6 @@ jui.define("chart.theme.jennifer", [], function() {
         timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
-        timelineBarBackgroundColor: "#4dbfd9",
         timelineActiveBarBackgroundColor: "#9262cf",
         timelineLayerBackgroundOpacity: 0.15,
         timelineActiveLayerBackgroundColor: "#A75CFF",
@@ -2892,7 +2891,6 @@ jui.define("chart.theme.gradient", [], function() {
         timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
-        timelineBarBackgroundColor: "#4dbfd9",
         timelineActiveBarBackgroundColor: "#9262cf",
         timelineLayerBackgroundOpacity: 0.15,
         timelineActiveLayerBackgroundColor: "#A75CFF",
@@ -3141,7 +3139,6 @@ jui.define("chart.theme.dark", [], function() {
         timelineColumnBackgroundColor: "linear(top) #3f3f3f,1 #343434",
         timelineEvenRowBackgroundColor: "#1c1c1c",
         timelineOddRowBackgroundColor: "#2f2f2f",
-        timelineBarBackgroundColor: "#057e94",
         timelineActiveBarBackgroundColor: "#6f32ba",
         timelineLayerBackgroundOpacity: 0.1,
         timelineActiveLayerBackgroundColor: "#7F5FA4",
@@ -3387,7 +3384,6 @@ jui.define("chart.theme.pastel", [], function() {
 		timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
 		timelineEvenRowBackgroundColor: "#fafafa",
 		timelineOddRowBackgroundColor: "#f1f0f3",
-		timelineBarBackgroundColor: "#4dbfd9",
 		timelineActiveBarBackgroundColor: "#9262cf",
 		timelineLayerBackgroundOpacity: 0.15,
 		timelineActiveLayerBackgroundColor: "#A75CFF",
@@ -3632,7 +3628,6 @@ jui.define("chart.theme.pattern", [], function() {
         timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
-        timelineBarBackgroundColor: "#4dbfd9",
         timelineActiveBarBackgroundColor: "#9262cf",
         timelineLayerBackgroundOpacity: 0.15,
         timelineActiveLayerBackgroundColor: "#A75CFF",
@@ -13073,11 +13068,12 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             for (var k = 0; k < cacheRect.length; k++) {
                 var r1 = cacheRect[k].r1,
                     r2 = cacheRect[k].r2,
+                    color = cacheRect[k].color,
                     isTarget = r2.element == target;
 
                 r1.attr({
                     "fill": (isTarget) ?
-                        this.chart.theme("timelineActiveBarBackgroundColor") : this.chart.theme("timelineBarBackgroundColor")
+                        this.chart.theme("timelineActiveBarBackgroundColor") : color
                 })
 
                 r2.attr({
@@ -13221,19 +13217,21 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
         this.drawData = function() {
             var bg_height = this.axis.area("height"),
                 evt_type = this.brush.activeEvent,
-                act_index = this.brush.active;
+                act_index = this.brush.active,
+                len = this.axis.data.length;
 
-            for(var i = 0, len = this.axis.data.length; i < len; i++) {
+            for(var i = 0; i < len; i++) {
                 var d = this.axis.data[i],
                     x1 = this.axis.x(this.getValue(d, "stime", 0)),
                     x2 = this.axis.x(this.getValue(d, "etime", this.axis.x.max())),
                     y = this.axis.y(keyToIndex[this.getValue(d, "type")]),
-                    h = this.brush.barSize;
+                    h = this.brush.barSize,
+                    color = this.color(i, 0);
 
                 var r1 = this.svg.rect({
                     width: x2 - x1,
                     height: h,
-                    fill: this.chart.theme("timelineBarBackgroundColor"),
+                    fill: color,
                     x: x1,
                     y: y - h / 2
                 });
@@ -13260,7 +13258,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                         y1: y,
                         x2: xx1,
                         y2: yy,
-                        stroke: this.chart.theme("timelineBarBackgroundColor"),
+                        stroke: color,
                         "stroke-width": this.brush.lineWidth
                     });
 
@@ -13273,7 +13271,8 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 // ���콺 ���� ȿ�� ������Ʈ
                 cacheRect[i] = {
                     r1: r1,
-                    r2: r2
+                    r2: r2,
+                    color: color
                 };
 
                 // ��Ƽ�� �̺�Ʈ ����

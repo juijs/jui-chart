@@ -155,7 +155,6 @@ jui.define("chart.theme.gradient", [], function() {
         timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
-        timelineBarBackgroundColor: "#4dbfd9",
         timelineActiveBarBackgroundColor: "#9262cf",
         timelineLayerBackgroundOpacity: 0.15,
         timelineActiveLayerBackgroundColor: "#A75CFF",
