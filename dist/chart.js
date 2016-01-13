@@ -13061,7 +13061,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
      */
     var TimelineBrush = function() {
         var self = this;
-        var g, padding, domains, height, width, ticks;
+        var g, padding, domains, height, width, ticks, titleX;
         var keyToIndex = {}, cacheRect = [], cacheRectIndex = null;
 
         this.setActiveRect = function(target) {
@@ -13114,6 +13114,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             height = this.axis.y.rangeBand();
             width = this.axis.x.rangeBand();
             ticks = this.axis.x.ticks(this.axis.get("x").step);
+            titleX = (isNaN(this.axis.x(0)) ? 0 : this.axis.x(0)) - padding.left;
 
             // ������ Ű�� �ε��� ���� ��ü
             for(var i = 0; i < domains.length; i++) {
@@ -13123,18 +13124,22 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
         this.drawGrid = function() {
             for(var i = -1; i < ticks.length; i++) {
-                var x = (i == -1) ? this.axis.x(0) - padding.left : this.axis.x(ticks[i]);
+                var x = (i == -1) ? titleX : this.axis.x(ticks[i]);
 
                 for (var j = 0; j < domains.length; j++) {
                     var domain = domains[j],
-                        y = this.axis.y(j);
+                        y = this.axis.y(j),
+                        isNoData = ticks.length == 0;
 
-                    if(i < ticks.length - 1) {
+                    if(i < ticks.length - 1 || isNoData) {
                         var fill = (j == 0) ? this.chart.theme("timelineColumnBackgroundColor") :
                             ((j % 2) ? this.chart.theme("timelineEvenRowBackgroundColor") : this.chart.theme("timelineOddRowBackgroundColor"));
 
+                        // �����Ͱ� ���� ���쿡�� ��ü ũ���� ����
+                        var bgWidth = (i == -1) ? ((isNoData) ? this.axis.area("width") : 0) + padding.left : width;
+
                         var bg = this.svg.rect({
-                            width: (i == -1) ? padding.left : width,
+                            width: bgWidth,
                             height: height,
                             fill: fill,
                             x: x,
@@ -13205,7 +13210,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             var hline = this.svg.line({
                 stroke: this.chart.theme("timelineHorizontalLineColor"),
                 "stroke-width": 1,
-                x1: this.axis.x(0) - padding.left,
+                x1: titleX,
                 x2: this.axis.area("width"),
                 y1: y + height,
                 y2: y + height
@@ -13286,7 +13291,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             }
 
             // ��Ƽ�� ���� ȿ�� ����
-            if(_.typeCheck("integer", act_index)) {
+            if(_.typeCheck("integer", act_index) && cacheRect.length > 0) {
                 cacheRectIndex = act_index;
                 this.setActiveRect(cacheRect[cacheRectIndex].r2.element);
             }
