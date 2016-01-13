@@ -39,10 +39,9 @@
     ];
 
     jui.ready([ "chart.builder", "util.base" ], function(chart, _) {
-
         window.c = chart("#chart", {
             width: 1000,
-            height : 200,
+            height : 90,
             padding : {
                 top : 0,
                 bottom : 0,
@@ -57,20 +56,20 @@
                     step : 19,
                     hide : true,
                     format : function(d, i) {
-                        return d;
+                        return Math.floor(d);
                     }
                 },
                 y : {
-                    domain : [ "Name", "Method", "SQL", "External Call" ],
+                    domain : [ "Name", "Method", "Sql", "Externalcall" ],
                     hide : true
                 },
-                data : data
+                //data : data
             },
             brush : [{
                 type : "timeline",
                 activeEvent : "click",
                 active : 2,
-                barSize : 10,
+                barSize : 7,
                 lineWidth : 1,
                 colors : function(d) {
                     console.log(d);
@@ -78,8 +77,23 @@
                     // jennifer: #4dbfd9, dark: #057e94
                     return "#057e94";
                 }
-            }]
+            }],
+            event : {
+                "timeline.active" : function(d, e) {
+                    console.log(d, e);
+                },
+                "click" : function(obj, e) {
+                    console.log(obj);
+                }
+            }
+        });
 
+        _.ajax({
+            url: "resource/timeline.json",
+            success: function(d) {
+                var json = eval("(" + d.responseText + ")");
+                c.axis(0).update(json.list);
+            }
         });
 	})
 </script>

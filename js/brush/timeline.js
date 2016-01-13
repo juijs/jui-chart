@@ -68,47 +68,34 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
         }
 
         this.drawGrid = function() {
-            for(var i = -1; i < ticks.length; i++) {
-                var x = (i == -1) ? titleX : this.axis.x(ticks[i]);
+            for (var j = 0; j < domains.length; j++) {
+                var domain = domains[j],
+                    y = this.axis.y(j);
 
-                for (var j = 0; j < domains.length; j++) {
-                    var domain = domains[j],
-                        y = this.axis.y(j),
-                        isNoData = ticks.length == 0;
+                var fill = (j == 0) ? this.chart.theme("timelineColumnBackgroundColor") :
+                    ((j % 2) ? this.chart.theme("timelineEvenRowBackgroundColor") : this.chart.theme("timelineOddRowBackgroundColor"));
 
-                    if(i < ticks.length - 1 || isNoData) {
-                        var fill = (j == 0) ? this.chart.theme("timelineColumnBackgroundColor") :
-                            ((j % 2) ? this.chart.theme("timelineEvenRowBackgroundColor") : this.chart.theme("timelineOddRowBackgroundColor"));
+                var bg = this.svg.rect({
+                    width: this.axis.area("width") + padding.left,
+                    height: height,
+                    fill: fill,
+                    x: titleX,
+                    y: y - height / 2
+                });
 
-                        // 데이터가 없을 경우에는 전체 크기로 설정
-                        var bgWidth = (i == -1) ? ((isNoData) ? this.axis.area("width") : 0) + padding.left : width;
+                var txt = this.chart.text({
+                    "text-anchor": "start",
+                    dx: 5,
+                    dy: this.chart.theme("timelineTitleFontSize") / 2,
+                    "font-size": this.chart.theme("timelineTitleFontSize"),
+                    fill: this.chart.theme("timelineTitleFontColor"),
+                    "font-weight": 700
+                })
+                .text(domain)
+                .translate(titleX, y);
 
-                        var bg = this.svg.rect({
-                            width: bgWidth,
-                            height: height,
-                            fill: fill,
-                            x: x,
-                            y: y - height / 2
-                        });
-
-                        g.append(bg);
-                    }
-
-                    if(i == -1) {
-                        var txt = this.chart.text({
-                            "text-anchor": "start",
-                            dx: 5,
-                            dy: this.chart.theme("timelineTitleFontSize") / 2,
-                            "font-size": this.chart.theme("timelineTitleFontSize"),
-                            fill: this.chart.theme("timelineTitleFontColor"),
-                            "font-weight": 700
-                        })
-                        .text(domain)
-                        .translate(x, y);
-
-                        g.append(txt);
-                    }
-                }
+                g.append(bg);
+                g.append(txt);
             }
         }
 
@@ -183,7 +170,8 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     height: h,
                     fill: color,
                     x: x1,
-                    y: y - h / 2
+                    y: y - h / 2,
+                    cursor: "pointer"
                 });
 
                 var r2 = this.svg.rect({
@@ -193,9 +181,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     "stroke-width": 0,
                     x: x1,
                     y: 3,
-                    cursor: (evt_type != null) ? "pointer" : "default"
-                }).on("mouseover", function(e) {
-                    self.setHoverRect(e.target);
+                    cursor: "pointer"
                 });
 
                 if(i < len - 1) {
@@ -218,6 +204,9 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 g.append(r1);
                 g.append(r2);
 
+                // 브러쉬 공통 이벤트 설정
+                this.addEvent(r1, i);
+
                 // 마우스 오버 효과 엘리먼트
                 cacheRect[i] = {
                     r1: r1,
@@ -227,11 +216,16 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
                 // 액티브 이벤트 설정
                 if(_.typeCheck("string", evt_type)) {
-                    var self = this;
-
                     r2.on(evt_type, function (e) {
                         self.setActiveRect(e.target);
+                        self.chart.emit("timeline.active", [ d, e ]);
                     });
+
+                    r2.on("mouseover", function(e) {
+                        self.setHoverRect(e.target);
+                    });
+                } else {
+                    r2.attr({ "visibility": "hidden" });
                 }
             }
 
