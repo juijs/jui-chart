@@ -48,7 +48,7 @@
                 left : 100,
                 right : 0
             },
-            theme : "dark",
+            theme : "jennifer",
             axis : {
                 x : {
                     type : "range",
@@ -67,12 +67,12 @@
             },
             brush : [{
                 type : "timeline",
-                activeEvent : "click",
-                active : 2,
+                active : 0,
                 barSize : 7,
                 lineWidth : 1,
+                target : [ "stime", "etime" ],
                 colors : function(d) {
-                    console.log(d);
+                    //console.log(d);
 
                     // jennifer: #4dbfd9, dark: #057e94
                     return "#057e94";

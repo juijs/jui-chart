@@ -2642,6 +2642,7 @@ jui.define("chart.theme.jennifer", [], function() {
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
         timelineActiveBarBackgroundColor: "#9262cf",
+        timelineHoverBarBackgroundColor: "#FFC000",
         timelineLayerBackgroundOpacity: 0.15,
         timelineActiveLayerBackgroundColor: "#A75CFF",
         timelineActiveLayerBorderColor: "#caa4f5",
@@ -2892,6 +2893,7 @@ jui.define("chart.theme.gradient", [], function() {
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
         timelineActiveBarBackgroundColor: "#9262cf",
+        timelineHoverBarBackgroundColor: "#9262cf",
         timelineLayerBackgroundOpacity: 0.15,
         timelineActiveLayerBackgroundColor: "#A75CFF",
         timelineActiveLayerBorderColor: "#caa4f5",
@@ -3140,6 +3142,7 @@ jui.define("chart.theme.dark", [], function() {
         timelineEvenRowBackgroundColor: "#1c1c1c",
         timelineOddRowBackgroundColor: "#2f2f2f",
         timelineActiveBarBackgroundColor: "#6f32ba",
+        timelineHoverBarBackgroundColor: "#e9f819",
         timelineLayerBackgroundOpacity: 0.1,
         timelineActiveLayerBackgroundColor: "#7F5FA4",
         timelineActiveLayerBorderColor: "#7f5fa4",
@@ -3385,6 +3388,7 @@ jui.define("chart.theme.pastel", [], function() {
 		timelineEvenRowBackgroundColor: "#fafafa",
 		timelineOddRowBackgroundColor: "#f1f0f3",
 		timelineActiveBarBackgroundColor: "#9262cf",
+		timelineHoverBarBackgroundColor: "#9262cf",
 		timelineLayerBackgroundOpacity: 0.15,
 		timelineActiveLayerBackgroundColor: "#A75CFF",
 		timelineActiveLayerBorderColor: "#caa4f5",
@@ -3629,6 +3633,7 @@ jui.define("chart.theme.pattern", [], function() {
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
         timelineActiveBarBackgroundColor: "#9262cf",
+        timelineHoverBarBackgroundColor: "#9262cf",
         timelineLayerBackgroundOpacity: 0.15,
         timelineActiveLayerBackgroundColor: "#A75CFF",
         timelineActiveLayerBorderColor: "#caa4f5",
@@ -13058,7 +13063,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
      */
     var TimelineBrush = function() {
         var self = this;
-        var g, padding, domains, height, width, ticks, titleX;
+        var g, padding, domains, height, width, ticks, titleX, active;
         var keyToIndex = {}, cacheRect = [], cacheRectIndex = null;
 
         this.setActiveRect = function(target) {
@@ -13104,6 +13109,17 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             }
         }
 
+        this.setHoverBar = function(target) {
+            for(var k = 0; k < cacheRect.length; k++) {
+                var r1 = cacheRect[k].r1,
+                    isTarget = r1.element == target;
+
+                r1.attr({
+                    "fill": isTarget ? self.chart.theme("timelineHoverBarBackgroundColor") : cacheRect[k].color
+                });
+            }
+        }
+
         this.drawBefore = function() {
             g = this.svg.group();
             padding = this.chart.get("padding");
@@ -13112,6 +13128,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             width = this.axis.x.rangeBand();
             ticks = this.axis.x.ticks(this.axis.get("x").step);
             titleX = (isNaN(this.axis.x(0)) ? 0 : this.axis.x(0)) - padding.left;
+            active = this.brush.active;
 
             // ������ Ű�� �ε��� ���� ��ü
             for(var i = 0; i < domains.length; i++) {
@@ -13205,8 +13222,6 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
         this.drawData = function() {
             var bg_height = this.axis.area("height"),
-                evt_type = this.brush.activeEvent,
-                act_index = this.brush.active,
                 len = this.axis.data.length;
 
             for(var i = 0; i < len; i++) {
@@ -13267,23 +13282,31 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 };
 
                 // ��Ƽ�� �̺�Ʈ ����
-                if(_.typeCheck("string", evt_type)) {
-                    r2.on(evt_type, function (e) {
-                        self.setActiveRect(e.target);
-                        self.chart.emit("timeline.active", [ d, e ]);
-                    });
+                if(active != null) {
+                    (function(data) {
+                        r2.on(self.brush.activeEvent, function (e) {
+                            self.setActiveRect(e.target);
+                            self.chart.emit("timeline.active", [ data, e ]);
+                        });
+                    })(d);
 
                     r2.on("mouseover", function(e) {
                         self.setHoverRect(e.target);
                     });
                 } else {
                     r2.attr({ "visibility": "hidden" });
+
+                    r1.on("mouseover", function(e) {
+                        self.setHoverBar(e.target);
+                    });
                 }
             }
 
             // ��Ƽ�� ���� ȿ�� ����
-            if(_.typeCheck("integer", act_index) && cacheRect.length > 0) {
-                cacheRectIndex = act_index;
+            if(_.typeCheck("integer", active) && cacheRect.length > 0) {
+                if(active < 0) return;
+
+                cacheRectIndex = active;
                 this.setActiveRect(cacheRect[cacheRectIndex].r2.element);
             }
         }
@@ -13295,7 +13318,11 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
             // ���콺�� ��Ʈ ������ ������ Hover ȿ�� ����
             g.on("mouseout", function(e) {
-                self.setHoverRect(null);
+                if(active != null) {
+                    self.setHoverRect(null);
+                } else {
+                    self.setHoverBar(null);
+                }
             });
 
             return g;
@@ -13307,7 +13334,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             barSize: 7,
             lineWidth: 1,
             active: null,
-            activeEvent: null,
+            activeEvent: "click",
             clip : false
         };
     }

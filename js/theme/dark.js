@@ -154,6 +154,7 @@ jui.define("chart.theme.dark", [], function() {
         timelineEvenRowBackgroundColor: "#1c1c1c",
         timelineOddRowBackgroundColor: "#2f2f2f",
         timelineActiveBarBackgroundColor: "#6f32ba",
+        timelineHoverBarBackgroundColor: "#e9f819",
         timelineLayerBackgroundOpacity: 0.1,
         timelineActiveLayerBackgroundColor: "#7F5FA4",
         timelineActiveLayerBorderColor: "#7f5fa4",
