@@ -13130,7 +13130,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             titleX = (isNaN(this.axis.x(0)) ? 0 : this.axis.x(0)) - padding.left;
             active = this.brush.active;
 
-            // ������ Ű�� �ε��� ���� ��ü
+            // 도메인 키와 인덱스 맵팽 객체
             for(var i = 0; i < domains.length; i++) {
                 keyToIndex[domains[i]] = i;
             }
@@ -13271,17 +13271,17 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 g.append(r1);
                 g.append(r2);
 
-                // �귯�� ���� �̺�Ʈ ����
+                // 브러쉬 공통 이벤트 설정
                 this.addEvent(r1, i);
 
-                // ���콺 ���� ȿ�� ������Ʈ
+                // 마우스 오버 효과 엘리먼트
                 cacheRect[i] = {
                     r1: r1,
                     r2: r2,
                     color: color
                 };
 
-                // ��Ƽ�� �̺�Ʈ ����
+                // 액티브 이벤트 설정
                 if(active != null) {
                     (function(data) {
                         r2.on(self.brush.activeEvent, function (e) {
@@ -13302,7 +13302,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 }
             }
 
-            // ��Ƽ�� ���� ȿ�� ����
+            // 엑티브 대상 효과 설정
             if(_.typeCheck("integer", active) && cacheRect.length > 0) {
                 if(active < 0) return;
 
@@ -13316,7 +13316,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             this.drawLine();
             this.drawData();
 
-            // ���콺�� ��Ʈ ������ ������ Hover ȿ�� ����
+            // 마우스가 차트 밖으로 나가면 Hover 효과 제거
             g.on("mouseout", function(e) {
                 if(active != null) {
                     self.setHoverRect(null);

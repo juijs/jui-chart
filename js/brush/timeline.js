@@ -73,7 +73,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             titleX = (isNaN(this.axis.x(0)) ? 0 : this.axis.x(0)) - padding.left;
             active = this.brush.active;
 
-            // µµ¸ŞÀÎ Å°¿Í ÀÎµ¦½º ¸ÊÆØ °´Ã¼
+            // ë„ë©”ì¸ í‚¤ì™€ ì¸ë±ìŠ¤ ë§µíŒ½ ê°ì²´
             for(var i = 0; i < domains.length; i++) {
                 keyToIndex[domains[i]] = i;
             }
@@ -214,17 +214,17 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 g.append(r1);
                 g.append(r2);
 
-                // ºê·¯½¬ °øÅë ÀÌº¥Æ® ¼³Á¤
+                // ë¸ŒëŸ¬ì‰¬ ê³µí†µ ì´ë²¤íŠ¸ ì„¤ì •
                 this.addEvent(r1, i);
 
-                // ¸¶¿ì½º ¿À¹ö È¿°ú ¿¤¸®¸ÕÆ®
+                // ë§ˆìš°ìŠ¤ ì˜¤ë²„ íš¨ê³¼ ì—˜ë¦¬ë¨¼íŠ¸
                 cacheRect[i] = {
                     r1: r1,
                     r2: r2,
                     color: color
                 };
 
-                // ¾×Æ¼ºê ÀÌº¥Æ® ¼³Á¤
+                // ì•¡í‹°ë¸Œ ì´ë²¤íŠ¸ ì„¤ì •
                 if(active != null) {
                     (function(data) {
                         r2.on(self.brush.activeEvent, function (e) {
@@ -245,7 +245,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 }
             }
 
-            // ¿¢Æ¼ºê ´ë»ó È¿°ú ¼³Á¤
+            // ì—‘í‹°ë¸Œ ëŒ€ìƒ íš¨ê³¼ ì„¤ì •
             if(_.typeCheck("integer", active) && cacheRect.length > 0) {
                 if(active < 0) return;
 
@@ -259,7 +259,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             this.drawLine();
             this.drawData();
 
-            // ¸¶¿ì½º°¡ Â÷Æ® ¹ÛÀ¸·Î ³ª°¡¸é Hover È¿°ú Á¦°Å
+            // ë§ˆìš°ìŠ¤ê°€ ì°¨íŠ¸ ë°–ìœ¼ë¡œ ë‚˜ê°€ë©´ Hover íš¨ê³¼ ì œê±°
             g.on("mouseout", function(e) {
                 if(active != null) {
                     self.setHoverRect(null);
