@@ -5557,7 +5557,7 @@ jui.define("chart.grid.dateblock", [ "util.time", "util.scale", "util.base" ], f
 			if (_.typeCheck("undefined", min)) min = Math.min.apply(Math, value_list);
 			if (_.typeCheck("undefined", max)) max = Math.max.apply(Math, value_list);
 
-			domain = [ this.grid.min, this.grid.max ];
+			domain = [ min, max ];
 			interval = this.grid.interval;
 
 			if (this.grid.reverse) {
