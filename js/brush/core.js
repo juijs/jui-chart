@@ -353,6 +353,8 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
          * @param {Integer} targetIndex
          */
         this.addEvent = function(elem, dataIndex, targetIndex) {
+            if(this.brush.useEvent !== true) return;
+
             var chart = this.chart,
                 obj = {
                 brush: this.brush,
@@ -488,7 +490,9 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
             /** @cfg {Integer} [index=null] [Read Only] Sequence index on which brush is drawn. */
             index: null,
             /** @cfg {boolean} [clip=true] If the brush is drawn outside of the chart, cut the area. */
-            clip: true
+            clip: true,
+            /** @cfg {boolean} [useEvent=true] If you do not use a brush events, it gives better performance. */
+            useEvent: true
         }
     }
 

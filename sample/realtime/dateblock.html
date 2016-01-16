@@ -49,7 +49,13 @@
             },
             brush : {
                 type : "scatter",
-                target : [ "value1", "value2", "value3" ]
+                target : [ "value1", "value2", "value3" ],
+                useEvent : false
+            },
+            event : {
+                click : function(obj, e) {
+                    alert("click");
+                }
             },
             render : false
         });
@@ -72,7 +78,8 @@
             },
             brush : {
                 type : "line",
-                target : [ "value1", "value2", "value3", "value4", "value5" ]
+                target : [ "value1", "value2", "value3", "value4", "value5" ],
+                useEvent : false
             },
             render : false
         });

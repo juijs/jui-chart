@@ -56,12 +56,18 @@
                     step : 19,
                     hide : true,
                     format : function(d, i) {
-                        return Math.floor(d);
+                        return Math.floor(d) + "ms";
                     }
                 },
                 y : {
                     domain : [ "Name", "Method", "Sql", "Externalcall" ],
-                    hide : true
+                    hide : true,
+                    format : function(d) {
+                        if(d == "Sql") return "SQL";
+                        else if(d == "Externalcall") return "External Call";
+
+                        return d;
+                    }
                 },
                 //data : data
             },
@@ -75,8 +81,9 @@
                     //console.log(d);
 
                     // jennifer: #4dbfd9, dark: #057e94
-                    return "#057e94";
-                }
+                    return "#4dbfd9";
+                },
+                useEvent : false
             }],
             event : {
                 "timeline.active" : function(d, e) {

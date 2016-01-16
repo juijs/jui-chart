@@ -80,6 +80,8 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
         }
 
         this.drawGrid = function() {
+            var yFormat = this.axis.get("y").format;
+
             for (var j = 0; j < domains.length; j++) {
                 var domain = domains[j],
                     y = this.axis.y(j);
@@ -103,8 +105,13 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     fill: this.chart.theme("timelineTitleFontColor"),
                     "font-weight": 700
                 })
-                .text(domain)
                 .translate(titleX, y);
+
+                if (_.typeCheck("function", yFormat)) {
+                    txt.text(yFormat.apply(this.chart, [ domain, j ]));
+                } else {
+                    txt.text(domain);
+                }
 
                 g.append(bg);
                 g.append(txt);
@@ -113,7 +120,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
         this.drawLine = function() {
             var y = this.axis.y(0) - height / 2,
-                format = this.axis.get("x").format;
+                xFormat = this.axis.get("x").format;
 
             for(var i = 0; i < ticks.length; i++) {
                 var x = this.axis.x(ticks[i]);
@@ -141,8 +148,8 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     })
                     .translate(x, this.axis.y(0));
 
-                    if (_.typeCheck("function", format)) {
-                        txt.text(format.apply(this.chart, [ticks[i], i]));
+                    if (_.typeCheck("function", xFormat)) {
+                        txt.text(xFormat.apply(this.chart, [ ticks[i], i ]));
                     } else {
                         txt.text(ticks[i]);
                     }
