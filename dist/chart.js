@@ -13011,6 +13011,7 @@ jui.define("chart.brush.pin", [ "util.base" ], function(_) {
                 color = chart.theme("pinBorderColor"),
                 width = chart.theme("pinBorderWidth"),
                 fontSize = chart.theme("pinFontSize"),
+                paddingY = fontSize / 2,
                 startY = axis.area("y"),
                 showText = _.typeCheck("function", this.brush.format);
 
@@ -13034,7 +13035,7 @@ jui.define("chart.brush.pin", [ "util.base" ], function(_) {
                 .point(size, 0)
                 .point(size / 2, size)
                 .point(0, 0)
-                .translate(x, fontSize / 2);
+                .translate(x, paddingY);
 
                 chart.svg.line({
                     stroke: color,
@@ -13042,8 +13043,8 @@ jui.define("chart.brush.pin", [ "util.base" ], function(_) {
                     x1: size / 2,
                     y1: startY,
                     x2: size / 2,
-                    y2: axis.area("height")
-                }).translate(x, fontSize / 2);
+                    y2: axis.area("height") - paddingY
+                }).translate(x, paddingY);
             });
 
             return g;
