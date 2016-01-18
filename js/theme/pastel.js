@@ -151,7 +151,7 @@ jui.define("chart.theme.pastel", [], function() {
 		timelineEvenRowBackgroundColor: "#fafafa",
 		timelineOddRowBackgroundColor: "#f1f0f3",
 		timelineActiveBarBackgroundColor: "#9262cf",
-		timelineHoverBarBackgroundColor: "#9262cf",
+		timelineHoverBarBackgroundColor: null,
 		timelineLayerBackgroundOpacity: 0.15,
 		timelineActiveLayerBackgroundColor: "#A75CFF",
 		timelineActiveLayerBorderColor: "#caa4f5",

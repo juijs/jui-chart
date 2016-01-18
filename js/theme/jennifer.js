@@ -162,7 +162,7 @@ jui.define("chart.theme.jennifer", [], function() {
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
         timelineActiveBarBackgroundColor: "#9262cf",
-        timelineHoverBarBackgroundColor: "#FFC000",
+        timelineHoverBarBackgroundColor: null,
         timelineLayerBackgroundOpacity: 0.15,
         timelineActiveLayerBackgroundColor: "#A75CFF",
         timelineActiveLayerBorderColor: "#caa4f5",

@@ -6,7 +6,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
      */
     var TimelineBrush = function() {
         var self = this;
-        var g, padding, domains, height, width, ticks, titleX, active;
+        var g, padding, domains, height, width, ticks, titleX, active, startX;
         var keyToIndex = {}, cacheRect = [], cacheRectIndex = null;
 
         this.setActiveRect = function(target) {
@@ -53,25 +53,28 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
         }
 
         this.setHoverBar = function(target) {
+            var hoverColor = this.chart.theme("timelineHoverBarBackgroundColor");
+
             for(var k = 0; k < cacheRect.length; k++) {
                 var r1 = cacheRect[k].r1,
                     isTarget = r1.element == target;
 
                 r1.attr({
-                    "fill": isTarget ? self.chart.theme("timelineHoverBarBackgroundColor") : cacheRect[k].color
+                    "fill": (isTarget && hoverColor != null) ? hoverColor : cacheRect[k].color
                 });
             }
         }
 
         this.drawBefore = function() {
             g = this.svg.group();
-            padding = this.chart.get("padding");
+            padding = this.axis.get("padding");
             domains = this.axis.y.domain();
             height = this.axis.y.rangeBand();
             width = this.axis.x.rangeBand();
             ticks = this.axis.x.ticks(this.axis.get("x").step);
-            titleX = (isNaN(this.axis.x(0)) ? 0 : this.axis.x(0)) - padding.left;
             active = this.brush.active;
+            startX = (this.brush.hideTitle) ? 0 : padding.left;
+            titleX = (isNaN(this.axis.x(0)) ? 0 : this.axis.x(0)) - startX;
 
             // 도메인 키와 인덱스 맵팽 객체
             for(var i = 0; i < domains.length; i++) {
@@ -80,7 +83,8 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
         }
 
         this.drawGrid = function() {
-            var yFormat = this.axis.get("y").format;
+            var yFormat = this.axis.get("y").format,
+                rowWidth = this.axis.area("width") + startX;
 
             for (var j = 0; j < domains.length; j++) {
                 var domain = domains[j],
@@ -89,32 +93,32 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 var fill = (j == 0) ? this.chart.theme("timelineColumnBackgroundColor") :
                     ((j % 2) ? this.chart.theme("timelineEvenRowBackgroundColor") : this.chart.theme("timelineOddRowBackgroundColor"));
 
-                var bg = this.svg.rect({
-                    width: this.axis.area("width") + padding.left,
+                g.append(this.svg.rect({
+                    width: rowWidth,
                     height: height,
                     fill: fill,
                     x: titleX,
                     y: y - height / 2
-                });
+                }));
 
-                var txt = this.chart.text({
-                    "text-anchor": "start",
-                    dx: 5,
-                    dy: this.chart.theme("timelineTitleFontSize") / 2,
-                    "font-size": this.chart.theme("timelineTitleFontSize"),
-                    fill: this.chart.theme("timelineTitleFontColor"),
-                    "font-weight": 700
-                })
-                .translate(titleX, y);
+                if(startX > 0) {
+                    var txt = this.chart.text({
+                        "text-anchor": "start",
+                        dx: 5,
+                        dy: this.chart.theme("timelineTitleFontSize") / 2,
+                        "font-size": this.chart.theme("timelineTitleFontSize"),
+                        fill: this.chart.theme("timelineTitleFontColor"),
+                        "font-weight": 700
+                    }).translate(titleX, y);
 
-                if (_.typeCheck("function", yFormat)) {
-                    txt.text(yFormat.apply(this.chart, [ domain, j ]));
-                } else {
-                    txt.text(domain);
+                    if (_.typeCheck("function", yFormat)) {
+                        txt.text(yFormat.apply(this.chart, [ domain, j ]));
+                    } else {
+                        txt.text(domain);
+                    }
+
+                    g.append(txt);
                 }
-
-                g.append(bg);
-                g.append(txt);
             }
         }
 
@@ -132,7 +136,8 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                         x1: x,
                         x2: x,
                         y1: y,
-                        y2: y + this.axis.area("height")
+                        y2: y + this.axis.area("height"),
+                        visibility: (startX == 0 && i == 0) ? "hidden" : "visible"
                     });
 
                     g.append(vline);
@@ -162,7 +167,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 stroke: this.chart.theme("timelineHorizontalLineColor"),
                 "stroke-width": 1,
                 x1: titleX,
-                x2: this.axis.area("width"),
+                x2: this.axis.area("width") + padding.left,
                 y1: y + height,
                 y2: y + height
             });
@@ -172,14 +177,15 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
         this.drawData = function() {
             var bg_height = this.axis.area("height"),
-                len = this.axis.data.length;
+                len = this.axis.data.length,
+                size = this.brush.barSize;
 
             for(var i = 0; i < len; i++) {
                 var d = this.axis.data[i],
                     x1 = this.axis.x(this.getValue(d, "stime", 0)),
                     x2 = this.axis.x(this.getValue(d, "etime", this.axis.x.max())),
-                    y = this.axis.y(keyToIndex[this.getValue(d, "type")]),
-                    h = this.brush.barSize,
+                    y = this.axis.y(keyToIndex[this.getValue(d, "key")]),
+                    h = (_.typeCheck("function", size)) ? size.apply(this.chart, [ d, i ]) : size,
                     color = this.color(i, 0);
 
                 var r1 = this.svg.rect({
@@ -204,7 +210,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                 if(i < len - 1) {
                     var dd = this.axis.data[i + 1],
                         xx1 = this.axis.x(this.getValue(dd, "stime", 0)),
-                        yy = this.axis.y(keyToIndex[this.getValue(dd, "type")]);
+                        yy = this.axis.y(keyToIndex[this.getValue(dd, "key")]);
 
                     var l = this.svg.line({
                         x1: x2,
@@ -285,6 +291,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             lineWidth: 1,
             active: null,
             activeEvent: "click",
+            hideTitle : false,
             clip : false
         };
     }

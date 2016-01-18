@@ -10,44 +10,11 @@
 <div id="chart"></div>
 
 <script id="script_code">
-    var data = [
-        {
-            stime: 0,
-            etime: 3,
-            type: "Method"
-        },
-        {
-            stime: 3,
-            etime: 7786,
-            type: "External Call"
-        },
-        {
-            stime: 7786,
-            etime: 9891,
-            type: "Method"
-        },
-        {
-            stime: 9891,
-            etime: 19293,
-            type: "External Call"
-        },
-        {
-            stime: 19293,
-            etime: 22166,
-            type: "Method"
-        }
-    ];
-
     jui.ready([ "chart.builder", "util.base" ], function(chart, _) {
         window.c = chart("#chart", {
             width: 1000,
             height : 90,
-            padding : {
-                top : 0,
-                bottom : 0,
-                left : 100,
-                right : 0
-            },
+            padding : 0,
             theme : "jennifer",
             axis : {
                 x : {
@@ -69,7 +36,12 @@
                         return d;
                     }
                 },
-                //data : data
+                padding : {
+                    left : 100
+                },
+                keymap : {
+                    key : "type"
+                }
             },
             brush : [{
                 type : "timeline",
@@ -82,8 +54,7 @@
 
                     // jennifer: #4dbfd9, dark: #057e94
                     return "#4dbfd9";
-                },
-                useEvent : false
+                }
             }],
             event : {
                 "timeline.active" : function(d, e) {
