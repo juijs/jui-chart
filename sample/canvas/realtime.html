@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../../lib/core.js"></script>
+    <script src="../../dist/chart.js"></script>
+</head>
+<body >
+
+X: <input type="range" id="x" min="-90" max="90" value="0" />&nbsp;&nbsp;
+Y: <input type="range" id="y" min="-90" max="90" value="0" />&nbsp;&nbsp;
+Count: <span id="count">0</span>
+<br/><br/>
+<div id="chart"></div>
+
+<script id="script_code">
+jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
+    var txData = [];
+
+    var chart = builder("#chart", {
+        width : 750,
+        height : 500,
+        padding : 100,
+        axis : [{
+            x : {
+                type : "date",
+                domain : getDomain(),
+                interval : 1,
+                realtime : "minutes",
+                format : "hh:mm",
+                key : "time"
+            },
+            y : {
+                type : "range",
+                domain : [ 0, 8000 ],
+                step : 4,
+                line : true,
+                orient : "right"
+            },
+            z : {
+                type : "block",
+                domain : [ "fatal", "warning", "normal" ],
+                line : true
+            },
+            depth : 200,
+            degree : {
+                x : 0,
+                y : 0,
+                z : 0
+            },
+            perspective : 0.7
+        }],
+        brush : [{
+            type : "canvas.scatter",
+            target : [ "delay" ],
+            size : 7,
+            clip : true,
+            zkey : function(d) {
+                if(d.level == "fatal") return 0;
+                else if(d.level == "warning") return 1;
+                return 2;
+            },
+            colors : function(d) {
+                if(d.level == "fatal") {
+                    return "#ff0000"
+                } else if(d.level == "warning") {
+                    return "#f2ab14";
+                }
+
+                return "#4692ca";
+            }
+        }],
+        widget : [{
+            type : "polygon.rotate"
+        }, {
+            type : "title",
+            text : "3D Transaction View"
+        }],
+        style : {
+            gridXAxisBorderWidth: 1,
+            gridYAxisBorderWidth: 1,
+            gridZAxisBorderWidth: 1
+        },
+        canvas : true,
+        render : false
+    });
+
+    var xElem = document.getElementById("x"),
+        yElem = document.getElementById("y");
+
+    xElem.addEventListener("input", function(e) {
+        chart.axis(0).set("degree", {
+            x: parseInt(xElem.value),
+            y: parseInt(yElem.value)
+        });
+
+        chart.render();
+    });
+
+    yElem.addEventListener("input", function(e) {
+        chart.axis(0).set("degree", {
+            x: parseInt(xElem.value),
+            y: parseInt(yElem.value)
+        });
+
+        chart.render();
+    });
+
+    setInterval(function() {
+        var domain = getDomain();
+
+        appendTxData(txData, domain);
+        chart.axis(0).update(txData);
+        chart.axis(0).updateGrid("x", { domain : domain });
+
+        chart.render();
+
+        document.getElementById("count").innerHTML = txData.length;
+    }, 1000);
+
+    function appendTxData(list, domain) {
+        var count = Math.floor(Math.random() * 100);
+
+        for(var i = 0; i < list.length; i++) {
+            if(list[i].time < domain[0]){
+                list.shift();
+            } else {
+                break;
+            }
+        }
+
+        for(var i = 0; i < count; i++) {
+            var type = Math.floor(Math.random() * 6),
+                data = {
+                    delay: Math.floor(Math.random() * 10000),
+                    level: "normal",
+                    time: domain[1]
+                };
+
+            if(type > 2 && type < 5) {
+                data.level = "warning";
+            } else if(type > 4) {
+                data.level = "fatal";
+            }
+
+            list.push(data);
+        }
+    }
+
+    function getDomain() {
+        return [ new Date() - time.MINUTE * 5, new Date().getTime() ];
+    }
+})
+</script>
+
+
+</body>
+</html>
