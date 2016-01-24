@@ -1845,7 +1845,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
 
             // Context 설정하기
             if(canvas.getContext) {
-                self.canvas = canvas.getContext(_options.canvas);
+                self.canvas = canvas.getContext("2d");
                 self.canvas.reset = function() {
                     self.canvas.restore();
                     self.canvas.clearRect(0, 0, _options.width, _options.height);
@@ -1873,7 +1873,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             });
 
             // canvas 기본 객체 생성
-            if(_options.canvas == "2d") {
+            if(_options.canvas) {
                 initCanvasElement(this);
             }
 
@@ -2430,8 +2430,8 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                 path: null
             },
 
-            /** @cfg {String} [canvas=null] */
-            canvas: null
+            /** @cfg {Boolean} [canvas=false] */
+            canvas: false
         }
     }
 
