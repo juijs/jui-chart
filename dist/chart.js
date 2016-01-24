@@ -699,7 +699,7 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
          * @param {"x"/"y"/"c"/"map"} type
          * @param {Object} grid
          */
-        this.updateGrid = function(type, grid, isReset) {
+        this.set = this.updateGrid = function(type, grid, isReset) {
             if(isReset === true) {
                 originAxis[type] = _.deepClone(grid);
                 cloneAxis[type] = _.deepClone(grid);
@@ -866,7 +866,11 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
             end: 0,
 
             /** @cfg {Number} [degree=0]  Set degree of 3d chart */
-            degree: 0,
+            degree: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
             /** @cfg {Number} [depth=0]  Set depth of 3d chart  */
             depth: 0,
             /** @cfg {Number} [perspective=0.9]  Set perspective values in the 3d chart  */
@@ -1452,6 +1456,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                     draw.axis = axis;
                     draw.brush = draws[i];
                     draw.svg = self.svg;
+                    draw.canvas = self.canvas;
 
                     // 브러쉬 렌더링
                     draw.render();
@@ -1478,6 +1483,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                     draw.axis = _axis[0];
                     draw.widget = draws[i];
                     draw.svg = self.svg;
+                    draw.canvas = self.canvas;
 
                     // 위젯은 렌더 옵션이 false일 때, 최초 한번만 로드함 (연산 + 드로잉)
                     // 하지만 isAll이 true이면, 강제로 연산 및 드로잉을 함 (테마 변경 및 리사이징 시)
@@ -1825,6 +1831,30 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             root.setAttribute("unselectable", "on");
         }
 
+        function initCanvasElement(self) {
+            var canvas = document.createElement("CANVAS");
+
+            canvas.setAttribute("width", _options.width);
+            canvas.setAttribute("height", _options.height);
+            canvas.style.position = "absolute";
+            canvas.style.left = "0px";
+            canvas.style.top = "0px";
+
+            self.root.style.position = "relative";
+            self.root.appendChild(canvas);
+
+            // Context 설정하기
+            if(canvas.getContext) {
+                self.canvas = canvas.getContext(_options.canvas);
+                self.canvas.reset = function() {
+                    self.canvas.restore();
+                    self.canvas.clearRect(0, 0, _options.width, _options.height);
+                    self.canvas.save();
+                    self.canvas.translate(_area.x, _area.y);
+                }
+            }
+        }
+
         this.init = function() {
             // 기본 옵션 설정
             setDefaultOptions(this);
@@ -1835,13 +1865,17 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             // 텍스트 드래그 막기
             preventTextSelection(this.root);
 
-            // svg 기본 객체 생성
             /** @property {chart.svg} svg Refers to an SVG utility object. */
             this.svg = new SVGUtil(this.root, {
                 width: _options.width,
                 height: _options.height,
                 "buffered-rendering" : "dynamic"
             });
+
+            // canvas 기본 객체 생성
+            if(_options.canvas == "2d") {
+                initCanvasElement(this);
+            }
 
             // 차트 기본 렌더링
             this.render();
@@ -2170,6 +2204,11 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             // chart 영역 계산
             calculate(this);
 
+            // Canvas 초기 설정
+            if(_.typeCheck("object", this.canvas)) {
+                this.canvas.reset();
+            }
+
             // chart 관련된 요소 draw
             drawBefore(this);
             drawAxis(this);
@@ -2389,7 +2428,10 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             icon: {
                 type: "jennifer",
                 path: null
-            }
+            },
+
+            /** @cfg {String} [canvas=null] */
+            canvas: null
         }
     }
 
@@ -14193,7 +14235,7 @@ jui.define("chart.brush.polygon.scatter",
 		}
 	}
 
-		PolygonScatterBrush.setup = function() {
+	PolygonScatterBrush.setup = function() {
 		return {
 			zkey: null,
 
@@ -14378,6 +14420,71 @@ jui.define("chart.brush.polygon.line",
 	return PolygonLineBrush;
 }, "chart.brush.polygon.core");
 
+jui.define("chart.brush.canvas.core", [], function() {
+    var CanvasCoreBrush = function() {
+        this.drawAfter = function(obj) {
+        }
+    }
+
+    return CanvasCoreBrush;
+}, "chart.brush.polygon.core");
+jui.define("chart.brush.canvas.scatter",
+    [ "util.base", "util.math", "util.color", "chart.polygon.point" ],
+    function(_, MathUtil, ColorUtil, PointPolygon) {
+
+    /**
+     * @class chart.brush.canvas.scatter
+     * @extends chart.brush.canvas.core
+     */
+    var CanvasScatterBrush = function () {
+        this.createScatter = function(data, target, dataIndex, targetIndex) {
+            var color = this.color(dataIndex, targetIndex),
+                zkey = this.brush.zkey,
+                r = this.brush.size / 2,
+                x = this.axis.x(dataIndex),
+                y = this.axis.y(data[target]),
+                z = null;
+
+            if(_.typeCheck("function", zkey)) {
+                var zk = zkey.call(this.chart, data);
+                z = this.axis.z(zk);
+            } else {
+                z = this.axis.z(data[zkey]);
+            }
+
+            return this.drawPolygon(new PointPolygon(x, y, z), function(p) {
+                this.canvas.beginPath();
+                this.canvas.arc(p.vectors[0].x, p.vectors[0].y, r * MathUtil.scaleValue(z, 0, this.axis.depth, 1, p.perspective), 0, 2 * Math.PI, false);
+                this.canvas.fillStyle = color;
+                this.canvas.fill();
+            });
+        }
+
+        this.draw = function() {
+            var datas = this.listData(),
+                targets = this.brush.target;
+
+            for(var i = 0; i < datas.length; i++) {
+                for(var j = 0; j < targets.length; j++) {
+                    this.createScatter(datas[i], targets[j], i, j);
+                }
+            }
+
+            return this.canvas;
+        }
+    }
+
+    CanvasScatterBrush.setup = function() {
+        return {
+            zkey: null,
+
+            /** @cfg {Number} [size=7]  Determines the size of a starter. */
+            size: 7
+        };
+    }
+
+    return CanvasScatterBrush;
+}, "chart.brush.canvas.core");
 jui.define("chart.widget.core", [ "util.base" ], function(_) {
 
 
@@ -16824,12 +16931,6 @@ jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
         }
 
         this.draw = function() {
-            var d = this.axis.degree;
-
-            if(_.typeCheck("integer", d)) { // 기본 각도 설정
-                this.axis.degree = { x: d, y: d, z: d };
-            }
-
             setScrollEvent(this.axis.area("width"), this.axis.area("height"));
 
             return chart.svg.group();

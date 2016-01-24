@@ -119,6 +119,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                     draw.axis = axis;
                     draw.brush = draws[i];
                     draw.svg = self.svg;
+                    draw.canvas = self.canvas;
 
                     // 브러쉬 렌더링
                     draw.render();
@@ -145,6 +146,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                     draw.axis = _axis[0];
                     draw.widget = draws[i];
                     draw.svg = self.svg;
+                    draw.canvas = self.canvas;
 
                     // 위젯은 렌더 옵션이 false일 때, 최초 한번만 로드함 (연산 + 드로잉)
                     // 하지만 isAll이 true이면, 강제로 연산 및 드로잉을 함 (테마 변경 및 리사이징 시)
@@ -492,6 +494,30 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             root.setAttribute("unselectable", "on");
         }
 
+        function initCanvasElement(self) {
+            var canvas = document.createElement("CANVAS");
+
+            canvas.setAttribute("width", _options.width);
+            canvas.setAttribute("height", _options.height);
+            canvas.style.position = "absolute";
+            canvas.style.left = "0px";
+            canvas.style.top = "0px";
+
+            self.root.style.position = "relative";
+            self.root.appendChild(canvas);
+
+            // Context 설정하기
+            if(canvas.getContext) {
+                self.canvas = canvas.getContext(_options.canvas);
+                self.canvas.reset = function() {
+                    self.canvas.restore();
+                    self.canvas.clearRect(0, 0, _options.width, _options.height);
+                    self.canvas.save();
+                    self.canvas.translate(_area.x, _area.y);
+                }
+            }
+        }
+
         this.init = function() {
             // 기본 옵션 설정
             setDefaultOptions(this);
@@ -502,13 +528,17 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             // 텍스트 드래그 막기
             preventTextSelection(this.root);
 
-            // svg 기본 객체 생성
             /** @property {chart.svg} svg Refers to an SVG utility object. */
             this.svg = new SVGUtil(this.root, {
                 width: _options.width,
                 height: _options.height,
                 "buffered-rendering" : "dynamic"
             });
+
+            // canvas 기본 객체 생성
+            if(_options.canvas == "2d") {
+                initCanvasElement(this);
+            }
 
             // 차트 기본 렌더링
             this.render();
@@ -837,6 +867,11 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             // chart 영역 계산
             calculate(this);
 
+            // Canvas 초기 설정
+            if(_.typeCheck("object", this.canvas)) {
+                this.canvas.reset();
+            }
+
             // chart 관련된 요소 draw
             drawBefore(this);
             drawAxis(this);
@@ -1056,7 +1091,10 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             icon: {
                 type: "jennifer",
                 path: null
-            }
+            },
+
+            /** @cfg {String} [canvas=null] */
+            canvas: null
         }
     }
 

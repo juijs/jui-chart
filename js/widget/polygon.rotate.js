@@ -69,12 +69,6 @@ jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
         }
 
         this.draw = function() {
-            var d = this.axis.degree;
-
-            if(_.typeCheck("integer", d)) { // 기본 각도 설정
-                this.axis.degree = { x: d, y: d, z: d };
-            }
-
             setScrollEvent(this.axis.area("width"), this.axis.area("height"));
 
             return chart.svg.group();

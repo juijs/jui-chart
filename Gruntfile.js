@@ -121,6 +121,10 @@ module.exports = function(grunt) {
         "js/brush/polygon.column.js",
         "js/brush/polygon.line.js",
 
+        // canvas brush
+        "js/brush/canvas.core.js",
+        "js/brush/canvas.scatter.js",
+
         // chart.widget
         "js/widget/core.js",
         "js/widget/tooltip.js",
