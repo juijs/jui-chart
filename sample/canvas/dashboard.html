@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../../lib/core.js"></script>
+    <script src="../../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+jui.redefine("chart.brush.canvas.scatter", [], function() {
+
+    /**
+     * @class chart.brush.canvas.scatter
+     * @extends chart.brush.canvas.core
+     */
+    var CanvasScatterBrush = function () {
+        this.createScatter = function(data, target, dataIndex, targetIndex) {
+            var color = this.color(dataIndex, targetIndex),
+                r = this.brush.size / 2,
+                cx = this.axis.x(dataIndex),
+                cy = this.axis.y(data[target]);
+
+            this.canvas.beginPath();
+            this.canvas.arc(cx, cy, r, 0, 2 * Math.PI, false);
+            this.canvas.fillStyle = color;
+            this.canvas.fill();
+        }
+
+        this.draw = function() {
+            var datas = this.listData(),
+                targets = this.brush.target;
+
+            for(var i = 0; i < datas.length; i++) {
+                for(var j = 0; j < targets.length; j++) {
+                    this.createScatter(datas[i], targets[j], i, j);
+                }
+            }
+
+            return this.canvas;
+        }
+    }
+
+    CanvasScatterBrush.setup = function() {
+        return {
+            /** @cfg {Number} [size=7]  Determines the size of a starter. */
+            size: 7
+        };
+    }
+
+    return CanvasScatterBrush;
+}, "chart.brush.canvas.core");
+
+jui.ready(["chart.builder"], function(chart) {
+    var d = [
+        { sales: 0, profit: 15, total: 20, value: 80 },
+        { sales: 15, profit: 6, total: 20, value: 50 },
+        { sales: 8, profit: 10, total: 20, value: 60 },
+        { sales: 18, profit: 5, total: 20, value: 15 }
+    ];
+
+    var c = chart("#chart", {
+        width: 1024,
+        height : 768,
+        padding: 100,
+        theme : "dark",
+        axis : [{
+            x : {
+                type : "block",
+                domain : [ "Q1", "Q2", "Q3", "Q4" ],
+                line : true,
+                orient : "bottom"
+            },
+            y : {
+                type : "range",
+                domain : "total",
+                step : 5,
+                line : true,
+                orient : "left"
+            },
+            area : {
+                width : "45%"
+            },
+            data : d
+        }, {
+            extend : 0,
+            y : {
+                domain : [ 0, 100 ]
+            },
+            area : {
+                width : "45%",
+                height : "45%",
+                x : "50%"
+            },
+            data : d
+        }, {
+            extend : 0,
+            y : {
+                domain : [ 0, 40 ]
+            },
+            area : {
+                width : "45%",
+                height : "45%",
+                x : "50%",
+                y : "55%"
+            },
+            data : d
+        }],
+        brush : [{
+            type: "canvas.scatter",
+            target : [ "sales", "profit", "total" ],
+            size : 10,
+            axis : 0
+        }, {
+            type: "canvas.scatter",
+            target : [ "value" ],
+            size : 20,
+            axis : 1,
+            colors : [ "blue" ]
+        }, {
+            type: "canvas.scatter",
+            target : [ "sales" ],
+            size : 15,
+            axis : 2,
+            colors : [ "red" ]
+        }],
+        widget : {
+            type : "title",
+            text : "Canvas Test"
+        },
+        style : {
+            gridXAxisBorderWidth: 1,
+            gridYAxisBorderWidth: 1,
+            gridZAxisBorderWidth: 1
+        },
+        canvas : true
+    });
+})
+</script>
+
+
+</body>
+</html>
