@@ -222,7 +222,7 @@ jui.define("chart.grid.core", [ "util.base", "util.math", "chart.grid.draw2d", "
 			if (!x.hide) {
 				if (x.orient == "top" && index == 0) {
 					return false;
-				} else if (x.orient == "bottom" && isLast) {
+				} else if (x.orient == "bottom" && isLast && !x.realtime) {
 					return false;
 				}
 			}

@@ -40,7 +40,8 @@
                     interval : 1,				// 단위 시간에 대한 간격 설정
                     realtime : "minutes",		// 단위 시간 설정
                     format : "hh:mm",
-                    key : "time"
+                    key : "time",
+                    line : 'solid'
                 },
                 y : {
                     type : "range",
@@ -116,7 +117,7 @@
 
             chart2.axis(0).updateGrid("x", { domain : domain });
             chart2.axis(0).update(data2);
-            chart2.render();
+            //chart2.render();
         }, 1000);
     });
 </script>
