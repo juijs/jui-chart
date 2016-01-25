@@ -7,6 +7,10 @@
 </head>
 <body class="jui">
 
+X: <input type="range" id="x" min="-90" max="90" value="0" />&nbsp;&nbsp;
+Y: <input type="range" id="y" min="-90" max="90" value="0" />
+<br/><br/>
+
 <div id="result"></div>
 
 <script>
@@ -65,22 +69,19 @@
                     var colorIndex = (Math.abs(max - minY)/dist) * 5 + 1;
                     colorIndex = Math.floor(colorIndex);
 
-                    var face = this.chart.svg.polygon({
-                        fill: colors[colorIndex],
-                        "fill-opacity": fillOpacity,
-                        stroke: darken[colorIndex],
-                        "stroke-opacity": strokeOpacity
-                    });
 
-                    face.point(points[0][0], points[0][1]);
-                    face.point(points[1][0], points[1][1]);
-                    face.point(points[2][0], points[2][1]);
-                    face.point(points[3][0], points[3][1]);
+                    this.canvas.fillStyle = colors[colorIndex];
+                    this.canvas.strokeStyle = darken[colorIndex];
+                    this.canvas.beginPath();
+                    this.canvas.moveTo(points[0][0], points[0][1]);
+                    this.canvas.lineTo(points[1][0], points[1][1]);
+                    this.canvas.lineTo(points[2][0], points[2][1]);
+                    this.canvas.lineTo(points[3][0], points[3][1]);
+                    this.canvas.closePath();
+                    this.canvas.stroke();
+                    this.canvas.fill();
 
-                    return {
-                        element: face,
-                        depth: maxZ / 2
-                    };
+
                 }
 
                 this.drawBefore = function() {
@@ -101,29 +102,24 @@
                 }
 
                 this.draw = function() {
-                    var g = this.chart.svg.group(),
-                            datas = this.listData(),
-                            groups = [];
+                    var datas = this.listData();
 
                     var meshGrid = new MeshGrid(datas, this.axis.x, this.axis.y, this.axis.z);
                     this.calculate3d(meshGrid);
 
                     // 폴리곤 객체를 따로 만든다.
+                    //this.canvas.fillStyle = 'white';
+                    //this.canvas.strokStyle = 'black';
 
                     var len = meshGrid.len -1;
                     var clen = meshGrid.clen -1;
                     for(var row = 0; row < len; row++) {
                         for(var col = 0; col < clen; col++) {
-                            var p = this.createGrid(meshGrid, row, col);
-                            groups.push(p);
+                            this.createGrid(meshGrid, row, col);
                         }
                     }
 
-                    for(var i = 0; i < groups.length; i++) {
-                        g.append(groups[i].element);
-                    }
-
-                    return g;
+                    return this.canvas;
                 }
             }
 
@@ -141,7 +137,7 @@
             }
 
             return PolygonMeshGridBrush;
-    }, "chart.brush.polygon.core");
+    }, "chart.brush.canvas.core");
 
     jui.ready([ "chart.builder" ], function(chart) {
 
@@ -156,8 +152,8 @@
          surf(x,y,z);
          */
 
-        var x = r.ticks(64);
-        var z = r.ticks(64);
+        var x = r.ticks(128);
+        var z = r.ticks(128);
 
 
         function sinc(n) {
@@ -184,7 +180,7 @@
 
         //console.log(data);
 
-        jui.create("chart.builder", "#result", {
+        c = jui.create("chart.builder", "#result", {
             height: 800,
             width: 800,
             padding: 150,
@@ -226,9 +222,34 @@
                 gridXAxisBorderWidth: 1,
                 gridYAxisBorderWidth: 1,
                 gridZAxisBorderWidth: 1
-            }
+            },
+            canvas: true,
+            render: false
         });
-	})
+
+
+        var xElem = document.getElementById("x"),
+            yElem = document.getElementById("y");
+
+        xElem.addEventListener("input", function(e) {
+            c.axis(0).set("degree", {
+                x: parseInt(xElem.value),
+                y: parseInt(yElem.value)
+            });
+
+            c.render();
+        });
+
+        yElem.addEventListener("input", function(e) {
+            c.axis(0).set("degree", {
+                x: parseInt(xElem.value),
+                y: parseInt(yElem.value)
+            });
+
+            c.render();
+        });
+
+    })
 </script>
 
 
