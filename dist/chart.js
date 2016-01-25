@@ -16782,7 +16782,7 @@ jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
         function setScrollEvent(axisIndex) {
             var axis = self.chart.axis(axisIndex),
                 isMove = false,
-                mouseStartX = 0;
+                mouseStartX = 0,
                 mouseStartY = 0,
                 sdx = 0,
                 sdy = 0,
