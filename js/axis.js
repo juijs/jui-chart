@@ -295,7 +295,6 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                 page : cloneAxis.page,
                 start : cloneAxis.start,
                 end : cloneAxis.end,
-
                 degree : cloneAxis.degree,
                 depth : cloneAxis.depth,
                 perspective : cloneAxis.perspective
@@ -429,7 +428,7 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
          * @param {"x"/"y"/"c"/"map"} type
          * @param {Object} grid
          */
-        this.updateGrid = function(type, grid, isReset) {
+        this.set = this.updateGrid = function(type, grid, isReset) {
             if(isReset === true) {
                 originAxis[type] = _.deepClone(grid);
                 cloneAxis[type] = _.deepClone(grid);
@@ -594,9 +593,17 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
             start: 0,
             /** @cfg {Number} [end=0] */
             end: 0,
-
-            /** @cfg {Number} [degree=0]  Set degree of 3d chart */
-            degree: 0,
+            /**
+             * @cfg  {Object} Set degree of 3d chart
+             * @cfg  {Number} [degree.x=0] axis's x-degree
+             * @cfg  {Number} [degree.y=0] axis's y-degree
+             * @cfg  {Number} [degree.z=0] axis's z-degree
+             */
+            degree: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
             /** @cfg {Number} [depth=0]  Set depth of 3d chart  */
             depth: 0,
             /** @cfg {Number} [perspective=0.9]  Set perspective values in the 3d chart  */

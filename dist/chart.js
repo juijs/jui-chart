@@ -236,22 +236,20 @@ jui.define("chart.draw", [ "util.base" ], function(_) {
         this.calculate3d = function() {
             var w = this.axis.area("width"),
                 h = this.axis.area("height"),
+                x = this.axis.area("x"),
+                y = this.axis.area("y"),
                 d = this.axis.depth,
                 r = this.axis.degree,
                 p = this.axis.perspective,
                 list = arguments;
 
-            if(_.typeCheck("integer", r)) {
-                r = { x: r, y: r, z: r };
-            } else if(_.typeCheck("object", r)) {
-                if(!_.typeCheck("integer", r.x)) r.x = 0;
-                if(!_.typeCheck("integer", r.y)) r.y = 0;
-                if(!_.typeCheck("integer", r.z)) r.z = 0;
-            }
+            if(!_.typeCheck("integer", r.x)) r.x = 0;
+            if(!_.typeCheck("integer", r.y)) r.y = 0;
+            if(!_.typeCheck("integer", r.z)) r.z = 0;
 
             for(var i = 0; i < list.length; i++) {
                 list[i].perspective = p;
-                list[i].rotate(w, h, d, r);
+                list[i].rotate(Math.max(w, h, d), r, x + (w/2), y + (h/2), d/2);
             }
         }
 	}
@@ -565,7 +563,6 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                 page : cloneAxis.page,
                 start : cloneAxis.start,
                 end : cloneAxis.end,
-
                 degree : cloneAxis.degree,
                 depth : cloneAxis.depth,
                 perspective : cloneAxis.perspective
@@ -699,7 +696,7 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
          * @param {"x"/"y"/"c"/"map"} type
          * @param {Object} grid
          */
-        this.updateGrid = function(type, grid, isReset) {
+        this.set = this.updateGrid = function(type, grid, isReset) {
             if(isReset === true) {
                 originAxis[type] = _.deepClone(grid);
                 cloneAxis[type] = _.deepClone(grid);
@@ -864,9 +861,17 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
             start: 0,
             /** @cfg {Number} [end=0] */
             end: 0,
-
-            /** @cfg {Number} [degree=0]  Set degree of 3d chart */
-            degree: 0,
+            /**
+             * @cfg  {Object} Set degree of 3d chart
+             * @cfg  {Number} [degree.x=0] axis's x-degree
+             * @cfg  {Number} [degree.y=0] axis's y-degree
+             * @cfg  {Number} [degree.z=0] axis's z-degree
+             */
+            degree: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
             /** @cfg {Number} [depth=0]  Set depth of 3d chart  */
             depth: 0,
             /** @cfg {Number} [perspective=0.9]  Set perspective values in the 3d chart  */
@@ -4083,12 +4088,8 @@ jui.define("chart.polygon.core", [ "chart.vector", "util.transform", "util.math"
     var PolygonCore = function() {
         this.perspective = 0.9;
 
-        this.rotate = function(width, height, depth, degree) {
+        this.rotate = function(depth, degree, cx, cy, cz) {
             var p = this.perspective,
-                cx = width / 2,
-                cy = height / 2,
-                cz = depth / 2,
-                maxDepth = Math.max(width, height, depth),
                 t = new Transform(this.vertices),
                 m = t.matrix("move3d", cx, cy, cz);
 
@@ -4100,14 +4101,14 @@ jui.define("chart.polygon.core", [ "chart.vector", "util.transform", "util.math"
             this.vertices = t.custom(m);
 
             for (var i = 0, count = this.vertices.length; i < count; i++) {
-                var far = Math.abs(this.vertices[i][2] - maxDepth),
-                    s = math.scaleValue(far, 0, maxDepth, p, 1),
+                var far = Math.abs(this.vertices[i][2] - depth),
+                    s = math.scaleValue(far, 0, depth, p, 1),
                     t2 = new Transform(),
-                    m2 = t2.matrix("move3d", cx, cy, maxDepth/2);
+                    m2 = t2.matrix("move3d", cx, cy, depth/2);
 
                 // 폴리곤 스케일 변경
                 m2 = math.matrix3d(m2, t2.matrix("scale3d", s, s, s));
-                m2 = math.matrix3d(m2, t2.matrix("move3d", -cx, -cy, -maxDepth/2));
+                m2 = math.matrix3d(m2, t2.matrix("move3d", -cx, -cy, -depth/2));
                 this.vertices[i] = math.matrix3d(m2, this.vertices[i]);
 
                 // 벡터 객체 생성 및 갱신
@@ -4159,25 +4160,30 @@ jui.define("chart.polygon.core", [ "chart.vector", "util.transform", "util.math"
     return PolygonCore;
 });
 jui.define("chart.polygon.grid", [], function() {
-    var GridPolygon = function(type, width, height, depth) {
+    var GridPolygon = function(type, width, height, depth, x, y) {
+        x = x || 0;
+        y = y || 0;
+        width = x + width;
+        height = y + height;
+
         var matrix = {
             center: [
-                new Float32Array([ 0, 0, depth, 1 ]),
-                new Float32Array([ width, 0, depth, 1 ]),
+                new Float32Array([ x, y, depth, 1 ]),
+                new Float32Array([ width, y, depth, 1 ]),
                 new Float32Array([ width, height, depth, 1 ]),
-                new Float32Array([ 0, height, depth, 1 ])
+                new Float32Array([ x, height, depth, 1 ])
             ],
             horizontal: [
-                new Float32Array([ 0, height, 0, 1 ]),
+                new Float32Array([ x, height, 0, 1 ]),
                 new Float32Array([ width, height, 0, 1 ]),
                 new Float32Array([ width, height, depth, 1 ]),
-                new Float32Array([ 0, height, depth, 1 ])
+                new Float32Array([ x, height, depth, 1 ])
             ],
             vertical: [
-                new Float32Array([ width, 0, 0, 1 ]),
+                new Float32Array([ width, y, 0, 1 ]),
                 new Float32Array([ width, height, 0, 1 ]),
                 new Float32Array([ width, height, depth, 1 ]),
-                new Float32Array([ width, 0, depth, 1 ])
+                new Float32Array([ width, y, depth, 1 ])
             ]
         };
 
@@ -4496,7 +4502,7 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
 
         this.createGridX = function(position, index, x, isActive, isLast) {
             var line = this.getLineOption(),
-                axis = this.chart.svg.group();
+                axis = this.svg.group();
 
             if (line) {
                 this.drawValueLine(position, axis, isActive, line, index, x, isLast);
@@ -4507,7 +4513,7 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
 
         this.createGridY = function(position, index, y, isActive, isLast) {
             var line = this.getLineOption(),
-                axis = this.chart.svg.group();
+                axis = this.svg.group();
 
             if (line) {
                 this.drawValueLine(position, axis, isActive, line, index, y, isLast);
@@ -4528,7 +4534,7 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
          * @param {Function} checkActive
          */
         this.drawCenter = function(g, ticks, values, checkActive, moveZ) {
-            var axis = this.chart.svg.group(),
+            var axis = this.svg.group(),
                 line = this.getLineOption();
 
             if(line) {
@@ -4541,7 +4547,7 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
         }
 
         this.drawBaseLine = function(position, g) {
-            var axis = this.chart.svg.group();
+            var axis = this.svg.group();
             this.drawAxisLine(position, axis);
 
             g.append(axis);
@@ -4563,7 +4569,7 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
                 borderWidth = "gridZAxisBorderWidth";
             }
 
-            var face = this.chart.svg.polygon({
+            var face = this.svg.polygon({
                 stroke: this.chart.theme(borderColor),
                 "stroke-width": this.chart.theme(borderWidth),
                 "stroke-opacity" : 1,
@@ -4574,17 +4580,19 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
             var p = null,
                 w = this.axis.area("width"),
                 h = this.axis.area("height"),
+                x = this.axis.area("x"),
+                y = this.axis.area("y"),
                 d = this.axis.depth;
 
             if(position == "center") {
-                p = new GridPolygon("center", w, h, d);
+                p = new GridPolygon("center", w, h, d, x, y);
             } else {
                 if(isTopOrBottom) {
                     h = (position == "bottom") ? h : 0;
-                    p = new GridPolygon("horizontal", w, h, d);
+                    p = new GridPolygon("horizontal", w, h, d, x, y);
                 } else {
                     w = (position == "right") ? w : 0;
-                    p = new GridPolygon("vertical", w, h, d);
+                    p = new GridPolygon("vertical", w, h, d, x, y);
                 }
             }
 
@@ -4601,26 +4609,28 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
             var isDrawLine = false,
                 w = this.axis.area("width"),
                 h = this.axis.area("height"),
+                x = this.axis.area("x"),
+                y = this.axis.area("y"),
                 d = this.axis.depth,
                 l1 = null,
                 l2 = null;
 
             if (position == "top") {
                 isDrawLine = this.checkDrawLineY(index, isLast);
-                l1 = new LinePolygon(xy, 0, 0, xy, 0, d);
-                l2 = new LinePolygon(xy, 0, d, xy, h, d);
+                l1 = new LinePolygon(xy, y, 0, xy, y, d);
+                l2 = new LinePolygon(xy, y, d, xy, y + h, d);
             } else if (position == "bottom" ) {
                 isDrawLine = this.checkDrawLineY(index, isLast);
-                l1 = new LinePolygon(xy, h, 0, xy, h, d);
-                l2 = new LinePolygon(xy, h, d, xy, 0, d);
+                l1 = new LinePolygon(xy, y + h, 0, xy, y + h, d);
+                l2 = new LinePolygon(xy, y + h, d, xy, y, d);
             } else if (position == "left") {
                 isDrawLine = this.checkDrawLineX(index, isLast);
-                l1 = new LinePolygon(0, xy, 0, 0, xy, d);
-                l2 = new LinePolygon(0, xy, d, w, xy, d);
+                l1 = new LinePolygon(x, xy, 0, x, xy, d);
+                l2 = new LinePolygon(x, xy, d, x + w, xy, d);
             } else if (position == "right" ) {
                 isDrawLine = this.checkDrawLineX(index, isLast);
-                l1 = new LinePolygon(w, xy, 0, w, xy, d);
-                l2 = new LinePolygon(w, xy, d, 0, xy, d);
+                l1 = new LinePolygon(x + w, xy, 0, x + w, xy, d);
+                l2 = new LinePolygon(x + w, xy, d, x, xy, d);
             }
 
             if(isDrawLine) {
@@ -4659,6 +4669,8 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
             var len = (this.grid.type != "block") ? ticks.length - 1 : ticks.length,
                 w = this.axis.area("width"),
                 h = this.axis.area("height"),
+                x = this.axis.area("x"),
+                y = this.axis.area("y"),
                 d = this.axis.depth,
                 dx = (this.axis.get("y").orient == "left") ? 0 : w,
                 dy = (this.axis.get("x").orient == "top") ? 0 : h;
@@ -4666,8 +4678,8 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
             // z축 라인 드로잉
             for(var i = 1; i < len; i++) {
                 var t = i * (d / len),
-                    p1 = new LinePolygon(0, dy, t, w, dy, t),
-                    p2 = new LinePolygon(dx, 0, t, dx, h, t);
+                    p1 = new LinePolygon(x, y + dy, t, x + w, y + dy, t),
+                    p2 = new LinePolygon(x + dx, y, t, x + dx, y + h, t);
 
                 this.calculate3d(p1, p2);
 
@@ -4700,20 +4712,22 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
                 tickPadding = this.chart.theme("gridTickPadding"),
                 w = this.axis.area("width"),
                 h = this.axis.area("height"),
+                dx = this.axis.area("x"),
+                dy = this.axis.area("y"),
                 x = 0,
                 y = 0;
 
             if(position == "top") {
                 x = xy;
-                y = -(tickSize + tickPadding * 2);
+                y = dy + (-(tickSize + tickPadding * 2));
             } else if(position == "bottom") {
                 x = xy;
-                y = h + tickSize + tickPadding * 2;
+                y = dy + (h + tickSize + tickPadding * 2);
             } else if(position == "left") {
-                x = -(tickSize + tickPadding);
+                x = dx + (-(tickSize + tickPadding));
                 y = xy;
             } else if(position == "right") {
-                x = w + tickSize + tickPadding;
+                x = dx + (w + tickSize + tickPadding);
                 y = xy;
             }
 
@@ -4740,8 +4754,8 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
                 w = this.axis.area("width"),
                 h = this.axis.area("height"),
                 d = this.axis.depth,
-                x = (isLeft) ? w + margin : -margin,
-                y = (isTop) ? -margin : h + margin;
+                x = this.axis.area("x") + ((isLeft) ? w + margin : -margin),
+                y = this.axis.area("y") + ((isTop) ? -margin : h + margin);
 
             // z축 라인 드로잉
             for(var i = 0; i < ticks.length; i++) {
@@ -16762,24 +16776,25 @@ jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
      * @alias ScrollWidget
      * @requires util.base
      */
-    var PolygonRotateWdiget = function(chart, axis, widget) {
+    var PolygonRotateWdiget = function() {
         var self = this;
 
-        function setScrollEvent(w, h) {
-            var isMove = false,
+        function setScrollEvent(axisIndex) {
+            var axis = self.chart.axis(axisIndex),
+                isMove = false,
                 mouseStartX = 0;
                 mouseStartY = 0,
                 sdx = 0,
                 sdy = 0,
                 cacheXY = null,
                 unit = self.widget.unit,
-                degree = self.axis.degree;
+                w = axis.area("width"),
+                h = axis.area("height");
 
-            self.on("bg.mousedown", mousedown);
-            self.on("chart.mousedown", mousedown);
-            self.on("bg.mousemove", mousemove);
+            self.on("axis.mousedown", mousedown, axisIndex);
+            self.on("axis.mousemove", mousemove, axisIndex);
+            self.on("axis.mouseup", mouseup, axisIndex);
             self.on("bg.mouseup", mouseup);
-            self.on("chart.mousemove", mousemove);
             self.on("chart.mouseup", mouseup);
 
             function mousedown(e) {
@@ -16788,8 +16803,8 @@ jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
                 isMove = true;
                 mouseStartX = e.chartX;
                 mouseStartY = e.chartY;
-                sdx = self.axis.degree.x;
-                sdy = self.axis.degree.y;
+                sdx = axis.degree.x;
+                sdy = axis.degree.y;
             }
 
             function mousemove(e) {
@@ -16797,20 +16812,22 @@ jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
 
                 var gapX = e.chartX - mouseStartX,
                     gapY = e.chartY - mouseStartY,
-                    dx = Math.floor((gapY / h) * DEGREE_LIMIT),
-                    dy = Math.floor((gapX / w) * DEGREE_LIMIT);
-
-                degree.x = sdx + dx;
-                degree.y = sdy - dy;
+                    dx = sdx + Math.floor((gapY / h) * DEGREE_LIMIT),
+                    dy = sdy - Math.floor((gapX / w) * DEGREE_LIMIT);
 
                 // 각도 Interval이 맞을 경우, 렌더링하지 않음
-                if(degree.x % unit != 0 && degree.y % unit != 0) return;
+                if(dx % unit != 0 && dy % unit != 0) return;
 
                 // 이전 각도와 동일할 경우, 렌더링하지 않음
-                var newCacheXY = degree.x + ":" + degree.y;
+                var newCacheXY = dx + ":" + dy;
                 if(cacheXY == newCacheXY) return;
 
-                chart.render();
+                axis.set("degree", {
+                    x: dx,
+                    y: dy
+                });
+
+                self.chart.render();
                 cacheXY = newCacheXY;
             }
 
@@ -16824,21 +16841,20 @@ jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
         }
 
         this.draw = function() {
-            var d = this.axis.degree;
+            var indexes = (_.typeCheck("array", this.widget.axis) ? this.widget.axis : [ this.widget.axis ]);
 
-            if(_.typeCheck("integer", d)) { // 기본 각도 설정
-                this.axis.degree = { x: d, y: d, z: d };
+            for(var i = 0; i < indexes.length; i++) {
+                setScrollEvent(indexes[i]);
             }
 
-            setScrollEvent(this.axis.area("width"), this.axis.area("height"));
-
-            return chart.svg.group();
+            return this.svg.group();
         }
     }
 
     PolygonRotateWdiget.setup = function() {
         return {
-            unit: 5 // 회전 최소 각도
+            unit: 5, // 회전 최소 각도
+            axis: [ 0 ]
         }
     }
 

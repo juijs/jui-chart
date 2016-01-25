@@ -4,12 +4,8 @@ jui.define("chart.polygon.core", [ "chart.vector", "util.transform", "util.math"
     var PolygonCore = function() {
         this.perspective = 0.9;
 
-        this.rotate = function(width, height, depth, degree) {
+        this.rotate = function(depth, degree, cx, cy, cz) {
             var p = this.perspective,
-                cx = width / 2,
-                cy = height / 2,
-                cz = depth / 2,
-                maxDepth = Math.max(width, height, depth),
                 t = new Transform(this.vertices),
                 m = t.matrix("move3d", cx, cy, cz);
 
@@ -21,14 +17,14 @@ jui.define("chart.polygon.core", [ "chart.vector", "util.transform", "util.math"
             this.vertices = t.custom(m);
 
             for (var i = 0, count = this.vertices.length; i < count; i++) {
-                var far = Math.abs(this.vertices[i][2] - maxDepth),
-                    s = math.scaleValue(far, 0, maxDepth, p, 1),
+                var far = Math.abs(this.vertices[i][2] - depth),
+                    s = math.scaleValue(far, 0, depth, p, 1),
                     t2 = new Transform(),
-                    m2 = t2.matrix("move3d", cx, cy, maxDepth/2);
+                    m2 = t2.matrix("move3d", cx, cy, depth/2);
 
                 // 폴리곤 스케일 변경
                 m2 = math.matrix3d(m2, t2.matrix("scale3d", s, s, s));
-                m2 = math.matrix3d(m2, t2.matrix("move3d", -cx, -cy, -maxDepth/2));
+                m2 = math.matrix3d(m2, t2.matrix("move3d", -cx, -cy, -depth/2));
                 this.vertices[i] = math.matrix3d(m2, this.vertices[i]);
 
                 // 벡터 객체 생성 및 갱신

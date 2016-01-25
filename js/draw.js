@@ -178,22 +178,20 @@ jui.define("chart.draw", [ "util.base" ], function(_) {
         this.calculate3d = function() {
             var w = this.axis.area("width"),
                 h = this.axis.area("height"),
+                x = this.axis.area("x"),
+                y = this.axis.area("y"),
                 d = this.axis.depth,
                 r = this.axis.degree,
                 p = this.axis.perspective,
                 list = arguments;
 
-            if(_.typeCheck("integer", r)) {
-                r = { x: r, y: r, z: r };
-            } else if(_.typeCheck("object", r)) {
-                if(!_.typeCheck("integer", r.x)) r.x = 0;
-                if(!_.typeCheck("integer", r.y)) r.y = 0;
-                if(!_.typeCheck("integer", r.z)) r.z = 0;
-            }
+            if(!_.typeCheck("integer", r.x)) r.x = 0;
+            if(!_.typeCheck("integer", r.y)) r.y = 0;
+            if(!_.typeCheck("integer", r.z)) r.z = 0;
 
             for(var i = 0; i < list.length; i++) {
                 list[i].perspective = p;
-                list[i].rotate(w, h, d, r);
+                list[i].rotate(Math.max(w, h, d), r, x + (w/2), y + (h/2), d/2);
             }
         }
 	}
