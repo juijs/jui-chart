@@ -53,6 +53,38 @@ jui.redefine("chart.brush.canvas.scatter", [], function() {
     return CanvasScatterBrush;
 }, "chart.brush.canvas.core");
 
+jui.define("chart.widget.canvas.test", [], function() {
+    var TestWidget = function() {
+        var self = this;
+
+        this.draw = function() {
+            var indexes = this.widget.axis;
+
+            this.canvas.font = "30px Arial";
+            this.canvas.fillText("Hello World", 10, 50);
+
+            // set events
+            for(var i = 0; i < indexes.length; i++) {
+                (function(axisIndex) {
+                    self.on("axis.mousedown", function(e) {
+                        console.log("axis_" + axisIndex, e);
+                    }, axisIndex);
+                })(indexes[i]);
+            }
+
+            return this.canvas;
+        }
+    }
+
+    TestWidget.setup = function() {
+        return {
+            axis: [ 0 ]
+        }
+    }
+
+    return TestWidget;
+}, "chart.widget.canvas.core");
+
 jui.ready(["chart.builder"], function(chart) {
     var d = [
         { sales: 0, profit: 15, total: 20, value: 80 },
@@ -61,7 +93,7 @@ jui.ready(["chart.builder"], function(chart) {
         { sales: 18, profit: 5, total: 20, value: 15 }
     ];
 
-    var c = chart("#chart", {
+    window.c = chart("#chart", {
         width: 1024,
         height : 768,
         padding: 100,
@@ -126,14 +158,22 @@ jui.ready(["chart.builder"], function(chart) {
             axis : 2,
             colors : [ "red" ]
         }],
-        widget : {
+        widget : [{
             type : "title",
             text : "Canvas Test"
-        },
+        }, {
+            type : "canvas.test",
+            axis : [ 0, 2 ]
+        }],
         style : {
             gridXAxisBorderWidth: 1,
             gridYAxisBorderWidth: 1,
             gridZAxisBorderWidth: 1
+        },
+        event : {
+            "chart.mousedown": function(e) {
+                console.log("chart", e);
+            }
         },
         canvas : true
     });

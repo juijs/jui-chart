@@ -32,6 +32,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
         var _padding, _area,  _theme, _hash = {};
         var _initialize = false, _options = null, _handler = { render: [], renderAll: [] }; // 리셋 대상 커스텀 이벤트 핸들러
         var _scale = 1, _xbox = 0, _ybox = 0; // 줌인/아웃, 뷰박스X/Y 관련 변수
+        var _canvas = { main: null, sub: null }; // 캔버스 모드 전용
 
         function calculate(self) {
             var max = self.svg.size();
@@ -119,7 +120,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                     draw.axis = axis;
                     draw.brush = draws[i];
                     draw.svg = self.svg;
-                    draw.canvas = self.canvas;
+                    draw.canvas = _canvas.main;
 
                     // 브러쉬 렌더링
                     draw.render();
@@ -146,7 +147,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                     draw.axis = _axis[0];
                     draw.widget = draws[i];
                     draw.svg = self.svg;
-                    draw.canvas = self.canvas;
+                    draw.canvas = _canvas.sub;
 
                     // 위젯은 렌더 옵션이 false일 때, 최초 한번만 로드함 (연산 + 드로잉)
                     // 하지만 isAll이 true이면, 강제로 연산 및 드로잉을 함 (테마 변경 및 리사이징 시)
@@ -162,9 +163,8 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             }
         }
 
-        function setChartEvent(self) {
-            var elem = self.svg.root,
-                isMouseOver = false;
+        function setCommonEvents(self, elem) {
+            var isMouseOver = false;
 
             elem.on("click", function(e) {
                 if (!checkPosition(e)) {
@@ -433,7 +433,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             }
         }
 
-        function setChartIcons() {
+        function setVectorFontIcons() {
             var icon = _options.icon;
             if(!_.typeCheck([ "string", "array" ], icon.path)) return;
 
@@ -495,26 +495,48 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
         }
 
         function initCanvasElement(self) {
-            var canvas = document.createElement("CANVAS");
-
-            canvas.setAttribute("width", _options.width);
-            canvas.setAttribute("height", _options.height);
-            canvas.style.position = "absolute";
-            canvas.style.left = "0px";
-            canvas.style.top = "0px";
-
             self.root.style.position = "relative";
-            self.root.appendChild(canvas);
 
-            // Context 설정하기
-            if(canvas.getContext) {
-                self.canvas = canvas.getContext("2d");
-                self.canvas.reset = function() {
-                    self.canvas.restore();
-                    self.canvas.clearRect(0, 0, _options.width, _options.height);
-                    self.canvas.save();
-                    self.canvas.translate(_area.x, _area.y);
+            for(var key in _canvas) {
+                var elem = document.createElement("CANVAS");
+
+                elem.setAttribute("width", _options.width);
+                elem.setAttribute("height", _options.height);
+                elem.style.position = "absolute";
+                elem.style.left = "0px";
+                elem.style.top = "0px";
+
+                // Context 설정하기
+                if (elem.getContext) {
+                    _canvas[key] = elem.getContext("2d");
+                    self.root.appendChild(elem);
                 }
+
+                // Widget 캔버스 이벤트 함수 정의
+                if (key == "sub") {
+                    elem.on = function(type, handler) {
+                        var callback = function(e) {
+                            if(typeof(handler) == "function") {
+                                handler.call(this, e);
+                            }
+                        }
+
+                        elem.addEventListener(type, callback, false);
+                        return this;
+                    }
+                }
+            }
+        }
+
+        function resetCanvasElement(type) {
+            var context = _canvas[type];
+
+            context.restore();
+            context.clearRect(0, 0, _options.width, _options.height);
+            context.save();
+
+            if(type == "main") {
+                context.translate(_area.x, _area.y);
             }
         }
 
@@ -538,16 +560,16 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             // canvas 기본 객체 생성
             if(_options.canvas) {
                 initCanvasElement(this);
+                setCommonEvents(this, $.find(this.root, "CANVAS")[1]);
+            } else {
+                setCommonEvents(this, this.svg.root$);
             }
+
+            // 아이콘 폰트 설정
+            setVectorFontIcons();
 
             // 차트 기본 렌더링
             this.render();
-
-            // 차트 이벤트 설정
-            setChartEvent(this);
-
-            // 아이콘 폰트 설정
-            setChartIcons();
         }
         
         /**
@@ -868,8 +890,12 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             calculate(this);
 
             // Canvas 초기 설정
-            if(_.typeCheck("object", this.canvas)) {
-                this.canvas.reset();
+            if(this.options.canvas) {
+                resetCanvasElement("main");
+
+                if(isAll) {
+                    resetCanvasElement("sub");
+                }
             }
 
             // chart 관련된 요소 draw
