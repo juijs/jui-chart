@@ -1899,7 +1899,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                 initCanvasElement(this);
                 setCommonEvents(this, $.find(this.root, "CANVAS")[1]);
             } else {
-                setCommonEvents(this, this.svg.root$);
+                setCommonEvents(this, this.svg.root);
             }
 
             // 아이콘 폰트 설정
