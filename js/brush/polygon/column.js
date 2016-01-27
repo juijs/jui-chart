@@ -18,7 +18,7 @@ jui.define("chart.brush.polygon.column",
 				z = this.axis.z(targetIndex) - h/2,
 				color = this.color(targetIndex);
 
-			return this.drawPolygon(new CubePolygon(x, yy, z, w, y - yy, h), function(p) {
+			return this.createPolygon(new CubePolygon(x, yy, z, w, y - yy, h), function(p) {
 				var g = this.svg.group();
 
 				for(var i = 0; i < p.faces.length; i++) {

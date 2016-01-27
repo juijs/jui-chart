@@ -1,6 +1,6 @@
 jui.define("chart.brush.polygon.core", [], function() {
     var PolygonCoreBrush = function() {
-        this.drawPolygon = function(polygon, callback) {
+        this.createPolygon = function(polygon, callback) {
             this.calculate3d(polygon);
 
             var element = callback.call(this, polygon);

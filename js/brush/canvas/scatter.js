@@ -22,7 +22,7 @@ jui.define("chart.brush.canvas.scatter",
                 z = this.axis.z(data[zkey]);
             }
 
-            return this.drawPolygon(new PointPolygon(x, y, z), function(p) {
+            this.addPolygon(new PointPolygon(x, y, z), function(p) {
                 this.canvas.beginPath();
                 this.canvas.arc(p.vectors[0].x, p.vectors[0].y, r * MathUtil.scaleValue(z, 0, this.axis.depth, 1, p.perspective), 0, 2 * Math.PI, false);
                 this.canvas.fillStyle = color;

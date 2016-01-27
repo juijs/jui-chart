@@ -33,7 +33,7 @@ jui.define("chart.brush.polygon.line",
 			];
 
 			for(var i = 0; i < points.length; i++) {
-				this.drawPolygon(points[i], function(p) {
+				this.createPolygon(points[i], function(p) {
 					var vector = p.vectors[0];
 					elem.point(vector.x, vector.y);
 

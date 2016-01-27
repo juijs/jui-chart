@@ -421,24 +421,40 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
         }
 
         /**
-         * @method updateGrid 
-         * 
-         * grid 정보를 업데이트 한다.  
-         *  
-         * @param {"x"/"y"/"c"/"map"} type
+         * @method set
+         *
+         * axis의 주요 프로퍼티를 업데이트한다.
+         *
+         * @param {"x"/"y"/"c"/"map"/"degree"/"padding"} type
          * @param {Object} grid
          */
-        this.set = this.updateGrid = function(type, grid, isReset) {
-            if(isReset === true) {
-                originAxis[type] = _.deepClone(grid);
-                cloneAxis[type] = _.deepClone(grid);
+        this.set = function(type, value, isReset) {
+            if(_.typeCheck("object", value)) {
+                if (isReset === true) {
+                    originAxis[type] = _.deepClone(value);
+                    cloneAxis[type] = _.deepClone(value);
+                } else {
+                    _.extend(originAxis[type], value);
+                    _.extend(cloneAxis[type], value);
+                }
             } else {
-                _.extend(originAxis[type], grid);
-                _.extend(cloneAxis[type], grid);
+                originAxis[type] = value;
+                cloneAxis[type] = value;
             }
 
             if(chart.isRender()) chart.render();
         }
+
+        /**
+         * @deprecated
+         * @method updateGrid
+         *
+         * grid 정보를 업데이트 한다.
+         *
+         * @param {"x"/"y"/"c"/"map"} type
+         * @param {Object} grid
+         */
+        this.updateGrid = this.set;
 
         /**
          * @method update 

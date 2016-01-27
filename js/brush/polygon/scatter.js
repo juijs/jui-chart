@@ -31,7 +31,7 @@ jui.define("chart.brush.polygon.scatter",
 				);
 			}
 
-			return this.drawPolygon(new PointPolygon(x, y, z), function(p) {
+			return this.createPolygon(new PointPolygon(x, y, z), function(p) {
 				var elem = this.chart.svg.circle({
 					r: r * MathUtil.scaleValue(z, 0, this.axis.depth, 1, p.perspective),
 					fill: color,
