@@ -106,20 +106,24 @@ module.exports = function(grunt) {
         "js/brush/timeline.js",  // brush supporter
 
         // map brush
-        "js/brush/map.core.js",
-        "js/brush/map.selector.js",
-        "js/brush/map.note.js",
-        "js/brush/map.bubble.js",
-        "js/brush/map.comparebubble.js",
-        "js/brush/map.flightroute.js",
-        "js/brush/map.marker.js",
-        "js/brush/map.weather.js",
+        "js/brush/map/core.js",
+        "js/brush/map/selector.js",
+        "js/brush/map/note.js",
+        "js/brush/map/bubble.js",
+        "js/brush/map/comparebubble.js",
+        "js/brush/map/flightroute.js",
+        "js/brush/map/marker.js",
+        "js/brush/map/weather.js",
 
         // polygon brush (full 3d)
-        "js/brush/polygon.core.js",
-        "js/brush/polygon.scatter.js",
-        "js/brush/polygon.column.js",
-        "js/brush/polygon.line.js",
+        "js/brush/polygon/core.js",
+        "js/brush/polygon/scatter.js",
+        "js/brush/polygon/column.js",
+        "js/brush/polygon/line.js",
+
+        // canvas brush
+        "js/brush/canvas/core.js",
+        "js/brush/canvas/scatter.js",
 
         // chart.widget
         "js/widget/core.js",
@@ -135,13 +139,16 @@ module.exports = function(grunt) {
         "js/widget/dragselect.js",
 
         // map widget
-        "js/widget/map.core.js",
-        "js/widget/map.control.js",
-        "js/widget/map.tooltip.js",
+        "js/widget/map/core.js",
+        "js/widget/map/control.js",
+        "js/widget/map/tooltip.js",
 
         // polygon widget (full 3d)
-        "js/widget/polygon.core.js",
-        "js/widget/polygon.rotate.js"
+        "js/widget/polygon/core.js",
+        "js/widget/polygon/rotate.js",
+
+        // canvas widget
+        "js/widget/canvas/core.js"
     ];
 
     grunt.initConfig({

@@ -63,7 +63,7 @@ jui.define("chart.brush.polygon.scatter",
 		}
 	}
 
-		PolygonScatterBrush.setup = function() {
+	PolygonScatterBrush.setup = function() {
 		return {
 			zkey: null,
 
