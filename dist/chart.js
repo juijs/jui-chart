@@ -101,11 +101,11 @@ jui.define("chart.draw", [ "util.base" ], function(_) {
 		 * 
 		 */
 		this.render = function() {
-            if(!_.typeCheck("function", this.draw) || !_.typeCheck("function", this.drawAfter)) {
-                throw new Error("JUI_CRITICAL_ERR: 'draw & drawAfter' method must be implemented");
+            if(!_.typeCheck("function", this.draw)) {
+                throw new Error("JUI_CRITICAL_ERR: 'draw' method must be implemented");
             }
 
-            // Call drawBefore method (All)
+            // Call drawBefore method
             if(_.typeCheck("function", this.drawBefore)) {
                 this.drawBefore();
             }
@@ -113,7 +113,7 @@ jui.define("chart.draw", [ "util.base" ], function(_) {
             // Call draw method (All)
 			var obj = this.draw();
 
-            // Call drawAnimate method (All)
+            // Call drawAnimate method
             if(_.typeCheck("function", this.drawAnimate)) {
                 var draw = this.grid || this.brush || this.widget || this.map;
 
@@ -122,9 +122,8 @@ jui.define("chart.draw", [ "util.base" ], function(_) {
                 }
             }
 
-            if(!_.typeCheck("object", obj)) {
-                throw new Error("JUI_CRITICAL_ERR: 'draw' method should return the object");
-            } else {
+            // Call drawAfter method
+            if(_.typeCheck("function", this.drawAfter)) {
                 this.drawAfter(obj);
             }
 
@@ -5255,7 +5254,6 @@ jui.define("chart.grid.core", [ "util.base", "util.math", "chart.grid.draw2d", "
 		 * @protected
 		 */
 		this.drawAfter = function(obj) {
-			obj.root.attr({ "class": "grid grid-" + this.grid.type});
 			obj.root.translate(this.chart.area("x") , this.chart.area("y"));
 		}
 	}
@@ -7328,7 +7326,6 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
                 obj.attr({ "clip-path" : "url(#" + this.axis.get("clipId") + ")" });
             }
 
-            obj.attr({ "class": "brush brush-" + this.brush.type });
             obj.translate(this.chart.area("x"), this.chart.area("y")); // 브러쉬일 경우, 기본 좌표 설정
         }
 
@@ -14222,15 +14219,15 @@ jui.define("chart.brush.polygon.core", [], function() {
 
     return PolygonCoreBrush;
 }, "chart.brush.core");
-jui.define("chart.brush.polygon.scatter",
+jui.define("chart.brush.polygon.scatter3d",
 	[ "util.base", "util.math", "util.color", "chart.polygon.point" ],
 	function(_, MathUtil, ColorUtil, PointPolygon) {
 
 	/**
-	 * @class chart.brush.polygon.scatter
+	 * @class chart.brush.polygon.scatter3d
 	 * @extends chart.brush.polygon.core
 	 */
-	var PolygonScatterBrush = function() {
+	var PolygonScatter3DBrush = function() {
 		this.createScatter = function(data, target, dataIndex, targetIndex) {
 			var color = this.color(dataIndex, targetIndex),
 				zkey = this.brush.zkey,
@@ -14287,7 +14284,7 @@ jui.define("chart.brush.polygon.scatter",
 		}
 	}
 
-	PolygonScatterBrush.setup = function() {
+	PolygonScatter3DBrush.setup = function() {
 		return {
 			zkey: null,
 
@@ -14298,18 +14295,18 @@ jui.define("chart.brush.polygon.scatter",
 		};
 	}
 
-	return PolygonScatterBrush;
+	return PolygonScatter3DBrush;
 }, "chart.brush.polygon.core");
 
-jui.define("chart.brush.polygon.column",
+jui.define("chart.brush.polygon.column3d",
 	[ "util.base", "util.math", "util.color", "chart.polygon.cube" ],
 	function(_, MathUtil, ColorUtil, CubePolygon) {
 
 	/**
-	 * @class chart.brush.polygon.column
+	 * @class chart.brush.polygon.column3d
 	 * @extends chart.brush.polygon.core
 	 */
-	var PolygonColumnBrush = function() {
+	var PolygonColumn3DBrush = function() {
 		var col_width, col_height;
 
 		this.createColumn = function(data, target, dataIndex, targetIndex) {
@@ -14374,7 +14371,7 @@ jui.define("chart.brush.polygon.column",
 		}
 	}
 
-	PolygonColumnBrush.setup = function() {
+	PolygonColumn3DBrush.setup = function() {
 		return {
 			/** @cfg {Number} [width=50]  Determines the size of a starter. */
 			width: 0,
@@ -14387,18 +14384,18 @@ jui.define("chart.brush.polygon.column",
 		};
 	}
 
-	return PolygonColumnBrush;
+	return PolygonColumn3DBrush;
 }, "chart.brush.polygon.core");
 
-jui.define("chart.brush.polygon.line",
+jui.define("chart.brush.polygon.line3d",
 	[ "util.base", "util.color", "util.math", "chart.polygon.point" ],
 	function(_, ColorUtil, MathUtil, PointPolygon) {
 
 	/**
-	 * @class chart.brush.polygon.line
+	 * @class chart.brush.polygon.line3d
 	 * @extends chart.brush.polygon.core
 	 */
-	var PolygonLineBrush = function() {
+	var PolygonLine3DBrush = function() {
 		this.createLine = function(datas, target, dataIndex, targetIndex) {
 			var color = this.color(dataIndex, targetIndex),
 				d = this.axis.z.rangeBand() - this.brush.padding * 2,
@@ -14460,7 +14457,7 @@ jui.define("chart.brush.polygon.line",
 		}
 	}
 
-	PolygonLineBrush.setup = function() {
+	PolygonLine3DBrush.setup = function() {
 		return {
 			/** @cfg {Number} [padding=20] Determines the outer margin of a bar.  */
 			padding: 10,
@@ -14469,7 +14466,7 @@ jui.define("chart.brush.polygon.line",
 		};
 	}
 
-	return PolygonLineBrush;
+	return PolygonLine3DBrush;
 }, "chart.brush.polygon.core");
 
 jui.define("chart.brush.canvas.core", [ "util.base" ], function(_) {
@@ -14490,7 +14487,7 @@ jui.define("chart.brush.canvas.core", [ "util.base" ], function(_) {
             });
         }
 
-        this.drawAfter = function(obj) {
+        this.drawAfter = function() {
             // 폴리곤 기반의 브러쉬일 경우
             if(_.typeCheck("array", this.polygons)) {
                 var list = this.polygons;
@@ -14509,15 +14506,15 @@ jui.define("chart.brush.canvas.core", [ "util.base" ], function(_) {
 
     return CanvasCoreBrush;
 }, "chart.brush.core");
-jui.define("chart.brush.canvas.scatter",
+jui.define("chart.brush.canvas.scatter3d",
     [ "util.base", "util.math", "util.color", "chart.polygon.point" ],
     function(_, MathUtil, ColorUtil, PointPolygon) {
 
     /**
-     * @class chart.brush.canvas.scatter
+     * @class chart.brush.canvas.scatter3d
      * @extends chart.brush.canvas.core
      */
-    var CanvasScatterBrush = function () {
+    var CanvasScatter3DBrush = function () {
         this.createScatter = function(data, target, dataIndex, targetIndex) {
             var color = this.color(dataIndex, targetIndex),
                 zkey = this.brush.zkey,
@@ -14550,12 +14547,10 @@ jui.define("chart.brush.canvas.scatter",
                     this.createScatter(datas[i], targets[j], i, j);
                 }
             }
-
-            return this.canvas;
         }
     }
 
-    CanvasScatterBrush.setup = function() {
+    CanvasScatter3DBrush.setup = function() {
         return {
             zkey: null,
 
@@ -14564,7 +14559,7 @@ jui.define("chart.brush.canvas.scatter",
         };
     }
 
-    return CanvasScatterBrush;
+    return CanvasScatter3DBrush;
 }, "chart.brush.canvas.core");
 jui.define("chart.widget.core", [ "util.base" ], function(_) {
 
@@ -14631,14 +14626,6 @@ jui.define("chart.widget.core", [ "util.base" ], function(_) {
                     callback.apply(self, arguments);
                 }
             }, this.isRender() ? "render" : "renderAll");
-        }
-
-        /**
-         * @method drawAfter
-         * @param {Object} obj
-         */
-        this.drawAfter = function(obj) {
-            obj.attr({ "class": "widget widget-" + this.widget.type });
         }
 	}
 
@@ -16941,16 +16928,16 @@ jui.define("chart.widget.polygon.core", [], function() {
 
     return PolygonCoreWidget;
 }, "chart.widget.core");
-jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
+jui.define("chart.widget.polygon.rotate3d", [ "util.base" ], function (_) {
     var DEGREE_LIMIT = 180;
 
     /**
-     * @class chart.widget.polygon.rotate
+     * @class chart.widget.polygon.rotate3d
      * @extends chart.widget.polygon.core
      * @alias ScrollWidget
      * @requires util.base
      */
-    var PolygonRotateWdiget = function() {
+    var PolygonRotate3DWidget = function() {
         var self = this;
 
         function setScrollEvent(axisIndex) {
@@ -17020,19 +17007,17 @@ jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
             for(var i = 0; i < indexes.length; i++) {
                 setScrollEvent(indexes[i]);
             }
-
-            return this.svg.group();
         }
     }
 
-    PolygonRotateWdiget.setup = function() {
+    PolygonRotate3DWidget.setup = function() {
         return {
             unit: 5, // 회전 최소 각도
             axis: [ 0 ]
         }
     }
 
-    return PolygonRotateWdiget;
+    return PolygonRotate3DWidget;
 }, "chart.widget.polygon.core");
 jui.define("chart.widget.canvas.core", [], function() {
     var CanvasCoreWidget = function() {

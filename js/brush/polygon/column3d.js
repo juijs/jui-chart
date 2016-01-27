@@ -1,12 +1,12 @@
-jui.define("chart.brush.polygon.column",
+jui.define("chart.brush.polygon.column3d",
 	[ "util.base", "util.math", "util.color", "chart.polygon.cube" ],
 	function(_, MathUtil, ColorUtil, CubePolygon) {
 
 	/**
-	 * @class chart.brush.polygon.column
+	 * @class chart.brush.polygon.column3d
 	 * @extends chart.brush.polygon.core
 	 */
-	var PolygonColumnBrush = function() {
+	var PolygonColumn3DBrush = function() {
 		var col_width, col_height;
 
 		this.createColumn = function(data, target, dataIndex, targetIndex) {
@@ -71,7 +71,7 @@ jui.define("chart.brush.polygon.column",
 		}
 	}
 
-	PolygonColumnBrush.setup = function() {
+	PolygonColumn3DBrush.setup = function() {
 		return {
 			/** @cfg {Number} [width=50]  Determines the size of a starter. */
 			width: 0,
@@ -84,5 +84,5 @@ jui.define("chart.brush.polygon.column",
 		};
 	}
 
-	return PolygonColumnBrush;
+	return PolygonColumn3DBrush;
 }, "chart.brush.polygon.core");

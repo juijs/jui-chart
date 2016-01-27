@@ -1,12 +1,12 @@
-jui.define("chart.brush.polygon.scatter",
+jui.define("chart.brush.polygon.scatter3d",
 	[ "util.base", "util.math", "util.color", "chart.polygon.point" ],
 	function(_, MathUtil, ColorUtil, PointPolygon) {
 
 	/**
-	 * @class chart.brush.polygon.scatter
+	 * @class chart.brush.polygon.scatter3d
 	 * @extends chart.brush.polygon.core
 	 */
-	var PolygonScatterBrush = function() {
+	var PolygonScatter3DBrush = function() {
 		this.createScatter = function(data, target, dataIndex, targetIndex) {
 			var color = this.color(dataIndex, targetIndex),
 				zkey = this.brush.zkey,
@@ -63,7 +63,7 @@ jui.define("chart.brush.polygon.scatter",
 		}
 	}
 
-	PolygonScatterBrush.setup = function() {
+	PolygonScatter3DBrush.setup = function() {
 		return {
 			zkey: null,
 
@@ -74,5 +74,5 @@ jui.define("chart.brush.polygon.scatter",
 		};
 	}
 
-	return PolygonScatterBrush;
+	return PolygonScatter3DBrush;
 }, "chart.brush.polygon.core");

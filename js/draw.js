@@ -43,11 +43,11 @@ jui.define("chart.draw", [ "util.base" ], function(_) {
 		 * 
 		 */
 		this.render = function() {
-            if(!_.typeCheck("function", this.draw) || !_.typeCheck("function", this.drawAfter)) {
-                throw new Error("JUI_CRITICAL_ERR: 'draw & drawAfter' method must be implemented");
+            if(!_.typeCheck("function", this.draw)) {
+                throw new Error("JUI_CRITICAL_ERR: 'draw' method must be implemented");
             }
 
-            // Call drawBefore method (All)
+            // Call drawBefore method
             if(_.typeCheck("function", this.drawBefore)) {
                 this.drawBefore();
             }
@@ -55,7 +55,7 @@ jui.define("chart.draw", [ "util.base" ], function(_) {
             // Call draw method (All)
 			var obj = this.draw();
 
-            // Call drawAnimate method (All)
+            // Call drawAnimate method
             if(_.typeCheck("function", this.drawAnimate)) {
                 var draw = this.grid || this.brush || this.widget || this.map;
 
@@ -64,9 +64,8 @@ jui.define("chart.draw", [ "util.base" ], function(_) {
                 }
             }
 
-            if(!_.typeCheck("object", obj)) {
-                throw new Error("JUI_CRITICAL_ERR: 'draw' method should return the object");
-            } else {
+            // Call drawAfter method
+            if(_.typeCheck("function", this.drawAfter)) {
                 this.drawAfter(obj);
             }
 

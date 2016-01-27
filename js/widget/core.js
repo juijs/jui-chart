@@ -64,14 +64,6 @@ jui.define("chart.widget.core", [ "util.base" ], function(_) {
                 }
             }, this.isRender() ? "render" : "renderAll");
         }
-
-        /**
-         * @method drawAfter
-         * @param {Object} obj
-         */
-        this.drawAfter = function(obj) {
-            obj.attr({ "class": "widget widget-" + this.widget.type });
-        }
 	}
 
     CoreWidget.setup = function() {

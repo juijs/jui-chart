@@ -16,7 +16,7 @@ jui.define("chart.brush.canvas.core", [ "util.base" ], function(_) {
             });
         }
 
-        this.drawAfter = function(obj) {
+        this.drawAfter = function() {
             // 폴리곤 기반의 브러쉬일 경우
             if(_.typeCheck("array", this.polygons)) {
                 var list = this.polygons;

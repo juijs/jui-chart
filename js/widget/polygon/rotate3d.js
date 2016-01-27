@@ -1,13 +1,13 @@
-jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
+jui.define("chart.widget.polygon.rotate3d", [ "util.base" ], function (_) {
     var DEGREE_LIMIT = 180;
 
     /**
-     * @class chart.widget.polygon.rotate
+     * @class chart.widget.polygon.rotate3d
      * @extends chart.widget.polygon.core
      * @alias ScrollWidget
      * @requires util.base
      */
-    var PolygonRotateWdiget = function() {
+    var PolygonRotate3DWidget = function() {
         var self = this;
 
         function setScrollEvent(axisIndex) {
@@ -77,17 +77,15 @@ jui.define("chart.widget.polygon.rotate", [ "util.base" ], function (_) {
             for(var i = 0; i < indexes.length; i++) {
                 setScrollEvent(indexes[i]);
             }
-
-            return this.svg.group();
         }
     }
 
-    PolygonRotateWdiget.setup = function() {
+    PolygonRotate3DWidget.setup = function() {
         return {
             unit: 5, // 회전 최소 각도
             axis: [ 0 ]
         }
     }
 
-    return PolygonRotateWdiget;
+    return PolygonRotate3DWidget;
 }, "chart.widget.polygon.core");

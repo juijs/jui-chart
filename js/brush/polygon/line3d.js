@@ -1,12 +1,12 @@
-jui.define("chart.brush.polygon.line",
+jui.define("chart.brush.polygon.line3d",
 	[ "util.base", "util.color", "util.math", "chart.polygon.point" ],
 	function(_, ColorUtil, MathUtil, PointPolygon) {
 
 	/**
-	 * @class chart.brush.polygon.line
+	 * @class chart.brush.polygon.line3d
 	 * @extends chart.brush.polygon.core
 	 */
-	var PolygonLineBrush = function() {
+	var PolygonLine3DBrush = function() {
 		this.createLine = function(datas, target, dataIndex, targetIndex) {
 			var color = this.color(dataIndex, targetIndex),
 				d = this.axis.z.rangeBand() - this.brush.padding * 2,
@@ -68,7 +68,7 @@ jui.define("chart.brush.polygon.line",
 		}
 	}
 
-	PolygonLineBrush.setup = function() {
+	PolygonLine3DBrush.setup = function() {
 		return {
 			/** @cfg {Number} [padding=20] Determines the outer margin of a bar.  */
 			padding: 10,
@@ -77,5 +77,5 @@ jui.define("chart.brush.polygon.line",
 		};
 	}
 
-	return PolygonLineBrush;
+	return PolygonLine3DBrush;
 }, "chart.brush.polygon.core");

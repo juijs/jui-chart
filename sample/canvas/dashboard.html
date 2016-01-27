@@ -10,7 +10,7 @@
 <div id="chart"></div>
 
 <script id="script_code">
-jui.redefine("chart.brush.canvas.scatter", [], function() {
+jui.define("chart.brush.canvas.scatter", [], function() {
 
     /**
      * @class chart.brush.canvas.scatter
@@ -38,8 +38,6 @@ jui.redefine("chart.brush.canvas.scatter", [], function() {
                     this.createScatter(datas[i], targets[j], i, j);
                 }
             }
-
-            return this.canvas;
         }
     }
 

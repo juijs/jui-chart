@@ -49,17 +49,19 @@ jui.ready(["chart.builder"], function(chart) {
             perspective: 0.6
         },
         brush : {
-            type: "canvas.scatter",
+            type: "canvas.scatter3d",
             target : [ "sales", "profit", "total" ],
             size : 10,
             zkey: function(data) {
                 return data.value;
             }
         },
-        widget : {
+        widget : [{
             type : "title",
             text : "Canvas Test"
-        },
+        }, {
+            type : "polygon.rotate3d"
+        }],
         style : {
             gridXAxisBorderWidth: 1,
             gridYAxisBorderWidth: 1,

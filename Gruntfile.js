@@ -117,13 +117,13 @@ module.exports = function(grunt) {
 
         // polygon brush (full 3d)
         "js/brush/polygon/core.js",
-        "js/brush/polygon/scatter.js",
-        "js/brush/polygon/column.js",
-        "js/brush/polygon/line.js",
+        "js/brush/polygon/scatter3d.js",
+        "js/brush/polygon/column3d.js",
+        "js/brush/polygon/line3d.js",
 
         // canvas brush
         "js/brush/canvas/core.js",
-        "js/brush/canvas/scatter.js",
+        "js/brush/canvas/scatter3d.js",
 
         // chart.widget
         "js/widget/core.js",
@@ -145,7 +145,7 @@ module.exports = function(grunt) {
 
         // polygon widget (full 3d)
         "js/widget/polygon/core.js",
-        "js/widget/polygon/rotate.js",
+        "js/widget/polygon/rotate3d.js",
 
         // canvas widget
         "js/widget/canvas/core.js"
