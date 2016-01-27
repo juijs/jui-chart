@@ -68,6 +68,11 @@ jui.define("chart.widget.canvas.test", [], function() {
                 (function(axisIndex) {
                     self.on("axis.mousedown", function(e) {
                         console.log("axis_" + axisIndex, e);
+
+                        this.canvas.beginPath();
+                        this.canvas.arc(e.bgX, e.bgY, 3, 0, 2 * Math.PI, false);
+                        this.canvas.fillStyle = (axisIndex == 0) ? "red" : "blue";
+                        this.canvas.fill();
                     }, axisIndex);
                 })(indexes[i]);
             }
