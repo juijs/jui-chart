@@ -4457,16 +4457,16 @@ jui.define("chart.grid.draw2d", [ "util.base", "util.math" ], function(_, math) 
                 isDrawLine = false;
 
             if (position == "top") {
-                isDrawLine = this.checkDrawLineX(index, isLast);
+                isDrawLine = this.checkDrawLineY(index, isLast);
                 area = { x1: 0, x2: 0, y1: 0, y2: this.axis.area("height") };
             } else if (position == "bottom" ) {
-                isDrawLine = this.checkDrawLineX(index, isLast);
+                isDrawLine = this.checkDrawLineY(index, isLast);
                 area = { x1: 0, x2: 0, y1: 0, y2: -this.axis.area("height") };
             } else if (position == "left") {
-                isDrawLine = this.checkDrawLineY(index, isLast);
+                isDrawLine = this.checkDrawLineX(index, isLast);
                 area = { x1: 0, x2: this.axis.area("width"), y1: 0, y2: 0 };
             } else if (position == "right" ) {
-                isDrawLine = this.checkDrawLineY(index, isLast);
+                isDrawLine = this.checkDrawLineX(index, isLast);
                 area = { x1: 0, x2: -this.axis.area("width"), y1: 0, y2: 0 };
             }
 
