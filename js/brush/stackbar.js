@@ -75,7 +75,8 @@ jui.define("chart.brush.stackbar", [], function() {
 			if(this.brush.size > 0) {
 				return this.brush.size;
 			} else {
-				return height - this.brush.outerPadding * 2;
+				var size = height - this.brush.outerPadding * 2;
+				return (size < this.brush.minSize) ? this.brush.minSize : size;
 			}
 		}
 

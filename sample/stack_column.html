@@ -13,6 +13,7 @@
     jui.ready([ "chart.builder" ], function(chart) {
 
          c = chart("#chart", {
+             width: 300,
             height : 400,
              padding : 100,
             theme : "jennifer",
@@ -44,7 +45,7 @@
                 type : 'stackcolumn',
                 active : 1,
                 activeEvent : "click",
-                size : 35
+                minSize : 3
             }],
             widget : [{
                 type : "tooltip"

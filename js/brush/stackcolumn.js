@@ -8,16 +8,14 @@ jui.define("chart.brush.stackcolumn", [], function() {
 		var g, zeroY, bar_width;
 
 		this.getTargetSize = function() {
-			var width = this.axis.x.rangeBand(),
-				r_width = 0;
+			var width = this.axis.x.rangeBand();
 
 			if(this.brush.size > 0) {
-				r_width = this.brush.size;
+				return this.brush.size;
 			} else {
-				r_width = width - this.brush.outerPadding * 2;
+				var size = width - this.brush.outerPadding * 2;
+				return (size < this.brush.minSize) ? this.brush.minSize : size;
 			}
-
-			return (r_width < 0) ? 0 : r_width;
 		}
 
 		this.drawBefore = function() {
