@@ -35,10 +35,10 @@ jui.define("chart.theme.jennifer", [], function() {
 
         // Axis styles
         axisBackgroundColor : "white",
-        axisBackgroundOpacity : 1,
-        axisBorderColor : "#dcdcdc",
-        axisBorderWidth : 1.5,
-        axisBorderRadius : 5,
+        axisBackgroundOpacity : 0,
+        axisBorderColor : "white",
+        axisBorderWidth : 0,
+        axisBorderRadius : 0,
 
         // Grid styles
         gridXFontSize : 11,
