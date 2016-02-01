@@ -3,8 +3,8 @@
 <head>
     <meta http-equiv="content-type" content="charset=utf-8;"/>
     <link rel="stylesheet" href="../../dist/jui.css" />
-    <script src="../lib/core.js"></script>
-    <script src="../dist/chart.js"></script>
+    <script src="../../lib/core.js"></script>
+    <script src="../../dist/chart.js"></script>
 </head>
 <body class="jui">
 
@@ -71,7 +71,7 @@
                  }
              }],
              brush : [{
-                 type: "polygon.scatter",
+                 type: "polygon.scatter3d",
                  target : [ "sales", "profit", "total" ],
                  size : 10,
                  zkey: function(data) {
@@ -79,7 +79,7 @@
                  },
                  axis : 0
              }, {
-                 type: "polygon.scatter",
+                 type: "polygon.scatter3d",
                  target : [ "sales", "profit", "total" ],
                  size : 10,
                  zkey: function(data) {
@@ -87,7 +87,7 @@
                  },
                  axis : 1
              }, {
-                 type: "polygon.scatter",
+                 type: "polygon.scatter3d",
                  target : [ "sales", "profit", "total" ],
                  size : 10,
                  zkey: function(data) {
@@ -98,7 +98,7 @@
              widget : [{
                  type : "tooltip"
              }, {
-                 type : "polygon.rotate",
+                 type : "polygon.rotate3d",
                  axis : [ 0, 2 ]
              }],
              style : {

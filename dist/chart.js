@@ -1977,7 +1977,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
          * @returns {Array/Object}
          */
         this.axis = function(key) {
-            return _.typeCheck("undefined", _axis[key]) ? _axis : _axis[key];
+            return (arguments.length == 0) ? _axis : _axis[key];
         }
 
         /**
@@ -14993,6 +14993,7 @@ jui.define("chart.widget.tooltip", [ "util.base", "util.color" ], function(_, Co
     return TooltipWidget;
 }, "chart.widget.core");
 jui.define("chart.widget.title", [], function() {
+    var TOP_PADDING = 25, PADDING = 20;
 
     /**
      * @class chart.widget.title
@@ -15004,23 +15005,50 @@ jui.define("chart.widget.title", [], function() {
         var x = 0, y = 0, anchor = "middle";
 
         this.drawBefore = function() {
-            if (widget.orient == "bottom") {
-                y = chart.area("y2") + chart.padding("bottom") - 20;
-            } else if (widget.orient == "top") {
-                y = 20;
-            } else {
-                y = chart.area("y") + chart.area("height") / 2
-            }
+            var axis = chart.axis(widget.axis);
 
-            if (widget.align == "center") {
-                x = chart.area("x") + chart.area("width") / 2;
-                anchor = "middle";
-            } else if (widget.align == "start") {
-                x = chart.area("x");
-                anchor = "start";
+            if(axis) {
+                if (widget.orient == "bottom") {
+                    y = axis.area("y2") + axis.padding("bottom") - PADDING;
+                } else if (widget.orient == "top") {
+                    y = axis.area("y") - axis.padding("top") + TOP_PADDING;
+                } else {
+                    y = axis.area("y") + axis.area("height") / 2;
+                }
+
+                if (widget.align == "center") {
+                    x = axis.area("x") + axis.area("width") / 2;
+                    anchor = "middle";
+                } else if (widget.align == "start") {
+                    x = axis.area("x") - axis.padding("left") + PADDING;
+                    anchor = "start";
+                } else {
+                    x = axis.area("x2") + axis.padding("right") - PADDING;
+                    anchor = "end";
+                }
+
+                x += chart.area("x");
+                y += chart.area("y");
             } else {
-                x = chart.area("x2");
-                anchor = "end";
+                // @Deprecated 나중에 제거하기 (모든 샘플 axis 기반으로 변경할 것)
+                if (widget.orient == "bottom") {
+                    y = chart.area("y2") + chart.padding("bottom") - PADDING;
+                } else if (widget.orient == "top") {
+                    y = PADDING;
+                } else {
+                    y = chart.area("y") + chart.area("height") / 2
+                }
+
+                if (widget.align == "center") {
+                    x = chart.area("x") + chart.area("width") / 2;
+                    anchor = "middle";
+                } else if (widget.align == "start") {
+                    x = chart.area("x");
+                    anchor = "start";
+                } else {
+                    x = chart.area("x2");
+                    anchor = "end";
+                }
             }
         }
 
@@ -15053,6 +15081,7 @@ jui.define("chart.widget.title", [], function() {
 
     TitleWidget.setup = function() {
         return {
+            axis: null,
             /** @cfg {"bottom"/"top"/"left"/"right" } [orient="top"]  Determines the side on which the tool tip is displayed (top, bottom, left, right). */
             orient: "top", // or bottom
             /** @cfg {"start"/"center"/"end" } [align="center"] Aligns the title message (center, start, end).*/

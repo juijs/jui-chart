@@ -604,7 +604,7 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
          * @returns {Array/Object}
          */
         this.axis = function(key) {
-            return _.typeCheck("undefined", _axis[key]) ? _axis : _axis[key];
+            return (arguments.length == 0) ? _axis : _axis[key];
         }
 
         /**
