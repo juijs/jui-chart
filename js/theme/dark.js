@@ -23,6 +23,13 @@ jui.define("chart.theme.dark", [], function() {
     	backgroundColor : "#222222",
         colors : themeColors,
 
+        // Axis styles
+        axisBackgroundColor : "#222222",
+        axisBackgroundOpacity : 0,
+        axisBorderColor : "#222222",
+        axisBorderWidth : 0,
+        axisBorderRadius : 0,
+
         // Grid styles
         gridXFontSize : 11,
         gridYFontSize : 11,

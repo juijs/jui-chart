@@ -100,7 +100,7 @@ jui.ready(["chart.builder"], function(chart) {
         width: 1024,
         height : 768,
         padding: 100,
-        theme : "dark",
+        theme : "jennifer",
         axis : [{
             x : {
                 type : "block",
@@ -117,6 +117,12 @@ jui.ready(["chart.builder"], function(chart) {
             },
             area : {
                 width : "45%"
+            },
+            padding : {
+                top : 100,
+                left : 50,
+                right : 50,
+                bottom : 50
             },
             data : d
         }, {
@@ -163,7 +169,10 @@ jui.ready(["chart.builder"], function(chart) {
         }],
         widget : [{
             type : "title",
-            text : "Canvas Test"
+            text : "Canvas Test",
+            //axis : 0,
+            orient : "top",
+            align : "start"
         }, {
             type : "canvas.test",
             axis : [ 0, 2 ]

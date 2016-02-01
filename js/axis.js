@@ -285,6 +285,26 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
             });
         }
 
+        function setAxisStyles() {
+            var lr = _padding.left + _padding.right,
+                tb = _padding.top + _padding.bottom;
+
+            var bg = chart.svg.rect({
+                fill: chart.theme("axisBackgroundColor"),
+                "fill-opacity": chart.theme("axisBackgroundOpacity"),
+                stroke: chart.theme("axisBorderColor"),
+                "stroke-width": chart.theme("axisBorderWidth"),
+                rx: chart.theme("axisBorderRadius"),
+                ry: chart.theme("axisBorderRadius"),
+                width: _area.width + lr,
+                height: _area.height + tb,
+                x: _area.x - _padding.left,
+                y: _area.y - _padding.top
+            });
+
+            bg.translate(chart.area("x"), chart.area("y"));
+        }
+
         function init() {
             _.extend(self, {
                 data : cloneAxis.data,
@@ -370,8 +390,8 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                 x: 0, y: 0 , width: area.width, height: area.height
             }, true), _padding);
 
-
             createClipPath();
+            setAxisStyles();
 
             this.x = drawGridType(this, "x");
             this.y = drawGridType(this, "y");

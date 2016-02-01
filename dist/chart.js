@@ -552,6 +552,26 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
             });
         }
 
+        function setAxisStyles() {
+            var lr = _padding.left + _padding.right,
+                tb = _padding.top + _padding.bottom;
+
+            var bg = chart.svg.rect({
+                fill: chart.theme("axisBackgroundColor"),
+                "fill-opacity": chart.theme("axisBackgroundOpacity"),
+                stroke: chart.theme("axisBorderColor"),
+                "stroke-width": chart.theme("axisBorderWidth"),
+                rx: chart.theme("axisBorderRadius"),
+                ry: chart.theme("axisBorderRadius"),
+                width: _area.width + lr,
+                height: _area.height + tb,
+                x: _area.x - _padding.left,
+                y: _area.y - _padding.top
+            });
+
+            bg.translate(chart.area("x"), chart.area("y"));
+        }
+
         function init() {
             _.extend(self, {
                 data : cloneAxis.data,
@@ -637,8 +657,8 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                 x: 0, y: 0 , width: area.width, height: area.height
             }, true), _padding);
 
-
             createClipPath();
+            setAxisStyles();
 
             this.x = drawGridType(this, "x");
             this.y = drawGridType(this, "y");
@@ -2597,6 +2617,13 @@ jui.define("chart.theme.jennifer", [], function() {
     	backgroundColor : "white",
         colors : themeColors,
 
+        // Axis styles
+        axisBackgroundColor : "white",
+        axisBackgroundOpacity : 1,
+        axisBorderColor : "#dcdcdc",
+        axisBorderWidth : 1.5,
+        axisBorderRadius : 5,
+
         // Grid styles
         gridXFontSize : 11,
         gridYFontSize : 11,
@@ -2847,6 +2874,13 @@ jui.define("chart.theme.gradient", [], function() {
         fontFamily : "arial,Tahoma,verdana",
         colors : themeColors,
 
+        // Axis styles
+        axisBackgroundColor : "white",
+        axisBackgroundOpacity : 0,
+        axisBorderColor : "white",
+        axisBorderWidth : 0,
+        axisBorderRadius : 0,
+
         // Grid styles
         gridXFontSize : 11,
         gridYFontSize : 11,
@@ -3095,6 +3129,13 @@ jui.define("chart.theme.dark", [], function() {
     	backgroundColor : "#222222",
         colors : themeColors,
 
+        // Axis styles
+        axisBackgroundColor : "#222222",
+        axisBackgroundOpacity : 0,
+        axisBorderColor : "#222222",
+        axisBorderWidth : 0,
+        axisBorderRadius : 0,
+
         // Grid styles
         gridXFontSize : 11,
         gridYFontSize : 11,
@@ -3341,6 +3382,13 @@ jui.define("chart.theme.pastel", [], function() {
 		backgroundColor : "white",
 		colors : themeColors,
 
+		// Axis styles
+		axisBackgroundColor : "white",
+		axisBackgroundOpacity : 0,
+		axisBorderColor : "white",
+		axisBorderWidth : 0,
+		axisBorderRadius : 0,
+
 		// Grid styles
 		gridXFontSize : 11,
 		gridYFontSize : 11,
@@ -3585,6 +3633,13 @@ jui.define("chart.theme.pattern", [], function() {
         fontFamily : "arial,Tahoma,verdana",
         backgroundColor : "white",
         colors : themeColors,
+
+        // Axis styles
+        axisBackgroundColor : "white",
+        axisBackgroundOpacity : 0,
+        axisBorderColor : "white",
+        axisBorderWidth : 0,
+        axisBorderRadius : 0,
 
         // Grid styles
         gridXFontSize : 11,
@@ -16157,6 +16212,7 @@ jui.define("chart.widget.cross", [ "util.base" ], function(_) {
     CrossWidget.setup = function() {
         return {
             axis: 0,
+
             /**
              * @cfg {Function} [xFormat=null] Sets the format for the value on the X axis shown on the tooltip.
              */            

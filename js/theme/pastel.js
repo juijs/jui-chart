@@ -20,6 +20,13 @@ jui.define("chart.theme.pastel", [], function() {
 		backgroundColor : "white",
 		colors : themeColors,
 
+		// Axis styles
+		axisBackgroundColor : "white",
+		axisBackgroundOpacity : 0,
+		axisBorderColor : "white",
+		axisBorderWidth : 0,
+		axisBorderRadius : 0,
+
 		// Grid styles
 		gridXFontSize : 11,
 		gridYFontSize : 11,

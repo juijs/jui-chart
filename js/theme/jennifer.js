@@ -33,6 +33,13 @@ jui.define("chart.theme.jennifer", [], function() {
     	backgroundColor : "white",
         colors : themeColors,
 
+        // Axis styles
+        axisBackgroundColor : "white",
+        axisBackgroundOpacity : 1,
+        axisBorderColor : "#dcdcdc",
+        axisBorderWidth : 1.5,
+        axisBorderRadius : 5,
+
         // Grid styles
         gridXFontSize : 11,
         gridYFontSize : 11,

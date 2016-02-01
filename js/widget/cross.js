@@ -147,6 +147,7 @@ jui.define("chart.widget.cross", [ "util.base" ], function(_) {
     CrossWidget.setup = function() {
         return {
             axis: 0,
+
             /**
              * @cfg {Function} [xFormat=null] Sets the format for the value on the X axis shown on the tooltip.
              */            
