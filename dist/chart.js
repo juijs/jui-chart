@@ -6319,13 +6319,17 @@ jui.define("chart.grid.range", [ "util.scale", "util.base", "util.math" ], funct
 			} else if (_.typeCheck("number", this.grid.unit)) {
 				unit = this.grid.unit;
 			} else {
-				unit = math.div((max - min), this.grid.step);   // (max - min) / this.grid.step
-				var firstNumber = math.remain((unit * 10),  10); // unit * 10 % 10
 
-				if (firstNumber != 5) {
-					unit = Math.round(unit);
-				} else if (firstNumber > 5) {
+				if (min > 0) {
+					min = 0;
+				}
+
+				unit = math.div((max - min), this.grid.step);   // (max - min) / this.grid.step
+
+				if (unit > 1) {
 					unit = Math.ceil(unit);
+				} else if (0 < unit && unit < 1) {
+					unit = math.div(Math.ceil(math.multi(unit, 10)),10);
 				}
 
 			}
