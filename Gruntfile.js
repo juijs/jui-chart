@@ -79,6 +79,7 @@ module.exports = function(grunt) {
         "js/brush/candlestick.js",
         "js/brush/ohlc.js",
         "js/brush/equalizer.js",
+        "js/brush/equalizer2.js",
         "js/brush/line.js",
         "js/brush/path.js",
         "js/brush/pie.js",
