@@ -18,10 +18,10 @@
             theme : "jennifer",
             axis : [{
                 data : [
-                    { name : 5, value : 15 },
-                    { name : 32, value : 6 },
-                    { name : 8, value : 10 },
-                    { name : 18, value : 5 },
+                    { name : 5, value : 15, test : 5 },
+                    { name : 32, value : 6, test : 5 },
+                    { name : 8, value : 10, test : 5 },
+                    { name : 18, value : 5, test : 5 },
                 ],
                 x : {
 
@@ -37,10 +37,10 @@
             }],
             brush : {
                 type : 'equalizer2',
-                target : [ 'name', 'value' ],
-                innerPadding : 1,
-                outerPadding : 3,
-                unit : 5
+                target : [ 'name', 'value', 'test' ],
+                innerPadding : 2,
+                outerPadding : 15,
+                unit : 3
             },
             event: {
                 rclick: function(obj, e) {
