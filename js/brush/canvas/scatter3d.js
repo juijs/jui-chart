@@ -23,9 +23,18 @@ jui.define("chart.brush.canvas.scatter3d",
             }
 
             this.addPolygon(new PointPolygon(x, y, z), function(p) {
+                var tx = p.vectors[0].x,
+                    ty = p.vectors[0].y,
+                    tr = r * MathUtil.scaleValue(z, 0, this.axis.depth, 1, p.perspective),
+                    tc = ColorUtil.lighten(color, this.chart.theme("polygonScatterRadialOpacity"));
+
+                var grd = this.canvas.createRadialGradient(tx, ty, tr / 2, tx, ty, tr);
+                grd.addColorStop(0, color);
+                grd.addColorStop(1, tc);
+
                 this.canvas.beginPath();
-                this.canvas.arc(p.vectors[0].x, p.vectors[0].y, r * MathUtil.scaleValue(z, 0, this.axis.depth, 1, p.perspective), 0, 2 * Math.PI, false);
-                this.canvas.fillStyle = color;
+                this.canvas.arc(tx, ty, tr, 0, 2 * Math.PI, false);
+                this.canvas.fillStyle = grd;
                 this.canvas.fill();
             });
         }
