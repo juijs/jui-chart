@@ -19,7 +19,7 @@
             axis : [{
                 data : [
                     { name : 5, value : 15, test : 5 },
-                    { name : 32, value : 6, test : 5 },
+                    { name : 25, value : 8, test : 5 },
                     { name : 8, value : 10, test : 5 },
                     { name : 18, value : 5, test : 5 },
                 ],
@@ -30,17 +30,15 @@
                 },
                 y : {
                     type : 'range',
-                    domain : [ 0, 100 ],
-                    step : 10,
+                    domain : [ 0, 50 ],
+                    step : 5,
                     line : true
                 }
             }],
             brush : {
                 type : 'equalizer2',
                 target : [ 'name', 'value', 'test' ],
-                innerPadding : 2,
-                outerPadding : 15,
-                unit : 3
+                unit : 10
             },
             event: {
                 rclick: function(obj, e) {
@@ -48,7 +46,8 @@
                 }
             },
             widget: {
-                type : "tooltip"
+                type : "tooltip",
+                all : true
             }
         });
 	})

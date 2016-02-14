@@ -10023,21 +10023,21 @@ jui.define("chart.brush.equalizer2", [], function() {
 
         this.draw = function() {
             var targets = this.brush.target,
-                unit = this.brush.unit,
-                padding = this.brush.innerPadding;
+                padding = this.brush.innerPadding,
+                band = this.axis.y.rangeBand(),
+                unit = band / (this.brush.unit * padding);
 
             this.eachData(function(i, data) {
                 var startX = this.offset("x", i) - bar_width / 2,
                     startY = this.axis.y(0),
-                    value = 0,
-                    gap = 0;
+                    value = 0;
 
                 for (var j = 0; j < targets.length; j++) {
                     var barGroup = this.svg.group(),
                         yValue = data[targets[j]] + value,
                         endY = this.axis.y(yValue),
                         targetHeight = Math.abs(startY - endY),
-                        targetY  = targetHeight;
+                        targetY = targetHeight;
 
                     while (targetY > 0) {
                         var r = this.getBarElement(i, j);
@@ -10050,16 +10050,29 @@ jui.define("chart.brush.equalizer2", [], function() {
                         });
 
                         targetY -= unit + padding;
+
+                        if(targetY < 0) {
+                            var th = Math.ceil(unit + targetY),
+                                tp = (unit + padding - th) / 2;
+
+                            r.attr({
+                                y : r.attributes.y + tp,
+                                height : (th < 0) ? 0 : th
+                            });
+
+                            barGroup.translate(0, -tp);
+                        } else {
+                            barGroup.translate(0, -unit);
+                        }
+
                         barGroup.append(r);
                     }
 
-                    barGroup.translate(0, gap);
                     this.addEvent(barGroup, i, j);
                     g.append(barGroup);
 
                     startY = endY;
                     value = yValue;
-                    gap += targetY;
                 }
             });
 
@@ -10073,8 +10086,10 @@ jui.define("chart.brush.equalizer2", [], function() {
             innerPadding: 2,
             /** @cfg {Number} [outerPadding=15] Determines the outer margin of an equalizer. */
             outerPadding: 15,
+            /** @cfg {Number} [size=0] Set a fixed size of the bar. */
+            size: 0,
             /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
-            unit: 5
+            unit: 1
         };
     }
 
