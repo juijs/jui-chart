@@ -109,7 +109,14 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
                 face.point(p.vectors[i].x, p.vectors[i].y);
             }
 
-            axis.append(face);
+            // Y축이 숨김 상태일 때
+            if(position == "center") {
+                if(this.axis.get("y").hide !== true) {
+                    axis.append(face);
+                }
+            } else {
+                axis.append(face);
+            }
         }
 
         this.drawValueLine = function(position, axis, isActive, line, index, xy, isLast) {
@@ -171,7 +178,11 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
                 }
 
                 axis.append(lo1);
-                axis.append(lo2);
+
+                // Y축이 숨김 상태가 아닐 때만 추가
+                if(this.axis.get("y").hide !== true) {
+                    axis.append(lo2);
+                }
             }
         }
 
@@ -220,7 +231,11 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
                 }
 
                 axis.append(lo1);
-                axis.append(lo2);
+
+                // Y축이 숨김 상태가 아닐 때만 추가
+                if(this.axis.get("y").hide !== true) {
+                    axis.append(lo2);
+                }
             }
         }
 
