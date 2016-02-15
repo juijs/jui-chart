@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    jui.ready([ "chart.builder" ], function(chart) {
+
+        chart("#chart", {
+            width: 400,
+            height : 400,
+            theme : "jennifer",
+            axis : [{
+                data : [
+                    { name : 5, value : 15, test : 5 },
+                    { name : 25, value : 8, test : 5 },
+                    { name : 8, value : 10, test : 5 },
+                    { name : 18, value : 5, test : 5 },
+                ],
+                x : {
+                    type : 'range',
+                    domain : [ 0, 50 ],
+                    step : 5,
+                    line : true
+                },
+                y : {
+                    domain : [ "week1", "week2", "week3", "week4" ],
+                    line : true
+                }
+            }],
+            brush : {
+                type : 'equalizerbar',
+                target : [ 'name', 'value', 'test' ],
+                unit : 10
+            },
+            event: {
+                rclick: function(obj, e) {
+                    console.log(obj);
+                }
+            },
+            widget: {
+                type : "tooltip",
+                all : true
+            }
+        });
+	})
+</script>
+
+
+</body>
+</html>

@@ -1,10 +1,10 @@
-jui.define("chart.brush.equalizer2", [], function() {
+jui.define("chart.brush.equalizercolumn", [], function() {
 
     /**
-     * @class chart.brush.equalizer 
-     * @extends chart.brush.core
+     * @class chart.brush.equalizercolumn
+     * @extends chart.brush.stackcolumn
      */
-    var EqualizerAnotherBrush = function() {
+    var EqualizerColumnBrush = function() {
         var g, zeroY, bar_width;
 
         this.drawBefore = function() {
@@ -72,18 +72,12 @@ jui.define("chart.brush.equalizer2", [], function() {
         }
     }
 
-    EqualizerAnotherBrush.setup = function() {
+    EqualizerColumnBrush.setup = function() {
         return {
-            /** @cfg {Number} [innerPadding=1.5] Determines the inner margin of an equalizer.*/
-            innerPadding: 2,
-            /** @cfg {Number} [outerPadding=15] Determines the outer margin of an equalizer. */
-            outerPadding: 15,
-            /** @cfg {Number} [size=0] Set a fixed size of the bar. */
-            size: 0,
             /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
             unit: 1
         };
     }
 
-    return EqualizerAnotherBrush;
+    return EqualizerColumnBrush;
 }, "chart.brush.stackcolumn");

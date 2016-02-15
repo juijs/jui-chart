@@ -10006,13 +10006,91 @@ jui.define("chart.brush.equalizer", [], function() {
     return EqualizerBrush;
 }, "chart.brush.core");
 
-jui.define("chart.brush.equalizer2", [], function() {
+jui.define("chart.brush.equalizerbar", [], function() {
 
     /**
-     * @class chart.brush.equalizer 
-     * @extends chart.brush.core
+     * @class chart.brush.equalizerbar
+     * @extends chart.brush.stackbar
      */
-    var EqualizerAnotherBrush = function() {
+    var EqualizerBarBrush = function() {
+        var g, zeroX, bar_height;
+
+        this.drawBefore = function() {
+            g = this.svg.group();
+            zeroX = this.axis.x(0);
+            bar_height = this.getTargetSize();
+        }
+
+        this.draw = function() {
+            var targets = this.brush.target,
+                padding = this.brush.innerPadding,
+                band = this.axis.x.rangeBand(),
+                unit = band / (this.brush.unit * padding);
+
+            this.eachData(function(i, data) {
+                var startY = this.offset("y", i) - bar_height / 2,
+                    startX = this.axis.x(0),
+                    value = 0;
+
+                for (var j = 0; j < targets.length; j++) {
+                    var barGroup = this.svg.group(),
+                        xValue = data[targets[j]] + value,
+                        endX = this.axis.x(xValue),
+                        targetWidth = Math.abs(startX - endX),
+                        targetX = targetWidth;
+
+                    while (targetX > 0) {
+                        var r = this.getBarElement(i, j);
+
+                        r.attr({
+                            x : endX - targetX,
+                            y : startY,
+                            width : unit,
+                            height : bar_height
+                        });
+
+                        targetX -= unit + padding;
+
+                        if(targetX < 0) {
+                            var th = Math.ceil(unit + targetX);
+
+                            r.attr({
+                                width : (th < 0) ? 0 : th
+                            });
+                        }
+
+                        barGroup.append(r);
+                    }
+
+                    this.addEvent(barGroup, i, j);
+                    g.append(barGroup);
+
+                    startX = endX;
+                    value = xValue;
+                }
+            });
+
+            return g;
+        }
+    }
+
+    EqualizerBarBrush.setup = function() {
+        return {
+            /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
+            unit: 1
+        };
+    }
+
+    return EqualizerBarBrush;
+}, "chart.brush.stackbar");
+
+jui.define("chart.brush.equalizercolumn", [], function() {
+
+    /**
+     * @class chart.brush.equalizercolumn
+     * @extends chart.brush.stackcolumn
+     */
+    var EqualizerColumnBrush = function() {
         var g, zeroY, bar_width;
 
         this.drawBefore = function() {
@@ -10080,20 +10158,14 @@ jui.define("chart.brush.equalizer2", [], function() {
         }
     }
 
-    EqualizerAnotherBrush.setup = function() {
+    EqualizerColumnBrush.setup = function() {
         return {
-            /** @cfg {Number} [innerPadding=1.5] Determines the inner margin of an equalizer.*/
-            innerPadding: 2,
-            /** @cfg {Number} [outerPadding=15] Determines the outer margin of an equalizer. */
-            outerPadding: 15,
-            /** @cfg {Number} [size=0] Set a fixed size of the bar. */
-            size: 0,
             /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
             unit: 1
         };
     }
 
-    return EqualizerAnotherBrush;
+    return EqualizerColumnBrush;
 }, "chart.brush.stackcolumn");
 
 jui.define("chart.brush.line", [], function() {
