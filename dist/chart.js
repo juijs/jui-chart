@@ -4532,7 +4532,11 @@ jui.define("chart.grid.draw2d", [ "util.base", "util.math" ], function(_, math) 
                 }, area));
 
                 if (line.type.indexOf("dashed") > -1) {
-                    lineObject.attr({ "stroke-dasharray": "5,5" });
+                    var dash = this.chart.theme("gridBorderDashArray");
+
+                    lineObject.attr({
+                        "stroke-dasharray": (dash == "none" || !dash) ? "3,3" : dash
+                    });
                 }
 
                 axis.append(lineObject);
@@ -4672,7 +4676,7 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
                 line = this.getLineOption();
 
             if(line) {
-                this.drawValueLineCenter(axis, ticks, values, checkActive, moveZ);
+                this.drawValueLineCenter(axis, ticks, line);
             }
 
             this.drawValueTextCenter(axis, ticks, values, checkActive, moveZ);
@@ -4790,8 +4794,11 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
                 });
 
                 if (line.type.indexOf("dashed") > -1) {
-                    lo1.attr({ "stroke-dasharray": "5,5" });
-                    lo2.attr({ "stroke-dasharray": "5,5" });
+                    var dash = this.chart.theme("gridBorderDashArray"),
+                        style = (dash == "none" || !dash) ? "3,3" : dash;
+
+                    lo1.attr({ "stroke-dasharray": style });
+                    lo2.attr({ "stroke-dasharray": style });
                 }
 
                 axis.append(lo1);
@@ -4799,7 +4806,7 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
             }
         }
 
-        this.drawValueLineCenter = function(axis, ticks, values, checkActive, moveZ) {
+        this.drawValueLineCenter = function(axis, ticks, line) {
             var len = (this.grid.type != "block") ? ticks.length - 1 : ticks.length,
                 w = this.axis.area("width"),
                 h = this.axis.area("height"),
@@ -4817,23 +4824,34 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
 
                 this.calculate3d(p1, p2);
 
-                axis.append(this.line({
+                var lo1 = this.line({
                     stroke: this.chart.theme("gridBorderColor"),
                     "stroke-width": this.chart.theme("gridBorderWidth"),
                     x1: p1.vectors[0].x,
                     y1: p1.vectors[0].y,
                     x2: p1.vectors[1].x,
                     y2: p1.vectors[1].y
-                }));
+                });
 
-                axis.append(this.line({
+                var lo2 = this.line({
                     stroke: this.chart.theme("gridBorderColor"),
                     "stroke-width": this.chart.theme("gridBorderWidth"),
                     x1: p2.vectors[0].x,
                     y1: p2.vectors[0].y,
                     x2: p2.vectors[1].x,
                     y2: p2.vectors[1].y
-                }));
+                });
+
+                if (line.type.indexOf("dashed") > -1) {
+                    var dash = this.chart.theme("gridBorderDashArray"),
+                        style = (dash == "none" || !dash) ? "3,3" : dash;
+
+                    lo1.attr({ "stroke-dasharray": style });
+                    lo2.attr({ "stroke-dasharray": style });
+                }
+
+                axis.append(lo1);
+                axis.append(lo2);
             }
         }
 

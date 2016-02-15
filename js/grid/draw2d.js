@@ -151,7 +151,11 @@ jui.define("chart.grid.draw2d", [ "util.base", "util.math" ], function(_, math) 
                 }, area));
 
                 if (line.type.indexOf("dashed") > -1) {
-                    lineObject.attr({ "stroke-dasharray": "5,5" });
+                    var dash = this.chart.theme("gridBorderDashArray");
+
+                    lineObject.attr({
+                        "stroke-dasharray": (dash == "none" || !dash) ? "3,3" : dash
+                    });
                 }
 
                 axis.append(lineObject);
