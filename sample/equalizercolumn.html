@@ -11,18 +11,11 @@
 
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
-
-        chart("#chart", {
+        var c = chart("#chart", {
             width: 400,
             height : 400,
             theme : "jennifer",
             axis : [{
-                data : [
-                    { name : 5, value : 15, test : 5 },
-                    { name : 25, value : 8, test : 5 },
-                    { name : 8, value : 10, test : 5 },
-                    { name : 18, value : 5, test : 5 },
-                ],
                 x : {
 
                     domain : [ "week1", "week2", "week3", "week4" ],
@@ -50,6 +43,20 @@
                 all : true
             }
         });
+
+        setTimeout(function() {
+            var data = [];
+
+            for(var i = 0; i < 4; i++) {
+                data.push({
+                    name: Math.floor(Math.random() * 15),
+                    value: Math.floor(Math.random() * 15),
+                    test: Math.floor(Math.random() * 15)
+                });
+            }
+
+            c.axis(0).update(data)
+        }, 1000);
 	})
 </script>
 

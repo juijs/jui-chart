@@ -11,8 +11,7 @@
 
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
-
-        chart("#chart", {
+        var c = chart("#chart", {
             width: 400,
             height : 400,
             theme : "jennifer",
@@ -49,6 +48,20 @@
                 all : true
             }
         });
+
+        setInterval(function() {
+            var data = [];
+
+            for(var i = 0; i < 4; i++) {
+                data.push({
+                    name: Math.floor(Math.random() * 15),
+                    value: Math.floor(Math.random() * 15),
+                    test: Math.floor(Math.random() * 15)
+                });
+            }
+
+            c.axis(0).update(data)
+        }, 1000);
 	})
 </script>
 
