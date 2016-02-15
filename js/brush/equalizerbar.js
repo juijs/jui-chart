@@ -5,23 +5,26 @@ jui.define("chart.brush.equalizerbar", [], function() {
      * @extends chart.brush.stackbar
      */
     var EqualizerBarBrush = function() {
-        var g, zeroX, bar_height;
+        var g, zeroX, bar_height, is_reverse;
 
         this.drawBefore = function() {
             g = this.svg.group();
             zeroX = this.axis.x(0);
             bar_height = this.getTargetSize();
+            is_reverse = this.axis.get("x").reverse;
         }
 
         this.draw = function() {
             var targets = this.brush.target,
                 padding = this.brush.innerPadding,
                 band = this.axis.x.rangeBand(),
-                unit = band / (this.brush.unit * padding);
+                unit = band / (this.brush.unit * padding),
+                width = unit + padding;
 
             this.eachData(function(i, data) {
                 var startY = this.offset("y", i) - bar_height / 2,
                     startX = this.axis.x(0),
+                    x = startX,
                     value = 0;
 
                 for (var j = 0; j < targets.length; j++) {
@@ -31,25 +34,18 @@ jui.define("chart.brush.equalizerbar", [], function() {
                         targetWidth = Math.abs(startX - endX),
                         targetX = targetWidth;
 
-                    while (targetX > 0) {
+                    while (targetX >= width) {
                         var r = this.getBarElement(i, j);
 
                         r.attr({
-                            x : endX - targetX,
+                            x : x,
                             y : startY,
                             width : unit,
                             height : bar_height
                         });
 
-                        targetX -= unit + padding;
-
-                        if(targetX < 0) {
-                            var th = Math.ceil(unit + targetX);
-
-                            r.attr({
-                                width : (th < 0) ? 0 : th
-                            });
-                        }
+                        targetX -= width;
+                        x -= (is_reverse) ? width : -width;
 
                         barGroup.append(r);
                     }

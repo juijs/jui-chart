@@ -26,7 +26,8 @@
                     type : 'range',
                     domain : [ 0, 50 ],
                     step : 5,
-                    line : true
+                    line : true,
+                    reverse : true
                 },
                 y : {
                     domain : [ "week1", "week2", "week3", "week4" ],
@@ -61,7 +62,7 @@
             }
 
             c.axis(0).update(data)
-        }, 1000);
+        }, 3000);
 	})
 </script>
 

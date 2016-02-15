@@ -25,7 +25,8 @@
                     type : 'range',
                     domain : [ 0, 50 ],
                     step : 5,
-                    line : true
+                    line : true,
+                    reverse : false
                 }
             }],
             brush : {
@@ -44,7 +45,7 @@
             }
         });
 
-        setTimeout(function() {
+        setInterval(function() {
             var data = [];
 
             for(var i = 0; i < 4; i++) {
@@ -56,7 +57,7 @@
             }
 
             c.axis(0).update(data)
-        }, 1000);
+        }, 3000);
 	})
 </script>
 

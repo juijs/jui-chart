@@ -10013,23 +10013,26 @@ jui.define("chart.brush.equalizerbar", [], function() {
      * @extends chart.brush.stackbar
      */
     var EqualizerBarBrush = function() {
-        var g, zeroX, bar_height;
+        var g, zeroX, bar_height, is_reverse;
 
         this.drawBefore = function() {
             g = this.svg.group();
             zeroX = this.axis.x(0);
             bar_height = this.getTargetSize();
+            is_reverse = this.axis.get("x").reverse;
         }
 
         this.draw = function() {
             var targets = this.brush.target,
                 padding = this.brush.innerPadding,
                 band = this.axis.x.rangeBand(),
-                unit = band / (this.brush.unit * padding);
+                unit = band / (this.brush.unit * padding),
+                width = unit + padding;
 
             this.eachData(function(i, data) {
                 var startY = this.offset("y", i) - bar_height / 2,
                     startX = this.axis.x(0),
+                    x = startX,
                     value = 0;
 
                 for (var j = 0; j < targets.length; j++) {
@@ -10039,25 +10042,18 @@ jui.define("chart.brush.equalizerbar", [], function() {
                         targetWidth = Math.abs(startX - endX),
                         targetX = targetWidth;
 
-                    while (targetX > 0) {
+                    while (targetX >= width) {
                         var r = this.getBarElement(i, j);
 
                         r.attr({
-                            x : endX - targetX,
+                            x : x,
                             y : startY,
                             width : unit,
                             height : bar_height
                         });
 
-                        targetX -= unit + padding;
-
-                        if(targetX < 0) {
-                            var th = Math.ceil(unit + targetX);
-
-                            r.attr({
-                                width : (th < 0) ? 0 : th
-                            });
-                        }
+                        targetX -= width;
+                        x -= (is_reverse) ? width : -width;
 
                         barGroup.append(r);
                     }
@@ -10091,23 +10087,26 @@ jui.define("chart.brush.equalizercolumn", [], function() {
      * @extends chart.brush.stackcolumn
      */
     var EqualizerColumnBrush = function() {
-        var g, zeroY, bar_width;
+        var g, zeroY, bar_width, is_reverse;
 
         this.drawBefore = function() {
             g = this.svg.group();
             zeroY = this.axis.y(0);
             bar_width = this.getTargetSize();
+            is_reverse = this.axis.get("y").reverse;
         }
 
         this.draw = function() {
             var targets = this.brush.target,
                 padding = this.brush.innerPadding,
                 band = this.axis.y.rangeBand(),
-                unit = band / (this.brush.unit * padding);
+                unit = band / (this.brush.unit * padding),
+                height = unit + padding;
 
             this.eachData(function(i, data) {
                 var startX = this.offset("x", i) - bar_width / 2,
                     startY = this.axis.y(0),
+                    y = startY,
                     value = 0;
 
                 for (var j = 0; j < targets.length; j++) {
@@ -10117,35 +10116,23 @@ jui.define("chart.brush.equalizercolumn", [], function() {
                         targetHeight = Math.abs(startY - endY),
                         targetY = targetHeight;
 
-                    while (targetY > 0) {
+                    while (targetY >= height) {
                         var r = this.getBarElement(i, j);
 
                         r.attr({
                             x : startX,
-                            y : endY + targetY,
+                            y : y,
                             width : bar_width,
                             height : unit
                         });
 
-                        targetY -= unit + padding;
-
-                        if(targetY < 0) {
-                            var th = Math.ceil(unit + targetY),
-                                tp = (unit + padding - th) / 2;
-
-                            r.attr({
-                                y : r.attributes.y + tp,
-                                height : (th < 0) ? 0 : th
-                            });
-
-                            barGroup.translate(0, -tp);
-                        } else {
-                            barGroup.translate(0, -unit);
-                        }
+                        targetY -= height;
+                        y += (is_reverse) ? height : -height;
 
                         barGroup.append(r);
                     }
 
+                    barGroup.translate(0, -unit);
                     this.addEvent(barGroup, i, j);
                     g.append(barGroup);
 
