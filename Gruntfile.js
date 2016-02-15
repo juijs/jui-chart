@@ -184,8 +184,19 @@ module.exports = function(grunt) {
                 }
             }
         },
+        "curl-dir": {
+            "jui.img.icon": {
+                src: [
+                    "https://raw.githubusercontent.com/juijs/jui/develop/img/icon/icomoon.eot",
+                    "https://raw.githubusercontent.com/juijs/jui/develop/img/icon/icomoon.svg",
+                    "https://raw.githubusercontent.com/juijs/jui/develop/img/icon/icomoon.ttf",
+                    "https://raw.githubusercontent.com/juijs/jui/develop/img/icon/icomoon.woff"
+                ],
+                dest: "img/icon"
+            }
+        },
         icon : {
-            css : "lib/jui.css",
+            css : "../jui/dist/ui.css",
             dist : "js/icon/jennifer.js"
         },
         pattern : {
@@ -259,6 +270,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.registerTask("js", [ "concat", "uglify" ]);
     grunt.registerTask("test", [ "qunit" ]);
-    grunt.registerTask("make", [ "icon", "pattern" ]);
+    grunt.registerTask("make", [ "curl-dir", "icon", "pattern" ]);
     grunt.registerTask("default", [ "js", "test" ]);
 };
