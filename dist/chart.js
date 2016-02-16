@@ -10110,6 +10110,7 @@ jui.define("chart.brush.equalizerbar", [], function() {
                         barGroup.append(r);
                     }
 
+                    barGroup.translate((is_reverse) ? -unit : 0, 0);
                     this.addEvent(barGroup, i, j);
                     g.append(barGroup);
 
@@ -10184,7 +10185,7 @@ jui.define("chart.brush.equalizercolumn", [], function() {
                         barGroup.append(r);
                     }
 
-                    barGroup.translate(0, -unit);
+                    barGroup.translate(0, (is_reverse) ? 0 : -unit);
                     this.addEvent(barGroup, i, j);
                     g.append(barGroup);
 

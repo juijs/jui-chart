@@ -50,6 +50,7 @@ jui.define("chart.brush.equalizerbar", [], function() {
                         barGroup.append(r);
                     }
 
+                    barGroup.translate((is_reverse) ? -unit : 0, 0);
                     this.addEvent(barGroup, i, j);
                     g.append(barGroup);
 
