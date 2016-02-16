@@ -487,7 +487,8 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             return text;
         }
 
-        function preventTextSelection(root) {
+        function initRootStyles(root) {
+            root.style.position = "relative";
             root.style.userSelect = "none";
             root.style.webkitUserSelect = "none";
             root.style.MozUserSelect = "none";
@@ -495,8 +496,6 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
         }
 
         function initCanvasElement(self) {
-            self.root.style.position = "relative";
-
             for(var key in _canvas) {
                 var elem = document.createElement("CANVAS");
 
@@ -547,8 +546,8 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             // 차트 테마 설정 (+옵션 스타일)
             setThemeStyle(_options.theme);
 
-            // 텍스트 드래그 막기
-            preventTextSelection(this.root);
+            // 루트 엘리먼트 기본 스타일 설정
+            initRootStyles(this.root);
 
             /** @property {chart.svg} svg Refers to an SVG utility object. */
             this.svg = new SVGUtil(this.root, {

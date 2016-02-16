@@ -8,15 +8,15 @@
 </head>
 <body >
 
-<div id="chart"></div>
+<div style="width: 500px; height: 500px;">
+    <div id="chart" style="width: 100%; height: 100%;"></div>
+</div>
 
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
 
         window.c = chart("#chart", {
             theme : "dark",
-            width: 400,
-            height : 400,
             axis : [
                 {
                     data : [
