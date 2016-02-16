@@ -1860,6 +1860,15 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             return text;
         }
 
+        function getCanvasRealSize(self) {
+            var size = self.svg.size();
+
+            return {
+                width : (_.typeCheck("integer", _options.width)) ? _options.width : size.width,
+                height : (_.typeCheck("integer", _options.height)) ? _options.height : size.height
+            }
+        }
+
         function initRootStyles(root) {
             root.style.position = "relative";
             root.style.userSelect = "none";
@@ -1869,11 +1878,13 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
         }
 
         function initCanvasElement(self) {
+            var size = getCanvasRealSize(self);
+
             for(var key in _canvas) {
                 var elem = document.createElement("CANVAS");
 
-                elem.setAttribute("width", _options.width);
-                elem.setAttribute("height", _options.height);
+                elem.setAttribute("width", size.width);
+                elem.setAttribute("height", size.height);
                 elem.style.position = "absolute";
                 elem.style.left = "0px";
                 elem.style.top = "0px";
@@ -1900,11 +1911,12 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             }
         }
 
-        function resetCanvasElement(type) {
-            var context = _canvas[type];
+        function resetCanvasElement(self, type) {
+            var size = getCanvasRealSize(self),
+                context = _canvas[type];
 
             context.restore();
-            context.clearRect(0, 0, _options.width, _options.height);
+            context.clearRect(0, 0, size.width, size.height);
             context.save();
 
             if(type == "main") {
@@ -2263,10 +2275,10 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
 
             // Canvas 초기 설정
             if(this.options.canvas) {
-                resetCanvasElement("main");
+                resetCanvasElement(this, "main");
 
                 if(isAll) {
-                    resetCanvasElement("sub");
+                    resetCanvasElement(this, "sub");
                 }
             }
 
