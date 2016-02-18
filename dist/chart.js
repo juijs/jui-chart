@@ -5816,8 +5816,10 @@ jui.define("chart.grid.dateblock", [ "util.time", "util.scale", "util.base" ], f
 				this.values[i] = time(this.ticks[i]);
 			}
 
+			var self = this;
 			this.scale = _.extend((function(i) {
-				return  i * unit;
+				// area 시작 영역 추가
+				return  self.start + i * unit;
 			}), time);
 
 		}
@@ -5927,7 +5929,7 @@ jui.define("chart.grid.fullblock", [ "util.scale", "util.base" ], function(UtilS
         }
 
         this.draw = function() {
-            return this.drawGrid("block");
+            return this.drawGrid("fullblock");
         }
     }
 

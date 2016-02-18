@@ -95,7 +95,7 @@ jui.define("chart.grid.fullblock", [ "util.scale", "util.base" ], function(UtilS
         }
 
         this.draw = function() {
-            return this.drawGrid("block");
+            return this.drawGrid("fullblock");
         }
     }
 
