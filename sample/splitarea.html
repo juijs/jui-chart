@@ -33,7 +33,11 @@
                     { name : -15, value : 6 },
                     { name : 8, value : 10 },
                     { name : 18, value : 5 }
-                ]
+                ],
+                padding : {
+                    top: 150,
+                    left : 100
+                }
 
             },
             brush : [
@@ -46,7 +50,10 @@
                 },
                 {
                     type : "pin",
-                    split : 1
+                    split : 1,
+                    format : function(d) {
+                        return "11:11";
+                    }
                 }
             ]
         });

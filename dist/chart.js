@@ -13367,48 +13367,48 @@ jui.define("chart.brush.pin", [ "util.base" ], function(_) {
      * @class chart.brush.pin  
      * @extends chart.brush.core
      */
-    var PinBrush = function(chart, axis, brush) {
+    var PinBrush = function() {
         var self = this;
 
         this.draw = function() {
-            var size = brush.size,
-                color = chart.theme("pinBorderColor"),
-                width = chart.theme("pinBorderWidth"),
-                fontSize = chart.theme("pinFontSize"),
+            var size = this.brush.size,
+                color = this.chart.theme("pinBorderColor"),
+                width = this.chart.theme("pinBorderWidth"),
+                fontSize = this.chart.theme("pinFontSize"),
                 paddingY = fontSize / 2,
-                startY = axis.area("y"),
+                startY = this.axis.area("y"),
                 showText = _.typeCheck("function", this.brush.format);
 
-            var g = chart.svg.group({}, function() {
-                var d = axis.x(brush.split),
+            var g = this.svg.group({}, function() {
+                var d = self.axis.x(self.brush.split),
                     x = d - (size / 2);
 
                 if(showText) {
-                    var value = self.format(axis.x.invert(d));
+                    var value = self.format(self.axis.x.invert(d));
 
-                    chart.text({
+                    self.chart.text({
                         "text-anchor": "middle",
                         "font-size": fontSize,
-                        "fill": chart.theme("pinFontColor")
+                        "fill": self.chart.theme("pinFontColor")
                     }, value).translate(d, startY);
                 }
 
-                chart.svg.polygon({
+                self.svg.polygon({
                     fill: color
                 })
-                .point(size, 0)
-                .point(size / 2, size)
-                .point(0, 0)
+                .point(size, startY)
+                .point(size / 2, size + startY)
+                .point(0, startY)
                 .translate(x, paddingY);
 
-                chart.svg.line({
+                self.svg.line({
                     stroke: color,
                     "stroke-width": width,
                     x1: size / 2,
-                    y1: startY,
+                    y1: startY + paddingY,
                     x2: size / 2,
-                    y2: axis.area("height") - paddingY
-                }).translate(x, paddingY);
+                    y2: startY + self.axis.area("height")
+                }).translate(x, 0);
             });
 
             return g;
