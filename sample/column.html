@@ -17,6 +17,14 @@
             height : 400,
             theme : "jennifer",
             axis : {
+                padding : {
+                    left: 50,
+                    top : 100
+                },
+                area : {
+                    width : "80%",
+                    x : "10%"
+                },
                 x : {
                     type : "block",
                     domain : "quarter",
@@ -36,10 +44,14 @@
                     { quarter : "4Q", sales : 0.49, profit : 4}
                 ]
             },
-            brush : {
+            brush : [{
                 type : "column",
                 target : [ "sales", "profit" ]
-            },
+            }, {
+                type : "focus",
+                start : 1,
+                end : 1
+            }],
             widget : [
                 { type : "title", text : "Column Sample" },
                 { type : "tooltip" },

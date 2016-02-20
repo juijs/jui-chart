@@ -13271,22 +13271,25 @@ jui.define("chart.brush.focus", [], function() {
 	 * @class chart.brush.focus
 	 * @extends chart.brush.core
 	 */
-	var FocusBrush = function(chart, axis, brush) {
+	var FocusBrush = function() {
+		var self = this;
 		var g, grid;
 
 		this.drawFocus = function(start, end) {
-			var borderColor = chart.theme("focusBorderColor"),
-				borderSize = chart.theme("focusBorderWidth"),
-				bgColor = chart.theme("focusBackgroundColor"),
-				bgOpacity = chart.theme("focusBackgroundOpacity");
+			var borderColor = this.chart.theme("focusBorderColor"),
+				borderSize = this.chart.theme("focusBorderWidth"),
+				bgColor = this.chart.theme("focusBackgroundColor"),
+				bgOpacity = this.chart.theme("focusBackgroundOpacity");
 
-			var width = axis.area("width"),
-				height = axis.area("height");
+			var width = this.axis.area("width"),
+				height = this.axis.area("height"),
+				x = this.axis.area("x"),
+				y = this.axis.area("y");
 
-			g = chart.svg.group({}, function() {
-				if(brush.hide) return;
+			g = this.svg.group({}, function() {
+				if(self.brush.hide) return;
 
-				var a = chart.svg.line({
+				var a = self.svg.line({
 					stroke: borderColor,
 					"stroke-width": borderSize,
 					x1: 0,
@@ -13295,14 +13298,14 @@ jui.define("chart.brush.focus", [], function() {
 					y2: (grid == "x") ? height : 0
 				});
 
-				var b = chart.svg.rect({
+				var b = self.svg.rect({
 					width: (grid == "x") ? Math.abs(end - start) : width,
 					height: (grid == "x") ? height : Math.abs(end - start),
 					fill: bgColor,
 					opacity: bgOpacity
 				});
 
-				var c = chart.svg.line({
+				var c = self.svg.line({
 					stroke: borderColor,
 					"stroke-width": borderSize,
 					x1: 0,
@@ -13312,13 +13315,13 @@ jui.define("chart.brush.focus", [], function() {
 				});
 
 				if(grid == "x") {
-					a.translate(start, 0);
-					b.translate(start, 0);
-					c.translate(end, 0);
+					a.translate(start, y);
+					b.translate(start, y);
+					c.translate(end, y);
 				} else {
-					a.translate(0, start);
-					b.translate(0, start);
-					c.translate(0, end);
+					a.translate(x, start);
+					b.translate(x, start);
+					c.translate(x, end);
 				}
 			});
 
@@ -13326,24 +13329,24 @@ jui.define("chart.brush.focus", [], function() {
 		}
 
 		this.drawBefore = function() {
-			grid = (axis.y.type == "range") ? "x" : "y";
+			grid = (this.axis.y.type == "range") ? "x" : "y";
 		}
 
 		this.draw = function() {
 			var start = 0, end = 0;
 
-			if(brush.start == -1 || brush.end == -1) {
-				return this.chart.svg.g();
+			if(this.brush.start == -1 || this.brush.end == -1) {
+				return this.svg.g();
 			}
 
-			if(axis[grid].type == "block") {
-				var size = axis[grid].rangeBand();
+			if(this.axis[grid].type == "block") {
+				var size = this.axis[grid].rangeBand();
 
-				start = axis[grid](brush.start) - size / 2;
-				end = axis[grid](brush.end) + size / 2;
+				start = this.axis[grid](this.brush.start) - size / 2;
+				end = this.axis[grid](this.brush.end) + size / 2;
 			} else  {
-				start = axis[grid](brush.start);
-				end = axis[grid](brush.end);
+				start = this.axis[grid](this.brush.start);
+				end = this.axis[grid](this.brush.end);
 			}
 
 			return this.drawFocus(start, end);
