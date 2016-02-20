@@ -1004,7 +1004,7 @@ jui.define("chart.map", [ "util.base", "util.dom", "util.math", "util.svg" ], fu
                         var attr = elem.attributes[key];
 
                         if(attr.specified && isLoadAttribute(attr.name)) {
-                            obj[attr.name] = attr.value;
+                            obj[attr.name] = replaceXYValue(attr);
                         }
                     }
 
@@ -1054,7 +1054,7 @@ jui.define("chart.map", [ "util.base", "util.dom", "util.math", "util.svg" ], fu
                                 var attr = elem.attributes[key];
 
                                 if(attr.specified && isLoadAttribute(attr.name)) {
-                                    obj[attr.name] = attr.value;
+                                    obj[attr.name] = replaceXYValue(attr);
                                 }
                             }
 
@@ -1086,6 +1086,14 @@ jui.define("chart.map", [ "util.base", "util.dom", "util.math", "util.svg" ], fu
             );
         }
 
+        function replaceXYValue(attr) {
+            if(attr.name == "x" || attr.name == "y") {
+                return parseFloat(attr.value);
+            }
+
+            return attr.value;
+        }
+
         function getDataById(id) {
             var list = self.axis.data;
 
@@ -1108,7 +1116,7 @@ jui.define("chart.map", [ "util.base", "util.dom", "util.math", "util.svg" ], fu
                 var path = list[i].path,
                     data = list[i].data;
 
-                addEvent(path, list[i]);
+                //addEvent(path, list[i]);
                 group.append(path);
 
                 if(_.typeCheck("string", data.id)) {
@@ -1296,6 +1304,13 @@ jui.define("chart.map", [ "util.base", "util.dom", "util.math", "util.svg" ], fu
 
         this.drawAfter = function(obj) {
             obj.root.attr({ "clip-path": "url(#" + this.axis.get("clipRectId") + ")" });
+
+            // 모든 path가 그려진 이후에 이벤트 설정
+            setTimeout(function() {
+                self.scale.each(function(id, obj) {
+                    addEvent(obj.path, obj);
+                });
+            }, 1);
         }
     }
 
