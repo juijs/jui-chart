@@ -25,10 +25,10 @@ jui.define("chart.brush.canvas.scatter", [ "util.base" ], function(_) {
             } else if(type == "triangle") {
                 this.canvas.fillStyle = color;
                 this.canvas.beginPath();
-                this.canvas.moveTo(x + r, y - r);
-                this.canvas.lineTo(x, y + r);
-                this.canvas.lineTo(x + r * 2, y + r);
-                this.canvas.lineTo(x + r, y - r);
+                this.canvas.moveTo(x, y - r);
+                this.canvas.lineTo(x - r, y + r);
+                this.canvas.lineTo(x + r, y + r);
+                this.canvas.lineTo(x, y - r);
                 this.canvas.fill();
                 this.canvas.closePath();
             } else if(type == "cross") {

@@ -11,11 +11,14 @@
 
 <script id="script_code">
 jui.ready(["chart.builder"], function(chart) {
-    var c = chart("#chart", {
+    window.c = chart("#chart", {
         height: 300,
         padding: 100,
         theme : "jennifer",
         axis : {
+            padding : {
+                left: 50,
+            },
             x : {
                 type : "block",
                 domain : [ "Q1", "Q2", "Q3", "Q4" ],
@@ -54,7 +57,7 @@ jui.ready(["chart.builder"], function(chart) {
             type : "title",
             text : "Canvas Test"
         }, {
-            type : "dragselect"
+            type : "canvas.dragselect"
         }],
         canvas : true,
         event : {

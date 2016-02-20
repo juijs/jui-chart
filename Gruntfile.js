@@ -151,7 +151,8 @@ module.exports = function(grunt) {
         "js/widget/polygon/rotate3d.js",
 
         // canvas widget
-        "js/widget/canvas/core.js"
+        "js/widget/canvas/core.js",
+        "js/widget/canvas/dragselect.js"
     ];
 
     grunt.initConfig({
