@@ -1042,7 +1042,20 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                 _options.height = height;
             }
 
+            // Resize svg
             this.svg.size(_options.width, _options.height);
+
+            // Resize canvas
+            if(_options.canvas) {
+                var list = $.find(this.root, "CANVAS"),
+                    size = getCanvasRealSize(this);
+
+                for(var i = 0; i < list.length; i++) {
+                    list[i].setAttribute("width", size.width);
+                    list[i].setAttribute("height", size.height);
+                }
+            }
+
             if(this.isRender()) this.render(true);
         }
 
