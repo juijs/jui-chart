@@ -249,7 +249,9 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                     }
                 }
 
-                chart.emit("axis.mousemove", [ e, index ]);
+                if(checkAxisPoint(e)) {
+                    chart.emit("axis.mousemove", [e, index]);
+                }
             });
 
             chart.on("bg.mousemove", function(e) {

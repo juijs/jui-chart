@@ -12,12 +12,18 @@
 <script id="script_code">
 jui.ready(["chart.builder"], function(chart) {
     window.c = chart("#chart", {
-        height: 300,
+        height: 500,
         padding: 100,
         theme : "jennifer",
         axis : {
+            area : {
+                width : "50%",
+                height : "50%",
+                x : "50%",
+                y : "50%"
+            },
             padding : {
-                left: 50,
+                left: 50
             },
             x : {
                 type : "block",
