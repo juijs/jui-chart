@@ -13317,7 +13317,7 @@ jui.define("chart.brush.focus", [], function() {
 				y = this.axis.area("y");
 
 			g = this.svg.group({}, function() {
-				if(self.brush.hide) return;
+				if(self.brush.hide || self.axis.data.length == 0) return;
 
 				var a = self.svg.line({
 					stroke: borderColor,
@@ -16782,6 +16782,10 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                 thumbWidth = e.bgX - mouseStartX;
                 thumbHeight = e.bgY - mouseStartY;
 
+                // Reset drag
+                resetDragDraw();
+
+                // Draw drag
                 this.onDrawStart(mouseStartX, mouseStartY, thumbWidth, thumbHeight);
             }, brush.axis);
 
@@ -16899,7 +16903,16 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                 startValueX = 0;
                 startValueY = 0;
 
-                self.onDrawEnd();
+                resetDragDraw();
+            }
+
+            function resetDragDraw() {
+                self.onDrawEnd(
+                    self.chart.area("x") + axis.area("x"),
+                    self.chart.area("y") + axis.area("y"),
+                    axis.area("width"),
+                    axis.area("height")
+                );
             }
         }
 
@@ -16915,7 +16928,7 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
             );
         }
 
-        this.onDrawEnd = function() {
+        this.onDrawEnd = function(x, y, w, h) {
             thumb.attr({
                 width: 0,
                 height: 0
@@ -17458,8 +17471,6 @@ jui.define("chart.widget.canvas.dragselect", [ "util.base" ], function(_) {
      */
     var CanvasDragSelectWidget = function() {
         this.onDrawStart = function(x, y, w, h) {
-            this.onDrawEnd();
-
             this.canvas.lineWidth  = this.chart.theme("dragSelectBorderWidth");
             this.canvas.strokeStyle = this.chart.theme("dragSelectBorderColor");
             this.canvas.fillStyle = this.chart.theme("dragSelectBackgroundColor");
@@ -17479,11 +17490,8 @@ jui.define("chart.widget.canvas.dragselect", [ "util.base" ], function(_) {
             );
         }
 
-        this.onDrawEnd = function() {
-            var x = this.chart.area("x") + this.axis.area("x"),
-                y = this.chart.area("y") + this.axis.area("y");
-
-            this.canvas.clearRect(x, y, this.axis.area("width"), this.axis.area("height"));
+        this.onDrawEnd = function(x, y, w, h) {
+            this.canvas.clearRect(x, y, w, h);
         }
 
         this.draw = function() {

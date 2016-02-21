@@ -9,8 +9,6 @@ jui.define("chart.widget.canvas.dragselect", [ "util.base" ], function(_) {
      */
     var CanvasDragSelectWidget = function() {
         this.onDrawStart = function(x, y, w, h) {
-            this.onDrawEnd();
-
             this.canvas.lineWidth  = this.chart.theme("dragSelectBorderWidth");
             this.canvas.strokeStyle = this.chart.theme("dragSelectBorderColor");
             this.canvas.fillStyle = this.chart.theme("dragSelectBackgroundColor");
@@ -30,11 +28,8 @@ jui.define("chart.widget.canvas.dragselect", [ "util.base" ], function(_) {
             );
         }
 
-        this.onDrawEnd = function() {
-            var x = this.chart.area("x") + this.axis.area("x"),
-                y = this.chart.area("y") + this.axis.area("y");
-
-            this.canvas.clearRect(x, y, this.axis.area("width"), this.axis.area("height"));
+        this.onDrawEnd = function(x, y, w, h) {
+            this.canvas.clearRect(x, y, w, h);
         }
 
         this.draw = function() {

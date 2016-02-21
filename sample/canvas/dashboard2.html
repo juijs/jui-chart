@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="charset=utf-8;"/>
+<script src="../../lib/core.js"></script>
+<script src="../../dist/chart.js"></script>
+
+<script>
+jui.ready([ "chart.builder" ], function(builder) {
+    function pastTimeInterval(min) {
+        var time = jui.include("util.time");
+        return [ new Date(new Date() - time.MINUTE * min), new Date() ];
+    }
+
+    var dashboard = builder("#chart", {
+        height : 400,
+        padding : 5,
+        axis : [{
+            x : {
+                type : "block",
+                domain : "hours",
+                format : function(d, i) {
+                    return (d % 2) ? d : "";
+                }
+            },
+            y : {
+                type : "range",
+                domain : function(d) {
+                    return d.callcount * 1.3;
+                },
+                format : function(d, i) {
+                    return Math.ceil(d / 1000) + "K";
+                },
+                step : 2
+            },
+            padding : {
+                left : 50,
+                top : 35,
+                right : 20,
+                bottom : 20
+            },
+            area : {
+                width : "50%",
+                height : "48%",
+                x : "50%"
+            }
+        }, {
+            extend : 0,
+            y : {
+                domain : function(d) {
+                    return d.visitor * 1.3
+                }
+            },
+            area : {
+                y : "51%"
+            }
+        }, {
+            extend : 1,
+            x : {
+                type : "date",
+                domain : pastTimeInterval(10),
+                interval : 2,
+                realtime : "minutes",
+                format : "hh:mm",
+                key : "time"
+            },
+            y : {
+                type : "range",
+                domain : [ 0, 10000 ],
+                step : 4,
+                format : null
+            },
+            area : {
+                x : "0%",
+                y : "0%",
+                width : "49%",
+                height : "99%"
+            }
+        }],
+        brush : [{
+            type : "column",
+            target : [ "callcount" ],
+            display : "max",
+            colors : function(d) {
+                return (d.today) ? 0 : "#929292";
+            },
+            axis : 0
+        }, {
+            type : "focus",
+            start : 0,
+            end : 0,
+            axis : 0
+        }, {
+            type : "column",
+            target : [ "visitor" ],
+            display : "max",
+            colors : function(d) {
+                return (d.today) ? 0 : "#929292";
+            },
+            axis : 1
+        }, {
+            type : "focus",
+            start : 0,
+            end : 0,
+            axis : 1
+        }, {
+            type : "canvas.scatter",
+            symbol : "cross",
+            target : [ "delay" ],
+            size : 5,
+            colors : function(d) {
+                if(d.level == "fatal") {
+                    return "#ff0000"
+                } else if(d.level == "warning") {
+                    return "#f2ab14";
+                }
+
+                return "#4692ca";
+            },
+            clip : true,
+            axis : 2
+        }],
+        widget : [{
+            type : "title",
+            text : "Hourly call count",
+            dx : -10,
+            dy : -7,
+            axis : 0,
+            align : "start"
+        }, {
+            type : "title",
+            text : "Hourly visitor",
+            dx : -10,
+            dy : -7,
+            axis : 1,
+            align : "start"
+        }, {
+            type : "title",
+            text : "Transaction view",
+            dx : -10,
+            dy : -7,
+            axis : 2,
+            align : "start"
+        }, {
+            type : "canvas.dragselect",
+            brush : [ 4 ]
+        }, {
+            type : "cross",
+            xFormat : function(d) {
+                return d;
+            },
+            axis : 0
+        }, {
+            type : "cross",
+            xFormat : function(d) {
+                return d;
+            },
+            axis : 1
+        }],
+        style : {
+            axisBorderColor : "#dcdcdc",
+            axisBorderWidth : 1.5,
+            axisBorderRadius : 5,
+            titleFontSize : 12,
+            titleFontWeight : 700
+        },
+        event : {
+            "dragselect.end": function(data) {
+                alert(data.length);
+                console.log(data);
+            }
+        },
+        render : false,
+        canvas : true
+    });
+
+    dashboard.render();
+});
+</script>
+</head>
+<body >
+
+<div id="chart"></div>
+</body>
+</html>
