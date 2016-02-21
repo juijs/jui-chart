@@ -39,6 +39,10 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                 thumbWidth = e.bgX - mouseStartX;
                 thumbHeight = e.bgY - mouseStartY;
 
+                // Reset drag
+                resetDragDraw();
+
+                // Draw drag
                 this.onDrawStart(mouseStartX, mouseStartY, thumbWidth, thumbHeight);
             }, brush.axis);
 
@@ -156,7 +160,16 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                 startValueX = 0;
                 startValueY = 0;
 
-                self.onDrawEnd();
+                resetDragDraw();
+            }
+
+            function resetDragDraw() {
+                self.onDrawEnd(
+                    self.chart.area("x") + axis.area("x"),
+                    self.chart.area("y") + axis.area("y"),
+                    axis.area("width"),
+                    axis.area("height")
+                );
             }
         }
 
@@ -172,7 +185,7 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
             );
         }
 
-        this.onDrawEnd = function() {
+        this.onDrawEnd = function(x, y, w, h) {
             thumb.attr({
                 width: 0,
                 height: 0

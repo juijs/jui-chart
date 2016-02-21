@@ -19,7 +19,7 @@ jui.define("chart.brush.focus", [], function() {
 				y = this.axis.area("y");
 
 			g = this.svg.group({}, function() {
-				if(self.brush.hide) return;
+				if(self.brush.hide || self.axis.data.length == 0) return;
 
 				var a = self.svg.line({
 					stroke: borderColor,
