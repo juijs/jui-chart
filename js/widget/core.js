@@ -66,8 +66,6 @@ jui.define("chart.widget.core", [ "util.base" ], function(_) {
         }
 
         this.drawAfter = function(obj) {
-            if(_.typeCheck("object", obj)) return;
-
             obj.attr({ "class" : "widget " + this.widget.type });
         }
 	}

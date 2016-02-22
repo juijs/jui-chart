@@ -41,6 +41,8 @@ jui.define("chart.widget.canvas.dragselect", [ "util.base" ], function(_) {
                 this.setDragEvent(brush);
             }
         }
+
+        this.drawAfter = function() {}
     }
 
     CanvasDragSelectWidget.setup = function() {
