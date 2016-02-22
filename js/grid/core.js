@@ -391,6 +391,8 @@ jui.define("chart.grid.core", [ "util.base", "util.math", "chart.grid.draw2d", "
 		 * @protected
 		 */
 		this.drawAfter = function(obj) {
+			if(_.typeCheck("object", obj)) return;
+
 			obj.root.attr({ "class" : "grid " + this.grid.type });
 			obj.root.translate(this.chart.area("x") , this.chart.area("y"));
 		}

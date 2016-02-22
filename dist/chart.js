@@ -5399,6 +5399,8 @@ jui.define("chart.grid.core", [ "util.base", "util.math", "chart.grid.draw2d", "
 		 * @protected
 		 */
 		this.drawAfter = function(obj) {
+			if(_.typeCheck("object", obj)) return;
+
 			obj.root.attr({ "class" : "grid " + this.grid.type });
 			obj.root.translate(this.chart.area("x") , this.chart.area("y"));
 		}
@@ -7474,6 +7476,8 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
         }
 
         this.drawAfter = function(obj) {
+            if(_.typeCheck("object", obj)) return;
+
             if(this.brush.clip !== false) {
                 obj.attr({ "clip-path" : "url(#" + this.axis.get("clipId") + ")" });
             }
@@ -15014,6 +15018,8 @@ jui.define("chart.widget.core", [ "util.base" ], function(_) {
         }
 
         this.drawAfter = function(obj) {
+            if(_.typeCheck("object", obj)) return;
+
             obj.attr({ "class" : "widget " + this.widget.type });
         }
 	}
