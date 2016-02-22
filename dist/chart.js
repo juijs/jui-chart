@@ -4532,11 +4532,8 @@ jui.define("chart.grid.draw2d", [ "util.base", "util.math" ], function(_, math) 
             if (!values) return;
 
             var line = this.getLineOption(),
-                isY = (position == "left" || position == "right");
-
-            var g = this.chart.svg.group({
-                "class" : "grid-pattern grid-pattern-" + this.grid.type
-            });
+                isY = (position == "left" || position == "right"),
+                g = this.chart.svg.group();
 
             g.translate(this.axis.area("x") + this.chart.area("x"), this.axis.area("y") + this.chart.area("y"));
 
@@ -5402,6 +5399,7 @@ jui.define("chart.grid.core", [ "util.base", "util.math", "chart.grid.draw2d", "
 		 * @protected
 		 */
 		this.drawAfter = function(obj) {
+			obj.root.attr({ "class" : "grid " + this.grid.type });
 			obj.root.translate(this.chart.area("x") , this.chart.area("y"));
 		}
 	}
@@ -7480,6 +7478,7 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
                 obj.attr({ "clip-path" : "url(#" + this.axis.get("clipId") + ")" });
             }
 
+            obj.attr({ "class" : "brush " + this.brush.type });
             obj.translate(this.chart.area("x"), this.chart.area("y")); // 브러쉬일 경우, 기본 좌표 설정
         }
 
@@ -15012,6 +15011,10 @@ jui.define("chart.widget.core", [ "util.base" ], function(_) {
                     callback.apply(self, arguments);
                 }
             }, this.isRender() ? "render" : "renderAll");
+        }
+
+        this.drawAfter = function(obj) {
+            obj.attr({ "class" : "widget " + this.widget.type });
         }
 	}
 

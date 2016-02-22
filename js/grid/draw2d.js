@@ -91,11 +91,8 @@ jui.define("chart.grid.draw2d", [ "util.base", "util.math" ], function(_, math) 
             if (!values) return;
 
             var line = this.getLineOption(),
-                isY = (position == "left" || position == "right");
-
-            var g = this.chart.svg.group({
-                "class" : "grid-pattern grid-pattern-" + this.grid.type
-            });
+                isY = (position == "left" || position == "right"),
+                g = this.chart.svg.group();
 
             g.translate(this.axis.area("x") + this.chart.area("x"), this.axis.area("y") + this.chart.area("y"));
 
