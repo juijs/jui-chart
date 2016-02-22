@@ -206,7 +206,7 @@ jui.define("chart.grid.core", [ "util.base", "util.math", "chart.grid.draw2d", "
 			var y = this.axis.get("y");
 
 			if(!y.hide) {
-				if (y.orient == "left" && index == 0) {
+				if (y.orient == "left" && index == 0 && !this.grid.realtime) {
 					return false;
 				} else if (y.orient == "right" && isLast) {
 					return false;
@@ -222,7 +222,7 @@ jui.define("chart.grid.core", [ "util.base", "util.math", "chart.grid.draw2d", "
 			if (!x.hide) {
 				if (x.orient == "top" && index == 0) {
 					return false;
-				} else if (x.orient == "bottom" && isLast && !x.realtime) {
+				} else if (x.orient == "bottom" && isLast && !this.grid.realtime ) {
 					return false;
 				}
 			}
