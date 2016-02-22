@@ -5,6 +5,12 @@ jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
      * @extends chart.brush.canvas.core
      */
 	var LineBrush = function() {
+        this.getCurve = function(x, y, previousX, previousY) {
+            var curvePoint = (x - previousX) / 4;
+
+                return [previousX + curvePoint, previousY, x - curvePoint, y, x, y];
+        }
+
         this.drawLine = function(data, previousData, target, dataIndex, targetIndex) {
             var symbol = this.brush.symbol,
                 // type = (_.typeCheck("function", symbol)) ? symbol.apply(this.chart, [ target, data[target] ]) : symbol,
@@ -15,14 +21,37 @@ jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
                 y = this.axis.y(data[target]);
 
             this.canvas.beginPath();
+
             this.canvas.moveTo(previousX, previousY);
-            this.canvas.lineTo(x, y);
-            this.canvas.closePath();
+
+            var centerOfXTick = previousX + (x - previousX) / 2;
+            if (this.brush.symbol == 'step') {
+                this.canvas.lineTo(centerOfXTick, previousY);
+                this.canvas.moveTo(centerOfXTick, previousY);
+                this.canvas.lineTo(centerOfXTick, y);
+                this.canvas.moveTo(centerOfXTick, y);
+            }
+
+            if (this.brush.symbol == 'curve') {
+                var curveXPoint = (x - previousX) / 2;
+                var curveYPoint = Math.abs((y - previousY) / 6);
+
+                if (y - previousY < 0) curveYPoint = curveYPoint * -1;
+
+                this.canvas.bezierCurveTo(
+                    previousX + curveXPoint,
+                    previousY + curveYPoint,
+                    x - curveXPoint,
+                    y + (curveYPoint * -1),
+                    x, y);
+            }
+            else {
+                this.canvas.lineTo(x, y);
+            }
             this.canvas.lineWidth = 2;
             this.canvas.strokeStyle = color;
             this.canvas.stroke();
-
-            console.log(dataIndex, targetIndex)
+            this.canvas.closePath();
         }
 
         this.draw = function() {
