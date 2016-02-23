@@ -85,7 +85,7 @@
             height : 500,
             axis : [{
                 x : {
-                    type : "block",
+                    type : "fullblock",
                     domain : "date",
                     format : function(d) {
                         return time.format(d, "MM-dd");
@@ -93,8 +93,8 @@
                 },
                 y : {
                     type : "range",
-                    domain : [ 20, 30 ],
-                    step : 5,
+                    domain : [ 20, 60 ],
+                    step : 2,
                     line : true,
                     orient : "right"
                 },
@@ -132,7 +132,7 @@
             }],
             widget : [{
                 type : "zoomscroll",
-                target : "c"
+                target : "l"
             }]
         });
 	})
