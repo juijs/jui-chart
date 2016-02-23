@@ -19,52 +19,82 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
             end = null,
             count = null,
             l_rect = null,
+            l_ctrl = null,
             r_rect = null,
+            r_ctrl = null,
             c_rect = null;
 
         function setDragEvent(bg, ctrl, isLeft) {
             var isMove = false,
+                isCenter = false,
                 mouseStart = 0,
+                centerStart = 0,
                 bgWidth = 0;
 
             ctrl.on("mousedown", function(e) {
                 if(isMove) return;
 
-                isMove = true
-                bgWidth = bg.size().width;
-                mouseStart = e.x;
+                isCenter = (bg == null) ? true : false;
+                isMove = true;
+
+                if(isCenter) {
+                    bgWidth = ctrl.size().width;
+                    centerStart = l_rect.size().width;
+                    mouseStart = e.x;
+                } else {
+                    bgWidth = bg.size().width;
+                    mouseStart = e.x;
+                }
             });
 
             self.on("chart.mousemove", function(e) {
                 if(!isMove) return;
                 var dis = e.x - mouseStart;
 
-                if(isLeft) {
-                    if(dis > 0 && !preventDragAction()) return;
+                if(isCenter) {
+                    var tw = centerStart + dis,
+                        rw = tw + bgWidth,
+                        val = Math.floor(tw / tick) - start;
 
-                    var tw = bgWidth + dis;
+                    if(tw > 0 && tw + bgWidth < w) {
+                        l_rect.round(tw, h, radius, 0, 0, radius);
+                        l_ctrl.attr({x: tw - size / 2});
+                        r_rect.round(w - rw, h, 0, radius, radius, 0);
+                        r_rect.translate(rw, 0);
+                        r_ctrl.attr({x: rw - size / 2});
+                        c_rect.translate(tw, 0);
 
-                    bg.round(tw, h, radius, 0, 0, radius);
-                    ctrl.attr({ x: tw - size/2 });
-
-                    // 가운데 영역
-                    c_rect.attr({ width: w - l_rect.size().width - r_rect.size().width });
-                    c_rect.translate(tw, 0);
-
-                    start = Math.floor(tw / tick);
+                        start += val;
+                        end += val;
+                    }
                 } else {
-                    if(dis < 0 && !preventDragAction()) return;
+                    if(isLeft) {
+                        if(dis > 0 && !preventDragAction()) return;
 
-                    var tw = bgWidth - dis;
+                        var tw = bgWidth + dis;
 
-                    bg.round(tw, h, 0, radius, radius, 0);
-                    bg.translate(w - tw, 0);
-                    ctrl.attr({ x: w - tw - size/2 });
+                        bg.round(tw, h, radius, 0, 0, radius);
+                        ctrl.attr({ x: tw - size/2 });
 
-                    // 가운데 영역
-                    c_rect.attr({ width: w - l_rect.size().width - r_rect.size().width });
+                        // 가운데 영역
+                        c_rect.attr({ width: w - l_rect.size().width - r_rect.size().width });
+                        c_rect.translate(tw, 0);
 
-                    end = count - Math.floor(tw / tick);
+                        start = Math.round(tw / tick);
+                    } else {
+                        if(dis < 0 && !preventDragAction()) return;
+
+                        var tw = bgWidth - dis;
+
+                        bg.round(tw, h, 0, radius, radius, 0);
+                        bg.translate(w - tw, 0);
+                        ctrl.attr({ x: w - tw - size/2 });
+
+                        // 가운데 영역
+                        c_rect.attr({ width: w - l_rect.size().width - r_rect.size().width });
+
+                        end = count - Math.round(tw / tick);
+                    }
                 }
             });
 
@@ -93,14 +123,16 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
         }
 
         function createChartImage() {
-            var c = builder(null, {
+            var size = self.chart.theme("zoomScrollGridFontSize");
+
+            var image = builder(null, {
                 width: w,
                 height: h,
                 padding: {
                     top: 0,
                     left: 0,
                     right: 0,
-                    bottom: 20
+                    bottom: size + 8
                 },
                 axis: {
                     x: _.extend({
@@ -121,14 +153,14 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 }],
                 style: {
                     backgroundColor: "transparent",
-                    gridXFontSize : self.chart.theme("zoomScrollGridFontSize"),
+                    gridXFontSize : size,
                     gridTickPadding : self.chart.theme("zoomScrollGridTickPadding"),
                     areaBackgroundOpacity: self.chart.theme("zoomScrollBrushAreaBackgroundOpacity"),
                     lineBorderWidth: self.chart.theme("zoomScrollBrushLineBorderWidth")
                 }
             });
 
-            return c.svg.toDataURI();
+            return image.svg.toDataURI();
         }
 
         this.drawBefore = function() {
@@ -176,10 +208,11 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                     fill: "transparent",
                     "fill-opacity": 0,
                     stroke: self.chart.color(self.widget.color),
-                    "stroke-width": self.chart.theme("zoomScrollAreaBorderWidth")
+                    "stroke-width": self.chart.theme("zoomScrollAreaBorderWidth"),
+                    cursor: "move"
                 }).translate(lw, 0);
 
-                var l_img = self.svg.image({
+                l_ctrl = self.svg.image({
                     x: lw - size/2,
                     y: h / 2 - size/2,
                     width: size,
@@ -187,8 +220,8 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                     "xmlns:xlink": "http://www.w3.org/1999/xlink",
                     "xlink:href": btnImage,
                     cursor: "e-resize"
-                }),
-                r_img = self.svg.image({
+                });
+                r_ctrl = self.svg.image({
                     x: w - rw - size/2,
                     y: h / 2 - size/2,
                     width: size,
@@ -198,8 +231,9 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                     cursor: "e-resize"
                 });
 
-                setDragEvent(l_rect, l_img, true);
-                setDragEvent(r_rect, r_img, false);
+                setDragEvent(l_rect, l_ctrl, true);
+                setDragEvent(r_rect, r_ctrl, false);
+                setDragEvent(null, c_rect);
 
             }).translate(self.chart.area("x"), self.chart.area("y2") - h);
         }
