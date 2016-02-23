@@ -51,8 +51,8 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                 }
 
                 self.axis.cacheXY[index] = {
-                    x: x + size,
-                    y: y + (size / 2)
+                    x: area.x + x + size,
+                    y: area.y + y + (size / 2)
                 };
             }
 
@@ -82,18 +82,17 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                     y = Math.floor(Math.random() * (area.height - size));
 
                 self.axis.cacheXY[i] = {
-                    x: x,
-                    y: y
+                    x: area.x + x,
+                    y: area.y + y
                 };
             }
         }
 
         this.drawBefore = function() {
-            area = this.chart.area();
+            area = this.axis.area();
             size = this.grid.space;
             data_cnt = this.axis.data.length;
 
-            // 최초 한번만 데이터 생성
             if(!this.axis.cacheXY) {
                 this.axis.cacheXY = [];
 
@@ -101,6 +100,14 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                     initRandomXY();
                 } else {
                     initDefaultXY();
+                }
+            }
+
+            if(!this.axis.cache) {
+                this.axis.cache = {
+                    scale: 1,
+                    viewX: 0,
+                    viewY: 0
                 }
             }
 
@@ -114,6 +121,13 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                         },
                         setY: function(value) {
                             self.axis.cacheXY[index].y = value;
+                        },
+                        setScale: function(s) {
+                            self.axis.cache.scale = s;
+                        },
+                        setView: function(x, y) {
+                            self.axis.cache.viewX = x;
+                            self.axis.cache.viewY = y;
                         },
                         moveLast: function() {
                             var target1 = self.axis.cacheXY.splice(index, 1);

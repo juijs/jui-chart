@@ -31,7 +31,6 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
         var _axis = [], _brush = [], _widget = [], _defs = null;
         var _padding, _area,  _theme, _hash = {};
         var _initialize = false, _options = null, _handler = { render: [], renderAll: [] }; // 리셋 대상 커스텀 이벤트 핸들러
-        var _scale = 1, _xbox = 0, _ybox = 0; // 줌인/아웃, 뷰박스X/Y 관련 변수
         var _canvas = { main: null, sub: null }; // 캔버스 모드 전용
 
         function calculate(self) {
@@ -243,10 +242,10 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                     offsetX = e.pageX - pos.left,
                     offsetY = e.pageY - pos.top;
 
-                e.bgX = (offsetX + _xbox) / _scale;
-                e.bgY = (offsetY + _ybox) / _scale;
-                e.chartX = (offsetX - self.padding("left") + _xbox) / _scale;
-                e.chartY = (offsetY - self.padding("top") + _ybox) / _scale;
+                e.bgX = offsetX;
+                e.bgY = offsetY;
+                e.chartX = offsetX - self.padding("left");
+                e.chartY = offsetY - self.padding("top");
 
                 if(e.chartX < 0) return;
                 if(e.chartX > self.area("width")) return;
@@ -831,55 +830,6 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             // 브러쉬나 위젯에서 설정한 이벤트 핸들러만 추가
             if(resetType == "render" || resetType == "renderAll") {
                 _handler[resetType].push(callback);
-            }
-        }
-
-        /**
-         * Change the scale of the chart.
-         *
-         * @param {Number} scale
-         * @return {Number}
-         */
-        this.scale = function(scale) {
-            if(!scale || scale < 0) return _scale;
-
-            _scale = scale;
-            this.svg.root.each(function(i, elem) {
-                elem.scale(_scale);
-            });
-
-            return _scale;
-        }
-
-        /**
-         * Change the view of the chart.
-         *
-         * @param {Number} x
-         * @param {Number} y
-         * @return {Object}
-         * @return {Number} return.x
-         * @return {Number} return.y
-         */
-        this.view = function(x, y) {
-            var area = this.area(),
-                xy = {
-                    x: _xbox,
-                    y: _ybox
-                };
-
-            if(Math.abs(x) > area.width || !_.typeCheck("number", x)) return xy;
-            if(Math.abs(y) > area.height || !_.typeCheck("number", y)) return xy;
-
-            _xbox = x;
-            _ybox = y;
-
-            this.svg.root.attr({
-                viewBox: _xbox + " " + _ybox + " " + area.width + " " + area.height
-            });
-
-            return {
-                x: _xbox,
-                y: _ybox
             }
         }
 
