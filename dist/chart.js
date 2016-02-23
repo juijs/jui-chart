@@ -6414,7 +6414,7 @@ jui.define("chart.grid.range", [ "util.scale", "util.base", "util.math" ], funct
 			} else {
 
 				if (min > 0) {
-					min = 0;
+					min = Math.floor(min);
 				}
 
 				unit = math.div((max - min), this.grid.step);   // (max - min) / this.grid.step
