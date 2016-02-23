@@ -132,7 +132,11 @@
             }],
             widget : [{
                 type : "zoomscroll",
-                target : "l"
+                key : "l",
+                color : "red",
+                format : function(d, i) {
+                    return ((i % 6) == 0) ? i : "";
+                }
             }]
         });
 	})
