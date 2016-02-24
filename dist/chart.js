@@ -16257,7 +16257,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 setDragEvent(r_rect, r_ctrl, false);
                 setDragEvent(null, c_rect);
 
-            }).translate(self.chart.area("x"), self.chart.area("y2") - h);
+            }).translate(this.chart.area("x") + this.widget.dx, this.chart.area("y2") - h + this.widget.dy);
         }
     }
 
@@ -16267,7 +16267,9 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
             key : null,
             color : 0,
             format : null,
-            axis : 0
+            axis : 0,
+            dx : 0,
+            dy : 0
         }
     }
 
