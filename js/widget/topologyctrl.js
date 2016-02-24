@@ -4,33 +4,38 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
      * @class chart.widget.topologyctrl
      * @extends chart.widget.core
      */
-    var TopologyControlWidget = function(chart, axis, widget) {
-        var self = this;
+    var TopologyControlWidget = function() {
+        var self = this, axis = null;
         var targetKey, startX, startY;
         var renderWait = false;
         var scale = 1, boxX = 0, boxY = 0;
 
+        function renderChart() {
+            if(renderWait === false) {
+                setTimeout(function () {
+                    self.chart.render();
+                    setBrushEvent();
+
+                    renderWait = false;
+                }, 70);
+
+                renderWait = true;
+            }
+        }
+
         function initDragEvent() {
-            self.on("chart.mousemove", function(e) {
+            self.on("axis.mousemove", function(e) {
+                axis.root.attr({ cursor: "move" });
                 if(!_.typeCheck("string", targetKey)) return;
 
                 var xy = axis.c(targetKey);
                 xy.setX(startX + (e.chartX - startX));
                 xy.setY(startY + (e.chartY - startY));
 
-                if(renderWait === false) {
-                    setTimeout(function () {
-                        chart.render();
-                        setBrushEvent();
+                renderChart();
+            }, axis.index);
 
-                        renderWait = false;
-                    }, 70);
-
-                    renderWait = true;
-                }
-            });
-
-            self.on("chart.mouseup", endDragAction);
+            self.on("axis.mouseup", endDragAction, axis.index);
             self.on("bg.mouseup", endDragAction);
             self.on("bg.mouseout", endDragAction);
 
@@ -41,48 +46,50 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
         }
 
         function initZoomEvent() {
-            chart.root.addEventListener("mousewheel", on);
-            chart.root.addEventListener("DOMMouseScroll", on);
-
-            function on(e) {
+            self.on("axis.mousewheel", function(e) {
                 var e = window.event || e,
-                    delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+                    delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))),
+                    xy = axis.c(targetKey);
 
                 if(delta > 0) {
                     if(scale < 2) {
                         scale += 0.1;
                     }
                 } else {
-                    if(scale > 0.5) {
+                    if(scale > 0.6) {
                         scale -= 0.1;
                     }
                 }
 
-                chart.scale(scale);
-                return false;
-            }
+                xy.setScale(scale);
+                renderChart();
+            }, axis.index);
         }
 
         function initMoveEvent() {
             var startX = null, startY = null;
 
-            self.on("chart.mousedown", function(e) {
+            self.on("axis.mousedown", function(e) {
                 if(_.typeCheck("string", targetKey)) return;
                 if(startX != null || startY != null) return;
 
                 startX = boxX + e.x;
                 startY = boxY + e.y;
-            });
+            }, axis.index);
 
-            self.on("chart.mousemove", function(e) {
+            self.on("axis.mousemove", function(e) {
                 if(startX == null || startY == null) return;
 
-                var xy = chart.view(startX - e.x, startY - e.y);
-                boxX = xy.x;
-                boxY = xy.y;
-            });
+                var xy = axis.c(targetKey);
+                boxX = startX - e.x;
+                boxY = startY - e.y
+
+                xy.setView(-boxX, -boxY);
+                renderChart();
+            }, axis.index);
 
             self.on("chart.mouseup", endMoveAction);
+            self.on("chart.mouseout", endMoveAction);
             self.on("bg.mouseup", endMoveAction);
             self.on("bg.mouseout", endMoveAction);
 
@@ -94,50 +101,70 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
             }
         }
 
-        function setBrushEvent() {
-            chart.svg.root.get(0).each(function(i, brush) {
-                var cls = brush.attr("class");
+        function getBrushElement() {
+            var children = self.svg.root.get(0).children,
+                index = 0,
+                element = null;
 
-                if(cls && cls.indexOf("topologynode") != -1) {
-                    brush.each(function(i, node) {
-                        var index = parseInt(node.attr("index"));
+            for(var i = 0; i < children.length; i++) {
+                var cls = children[i].attr("class");
 
-                        if(!isNaN(index)) {
-                            var data = axis.data[index];
+                if(cls && cls.indexOf("brush") != -1) {
+                    if(index == self.widget.brush) {
+                        element = children[i];
+                        break;
+                    }
 
-                            (function (key) {
-                                node.on("mousedown", function(e) {
-                                    if (_.typeCheck("string", targetKey)) return;
-
-                                    var xy = axis.c(key);
-                                    targetKey = key;
-                                    startX = xy.x;
-                                    startY = xy.y;
-
-                                    // 선택한 노드 맨 마지막으로 이동
-                                    xy.moveLast();
-                                });
-                            })(self.axis.getValue(data, "key"));
-                        }
-                    });
+                    index++;
                 }
+            }
+
+            return element;
+        }
+
+        function setBrushEvent() {
+            var element = getBrushElement();
+            if(element == null) return;
+
+            element.each(function (i, node) {
+                (function (index) {
+                    if (isNaN(index)) return;
+
+                    node.on("mousedown", function (e) {
+                        if (_.typeCheck("string", targetKey)) return;
+
+                        var key = axis.getValue(axis.data[index], "key"),
+                            xy = axis.c(key);
+
+                        targetKey = key;
+                        startX = xy.x;
+                        startY = xy.y;
+
+                        // 선택한 노드 맨 마지막으로 이동
+                        xy.moveLast();
+                    });
+                })(parseInt(node.attr("index")));
             });
         }
 
         this.draw = function() {
-            if(widget.zoom) {
-                initZoomEvent();
+            var brush = this.chart.get("brush", this.widget.brush);
+
+            // axis 글로벌 변수에 설정
+            axis = this.chart.axis(brush.axis);
+
+            if(this.widget.zoom) {
+                initZoomEvent(axis);
             }
 
-            if(widget.move) {
-                initMoveEvent();
-                chart.svg.root.attr({ cursor: "move" });
+            if(this.widget.move) {
+                initMoveEvent(axis);
             }
 
-            initDragEvent();
-            setBrushEvent();
+            initDragEvent(axis);
+            setBrushEvent(axis);
 
-            return chart.svg.group();
+            return this.chart.svg.group();
         }
     }
 
@@ -146,7 +173,9 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
             /** @cfg {Boolean} [move=false] Set to be moved to see the point of view of the topology map. */
             move: false,
             /** @cfg {Boolean} [zoom=false] Set the zoom-in / zoom-out features of the topology map. */
-            zoom: false
+            zoom: false,
+            /** @cfg {Number} [brush=0] Specifies a brush index for which a widget is used. */
+            brush: 0
         }
     }
 
