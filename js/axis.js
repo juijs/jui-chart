@@ -284,6 +284,11 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                 if(!checkAxisPoint(e)) return;
                 chart.emit("axis.rclick", [ e, index ]);
             });
+
+            chart.on("chart.mousewheel", function(e) {
+                if(!checkAxisPoint(e)) return;
+                chart.emit("axis.mousewheel", [ e, index ]);
+            });
         }
 
         function drawAxisBackground() {

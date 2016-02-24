@@ -551,6 +551,11 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                 if(!checkAxisPoint(e)) return;
                 chart.emit("axis.rclick", [ e, index ]);
             });
+
+            chart.on("chart.mousewheel", function(e) {
+                if(!checkAxisPoint(e)) return;
+                chart.emit("axis.mousewheel", [ e, index ]);
+            });
         }
 
         function drawAxisBackground() {
@@ -1626,6 +1631,14 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
             elem.on("mouseout", function(e) {
                 if (!checkPosition(e)) {
                     self.emit("bg.mouseout", [ e ]);
+                }
+            });
+
+            elem.on("mousewheel", function(e) {
+                if (!checkPosition(e)) {
+                    self.emit("bg.mousewheel", [ e ]);
+                } else {
+                    self.emit("chart.mousewheel", [ e ]);
                 }
             });
 
@@ -7220,10 +7233,10 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
 
                     var func = {
                         setX: function(value) {
-                            self.axis.cacheXY[index].x = value;
+                            self.axis.cacheXY[index].x = value - self.axis.cache.viewX;
                         },
                         setY: function(value) {
-                            self.axis.cacheXY[index].y = value;
+                            self.axis.cacheXY[index].y = value - self.axis.cache.viewY;
                         },
                         setScale: function(s) {
                             self.axis.cache.scale = s;
@@ -7241,7 +7254,19 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                         }
                     }
 
-                    return _.extend(func, self.axis.cacheXY[index]);
+                    if(_.typeCheck("integer", index)) {
+                        var x = self.axis.cacheXY[index].x + self.axis.cache.viewX,
+                            y = self.axis.cacheXY[index].y + self.axis.cache.viewY,
+                            scale = self.axis.cache.scale;
+
+                        return _.extend(func, {
+                            x: x * scale,
+                            y: y * scale,
+                            scale: scale
+                        });
+                    }
+
+                    return func;
                 }
             })(this.axis);
         }
@@ -12619,7 +12644,7 @@ jui.define("chart.brush.topologynode.edge", [], function() {
      * @class chart.brush.topologynode.edge
      *
      */
-    var TopologyEdge = function(start, end, in_xy, out_xy) {
+    var TopologyEdge = function(start, end, in_xy, out_xy, scale) {
         var connect = false, element = null;
 
         this.key = function() {
@@ -12651,6 +12676,7 @@ jui.define("chart.brush.topologynode.edge", [], function() {
             else if(type == "end") return end;
             else if(type == "in_xy") return in_xy;
             else if(type == "out_xy") return out_xy;
+            else if(type == "scale") return scale;
         }
     }
 
@@ -12778,8 +12804,8 @@ jui.define("chart.brush.topologynode",
                 if(_.typeCheck("function", self.brush.nodeImage)) {
                     self.svg.image({
                         "xlink:href": self.brush.nodeImage.call(chart, data),
-                        width: r * 2,
-                        height: r * 2,
+                        width: (r * 2) * xy.scale,
+                        height: (r * 2) * xy.scale,
                         x: -r,
                         y: -r,
                         cursor: "pointer"
@@ -12787,7 +12813,7 @@ jui.define("chart.brush.topologynode",
                 } else {
                     self.svg.circle({
                         "class": "circle",
-                        r: r,
+                        r: r * xy.scale,
                         fill: color,
                         cursor: "pointer"
                     });
@@ -12796,10 +12822,10 @@ jui.define("chart.brush.topologynode",
                 if(text && text != "") {
                     self.chart.text({
                         "class": "text",
-                        x: 0,
-                        y: 6,
+                        x: 0.1 * xy.scale,
+                        y: 6 * xy.scale,
                         fill: self.chart.theme("topologyNodeFontColor"),
-                        "font-size": self.chart.theme("topologyNodeFontSize"),
+                        "font-size": self.chart.theme("topologyNodeFontSize") * xy.scale,
                         "text-anchor": "middle",
                         cursor: "pointer"
                     }, text);
@@ -12808,10 +12834,10 @@ jui.define("chart.brush.topologynode",
                 if(title && title != "") {
                     self.chart.text({
                         "class": "title",
-                        x: 0,
-                        y: r + 13,
+                        x: 0.1 * xy.scale,
+                        y: (r + 13) * xy.scale,
                         fill: self.chart.theme("topologyNodeTitleFontColor"),
-                        "font-size": self.chart.theme("topologyNodeTitleFontSize"),
+                        "font-size": self.chart.theme("topologyNodeTitleFontSize") * xy.scale,
                         "font-weight": "bold",
                         "text-anchor": "middle",
                         cursor: "pointer"
@@ -12850,7 +12876,7 @@ jui.define("chart.brush.topologynode",
                     x2: out_xy.x,
                     y2: out_xy.y,
                     stroke: self.chart.theme("topologyEdgeColor"),
-                    "stroke-width": 1,
+                    "stroke-width": 1 * edge.get("scale"),
                     "shape-rendering": "geometricPrecision"
                 }));
             }
@@ -12858,8 +12884,8 @@ jui.define("chart.brush.topologynode",
             g.append(self.svg.circle({
                 fill: self.chart.theme("topologyEdgeColor"),
                 stroke: self.chart.theme("backgroundColor"),
-                "stroke-width": 2,
-                r: point,
+                "stroke-width": 2 * edge.get("scale"),
+                r: point * edge.get("scale"),
                 cx: out_xy.x,
                 cy: out_xy.y
             }));
@@ -12896,7 +12922,7 @@ jui.define("chart.brush.topologynode",
                             y: out_xy.y + 13,
                             cursor: "pointer",
                             fill: self.chart.theme("topologyEdgeFontColor"),
-                            "font-size": self.chart.theme("topologyEdgeFontSize"),
+                            "font-size": self.chart.theme("topologyEdgeFontSize") * edge.get("scale"),
                             "text-anchor": edgeAlign
                         }, edgeText)
                             .rotate(math.degree(out_xy.angle), out_xy.x, out_xy.y);
@@ -12906,7 +12932,7 @@ jui.define("chart.brush.topologynode",
                             y: out_xy.y - 7,
                             cursor: "pointer",
                             fill: self.chart.theme("topologyEdgeFontColor"),
-                            "font-size": self.chart.theme("topologyEdgeFontSize"),
+                            "font-size": self.chart.theme("topologyEdgeFontSize") * edge.get("scale"),
                             "text-anchor": edgeAlign
                         }, edgeText)
                             .rotate(math.degree(in_xy.angle), out_xy.x, out_xy.y);
@@ -12938,7 +12964,7 @@ jui.define("chart.brush.topologynode",
             var dist = r + point + 1,
                 in_xy = getDistanceXY(target.x, target.y, xy.x, xy.y, -(dist)),
                 out_xy = getDistanceXY(xy.x, xy.y, target.x, target.y, -(dist)),
-                edge = new Edge(self.getValue(data, "key"), targetKey, in_xy, out_xy);
+                edge = new Edge(self.getValue(data, "key"), targetKey, in_xy, out_xy, xy.scale);
 
             if(edges.is(edge.reverseKey())) {
                 edge.connect(true);
@@ -13217,8 +13243,8 @@ jui.define("chart.brush.topologynode",
 
     TopologyNode.setup = function() {
         return {
-            /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
-            clip: false,
+            /** @cfg {Boolean} [clip=true] If the brush is drawn outside of the chart, cut the area. */
+            clip: true,
 
             // topology options
             /** @cfg {Function} [nodeTitle=null] */
@@ -16582,6 +16608,7 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
 
         function initDragEvent() {
             self.on("axis.mousemove", function(e) {
+                axis.root.attr({ cursor: "move" });
                 if(!_.typeCheck("string", targetKey)) return;
 
                 var xy = axis.c(targetKey);
@@ -16602,10 +16629,7 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
         }
 
         function initZoomEvent() {
-            axis.root.element.addEventListener("mousewheel", on);
-            axis.root.element.addEventListener("DOMMouseScroll", on);
-
-            function on(e) {
+            self.on("axis.mousewheel", function(e) {
                 var e = window.event || e,
                     delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))),
                     xy = axis.c(targetKey);
@@ -16615,14 +16639,14 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
                         scale += 0.1;
                     }
                 } else {
-                    if(scale > 0.5) {
+                    if(scale > 0.6) {
                         scale -= 0.1;
                     }
                 }
 
                 xy.setScale(scale);
-                return false;
-            }
+                renderChart();
+            }, axis.index);
         }
 
         function initMoveEvent() {
@@ -16643,7 +16667,8 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
                 boxX = startX - e.x;
                 boxY = startY - e.y
 
-                xy.setView(boxX, boxY);
+                xy.setView(-boxX, -boxY);
+                renderChart();
             }, axis.index);
 
             self.on("chart.mouseup", endMoveAction);
@@ -16717,7 +16742,6 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
 
             if(this.widget.move) {
                 initMoveEvent(axis);
-                this.svg.root.attr({ cursor: "move" });
             }
 
             initDragEvent(axis);

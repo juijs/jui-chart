@@ -117,10 +117,10 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
 
                     var func = {
                         setX: function(value) {
-                            self.axis.cacheXY[index].x = value;
+                            self.axis.cacheXY[index].x = value - self.axis.cache.viewX;
                         },
                         setY: function(value) {
-                            self.axis.cacheXY[index].y = value;
+                            self.axis.cacheXY[index].y = value - self.axis.cache.viewY;
                         },
                         setScale: function(s) {
                             self.axis.cache.scale = s;
@@ -138,7 +138,19 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                         }
                     }
 
-                    return _.extend(func, self.axis.cacheXY[index]);
+                    if(_.typeCheck("integer", index)) {
+                        var x = self.axis.cacheXY[index].x + self.axis.cache.viewX,
+                            y = self.axis.cacheXY[index].y + self.axis.cache.viewY,
+                            scale = self.axis.cache.scale;
+
+                        return _.extend(func, {
+                            x: x * scale,
+                            y: y * scale,
+                            scale: scale
+                        });
+                    }
+
+                    return func;
                 }
             })(this.axis);
         }

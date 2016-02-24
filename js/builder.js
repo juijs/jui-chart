@@ -237,6 +237,14 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
                 }
             });
 
+            elem.on("mousewheel", function(e) {
+                if (!checkPosition(e)) {
+                    self.emit("bg.mousewheel", [ e ]);
+                } else {
+                    self.emit("chart.mousewheel", [ e ]);
+                }
+            });
+
             function checkPosition(e) {
                 var pos = $.offset(self.root),
                     offsetX = e.pageX - pos.left,

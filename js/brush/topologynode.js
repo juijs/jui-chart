@@ -4,7 +4,7 @@ jui.define("chart.brush.topologynode.edge", [], function() {
      * @class chart.brush.topologynode.edge
      *
      */
-    var TopologyEdge = function(start, end, in_xy, out_xy) {
+    var TopologyEdge = function(start, end, in_xy, out_xy, scale) {
         var connect = false, element = null;
 
         this.key = function() {
@@ -36,6 +36,7 @@ jui.define("chart.brush.topologynode.edge", [], function() {
             else if(type == "end") return end;
             else if(type == "in_xy") return in_xy;
             else if(type == "out_xy") return out_xy;
+            else if(type == "scale") return scale;
         }
     }
 
@@ -163,8 +164,8 @@ jui.define("chart.brush.topologynode",
                 if(_.typeCheck("function", self.brush.nodeImage)) {
                     self.svg.image({
                         "xlink:href": self.brush.nodeImage.call(chart, data),
-                        width: r * 2,
-                        height: r * 2,
+                        width: (r * 2) * xy.scale,
+                        height: (r * 2) * xy.scale,
                         x: -r,
                         y: -r,
                         cursor: "pointer"
@@ -172,7 +173,7 @@ jui.define("chart.brush.topologynode",
                 } else {
                     self.svg.circle({
                         "class": "circle",
-                        r: r,
+                        r: r * xy.scale,
                         fill: color,
                         cursor: "pointer"
                     });
@@ -181,10 +182,10 @@ jui.define("chart.brush.topologynode",
                 if(text && text != "") {
                     self.chart.text({
                         "class": "text",
-                        x: 0,
-                        y: 6,
+                        x: 0.1 * xy.scale,
+                        y: 6 * xy.scale,
                         fill: self.chart.theme("topologyNodeFontColor"),
-                        "font-size": self.chart.theme("topologyNodeFontSize"),
+                        "font-size": self.chart.theme("topologyNodeFontSize") * xy.scale,
                         "text-anchor": "middle",
                         cursor: "pointer"
                     }, text);
@@ -193,10 +194,10 @@ jui.define("chart.brush.topologynode",
                 if(title && title != "") {
                     self.chart.text({
                         "class": "title",
-                        x: 0,
-                        y: r + 13,
+                        x: 0.1 * xy.scale,
+                        y: (r + 13) * xy.scale,
                         fill: self.chart.theme("topologyNodeTitleFontColor"),
-                        "font-size": self.chart.theme("topologyNodeTitleFontSize"),
+                        "font-size": self.chart.theme("topologyNodeTitleFontSize") * xy.scale,
                         "font-weight": "bold",
                         "text-anchor": "middle",
                         cursor: "pointer"
@@ -235,7 +236,7 @@ jui.define("chart.brush.topologynode",
                     x2: out_xy.x,
                     y2: out_xy.y,
                     stroke: self.chart.theme("topologyEdgeColor"),
-                    "stroke-width": 1,
+                    "stroke-width": 1 * edge.get("scale"),
                     "shape-rendering": "geometricPrecision"
                 }));
             }
@@ -243,8 +244,8 @@ jui.define("chart.brush.topologynode",
             g.append(self.svg.circle({
                 fill: self.chart.theme("topologyEdgeColor"),
                 stroke: self.chart.theme("backgroundColor"),
-                "stroke-width": 2,
-                r: point,
+                "stroke-width": 2 * edge.get("scale"),
+                r: point * edge.get("scale"),
                 cx: out_xy.x,
                 cy: out_xy.y
             }));
@@ -281,7 +282,7 @@ jui.define("chart.brush.topologynode",
                             y: out_xy.y + 13,
                             cursor: "pointer",
                             fill: self.chart.theme("topologyEdgeFontColor"),
-                            "font-size": self.chart.theme("topologyEdgeFontSize"),
+                            "font-size": self.chart.theme("topologyEdgeFontSize") * edge.get("scale"),
                             "text-anchor": edgeAlign
                         }, edgeText)
                             .rotate(math.degree(out_xy.angle), out_xy.x, out_xy.y);
@@ -291,7 +292,7 @@ jui.define("chart.brush.topologynode",
                             y: out_xy.y - 7,
                             cursor: "pointer",
                             fill: self.chart.theme("topologyEdgeFontColor"),
-                            "font-size": self.chart.theme("topologyEdgeFontSize"),
+                            "font-size": self.chart.theme("topologyEdgeFontSize") * edge.get("scale"),
                             "text-anchor": edgeAlign
                         }, edgeText)
                             .rotate(math.degree(in_xy.angle), out_xy.x, out_xy.y);
@@ -323,7 +324,7 @@ jui.define("chart.brush.topologynode",
             var dist = r + point + 1,
                 in_xy = getDistanceXY(target.x, target.y, xy.x, xy.y, -(dist)),
                 out_xy = getDistanceXY(xy.x, xy.y, target.x, target.y, -(dist)),
-                edge = new Edge(self.getValue(data, "key"), targetKey, in_xy, out_xy);
+                edge = new Edge(self.getValue(data, "key"), targetKey, in_xy, out_xy, xy.scale);
 
             if(edges.is(edge.reverseKey())) {
                 edge.connect(true);
@@ -602,8 +603,8 @@ jui.define("chart.brush.topologynode",
 
     TopologyNode.setup = function() {
         return {
-            /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
-            clip: false,
+            /** @cfg {Boolean} [clip=true] If the brush is drawn outside of the chart, cut the area. */
+            clip: true,
 
             // topology options
             /** @cfg {Function} [nodeTitle=null] */

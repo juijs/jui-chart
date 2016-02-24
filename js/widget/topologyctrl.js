@@ -25,6 +25,7 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
 
         function initDragEvent() {
             self.on("axis.mousemove", function(e) {
+                axis.root.attr({ cursor: "move" });
                 if(!_.typeCheck("string", targetKey)) return;
 
                 var xy = axis.c(targetKey);
@@ -45,10 +46,7 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
         }
 
         function initZoomEvent() {
-            axis.root.element.addEventListener("mousewheel", on);
-            axis.root.element.addEventListener("DOMMouseScroll", on);
-
-            function on(e) {
+            self.on("axis.mousewheel", function(e) {
                 var e = window.event || e,
                     delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))),
                     xy = axis.c(targetKey);
@@ -58,14 +56,14 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
                         scale += 0.1;
                     }
                 } else {
-                    if(scale > 0.5) {
+                    if(scale > 0.6) {
                         scale -= 0.1;
                     }
                 }
 
                 xy.setScale(scale);
-                return false;
-            }
+                renderChart();
+            }, axis.index);
         }
 
         function initMoveEvent() {
@@ -86,7 +84,8 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
                 boxX = startX - e.x;
                 boxY = startY - e.y
 
-                xy.setView(boxX, boxY);
+                xy.setView(-boxX, -boxY);
+                renderChart();
             }, axis.index);
 
             self.on("chart.mouseup", endMoveAction);
@@ -160,7 +159,6 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
 
             if(this.widget.move) {
                 initMoveEvent(axis);
-                this.svg.root.attr({ cursor: "move" });
             }
 
             initDragEvent(axis);
