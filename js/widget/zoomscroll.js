@@ -12,13 +12,15 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
 
         var w = null, // width
             h = null, // height
+            b = null, // area border width
             size = 0, // button size
             radius = null, // button round
             tick = 0,
             start = null,
             end = null,
-            count = null,
-            l_rect = null,
+            count = null;
+
+        var l_rect = null,
             l_ctrl = null,
             r_rect = null,
             r_ctrl = null,
@@ -168,8 +170,9 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
             count = axis.origin.length;
             start = axis.start;
             end = axis.end;
-            w = this.chart.area("width");
-            h = this.chart.theme("zoomScrollBackgroundSize");
+            b = this.chart.theme("zoomScrollAreaBorderWidth");
+            w = this.chart.area("width") - b*2;
+            h = this.chart.theme("zoomScrollBackgroundSize") - b*2;
             size = this.chart.theme("zoomScrollButtonSize");
             radius = this.chart.theme("zoomScrollAreaBorderRadius");
             tick = w / count;
@@ -182,7 +185,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 fill: this.chart.theme("zoomScrollAreaBackgroundColor"),
                 "fill-opacity": this.chart.theme("zoomScrollAreaBackgroundOpacity"),
                 stroke: this.chart.theme("zoomScrollAreaBorderColor"),
-                "stroke-width": this.chart.theme("zoomScrollAreaBorderWidth")
+                "stroke-width": b
             };
 
             return this.svg.group({}, function() {
@@ -208,7 +211,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                     fill: "transparent",
                     "fill-opacity": 0,
                     stroke: self.chart.color(self.widget.color),
-                    "stroke-width": self.chart.theme("zoomScrollAreaBorderWidth"),
+                    "stroke-width": b,
                     cursor: "move"
                 }).translate(lw, 0);
 
@@ -235,7 +238,10 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 setDragEvent(r_rect, r_ctrl, false);
                 setDragEvent(null, c_rect);
 
-            }).translate(this.chart.area("x") + this.widget.dx, this.chart.area("y2") - h + this.widget.dy);
+            }).translate(
+                this.widget.dx + this.chart.area("x"),
+                this.widget.dy + this.chart.area("y2") - h - b
+            );
         }
     }
 
