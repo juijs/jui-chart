@@ -16168,8 +16168,8 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 }
 
                 // 차트 렌더링이 활성화되지 않았을 경우
-                if(!chart.isRender()) {
-                    chart.render();
+                if(!self.chart.isRender()) {
+                    self.chart.render();
                 }
 
                 // 차트 렌더링 이후에 커스텀 이벤트 발생
@@ -16236,6 +16236,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
 
         this.drawBefore = function() {
             axis = this.chart.axis(this.widget.axis);
+            console.log(axis);
             count = axis.origin.length;
             start = axis.start;
             end = axis.end;
@@ -16260,6 +16261,10 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
             return this.svg.group({}, function() {
                 var lw = start * tick,
                     rw = (count - end) * tick;
+
+                if(isNaN(lw) || isNaN(rw)) {
+                    return;
+                }
 
                 self.svg.image({
                     width: w,

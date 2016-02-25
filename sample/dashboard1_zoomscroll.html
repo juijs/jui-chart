@@ -102,9 +102,6 @@
                     orient : "right"
                 },
                 area : { x : 0, y : 0, width : "100%", height : "35%" },
-                data : dataSource,
-                start : 10,
-                end : 30,
                 keymap : {
                     low: "l",
                     high: "h",
@@ -140,8 +137,15 @@
                 format : function(d, i) {
                     return ((i % 6) == 0) ? i : "";
                 }
-            }]
+            }],
+            render : false
         });
+
+        c.axis(0).update(dataSource);
+        c.axis(0).zoom(10, 30);
+        c.axis(1).update(dataSource);
+        c.axis(1).zoom(10, 30);
+        c.render(true);
 	})
 </script>
 
