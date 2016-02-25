@@ -28,9 +28,12 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
                 axis.root.attr({ cursor: "move" });
                 if(!_.typeCheck("string", targetKey)) return;
 
-                var xy = axis.c(targetKey);
-                xy.setX(startX + (e.chartX - startX));
-                xy.setY(startY + (e.chartY - startY));
+                var xy = axis.c(targetKey),
+                    dragX = e.chartX / xy.scale,
+                    dragY = e.chartY / xy.scale;
+
+                xy.setX(startX + (dragX - startX));
+                xy.setY(startY + (dragY - startY));
 
                 renderChart();
             }, axis.index);
@@ -137,8 +140,8 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
                             xy = axis.c(key);
 
                         targetKey = key;
-                        startX = xy.x;
-                        startY = xy.y;
+                        startX = xy.x / xy.scale;
+                        startY = xy.y / xy.scale;
 
                         // 선택한 노드 맨 마지막으로 이동
                         xy.moveLast();
