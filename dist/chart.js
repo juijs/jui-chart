@@ -12852,7 +12852,7 @@ jui.define("chart.brush.topologynode",
                 keys = key.split(":");
 
             self.eachData(function(i, data) {
-                var title = _.typeCheck("function", self.brush.nodeTitle) ? self.brush.nodeTitle.call(chart, data) : "";
+                var title = _.typeCheck("function", self.brush.nodeTitle) ? self.brush.nodeTitle.call(self.chart, data) : "";
 
                 if(data.key == keys[0]) {
                     names[0] = title || data.key;
@@ -12870,15 +12870,15 @@ jui.define("chart.brush.topologynode",
         function createNodes(index, data) {
             var xy = self.axis.c(index),
                 color = self.color(index, 0),
-                title = _.typeCheck("function", self.brush.nodeTitle) ? self.brush.nodeTitle.call(chart, data) : "",
-                text =_.typeCheck("function", self.brush.nodeText) ? self.brush.nodeText.call(chart, data) : "";
+                title = _.typeCheck("function", self.brush.nodeTitle) ? self.brush.nodeTitle.call(self.chart, data) : "",
+                text =_.typeCheck("function", self.brush.nodeText) ? self.brush.nodeText.call(self.chart, data) : "";
 
             var node = self.svg.group({
                 index: index
             }, function() {
                 if(_.typeCheck("function", self.brush.nodeImage)) {
                     self.svg.image({
-                        "xlink:href": self.brush.nodeImage.call(chart, data),
+                        "xlink:href": self.brush.nodeImage.call(self.chart, data),
                         width: (r * 2) * xy.scale,
                         height: (r * 2) * xy.scale,
                         x: -r,
@@ -12988,7 +12988,7 @@ jui.define("chart.brush.topologynode",
                 edgeData = getEdgeData(edge.key());
 
             if(edgeData != null) {
-                var edgeText = _.typeCheck("function", self.brush.edgeText) ? self.brush.edgeText.call(chart, edgeData, edgeAlign) : null;
+                var edgeText = _.typeCheck("function", self.brush.edgeText) ? self.brush.edgeText.call(self.chart, edgeData, edgeAlign) : null;
 
                 if (edgeText != null) {
                     if (edgeAlign == "end") {
@@ -13070,7 +13070,7 @@ jui.define("chart.brush.topologynode",
             node.on("dblclick", function(e) {
                 if(active != null) resetActiveChart();
 
-                var nc = self.brush.nodeChart.call(chart, data, e),
+                var nc = self.brush.nodeChart.call(self.chart, data, e),
                     w = nc.padding("left") + nc.padding("right") + nc.area("width"),
                     h = nc.padding("top") + nc.padding("bottom") + nc.area("height"),
                     r = Math.sqrt((w * w) + (h * h)) / 2;
