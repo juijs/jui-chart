@@ -4,67 +4,142 @@ jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
      * @class chart.brush.canvas.line
      * @extends chart.brush.canvas.core
      */
-	var LineBrush = function() {
-        this.getCurve = function(x, y, previousX, previousY) {
-            var curvePoint = (x - previousX) / 4;
 
-                return [previousX + curvePoint, previousY, x - curvePoint, y, x, y];
+    var Tooltip = function(text, x, y) {
+        this.text = text || '';
+        this.x = x || 0;
+        this.y = y || 0;
+        this.textAlign = 'center';
+        this.fontStyle = '600 10px sans-serif';
+    };
+
+    Tooltip.prototype.render = function(ctx) {
+        ctx.save();
+        ctx.font = this.fontStyle;
+        ctx.strokeStyle = '#000000';
+        ctx.textAlign = this.textAlign;
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.restore();
+    };
+
+    var PathPoint = function(value, x, y, isMax, isMin) {
+        this.value = value || '';
+        this.x = x || 0;
+        this.y = y || 0;
+        this.isMax = isMax || false;
+        this.isMin = isMin || false;
+    }
+
+    PathPoint.prototype.renderTooltip = function(ctx) {
+        if (!this.tooltip) {
+            this.tooltip = new Tooltip(this.value, this.x, this.y - 5);
         }
 
-        this.drawLine = function(data, previousData, target, dataIndex, targetIndex) {
-            var symbol = this.brush.symbol,
-                // type = (_.typeCheck("function", symbol)) ? symbol.apply(this.chart, [ target, data[target] ]) : symbol,
-                color = this.color(dataIndex, targetIndex),
-                previousX = this.axis.x(dataIndex - 1),
-                previousY = this.axis.y(previousData[target]),
-                x = this.axis.x(dataIndex),
-                y = this.axis.y(data[target]);
+        this.tooltip.render(ctx);
+    };
+
+	var LineBrush = function() {
+        this.getPoints = function(data) {
+            var points = [];
+
+            for (var i = 0; i < data.length; i++) {
+                var value = data.value[i];
+                var x = this.axis.x(i);
+                var y = this.axis.y(value);
+                var isMax = data.max[i];
+                var isMin = data.min[i];
+                var symbol = this.brush.symbol;
+
+                points.push(new PathPoint(value, x, y, isMax, isMin));
+                if (symbol == 'step') {
+
+                }
+            }
+
+            return points;
+        };
+
+        this.renderPoints = function(points, index) {
+            var prevPoint = null;
+            var symbol = this.brush.symbol;
 
             this.canvas.beginPath();
-
-            this.canvas.moveTo(previousX, previousY);
-
-            var centerOfXTick = previousX + (x - previousX) / 2;
-            if (this.brush.symbol == 'step') {
-                this.canvas.lineTo(centerOfXTick, previousY);
-                this.canvas.moveTo(centerOfXTick, previousY);
-                this.canvas.lineTo(centerOfXTick, y);
-                this.canvas.moveTo(centerOfXTick, y);
-            }
-
-            if (this.brush.symbol == 'curve') {
-                var curveXPoint = (x - previousX) / 2;
-                var curveYPoint = Math.abs((y - previousY) / 6);
-
-                if (y - previousY < 0) curveYPoint = curveYPoint * -1;
-
-                this.canvas.bezierCurveTo(
-                    previousX + curveXPoint,
-                    previousY + curveYPoint,
-                    x - curveXPoint,
-                    y + (curveYPoint * -1),
-                    x, y);
-            }
-            else {
-                this.canvas.lineTo(x, y);
-            }
             this.canvas.lineWidth = 2;
-            this.canvas.strokeStyle = color;
+
+            for (var i = 0; i < points.length; i++) {
+                var currentPoint = points[i];
+                if (prevPoint) {
+                    this.canvas.strokeStyle = this.color(i, index);
+
+                    if (symbol == 'curve') {
+                        this.drawCurvedLine(prevPoint, currentPoint);
+                    }
+                    else if (symbol == 'step') {
+                        var halfPoint = prevPoint.x + (currentPoint.x - prevPoint.x) / 2;
+                        this.drawLine(
+                            { x: prevPoint.x, y: prevPoint.y },
+                            { x: halfPoint, y: prevPoint.y }
+                        );
+                        this.drawLine(
+                            { x: halfPoint, y: prevPoint.y },
+                            { x: halfPoint, y: currentPoint.y }
+                        );
+                        this.drawLine(
+                            { x: halfPoint, y: currentPoint.y },
+                            { x: currentPoint.x, y: currentPoint.y }
+                        );
+                    }
+                    else {
+                        this.drawLine(prevPoint, currentPoint);
+                    }
+                }
+
+                if ((this.brush.display == 'all') ||
+                    (this.brush.display == 'max' && currentPoint.isMax) ||
+                    (this.brush.display == 'min' && currentPoint.isMin)) {
+                    currentPoint.renderTooltip(this.canvas);
+                }
+
+                prevPoint = points[i];
+            };
+
             this.canvas.stroke();
             this.canvas.closePath();
+        };
+
+        this.drawLine = function(prevPoint, point) {
+            this.canvas.moveTo(prevPoint.x, prevPoint.y);
+            this.canvas.lineTo(point.x, point.y);
+        };
+
+        this.drawCurvedLine = function(prevPoint, point) {
+            var curvePointX = (point.x - prevPoint.x) / 2;
+            var curvePointY = Math.abs((point.y - prevPoint.y) / 6);
+
+            if (point.y - prevPoint.y < 0) curvePointY = curvePointY * -1;
+
+            this.canvas.moveTo(prevPoint.x, prevPoint.y);
+            this.canvas.bezierCurveTo(
+                prevPoint.x + curvePointX,
+                prevPoint.y + curvePointY,
+                point.x - curvePointX,
+                point.y + (curvePointY * -1),
+                point.x, point.y
+            );
         }
 
         this.draw = function() {
-            var datas = this.listData(),
-                targets = this.brush.target;
+            var data = this.getXY();
+            var points = [];
 
-            for(var i = 1; i < datas.length; i++) {
-                for(var j = 0; j < targets.length; j++) {
-                    // this.createScatter(datas[i], targets[j], i, j);
-                    this.drawLine(datas[i], datas[i-1], targets[j], i, j);
-                }
+            for (var i = 0; i < data.length; i++) {
+                points[i] = this.getPoints(data[i]);
             }
-        }
+
+            for (var i = 0; i < points.length; i++) {
+                this.renderPoints(points[i], i);
+            }
+        };
 	}
 
     LineBrush.setup = function() {
