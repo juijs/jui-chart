@@ -28,12 +28,15 @@
 			}
 
 			var c = chart("#chart", {
-				width: 400,
+				width: 800,
 				height : 400,
+				padding : {
+					bottom : 100
+				},
 	            theme : "jennifer",
 				axis : {
 					x : {
-						type : "date",  // default type is block 
+						type : "date",  // default type is block
 						domain : [ start, end ],
 						interval : 1000 * 60 * 60,
 						format : "hh:mm",
@@ -41,20 +44,31 @@
 						line : "rect dashed"
 					},
 					y : {
-						type : 'range', 
+						type : 'range',
 						domain : function(d) {
                             return [d.name, d.name2];
                         },
 						step : 10,
 						line : 'solid'
 					},
+					start : 3,
+					end : 10,
 					data : data
 				},
-				brush : {  
+				brush : {
 					type : 'line',
-					//smooth : true, 
+					//smooth : true,
 					target : ["name", "name2"]
-				}
+				},
+				widget : [{
+					type : "zoomscroll",
+					key : "name",
+					color : "red",
+					format : function(d, i) {
+						return "";
+					},
+					dy : 70
+				}]
 			});
 
 

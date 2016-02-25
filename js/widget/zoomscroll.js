@@ -49,7 +49,12 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 }
             });
 
-            self.on("chart.mousemove", function(e) {
+            self.on("chart.mousemove", dragZoomAction);
+            self.on("bg.mousemove", dragZoomAction);
+            self.on("chart.mouseup", endZoomAction);
+            self.on("bg.mouseup", endZoomAction);
+
+            function dragZoomAction(e) {
                 if(!isMove) return;
                 var dis = e.x - mouseStart;
 
@@ -98,10 +103,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                         end = count - Math.round(tw / tick);
                     }
                 }
-            });
-
-            self.on("chart.mouseup", endZoomAction);
-            self.on("bg.mouseup", endZoomAction);
+            }
 
             function endZoomAction() {
                 if(!isMove) return;
@@ -112,6 +114,8 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 for(var i = 0; i < axes.length; i++) {
                     axes[i].zoom(start, end);
                 }
+
+                self.chart.emit("zoomscroll.dragend", [ start, end ]);
             }
 
             function preventDragAction() {
