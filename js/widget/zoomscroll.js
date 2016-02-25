@@ -47,6 +47,9 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                     bgWidth = bg.size().width;
                     mouseStart = e.x;
                 }
+
+                // 커스텀 이벤트 발생
+                self.chart.emit("zoomscroll.dragstart");
             });
 
             self.on("chart.mousemove", dragZoomAction);
@@ -109,6 +112,9 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 isMove = false;
                 var axes = self.chart.axis();
 
+                // 차트 렌더링 이전에 커스텀 이벤트 발생
+                self.chart.emit("zoomscroll.dragend", [ start, end - 1 ]);
+
                 for(var i = 0; i < axes.length; i++) {
                     axes[i].zoom(start, end - 1);
                 }
@@ -118,7 +124,8 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                     chart.render();
                 }
 
-                self.chart.emit("zoomscroll.dragend", [ start, end - 1 ]);
+                // 차트 렌더링 이후에 커스텀 이벤트 발생
+                self.chart.emit("zoomscroll.render", [ start, end - 1 ]);
             }
 
             function preventDragAction(x) {
