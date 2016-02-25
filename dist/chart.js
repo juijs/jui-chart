@@ -16113,10 +16113,10 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
 
                     if(tw > 0 && tw + bgWidth < w) {
                         l_rect.round(tw, h, radius, 0, 0, radius);
-                        l_ctrl.attr({x: tw - size / 2});
+                        l_ctrl.attr({ x: tw - size / 2 });
                         r_rect.round(w - rw, h, 0, radius, radius, 0);
                         r_rect.translate(rw, 0);
-                        r_ctrl.attr({x: rw - size / 2});
+                        r_ctrl.attr({ x: rw - size / 2 });
                         c_rect.translate(tw, 0);
 
                         start += val;
@@ -16124,9 +16124,8 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                     }
                 } else {
                     if(isLeft) {
-                        if(dis > 0 && !preventDragAction()) return;
-
                         var tw = bgWidth + dis;
+                        if(!preventDragAction(tw) && dis > 0) return;
 
                         bg.round(tw, h, radius, 0, 0, radius);
                         ctrl.attr({ x: tw - size/2 });
@@ -16135,11 +16134,10 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                         c_rect.attr({ width: w - l_rect.size().width - r_rect.size().width });
                         c_rect.translate(tw, 0);
 
-                        start = Math.round(tw / tick);
+                        start = Math.floor(tw / tick);
                     } else {
-                        if(dis < 0 && !preventDragAction()) return;
-
                         var tw = bgWidth - dis;
+                        if(!preventDragAction(tw) && dis < 0) return;
 
                         bg.round(tw, h, 0, radius, radius, 0);
                         bg.translate(w - tw, 0);
@@ -16148,7 +16146,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                         // 가운데 영역
                         c_rect.attr({ width: w - l_rect.size().width - r_rect.size().width });
 
-                        end = count - Math.round(tw / tick);
+                        end = count - Math.floor(tw / tick);
                     }
                 }
             }
@@ -16160,18 +16158,30 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 var axes = self.chart.axis();
 
                 for(var i = 0; i < axes.length; i++) {
-                    axes[i].zoom(start, end);
+                    axes[i].zoom(start, end - 1);
                 }
 
-                self.chart.emit("zoomscroll.dragend", [ start, end ]);
+                // 차트 렌더링이 활성화되지 않았을 경우
+                if(!chart.isRender()) {
+                    chart.render();
+                }
+
+                self.chart.emit("zoomscroll.dragend", [ start, end - 1 ]);
             }
 
-            function preventDragAction() {
-                var t = r_rect.data("translate"),
-                    l = l_rect.size().width,
-                    r = parseInt(t.split(",")[0]);
+            function preventDragAction(x) {
+                if(x > 0) {
+                    var t = r_rect.data("translate"),
+                        l = l_rect.size().width,
+                        r = parseInt(t.split(",")[0]),
+                        max = r - tick/2;
 
-                if(l <= r - tick) return true;
+                    // 좌/우 버튼 교차 방지
+                    if (l < max) {
+                        return true;
+                    }
+                }
+
                 return false;
             }
         }
@@ -16227,7 +16237,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
             h = this.chart.theme("zoomScrollBackgroundSize") - b*2;
             size = this.chart.theme("zoomScrollButtonSize");
             radius = this.chart.theme("zoomScrollAreaBorderRadius");
-            tick = w / count;
+            tick = Math.ceil(w / count);
         }
 
         this.draw = function() {
@@ -16292,7 +16302,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
 
             }).translate(
                 this.widget.dx + this.chart.area("x"),
-                this.widget.dy + this.chart.area("y2") - h - b
+                this.widget.dy + this.chart.area("y2") - b
             );
         }
     }

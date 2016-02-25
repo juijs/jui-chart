@@ -82,11 +82,13 @@
     jui.ready([ "chart.builder", "util.time" ], function(chart, time) {
 
         c = chart("#chart", {
-            padding : 0,
+            padding : {
+                bottom: 60
+            },
             height : 500,
             axis : [{
                 x : {
-                    type : "fullblock",
+                    type : "block",
                     domain : "date",
                     format : function(d) {
                         return time.format(d, "MM-dd");
