@@ -190,7 +190,6 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
 
         this.drawBefore = function() {
             axis = this.chart.axis(this.widget.axis);
-            console.log(axis);
             count = axis.origin.length;
             start = axis.start;
             end = axis.end;
@@ -199,7 +198,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
             h = this.chart.theme("zoomScrollBackgroundSize") - b*2;
             size = this.chart.theme("zoomScrollButtonSize");
             radius = this.chart.theme("zoomScrollAreaBorderRadius");
-            tick = Math.ceil(w / count);
+            tick = w / count;
         }
 
         this.draw = function() {
