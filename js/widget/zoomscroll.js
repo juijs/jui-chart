@@ -80,6 +80,8 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 } else {
                     if(isLeft) {
                         var tw = bgWidth + dis;
+
+                        if(tw < 0) return;
                         if(!preventDragAction(tw) && dis > 0) return;
 
                         bg.round(tw, h, radius, 0, 0, radius);
@@ -92,6 +94,8 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                         start = Math.floor(tw / tick);
                     } else {
                         var tw = bgWidth - dis;
+
+                        if(tw < 0) return;
                         if(!preventDragAction(tw) && dis < 0) return;
 
                         bg.round(tw, h, 0, radius, radius, 0);
@@ -128,17 +132,15 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 self.chart.emit("zoomscroll.render", [ start, end - 1 ]);
             }
 
-            function preventDragAction(x) {
-                if(x > 0) {
-                    var t = r_rect.data("translate"),
-                        l = l_rect.size().width,
-                        r = parseInt(t.split(",")[0]),
-                        max = r - tick/2;
+            function preventDragAction() {
+                var t = r_rect.data("translate"),
+                    l = l_rect.size().width,
+                    r = parseInt(t.split(",")[0]),
+                    max = r - tick/2;
 
-                    // 좌/우 버튼 교차 방지
-                    if (l < max) {
-                        return true;
-                    }
+                // 좌/우 버튼 교차 방지
+                if (l < max) {
+                    return true;
                 }
 
                 return false;
