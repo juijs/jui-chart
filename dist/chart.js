@@ -13604,7 +13604,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             ticks = this.axis.x.ticks(this.axis.get("x").step);
             active = this.brush.active;
             startX = (this.brush.hideTitle) ? 0 : padding.left;
-            titleX = (isNaN(this.axis.x(0)) ? 0 : this.axis.x(0)) - startX;
+            titleX = this.axis.area("x") - startX;
 
             // 도메인 키와 인덱스 맵팽 객체
             for(var i = 0; i < domains.length; i++) {
