@@ -7013,7 +7013,10 @@ jui.define("chart.grid.panel", [ "util.base" ], function(_) {
             obj.x -= this.axis.area("x");
             obj.y -= this.axis.area("y");
 
-            g.append(this.chart.svg.rect(obj));
+            g.append(this.chart.svg.rect(_.extend(obj, {
+                fill : "transparent",
+                stroke : "transparent"
+            })));
         }
 
         this.drawBefore = function() {
