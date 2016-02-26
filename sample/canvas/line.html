@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../../lib/core.js"></script>
+    <script src="../../dist/chart.js"></script>
+    <script src="../../js/brush/canvas/line.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+jui.ready(["chart.builder"], function(chart) {
+    window.c = chart("#chart", {
+        height: 300,
+        padding: 100,
+        theme : "jennifer",
+        axis : {
+            padding : {
+                left: 50,
+            },
+            x : {
+                type : 'fullblock',
+                domain : [ "Q1", "Q2", "Q3", "Q4" ],
+                line : true
+            },
+            y : {
+                type : "range",
+                domain : "value",
+                step : 5,
+                line : true,
+                orient : "left"
+            },
+            data : [
+                { sales: 0, profit: 15, total: 20, value: 80 },
+                { sales: 15, profit: 6, total: 20, value: 50 },
+                { sales: 8, profit: 10, total: 20, value: 60 },
+                { sales: 18, profit: 5, total: 20, value: 15 }
+            ]
+        },
+        brush : {
+            type: "canvas.line",
+            target : [ "sales", "profit", "total", "value" ],
+            size : 7,
+        },
+        widget : [{
+            type : "title",
+            text : "Canvas Test"
+        }, {
+            type : "canvas.dragselect"
+        }],
+        canvas : true,
+        event : {
+            "dragselect.end": function(data) {
+                console.log(data);
+            }
+        }
+    });
+})
+</script>
+
+
+</body>
+</html>
