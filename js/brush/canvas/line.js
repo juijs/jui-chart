@@ -13,10 +13,9 @@ jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
         this.fontStyle = '600 10px sans-serif';
     };
 
-    Tooltip.prototype.render = function(ctx) {
+    Tooltip.prototype.render = function(ctx, color) {
         ctx.save();
         ctx.font = this.fontStyle;
-        ctx.strokeStyle = '#000000';
         ctx.textAlign = this.textAlign;
         ctx.fillText(this.text, this.x, this.y);
         ctx.restore();
@@ -30,12 +29,18 @@ jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
         this.isMin = isMin || false;
     }
 
-    PathPoint.prototype.renderTooltip = function(ctx) {
+    PathPoint.prototype.renderTooltip = function(ctx, color) {
         if (!this.tooltip) {
             this.tooltip = new Tooltip(this.value, this.x, this.y - 5);
         }
 
-        this.tooltip.render(ctx);
+        ctx.save();
+        ctx.arc(this.x, this.y, 4, 0, 2 * Math.PI, false);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.restore();
+
+        this.tooltip.render(ctx, color);
     };
 
 	var LineBrush = function() {
@@ -51,9 +56,6 @@ jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
                 var symbol = this.brush.symbol;
 
                 points.push(new PathPoint(value, x, y, isMax, isMin));
-                if (symbol == 'step') {
-
-                }
             }
 
             return points;
@@ -63,13 +65,13 @@ jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
             var prevPoint = null;
             var symbol = this.brush.symbol;
 
-            this.canvas.beginPath();
             this.canvas.lineWidth = 2;
 
             for (var i = 0; i < points.length; i++) {
                 var currentPoint = points[i];
+                var currentColor = this.color(i, index);
                 if (prevPoint) {
-                    this.canvas.strokeStyle = this.color(i, index);
+                    this.canvas.strokeStyle = currentColor;
 
                     if (symbol == 'curve') {
                         this.drawCurvedLine(prevPoint, currentPoint);
@@ -97,19 +99,19 @@ jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
                 if ((this.brush.display == 'all') ||
                     (this.brush.display == 'max' && currentPoint.isMax) ||
                     (this.brush.display == 'min' && currentPoint.isMin)) {
-                    currentPoint.renderTooltip(this.canvas);
+                    currentPoint.renderTooltip(this.canvas, currentColor);
                 }
 
                 prevPoint = points[i];
             };
-
-            this.canvas.stroke();
-            this.canvas.closePath();
         };
 
         this.drawLine = function(prevPoint, point) {
+            this.canvas.beginPath();
             this.canvas.moveTo(prevPoint.x, prevPoint.y);
             this.canvas.lineTo(point.x, point.y);
+            this.canvas.stroke();
+            this.canvas.closePath();
         };
 
         this.drawCurvedLine = function(prevPoint, point) {
