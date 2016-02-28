@@ -127,7 +127,9 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
 		}
 
         this.drawText = function(centerX, centerY, centerAngle, outerRadius, text) {
-            var g = this.svg.group(),
+            var g = this.svg.group({
+                    visibility: !this.brush.showText ? "hidden" : "visible"
+                }),
                 isLeft = (centerAngle + 90 > 180) ? true : false;
 
             if(this.brush.showText == "inner") {
