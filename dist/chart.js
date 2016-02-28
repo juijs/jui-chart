@@ -2699,6 +2699,8 @@ jui.define("chart.theme.jennifer", [], function() {
         pieOuterLineColor : "#a9a9a9",
         pieOuterLineSize : 8,
         pieOuterLineRate : 1.3,
+        pieInnerFontSize : 11,
+        pieInnerFontColor : "#333",
         pieActiveDistance : 5,
     	areaBackgroundOpacity : 0.5,
         areaSplitBackgroundColor : "#929292",
@@ -2971,6 +2973,8 @@ jui.define("chart.theme.gradient", [], function() {
         pieOuterLineColor : "#a9a9a9",
         pieOuterLineSize : 8,
         pieOuterLineRate : 1.3,
+        pieInnerFontSize : 11,
+        pieInnerFontColor : "#333",
         pieActiveDistance : 5,
         areaBackgroundOpacity : 0.4,
         areaSplitBackgroundColor : "linear(top) #b3b3b3,0.9 #929292",
@@ -3242,6 +3246,8 @@ jui.define("chart.theme.dark", [], function() {
         pieOuterLineColor : "#a9a9a9",
         pieOuterLineSize : 8,
         pieOuterLineRate : 1.3,
+        pieInnerFontSize : 11,
+        pieInnerFontColor : "#868686",
         pieActiveDistance : 5,
         areaBackgroundOpacity : 0.5,
         areaSplitBackgroundColor : "#ebebeb",
@@ -3510,6 +3516,8 @@ jui.define("chart.theme.pastel", [], function() {
         pieOuterLineColor : "#a9a9a9",
         pieOuterLineSize : 8,
         pieOuterLineRate : 1.3,
+		pieInnerFontSize : 11,
+		pieInnerFontColor : "#333",
         pieActiveDistance : 5,
 		areaBackgroundOpacity : 0.4,
 		areaSplitBackgroundColor : "#ebebeb",
@@ -3777,6 +3785,8 @@ jui.define("chart.theme.pattern", [], function() {
         pieOuterLineColor : "#a9a9a9",
         pieOuterLineSize : 8,
         pieOuterLineRate : 1.3,
+        pieInnerFontSize : 11,
+        pieInnerFontColor : "#333",
         pieActiveDistance : 5,
         areaBackgroundOpacity : 0.5,
         areaSplitBackgroundColor : "#929292",
@@ -10577,6 +10587,14 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
             pie.translate(centerX + tx, centerY + ty);
         }
 
+        this.setActiveTextEvent = function(pie, centerX, centerY, centerAngle, outerRadius, isActive) {
+            var dist = (isActive) ? this.chart.theme("pieActiveDistance") : 0,
+                cx = centerX + (Math.cos(math.radian(centerAngle)) * ((outerRadius + dist) / 2)),
+                cy = centerY + (Math.sin(math.radian(centerAngle)) * ((outerRadius + dist) / 2));
+
+            pie.translate(cx, cy);
+        }
+
         this.getFormatText = function(target, value, max) {
             var key = target;
 
@@ -10634,6 +10652,7 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                 .ClosePath();
 
             pie.append(path);
+            pie.order = 1;
 
 			return pie;
 		}
@@ -10670,26 +10689,44 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
             path.LineTo(x, y);
             path.Arc(outerRadius, outerRadius, 0, (endAngle > 180) ? 1 : 0, 0, targetX, targetY)
             path.ClosePath();
+
             pie.append(path);
+            pie.order = 1;
 
 			return pie;
 		}
 
         this.drawText = function(centerX, centerY, centerAngle, outerRadius, text) {
-            var c = this.chart,
-                dist = c.theme("pieOuterLineSize"),
-                r = outerRadius * c.theme("pieOuterLineRate"),
-                cx = centerX + (Math.cos(math.radian(centerAngle)) * outerRadius),
-                cy = centerY + (Math.sin(math.radian(centerAngle)) * outerRadius),
-                tx = centerX + (Math.cos(math.radian(centerAngle)) * r),
-                ty = centerY + (Math.sin(math.radian(centerAngle)) * r),
-                isLeft = (centerAngle + 90 > 180) ? true : false,
-                ex = (isLeft) ? tx - dist : tx + dist;
+            var g = this.svg.group(),
+                isLeft = (centerAngle + 90 > 180) ? true : false;
 
-            return c.svg.group({}, function() {
-                var path = c.svg.path({
+            if(this.brush.showText == "inner") {
+                var cx = centerX + (Math.cos(math.radian(centerAngle)) * (outerRadius / 2)),
+                    cy = centerY + (Math.sin(math.radian(centerAngle)) * (outerRadius / 2));
+
+                var text = this.chart.text({
+                    "font-size": this.chart.theme("pieInnerFontSize"),
+                    fill: this.chart.theme("pieInnerFontColor"),
+                    "text-anchor": "middle",
+                    y: textY
+                }, text);
+
+                text.translate(cx, cy);
+
+                g.append(text);
+                g.order = 2;
+            } else {
+                var dist = this.chart.theme("pieOuterLineSize"),
+                    r = outerRadius * this.chart.theme("pieOuterLineRate"),
+                    cx = centerX + (Math.cos(math.radian(centerAngle)) * outerRadius),
+                    cy = centerY + (Math.sin(math.radian(centerAngle)) * outerRadius),
+                    tx = centerX + (Math.cos(math.radian(centerAngle)) * r),
+                    ty = centerY + (Math.sin(math.radian(centerAngle)) * r),
+                    ex = (isLeft) ? tx - dist : tx + dist;
+
+                var path = this.svg.path({
                     fill: "transparent",
-                    stroke: c.theme("pieOuterLineColor"),
+                    stroke: this.chart.theme("pieOuterLineColor"),
                     "stroke-width": 0.7
                 });
 
@@ -10697,13 +10734,21 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                     .LineTo(tx, ty)
                     .LineTo(ex, ty);
 
-                c.text({
-                    "font-size": c.theme("pieOuterFontSize"),
-                    fill: c.theme("pieOuterFontColor"),
+                var text = this.chart.text({
+                    "font-size": this.chart.theme("pieOuterFontSize"),
+                    fill: this.chart.theme("pieOuterFontColor"),
                     "text-anchor": (isLeft) ? "end" : "start",
                     y: textY
-                }, text).translate(ex + (isLeft ? -3 : 3), ty);
-            });
+                }, text);
+
+                text.translate(ex + (isLeft ? -3 : 3), ty);
+
+                g.append(text);
+                g.append(path);
+                g.order = 0;
+            }
+
+            return g;
         }
 
 		this.drawUnit = function (index, data, g) {
@@ -10752,41 +10797,47 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                 var value = data[target[i]],
                     endAngle = all * (value / max),
                     centerAngle = startAngle + (endAngle / 2) - 90,
-                    pie = this.drawPie(centerX, centerY, outerRadius, startAngle, endAngle, this.color(i));
+                    pie = this.drawPie(centerX, centerY, outerRadius, startAngle, endAngle, this.color(i)),
+                    text = this.drawText(centerX, centerY, centerAngle, outerRadius, this.getFormatText(target[i], value, max));
 
                 // 설정된 키 활성화
                 if (active == target[i] || _.inArray(target[i], active) != -1) {
+                    if(this.brush.showText == "inner") {
+                        this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, outerRadius, true);
+                    }
+
                     this.setActiveEvent(pie, centerX, centerY, centerAngle);
                     cache_active[centerAngle] = true;
                 }
 
                 // 활성화 이벤트 설정
                 if (this.brush.activeEvent != null) {
-                    (function(p, cx, cy, ca) {
+                    (function(p, t, cx, cy, ca, r) {
                         p.on(self.brush.activeEvent, function(e) {
                             if(!cache_active[ca]) {
+                                if(self.brush.showText == "inner") {
+                                    self.setActiveTextEvent(t, cx, cy, ca, r, true);
+                                }
+
                                 self.setActiveEvent(p, cx, cy, ca);
                                 cache_active[ca] = true;
                             } else {
+                                if(self.brush.showText == "inner") {
+                                    self.setActiveTextEvent(t, cx, cy, ca, r, false);
+                                }
+
                                 p.translate(cx, cy);
                                 cache_active[ca] = false;
                             }
                         });
 
                         p.attr({ cursor: "pointer" });
-                    })(pie, centerX, centerY, centerAngle);
-                }
-
-                if (this.brush.showText) {
-                    var text = this.getFormatText(target[i], value, max),
-                        elem = this.drawText(centerX, centerY, centerAngle, outerRadius, text);
-
-                    this.addEvent(elem, index, i);
-                    g.append(elem);
+                    })(pie, text.get(0), centerX, centerY, centerAngle, outerRadius);
                 }
 
                 self.addEvent(pie, index, i);
                 g.append(pie);
+                g.append(text);
 
 				startAngle += endAngle;
 			}
@@ -10809,8 +10860,8 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
         return {
             /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
             clip: false,
-            /** @cfg {Boolean} [showText=false] Set the text appear.  */
-            showText: false,
+            /** @cfg {String} [showText=null] Set the text appear. (outer or inner)  */
+            showText: null,
             /** @cfg {Function} [format=null] Returns a value from the format callback function of a defined option. */
             format: null,
             /** @cfg {Boolean} [3d=false] check 3d support */
@@ -10836,10 +10887,8 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
         var self = this,
             cache_active = {};
 
-		this.drawDonut = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr, hasCircle) {
-		    hasCircle = hasCircle || false;
-
-			attr['stroke-width']= outerRadius - innerRadius;
+		this.drawDonut = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
+			attr['stroke-width'] = outerRadius - innerRadius;
 
             if (endAngle >= 360) { // bugfix : if angle is 360 , donut cang't show
                 endAngle = 359.9999;
@@ -10868,36 +10917,12 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
 			path.Arc(outerRadius, outerRadius, 0, (endAngle > 180) ? 1 : 0, 1, obj.x, obj.y);
 
 			g.append(path);
-
-            if(hasCircle) {
-                var centerCircle = math.rotate(0, -innerRadius - dist/2, math.radian(startAngle)),
-					cX = centerCircle.x,
-					cY = centerCircle.y,
-					centerCircleLine = math.rotate(cX, cY, math.radian(endAngle));
-    
-                var circle = this.chart.svg.circle({
-                    cx : centerCircleLine.x,
-                    cy : centerCircleLine.y,
-                    r : dist/2,
-                    fill  : attr.fill
-                });
-                
-                g.append(circle);
-    
-                var circle2 = this.chart.svg.circle({
-                    cx : centerCircleLine.x,
-                    cy : centerCircleLine.y,
-                    r : 3,
-                    fill  : "white"
-                });
-                
-                g.append(circle2);
-            }
+            g.order = 1;
 
 			return g;
 		}
 
-		this.drawDonut3d = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr, hasCircle, isLast) {
+		this.drawDonut3d = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
 			var g = this.chart.svg.group(),
 				path = this.chart.svg.path(attr),
                 dist = Math.abs(outerRadius - innerRadius);
@@ -10952,12 +10977,14 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
             innerPath.LineTo(innerX, innerY);
             innerPath.Arc(innerRadius, innerRadius, 0, (endAngle > 180) ? 1 : 0, 0, innerTargetX, innerTargetY);
             innerPath.ClosePath();
+
             g.append(innerPath);
+            g.order = 1;
 
 			return g;
 		}
 
-		this.drawDonut3dBlock = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr, hasCircle, isLast) {
+		this.drawDonut3dBlock = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
 			var g = this.chart.svg.group(),
 				path = this.chart.svg.path(attr),
                 dist = Math.abs(outerRadius - innerRadius);
@@ -10993,11 +11020,12 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
             // 왼쪽면 그리기
             var rect = this.chart.svg.path(attr);
             rect.MoveTo(obj.x, obj.y).LineTo(x, y).LineTo(innerX, innerY).LineTo(innerObj.x, innerObj.y).ClosePath();
+
             g.append(rect);
+            g.order = 1;
 
 			return g;
 		}
-
 
         this.drawUnit = function (index, data, g) {
             var obj = this.axis.c(index);
@@ -11064,44 +11092,51 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
                 var value = data[target[i]],
                     endAngle = all * (value / max),
                     centerAngle = startAngle + (endAngle / 2) - 90,
+                    radius = (this.brush.showText == "inner") ? this.brush.size + innerRadius + outerRadius : outerRadius,
                     donut = this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
                         stroke : this.color(i),
                         fill : 'transparent'
-                    });
+                    }),
+                    text = this.drawText(centerX, centerY, centerAngle, radius, this.getFormatText(target[i], value));
 
                 // 설정된 키 활성화
                 if (active == target[i] || _.inArray(target[i], active) != -1) {
+                    if(this.brush.showText == "inner") {
+                        this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, radius, true);
+                    }
+
                     this.setActiveEvent(donut, centerX, centerY, centerAngle);
                     cache_active[centerAngle] = true;
                 }
 
                 // 활성화 이벤트 설정
                 if (this.brush.activeEvent != null) {
-                    (function (p, cx, cy, ca) {
+                    (function (p, t, cx, cy, ca, r) {
                         p.on(self.brush.activeEvent, function (e) {
                             if (!cache_active[ca]) {
+                                if(self.brush.showText == "inner") {
+                                    self.setActiveTextEvent(t, cx, cy, ca, r, true);
+                                }
+
                                 self.setActiveEvent(p, cx, cy, ca);
                                 cache_active[ca] = true;
                             } else {
+                                if(self.brush.showText == "inner") {
+                                    self.setActiveTextEvent(t, cx, cy, ca, r, false);
+                                }
+
                                 p.translate(cx, cy);
                                 cache_active[ca] = false;
                             }
                         });
 
                         p.attr({ cursor: "pointer" });
-                    })(donut, centerX, centerY, centerAngle);
-                }
-
-                if(this.brush.showText) {
-                    var text = this.getFormatText(target[i], value),
-                        elem = this.drawText(centerX, centerY, centerAngle, outerRadius, text);
-
-                    this.addEvent(elem, index, i);
-                    g.append(elem);
+                    })(donut, text.get(0), centerX, centerY, centerAngle, radius);
                 }
 
                 this.addEvent(donut, index, i);
                 g.append(donut);
+                g.append(text);
 
                 startAngle += endAngle;
             }

@@ -13,19 +13,20 @@
     jui.ready([ "chart.builder" ], function(chart) {
 
         chart("#chart", {
-            padding: 60,
+            //padding: 100,
             width: 400,
             height : 400,
             theme : "jennifer",
             axis : {
                 data : [
-                    { yellow : 46 }
+                    { yellow : 46, red : 20 }
                 ]
             },
             brush : [{
                 type : "donut",
-                showText : true,
-                active : [ "yellow", "red" ],
+                showText : "inner",
+                size : 30,
+                active : [ "red" ],
                 activeEvent : "click"
             }],
             widget : [{

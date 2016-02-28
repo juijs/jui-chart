@@ -9,10 +9,8 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
         var self = this,
             cache_active = {};
 
-		this.drawDonut = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr, hasCircle) {
-		    hasCircle = hasCircle || false;
-
-			attr['stroke-width']= outerRadius - innerRadius;
+		this.drawDonut = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
+			attr['stroke-width'] = outerRadius - innerRadius;
 
             if (endAngle >= 360) { // bugfix : if angle is 360 , donut cang't show
                 endAngle = 359.9999;
@@ -41,36 +39,12 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
 			path.Arc(outerRadius, outerRadius, 0, (endAngle > 180) ? 1 : 0, 1, obj.x, obj.y);
 
 			g.append(path);
-
-            if(hasCircle) {
-                var centerCircle = math.rotate(0, -innerRadius - dist/2, math.radian(startAngle)),
-					cX = centerCircle.x,
-					cY = centerCircle.y,
-					centerCircleLine = math.rotate(cX, cY, math.radian(endAngle));
-    
-                var circle = this.chart.svg.circle({
-                    cx : centerCircleLine.x,
-                    cy : centerCircleLine.y,
-                    r : dist/2,
-                    fill  : attr.fill
-                });
-                
-                g.append(circle);
-    
-                var circle2 = this.chart.svg.circle({
-                    cx : centerCircleLine.x,
-                    cy : centerCircleLine.y,
-                    r : 3,
-                    fill  : "white"
-                });
-                
-                g.append(circle2);
-            }
+            g.order = 1;
 
 			return g;
 		}
 
-		this.drawDonut3d = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr, hasCircle, isLast) {
+		this.drawDonut3d = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
 			var g = this.chart.svg.group(),
 				path = this.chart.svg.path(attr),
                 dist = Math.abs(outerRadius - innerRadius);
@@ -125,12 +99,14 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
             innerPath.LineTo(innerX, innerY);
             innerPath.Arc(innerRadius, innerRadius, 0, (endAngle > 180) ? 1 : 0, 0, innerTargetX, innerTargetY);
             innerPath.ClosePath();
+
             g.append(innerPath);
+            g.order = 1;
 
 			return g;
 		}
 
-		this.drawDonut3dBlock = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr, hasCircle, isLast) {
+		this.drawDonut3dBlock = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
 			var g = this.chart.svg.group(),
 				path = this.chart.svg.path(attr),
                 dist = Math.abs(outerRadius - innerRadius);
@@ -166,11 +142,12 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
             // 왼쪽면 그리기
             var rect = this.chart.svg.path(attr);
             rect.MoveTo(obj.x, obj.y).LineTo(x, y).LineTo(innerX, innerY).LineTo(innerObj.x, innerObj.y).ClosePath();
+
             g.append(rect);
+            g.order = 1;
 
 			return g;
 		}
-
 
         this.drawUnit = function (index, data, g) {
             var obj = this.axis.c(index);
@@ -237,44 +214,51 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
                 var value = data[target[i]],
                     endAngle = all * (value / max),
                     centerAngle = startAngle + (endAngle / 2) - 90,
+                    radius = (this.brush.showText == "inner") ? this.brush.size + innerRadius + outerRadius : outerRadius,
                     donut = this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
                         stroke : this.color(i),
                         fill : 'transparent'
-                    });
+                    }),
+                    text = this.drawText(centerX, centerY, centerAngle, radius, this.getFormatText(target[i], value));
 
                 // 설정된 키 활성화
                 if (active == target[i] || _.inArray(target[i], active) != -1) {
+                    if(this.brush.showText == "inner") {
+                        this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, radius, true);
+                    }
+
                     this.setActiveEvent(donut, centerX, centerY, centerAngle);
                     cache_active[centerAngle] = true;
                 }
 
                 // 활성화 이벤트 설정
                 if (this.brush.activeEvent != null) {
-                    (function (p, cx, cy, ca) {
+                    (function (p, t, cx, cy, ca, r) {
                         p.on(self.brush.activeEvent, function (e) {
                             if (!cache_active[ca]) {
+                                if(self.brush.showText == "inner") {
+                                    self.setActiveTextEvent(t, cx, cy, ca, r, true);
+                                }
+
                                 self.setActiveEvent(p, cx, cy, ca);
                                 cache_active[ca] = true;
                             } else {
+                                if(self.brush.showText == "inner") {
+                                    self.setActiveTextEvent(t, cx, cy, ca, r, false);
+                                }
+
                                 p.translate(cx, cy);
                                 cache_active[ca] = false;
                             }
                         });
 
                         p.attr({ cursor: "pointer" });
-                    })(donut, centerX, centerY, centerAngle);
-                }
-
-                if(this.brush.showText) {
-                    var text = this.getFormatText(target[i], value),
-                        elem = this.drawText(centerX, centerY, centerAngle, outerRadius, text);
-
-                    this.addEvent(elem, index, i);
-                    g.append(elem);
+                    })(donut, text.get(0), centerX, centerY, centerAngle, radius);
                 }
 
                 this.addEvent(donut, index, i);
                 g.append(donut);
+                g.append(text);
 
                 startAngle += endAngle;
             }

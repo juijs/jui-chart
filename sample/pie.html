@@ -13,7 +13,7 @@
     jui.ready([ "chart.builder" ], function(chart) {
 
         chart("#chart", {
-            padding: 130,
+            padding: 100,
             width: 400,
             height : 400,
             theme : "jennifer",
@@ -24,9 +24,10 @@
             },
             brush : [{
                 type : "pie",
-                showText : true,
+                showText : "outer",
                 format : function(k, v, max) {
-                    return this.icon("check") + k + ": " + v + "(" + ((v/max)*100).toFixed(2) + "%)";
+                    //return this.icon("check") + k + ": " + v + "(" + ((v/max)*100).toFixed(2) + "%)";
+                    return ((v/max)*100).toFixed(2) + "%";
                 },
                 active : [ "yellow", "red" ],
                 activeEvent : "click"

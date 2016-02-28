@@ -97,6 +97,8 @@ jui.define("chart.theme.pastel", [], function() {
         pieOuterLineColor : "#a9a9a9",
         pieOuterLineSize : 8,
         pieOuterLineRate : 1.3,
+		pieInnerFontSize : 11,
+		pieInnerFontColor : "#333",
         pieActiveDistance : 5,
 		areaBackgroundOpacity : 0.4,
 		areaSplitBackgroundColor : "#ebebeb",
