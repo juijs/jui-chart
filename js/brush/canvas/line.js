@@ -1,4 +1,11 @@
 jui.define("chart.brush.canvas.line.tooltip", [], function() {
+
+    /**
+     * Tooltip Object
+     * @param {String} text Sets the Value of tooltip
+     * @param {Number} x    Sets the X coordinate of tooltip
+     * @param {Number} y    Sets the Y coordinate of tooltip
+     */
     var Tooltip = function(text, x, y) {
         this.text = text || '';
         this.x = x || 0;
@@ -15,25 +22,19 @@ jui.define("chart.brush.canvas.line.tooltip", [], function() {
         }
     };
 
-    Tooltip.setup = function() {
-        return {
-            /** @cfg {String} [text=""]  Sets the value of tooltip*/
-            text: "",
-            /** @cfg {Number} [x=0] Sets the X coordinate of tooltip. */
-            x: 0,
-            /** @cfg {Number} [y=0] Sets the Y coordinate of tooltip. */
-            y: 0,
-            /** @cfg {"start"/"end"/"left"/"center"/"right"} [textAlign="center"] Determines the align type of a (start, end, left, center, right).  */
-            textAlign: "center",
-            /** @cfg {String} [fontStyle="600 10px sans-serif"] Sets the font style of tooltip */
-            fontStyle: "600 10px sans-serif"
-        }
-    }
-
     return Tooltip;
 });
 
 jui.define("chart.brush.canvas.line.pathpoint", ["chart.brush.canvas.line.tooltip"], function(Tooltip) {
+
+    /**
+     * The point that organize the path
+     * @param {Number}  value Sets the value of
+     * @param {Number}  x     Sets the X coordinate of point
+     * @param {Number}  y     Sets the Y coordinate of point
+     * @param {Boolean} isMax
+     * @param {Boolean} isMin
+     */
     var PathPoint = function(value, x, y, isMax, isMin) {
         this.value = value || '';
         this.x = x || 0;
@@ -56,16 +57,11 @@ jui.define("chart.brush.canvas.line.pathpoint", ["chart.brush.canvas.line.toolti
         };
     }
 
-    PathPoint.setup = function() {
-
-    }
-
     return PathPoint;
 });
 
-jui.define("chart.brush.canvas.line",
-    ["chart.brush.canvas.line.tooltip", "chart.brush.canvas.line.pathpoint"],
-    function(Tooltip, PathPoint) {
+jui.define("chart.brush.canvas.line", ["chart.brush.canvas.line.pathpoint"],
+    function(PathPoint) {
     /**
      * @class chart.brush.canvas.line
      * @extends chart.brush.canvas.core
@@ -98,6 +94,8 @@ jui.define("chart.brush.canvas.line",
             for (var i = 0; i < points.length; i++) {
                 var currentPoint = points[i];
                 var currentColor = this.color(i, index);
+
+                // Skip the first index
                 if (prevPoint) {
                     this.canvas.strokeStyle = currentColor;
 
@@ -124,6 +122,7 @@ jui.define("chart.brush.canvas.line",
                     }
                 }
 
+                // Check the condition to display tooltip
                 if ((this.brush.display == 'all') ||
                     (this.brush.display == 'max' && currentPoint.isMax) ||
                     (this.brush.display == 'min' && currentPoint.isMin)) {
@@ -143,20 +142,25 @@ jui.define("chart.brush.canvas.line",
         };
 
         this.drawCurvedLine = function(prevPoint, point) {
-            var curvePointX = (point.x - prevPoint.x) / 2;
-            var curvePointY = Math.abs((point.y - prevPoint.y) / 6);
+            var refractionPoint = {
+                x: (point.x - prevPoint.x) / 2,
+                y: Math.abs((point.y - prevPoint.y) / 6)
+            };
 
-            if (point.y - prevPoint.y < 0) curvePointY = curvePointY * -1;
+            if (point.y - prevPoint.y < 0) refractionPoint.y = refractionPoint.y * -1;
 
+            this.canvas.beginPath();
             this.canvas.moveTo(prevPoint.x, prevPoint.y);
             this.canvas.bezierCurveTo(
-                prevPoint.x + curvePointX,
-                prevPoint.y + curvePointY,
-                point.x - curvePointX,
-                point.y + (curvePointY * -1),
+                prevPoint.x + refractionPoint.x,
+                prevPoint.y + refractionPoint.y,
+                point.x - refractionPoint.x,
+                point.y + (refractionPoint.y * -1),
                 point.x, point.y
             );
-        }
+            this.canvas.stroke();
+            this.canvas.closePath();
+        };
 
         this.draw = function() {
             var data = this.getXY();
@@ -175,17 +179,9 @@ jui.define("chart.brush.canvas.line",
     LineBrush.setup = function() {
         return {
             /** @cfg {"normal"/"curve"/"step"} [symbol="normal"] Sets the shape of a line (normal, curve, step). */
-            symbol: "normal", // normal, curve, step
-            /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
-            active: null,
-            /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
-            activeEvent: null,
+            symbol: "normal",
             /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
-            display: null,
-            /** @cfg {"circle"/"triangle"/"rectangle"/"cross"/"callback"} [symbol="circle"] Determines the shape of a (circle, rectangle, cross, triangle).  */
-            symbol: "circle",
-            /** @cfg {Number} [size=7]  Determines the size of a starter. */
-            size: 7,
+            display: null
         };
     }
 
