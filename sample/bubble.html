@@ -12,10 +12,10 @@
 <script id="script_code">
     jui.ready(["chart.builder"], function(chart) {
         var d = [
-            { name : 2, value : 15 },
-            { name : 10, value : 6 },
-            { name : 8, value : 10 },
-            { name : 18, value : 5 }
+            { name : 2, value : 15, text : "2015", scale : 3 },
+            { name : 10, value : 6, text : "2016", scale : 4 },
+            { name : 8, value : 10, text : "2017", scale : 5 },
+            { name : 18, value : 5, text : "2018", scale : 6 }
         ];
 
         var c = chart("#chart", {
@@ -41,14 +41,21 @@
                 type : 'bubble',
                 //colors : [ "red", "blue" ],
                 target : [ 'name', 'value'],
-                min : 1,
+                min : 30,
                 max : 50,
+                showText : true,
+                active : 0,
+                activeEvent : "click",
+                scaleKey : "scale",
                 colors : function(data) {
                     if(data.value > 5 && data.name > 5) {
                         return "red";
                     }
 
                     return "blue";
+                },
+                format : function(data) {
+                    return data.text;
                 }
             },
             event: {

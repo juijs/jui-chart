@@ -107,6 +107,8 @@ jui.define("chart.theme.gradient", [], function() {
         areaSplitBackgroundColor : "linear(top) #b3b3b3,0.9 #929292",
         bubbleBackgroundOpacity : 0.5,
         bubbleBorderWidth : 1,
+        bubbleFontSize : 12,
+        bubbleFontColor : "#fff",
         candlestickBorderColor : "#000",
         candlestickBackgroundColor : "linear(top) #fff",
         candlestickInvertBorderColor : "#ff0000",
