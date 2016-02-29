@@ -3,8 +3,8 @@ jui.define("chart.brush.canvas.line.tooltip", [], function() {
         this.text = text || '';
         this.x = x || 0;
         this.y = y || 0;
-        this.textAlign = 'center';
-        this.fontStyle = '600 10px sans-serif';
+        this.textAlign = "center";
+        this.fontStyle = "600 10px sans-serif";
 
         this.render = function(ctx, color) {
             ctx.save();
@@ -16,7 +16,18 @@ jui.define("chart.brush.canvas.line.tooltip", [], function() {
     };
 
     Tooltip.setup = function() {
-
+        return {
+            /** @cfg {String} [text=""]  Sets the value of tooltip*/
+            text: "",
+            /** @cfg {Number} [x=0] Sets the X coordinate of tooltip. */
+            x: 0,
+            /** @cfg {Number} [y=0] Sets the Y coordinate of tooltip. */
+            y: 0,
+            /** @cfg {"start"/"end"/"left"/"center"/"right"} [textAlign="center"] Determines the align type of a (start, end, left, center, right).  */
+            textAlign: "center",
+            /** @cfg {String} [fontStyle="600 10px sans-serif"] Sets the font style of tooltip */
+            fontStyle: "600 10px sans-serif"
+        }
     }
 
     return Tooltip;

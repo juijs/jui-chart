@@ -19,7 +19,7 @@ module.exports = function(grunt) {
         "js/theme/pastel.js",
         "js/theme/pattern.js",
 
-        // chart.pattern 
+        // chart.pattern
         "js/pattern/jennifer.js",
 
         // chart.icon
@@ -49,7 +49,7 @@ module.exports = function(grunt) {
         "js/grid/overlap.js",
         "js/grid/topologytable.js",
         "js/grid/grid3d.js",
-        
+
         // chart.brush
         "js/brush/core.js",
         "js/brush/imagebar.js",
@@ -127,6 +127,7 @@ module.exports = function(grunt) {
         "js/brush/canvas/core.js",
         "js/brush/canvas/scatter.js",
         "js/brush/canvas/scatter3d.js",
+        "js/brush/canvas/line.js",
 
         // chart.widget
         "js/widget/core.js",
@@ -176,7 +177,7 @@ module.exports = function(grunt) {
             dist : {
                 src : chart_src,
                 dest : "dist/chart.js"
-            }            
+            }
         },
         uglify: {
             dist : {
