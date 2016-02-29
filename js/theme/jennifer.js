@@ -116,6 +116,8 @@ jui.define("chart.theme.jennifer", [], function() {
         areaSplitBackgroundColor : "#929292",
         bubbleBackgroundOpacity : 0.5,
         bubbleBorderWidth : 1,
+        bubbleFontSize : 12,
+        bubbleFontColor : "#fff",
         candlestickBorderColor : "#000",
         candlestickBackgroundColor : "#fff",
         candlestickInvertBorderColor : "#ff0000",

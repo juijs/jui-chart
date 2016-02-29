@@ -104,6 +104,8 @@ jui.define("chart.theme.pastel", [], function() {
 		areaSplitBackgroundColor : "#ebebeb",
 		bubbleBackgroundOpacity : 0.5,
 		bubbleBorderWidth : 1,
+		bubbleFontSize : 12,
+		bubbleFontColor : "#fff",
 		candlestickBorderColor : "#14be9d",
 		candlestickBackgroundColor : "#14be9d",
 		candlestickInvertBorderColor : "#ff4848",
