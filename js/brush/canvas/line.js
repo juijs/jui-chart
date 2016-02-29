@@ -1,47 +1,64 @@
-jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
-
-    /**
-     * @class chart.brush.canvas.line
-     * @extends chart.brush.canvas.core
-     */
-
+jui.define("chart.brush.canvas.line.tooltip", [], function() {
     var Tooltip = function(text, x, y) {
         this.text = text || '';
         this.x = x || 0;
         this.y = y || 0;
         this.textAlign = 'center';
         this.fontStyle = '600 10px sans-serif';
+
+        this.render = function(ctx, color) {
+            ctx.save();
+            ctx.font = this.fontStyle;
+            ctx.textAlign = this.textAlign;
+            ctx.fillText(this.text, this.x, this.y);
+            ctx.restore();
+        }
     };
 
-    Tooltip.prototype.render = function(ctx, color) {
-        ctx.save();
-        ctx.font = this.fontStyle;
-        ctx.textAlign = this.textAlign;
-        ctx.fillText(this.text, this.x, this.y);
-        ctx.restore();
-    };
+    Tooltip.setup = function() {
 
+    }
+
+    return Tooltip;
+});
+
+jui.define("chart.brush.canvas.line.pathpoint", ["chart.brush.canvas.line.tooltip"], function(Tooltip) {
     var PathPoint = function(value, x, y, isMax, isMin) {
         this.value = value || '';
         this.x = x || 0;
         this.y = y || 0;
         this.isMax = isMax || false;
         this.isMin = isMin || false;
+
+        this.render = function(ctx, color) {
+            if (!this.tooltip) {
+                this.tooltip = new Tooltip(this.value, this.x, this.y - 5);
+            }
+
+            ctx.save();
+            ctx.arc(this.x, this.y, 4, 0, 2 * Math.PI, false);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.restore();
+
+            this.tooltip.render(ctx, color);
+        };
     }
 
-    PathPoint.prototype.renderTooltip = function(ctx, color) {
-        if (!this.tooltip) {
-            this.tooltip = new Tooltip(this.value, this.x, this.y - 5);
-        }
+    PathPoint.setup = function() {
 
-        ctx.save();
-        ctx.arc(this.x, this.y, 4, 0, 2 * Math.PI, false);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.restore();
+    }
 
-        this.tooltip.render(ctx, color);
-    };
+    return PathPoint;
+});
+
+jui.define("chart.brush.canvas.line",
+    ["chart.brush.canvas.line.tooltip", "chart.brush.canvas.line.pathpoint"],
+    function(Tooltip, PathPoint) {
+    /**
+     * @class chart.brush.canvas.line
+     * @extends chart.brush.canvas.core
+     */
 
 	var LineBrush = function() {
         this.getPoints = function(data) {
@@ -99,7 +116,7 @@ jui.define("chart.brush.canvas.line", ["util.base"], function(_) {
                 if ((this.brush.display == 'all') ||
                     (this.brush.display == 'max' && currentPoint.isMax) ||
                     (this.brush.display == 'min' && currentPoint.isMin)) {
-                    currentPoint.renderTooltip(this.canvas, currentColor);
+                    currentPoint.render(this.canvas, currentColor);
                 }
 
                 prevPoint = points[i];
