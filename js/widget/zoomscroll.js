@@ -6,190 +6,281 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
      * @alias ScrollWidget
      * @requires util.base
      */
-    var ZoomScrollWidget = function(chart, axis, widget) {
+    var ZoomScrollWidget = function() {
         var self = this,
-            w = null,
-            h = null,
+            axis = null;
+
+        var w = null, // width
+            h = null, // height
+            b = null, // area border width
+            size = 0, // button size
+            radius = null, // button round
             tick = 0,
             start = null,
             end = null,
             count = null;
+
         var l_rect = null,
-            r_rect = null;
+            l_ctrl = null,
+            r_rect = null,
+            r_ctrl = null,
+            c_rect = null;
 
-        function setDragEvent(group, isLeft) {
-            var bg = group.get(0),
-                ctrl = group.get(1);
-
+        function setDragEvent(bg, ctrl, isLeft) {
             var isMove = false,
+                isCenter = false,
                 mouseStart = 0,
+                centerStart = 0,
                 bgWidth = 0;
 
             ctrl.on("mousedown", function(e) {
                 if(isMove) return;
 
+                isCenter = (bg == null) ? true : false;
                 isMove = true;
-                bgWidth = bg.attributes.width;
-                mouseStart = e.x;
+
+                if(isCenter) {
+                    bgWidth = ctrl.size().width;
+                    centerStart = l_rect.size().width;
+                    mouseStart = e.x;
+                } else {
+                    bgWidth = bg.size().width;
+                    mouseStart = e.x;
+                }
+
+                // 커스텀 이벤트 발생
+                self.chart.emit("zoomscroll.dragstart");
             });
 
-            self.on("chart.mousemove", function(e) {
+            self.on("chart.mousemove", dragZoomAction);
+            self.on("bg.mousemove", dragZoomAction);
+            self.on("chart.mouseup", endZoomAction);
+            self.on("bg.mouseup", endZoomAction);
+
+            function dragZoomAction(e) {
                 if(!isMove) return;
                 var dis = e.x - mouseStart;
 
-                if(isLeft) {
-                    if(dis > 0 && !preventDragAction()) return;
+                if(isCenter) {
+                    var tw = centerStart + dis,
+                        rw = tw + bgWidth,
+                        val = Math.floor(tw / tick) - start;
 
-                    var tw = bgWidth + dis;
+                    if(tw > 0 && tw + bgWidth < w) {
+                        l_rect.round(tw, h, radius, 0, 0, radius);
+                        l_ctrl.attr({ x: tw - size / 2 });
+                        r_rect.round(w - rw, h, 0, radius, radius, 0);
+                        r_rect.translate(rw, 0);
+                        r_ctrl.attr({ x: rw - size / 2 });
+                        c_rect.translate(tw, 0);
 
-                    bg.attr({ width: tw });
-                    ctrl.attr({ x1: tw, x2: tw });
-
-                    start = Math.floor(tw / tick);
+                        start += val;
+                        end += val;
+                    }
                 } else {
-                    if(dis < 0 && !preventDragAction()) return;
+                    if(isLeft) {
+                        var tw = bgWidth + dis;
 
-                    var tw = bgWidth - dis;
+                        if(tw < 0) return;
+                        if(!preventDragAction(tw) && dis > 0) return;
 
-                    bg.attr({ width: tw, x: w - tw });
-                    ctrl.attr({ x1: w - tw, x2: w - tw });
+                        bg.round(tw, h, radius, 0, 0, radius);
+                        ctrl.attr({ x: tw - size/2 });
 
-                    end = count - Math.floor(tw / tick);
+                        // 가운데 영역
+                        c_rect.attr({ width: w - l_rect.size().width - r_rect.size().width });
+                        c_rect.translate(tw, 0);
+
+                        start = Math.floor(tw / tick);
+                    } else {
+                        var tw = bgWidth - dis;
+
+                        if(tw < 0) return;
+                        if(!preventDragAction(tw) && dis < 0) return;
+
+                        bg.round(tw, h, 0, radius, radius, 0);
+                        bg.translate(w - tw, 0);
+                        ctrl.attr({ x: w - tw - size/2 });
+
+                        // 가운데 영역
+                        c_rect.attr({ width: w - l_rect.size().width - r_rect.size().width });
+
+                        end = count - Math.floor(tw / tick);
+                    }
                 }
-            });
-
-            self.on("chart.mouseup", endZoomAction);
-            self.on("bg.mouseup", endZoomAction);
+            }
 
             function endZoomAction() {
                 if(!isMove) return;
 
                 isMove = false;
-                var axies = chart.axis();
+                var axes = self.chart.axis();
 
-                for(var i = 0; i < axies.length; i++) {
-                    axies[i].zoom(start, end);
+                // 차트 렌더링 이전에 커스텀 이벤트 발생
+                self.chart.emit("zoomscroll.dragend", [ start, end - 1 ]);
+
+                for(var i = 0; i < axes.length; i++) {
+                    axes[i].zoom(start, end - 1);
                 }
+
+                // 차트 렌더링이 활성화되지 않았을 경우
+                if(!self.chart.isRender()) {
+                    self.chart.render();
+                }
+
+                // 차트 렌더링 이후에 커스텀 이벤트 발생
+                self.chart.emit("zoomscroll.render", [ start, end - 1 ]);
             }
 
             function preventDragAction() {
-                var l = l_rect.attributes.width,
-                    r = r_rect.attributes.x;
+                var t = r_rect.data("translate"),
+                    l = l_rect.size().width,
+                    r = parseInt(t.split(",")[0]),
+                    max = r - tick/2;
 
-                if(l <= r - tick) return true;
+                // 좌/우 버튼 교차 방지
+                if (l < max) {
+                    return true;
+                }
+
                 return false;
             }
         }
 
+        function createChartImage() {
+            var size = self.chart.theme("zoomScrollGridFontSize");
+
+            var image = builder(null, {
+                width: w,
+                height: h,
+                padding: {
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: size + 8
+                },
+                axis: {
+                    x: _.extend({
+                        hide: false,
+                        line: "solid",
+                        format: self.widget.format
+                    }, axis.get("x"), true),
+                    y: _.extend({
+                        hide: true,
+                        line: false
+                    }, axis.get("y"), true),
+                    data: axis.origin
+                },
+                brush: [{
+                    type: self.widget.symbol,
+                    target: [ self.widget.key ],
+                    colors: [ self.widget.color ]
+                }],
+                style: {
+                    backgroundColor: "transparent",
+                    gridXFontSize : size,
+                    gridTickPadding : self.chart.theme("zoomScrollGridTickPadding"),
+                    areaBackgroundOpacity: self.chart.theme("zoomScrollBrushAreaBackgroundOpacity"),
+                    lineBorderWidth: self.chart.theme("zoomScrollBrushLineBorderWidth")
+                }
+            });
+
+            return image.svg.toDataURI();
+        }
+
         this.drawBefore = function() {
+            axis = this.chart.axis(this.widget.axis);
             count = axis.origin.length;
             start = axis.start;
             end = axis.end;
-            w = chart.area("width");
-            h = chart.theme("zoomScrollBackgroundSize");
+            b = this.chart.theme("zoomScrollAreaBorderWidth");
+            w = this.chart.area("width") - b*2;
+            h = this.chart.theme("zoomScrollBackgroundSize") - b*2;
+            size = this.chart.theme("zoomScrollButtonSize");
+            radius = this.chart.theme("zoomScrollAreaBorderRadius");
             tick = w / count;
         }
 
         this.draw = function() {
-            var bgColor = chart.theme("zoomScrollBackgroundColor"),
-                focusColor = chart.theme("zoomScrollFocusColor"),
-                brushColor = chart.theme("zoomScrollBrushColor");
+            var btnImage = this.chart.theme("zoomScrollButtonImage");
 
-            var c = builder(null, {
-                width: w,
-                height: h,
-                padding: 0,
-                axis: {
-                    x: _.extend({ hide: true, line: false }, axis.get("x"), true),
-                    y: _.extend({ hide: true, line: false }, axis.get("y"), true),
-                    data: axis.origin
-                },
-                brush: {
-                    type: "area",
-                    target: widget.target,
-                    line: false,
-                    colors: [ brushColor ]
-                },
-                style: {
-                    backgroundColor: "transparent"
+            var areaStyle = {
+                fill: this.chart.theme("zoomScrollAreaBackgroundColor"),
+                "fill-opacity": this.chart.theme("zoomScrollAreaBackgroundOpacity"),
+                stroke: this.chart.theme("zoomScrollAreaBorderColor"),
+                "stroke-width": b
+            };
+
+            return this.svg.group({}, function() {
+                var lw = start * tick,
+                    rw = (count - end) * tick;
+
+                if(isNaN(lw) || isNaN(rw)) {
+                    return;
                 }
-            });
 
-            return chart.svg.group({}, function() {
-                chart.svg.rect({
+                self.svg.image({
                     width: w,
                     height: h,
-                    fill: bgColor,
-                    "fill-opacity": 0.1,
-                    stroke: bgColor,
-                    "stroke-opacity": 0.1
+                    "xlink:href": createChartImage()
                 });
 
-                chart.svg.image({
-                    width: w,
+                l_rect = self.svg.pathRect(areaStyle);
+                l_rect.round(lw, h, radius, 0, 0, radius);
+
+                r_rect = self.svg.pathRect(areaStyle);
+                r_rect.round(rw, h, 0, radius, radius, 0);
+                r_rect.translate(w - rw, 0);
+
+                c_rect = self.svg.rect({
+                    width: w - lw - rw,
                     height: h,
-                    "xlink:href": c.svg.toDataURI()
+                    fill: "transparent",
+                    "fill-opacity": 0,
+                    stroke: self.chart.color(self.widget.color),
+                    "stroke-width": b,
+                    cursor: "move"
+                }).translate(lw, 0);
+
+                l_ctrl = self.svg.image({
+                    x: lw - size/2,
+                    y: h / 2 - size/2,
+                    width: size,
+                    height: size,
+                    "xmlns:xlink": "http://www.w3.org/1999/xlink",
+                    "xlink:href": btnImage,
+                    cursor: "e-resize"
+                });
+                r_ctrl = self.svg.image({
+                    x: w - rw - size/2,
+                    y: h / 2 - size/2,
+                    width: size,
+                    height: size,
+                    "xmlns:xlink": "http://www.w3.org/1999/xlink",
+                    "xlink:href": btnImage,
+                    cursor: "e-resize"
                 });
 
-                chart.svg.group({}, function() {
-                    var lw = start * tick;
+                setDragEvent(l_rect, l_ctrl, true);
+                setDragEvent(r_rect, r_ctrl, false);
+                setDragEvent(null, c_rect);
 
-                    l_rect = chart.svg.rect({
-                        width: lw,
-                        height: h,
-                        fill: focusColor,
-                        "fill-opacity": 0.3,
-                        stroke: focusColor,
-                        "stroke-opacity": 0.3
-                    });
-
-                    chart.svg.line({
-                        x1: lw,
-                        x2: lw,
-                        y1: 0,
-                        y2: h,
-                        stroke: bgColor,
-                        "stroke-width": 1.5,
-                        "stroke-opacity": 0.3,
-                        cursor: "w-resize"
-                    });
-
-                    setDragEvent(this, true);
-                });
-
-                chart.svg.group({}, function() {
-                    var rw = (count - end) * tick;
-
-                    r_rect = chart.svg.rect({
-                        x: w - rw,
-                        width: rw,
-                        height: h,
-                        fill: focusColor,
-                        "fill-opacity": 0.3,
-                        stroke: focusColor,
-                        "stroke-opacity": 0.3
-                    });
-
-                    chart.svg.line({
-                        x1: w - rw,
-                        x2: w - rw,
-                        y1: 0,
-                        y2: h,
-                        stroke: bgColor,
-                        "stroke-width": 1.5,
-                        "stroke-opacity": 0.3,
-                        cursor: "e-resize"
-                    });
-
-                    setDragEvent(this, false);
-                });
-            }).translate(chart.area("x"), chart.area("y2") - h);
+            }).translate(
+                this.widget.dx + this.chart.area("x"),
+                this.widget.dy + this.chart.area("y2") - b
+            );
         }
     }
 
     ZoomScrollWidget.setup = function() {
         return {
-            target : null
+            symbol : "area",
+            key : null,
+            color : 0,
+            format : null,
+            axis : 0,
+            dx : 0,
+            dy : 0
         }
     }
 

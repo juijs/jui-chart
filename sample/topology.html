@@ -84,12 +84,18 @@
             },
             theme: "jennifer",
             padding: 5,
-            axis: {
+            axis: [{
+                area : {
+                    width : "70%",
+                    height : "70%",
+                    x : "30%",
+                    y : "30%"
+                },
                 c: {
                     type: "topologytable"
                 },
                 data: data
-            },
+            }],
             brush: {
                 type: "topologynode",
                 colors: [ "#729ff1" ],
@@ -148,6 +154,10 @@
                     console.log("nodeclick ---------------------");
                     console.log(data);
                 }
+            },
+            style: {
+                axisBackgroundColor: "#ffff00",
+                axisBackgroundOpacity: 1
             }
         });
     });

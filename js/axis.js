@@ -21,8 +21,7 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
             _clipRectId = "",
             _clipRect = null;
 
-        function caculatePanel(a, padding) {
-
+        function calculatePanel(a, padding) {
             a.x = getRate(a.x, chart.area('width'));
             a.y = getRate(a.y, chart.area('height'));
             a.width = getRate(a.width, chart.area('width'));
@@ -249,7 +248,9 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                     }
                 }
 
-                chart.emit("axis.mousemove", [ e, index ]);
+                if(checkAxisPoint(e)) {
+                    chart.emit("axis.mousemove", [e, index]);
+                }
             });
 
             chart.on("bg.mousemove", function(e) {
@@ -283,9 +284,14 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                 if(!checkAxisPoint(e)) return;
                 chart.emit("axis.rclick", [ e, index ]);
             });
+
+            chart.on("chart.mousewheel", function(e) {
+                if(!checkAxisPoint(e)) return;
+                chart.emit("axis.mousewheel", [ e, index ]);
+            });
         }
 
-        function setAxisStyles() {
+        function drawAxisBackground() {
             var lr = _padding.left + _padding.right,
                 tb = _padding.top + _padding.bottom;
 
@@ -303,6 +309,8 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
             });
 
             bg.translate(chart.area("x"), chart.area("y"));
+
+            return bg;
         }
 
         function init() {
@@ -386,13 +394,14 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
                 _padding = options.padding;
             }
 
-            _area = caculatePanel(_.extend(options.area, {
+            _area = calculatePanel(_.extend(options.area, {
                 x: 0, y: 0 , width: area.width, height: area.height
             }, true), _padding);
 
+            // 클립 패스 설정
             createClipPath();
-            setAxisStyles();
 
+            this.root = drawAxisBackground();
             this.x = drawGridType(this, "x");
             this.y = drawGridType(this, "y");
             this.z = drawGridType(this, "z");

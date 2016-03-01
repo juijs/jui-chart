@@ -114,9 +114,9 @@ jui.define("chart.grid.date", [ "util.time", "util.scale", "util.base" ], functi
 			this.ticks = [];
 
 			if (this.grid.realtime != null && UtilTime[this.grid.realtime] == this.grid.realtime) {
-				this.ticks = this.scale.realTicks(this.grid.realtime, this.interval);
+				var ticks = this.scale.realTicks(this.grid.realtime, this.interval);
 			} else {
-				this.ticks = this.scale.ticks("milliseconds", this.interval);
+				var ticks = this.scale.ticks("milliseconds", this.interval);
 			}
 
 			/* data 없을 때도 기본 설정만으로 보여야 하기 때문에. 지우겠음
@@ -139,8 +139,13 @@ jui.define("chart.grid.date", [ "util.time", "util.scale", "util.base" ], functi
 			this.bar = 6;
 			this.values = [];
 
-			for (var i = 0, len = this.ticks.length; i < len; i++) {
-				this.values[i] = this.scale(this.ticks[i]);
+			for (var i = 0, len = ticks.length; i < len; i++) {
+				var value = this.scale(ticks[i]);
+
+				if (value >= obj.start && value <= obj.end) {
+					this.values.push(value);
+					this.ticks.push(ticks[i]);
+				}
 			}
 		}
 

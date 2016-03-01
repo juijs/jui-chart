@@ -12,12 +12,10 @@ jui.define("chart.grid.panel", [ "util.base" ], function(_) {
             obj.x -= this.axis.area("x");
             obj.y -= this.axis.area("y");
 
-            var rect = this.chart.svg.rect(_.extend(obj, {
-                fill : "tranparent",
-                stroke : "white"
-            }));
-
-            g.append(rect);
+            g.append(this.chart.svg.rect(_.extend(obj, {
+                fill : "transparent",
+                stroke : "transparent"
+            })));
         }
 
         this.drawBefore = function() {

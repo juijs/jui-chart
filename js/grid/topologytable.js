@@ -51,8 +51,8 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                 }
 
                 self.axis.cacheXY[index] = {
-                    x: x + size,
-                    y: y + (size / 2)
+                    x: area.x + x + size,
+                    y: area.y + y + (size / 2)
                 };
             }
 
@@ -82,18 +82,17 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                     y = Math.floor(Math.random() * (area.height - size));
 
                 self.axis.cacheXY[i] = {
-                    x: x,
-                    y: y
+                    x: area.x + x,
+                    y: area.y + y
                 };
             }
         }
 
         this.drawBefore = function() {
-            area = this.chart.area();
+            area = this.axis.area();
             size = this.grid.space;
             data_cnt = this.axis.data.length;
 
-            // 최초 한번만 데이터 생성
             if(!this.axis.cacheXY) {
                 this.axis.cacheXY = [];
 
@@ -104,16 +103,31 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                 }
             }
 
+            if(!this.axis.cache) {
+                this.axis.cache = {
+                    scale: 1,
+                    viewX: 0,
+                    viewY: 0
+                }
+            }
+
             this.scale = (function() {
                 return function(index) {
                     var index = (_.typeCheck("string", index)) ? getDataIndex(index) : index;
 
                     var func = {
                         setX: function(value) {
-                            self.axis.cacheXY[index].x = value;
+                            self.axis.cacheXY[index].x = value - self.axis.cache.viewX;
                         },
                         setY: function(value) {
-                            self.axis.cacheXY[index].y = value;
+                            self.axis.cacheXY[index].y = value - self.axis.cache.viewY;
+                        },
+                        setScale: function(s) {
+                            self.axis.cache.scale = s;
+                        },
+                        setView: function(x, y) {
+                            self.axis.cache.viewX = x;
+                            self.axis.cache.viewY = y;
                         },
                         moveLast: function() {
                             var target1 = self.axis.cacheXY.splice(index, 1);
@@ -124,7 +138,19 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                         }
                     }
 
-                    return _.extend(func, self.axis.cacheXY[index]);
+                    if(_.typeCheck("integer", index)) {
+                        var x = self.axis.cacheXY[index].x + self.axis.cache.viewX,
+                            y = self.axis.cacheXY[index].y + self.axis.cache.viewY,
+                            scale = self.axis.cache.scale;
+
+                        return _.extend(func, {
+                            x: x * scale,
+                            y: y * scale,
+                            scale: scale
+                        });
+                    }
+
+                    return func;
                 }
             })(this.axis);
         }

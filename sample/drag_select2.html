@@ -26,10 +26,16 @@
         }
 
         c = chart("#chart", {
-            width: 640,
-            height : 480,
+            height: 500,
             theme : "jennifer",
             axis : {
+                area : {
+                    width : "50%",
+                    height : "50%",
+                    x : "50%",
+                    y : "50%"
+                },
+                padding : 0,
                 x : {
                     type : "block",  // default type is block
                     domain : [ "1Q", "2Q", "3Q", "4Q" ],
@@ -47,9 +53,14 @@
                 size : 10,
                 target : [ "name", "name2" ]
             },
-            widget : {
+            widget : [{
                 type : 'dragselect'
-            },
+            }, {
+                type : "cross",
+                xFormat : function(d) {
+                    return d;
+                }
+            }],
             event : {
                 "dragselect.end": function(data) {
                     console.log(data);

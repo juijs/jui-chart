@@ -17,6 +17,14 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
             pie.translate(centerX + tx, centerY + ty);
         }
 
+        this.setActiveTextEvent = function(pie, centerX, centerY, centerAngle, outerRadius, isActive) {
+            var dist = (isActive) ? this.chart.theme("pieActiveDistance") : 0,
+                cx = centerX + (Math.cos(math.radian(centerAngle)) * ((outerRadius + dist) / 2)),
+                cy = centerY + (Math.sin(math.radian(centerAngle)) * ((outerRadius + dist) / 2));
+
+            pie.translate(cx, cy);
+        }
+
         this.getFormatText = function(target, value, max) {
             var key = target;
 
@@ -74,6 +82,7 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                 .ClosePath();
 
             pie.append(path);
+            pie.order = 1;
 
 			return pie;
 		}
@@ -110,26 +119,46 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
             path.LineTo(x, y);
             path.Arc(outerRadius, outerRadius, 0, (endAngle > 180) ? 1 : 0, 0, targetX, targetY)
             path.ClosePath();
+
             pie.append(path);
+            pie.order = 1;
 
 			return pie;
 		}
 
         this.drawText = function(centerX, centerY, centerAngle, outerRadius, text) {
-            var c = this.chart,
-                dist = c.theme("pieOuterLineSize"),
-                r = outerRadius * c.theme("pieOuterLineRate"),
-                cx = centerX + (Math.cos(math.radian(centerAngle)) * outerRadius),
-                cy = centerY + (Math.sin(math.radian(centerAngle)) * outerRadius),
-                tx = centerX + (Math.cos(math.radian(centerAngle)) * r),
-                ty = centerY + (Math.sin(math.radian(centerAngle)) * r),
-                isLeft = (centerAngle + 90 > 180) ? true : false,
-                ex = (isLeft) ? tx - dist : tx + dist;
+            var g = this.svg.group({
+                    visibility: !this.brush.showText ? "hidden" : "visible"
+                }),
+                isLeft = (centerAngle + 90 > 180) ? true : false;
 
-            return c.svg.group({}, function() {
-                var path = c.svg.path({
+            if(this.brush.showText == "inner") {
+                var cx = centerX + (Math.cos(math.radian(centerAngle)) * (outerRadius / 2)),
+                    cy = centerY + (Math.sin(math.radian(centerAngle)) * (outerRadius / 2));
+
+                var text = this.chart.text({
+                    "font-size": this.chart.theme("pieInnerFontSize"),
+                    fill: this.chart.theme("pieInnerFontColor"),
+                    "text-anchor": "middle",
+                    y: textY
+                }, text);
+
+                text.translate(cx, cy);
+
+                g.append(text);
+                g.order = 2;
+            } else {
+                var dist = this.chart.theme("pieOuterLineSize"),
+                    r = outerRadius * this.chart.theme("pieOuterLineRate"),
+                    cx = centerX + (Math.cos(math.radian(centerAngle)) * outerRadius),
+                    cy = centerY + (Math.sin(math.radian(centerAngle)) * outerRadius),
+                    tx = centerX + (Math.cos(math.radian(centerAngle)) * r),
+                    ty = centerY + (Math.sin(math.radian(centerAngle)) * r),
+                    ex = (isLeft) ? tx - dist : tx + dist;
+
+                var path = this.svg.path({
                     fill: "transparent",
-                    stroke: c.theme("pieOuterLineColor"),
+                    stroke: this.chart.theme("pieOuterLineColor"),
                     "stroke-width": 0.7
                 });
 
@@ -137,13 +166,21 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                     .LineTo(tx, ty)
                     .LineTo(ex, ty);
 
-                c.text({
-                    "font-size": c.theme("pieOuterFontSize"),
-                    fill: c.theme("pieOuterFontColor"),
+                var text = this.chart.text({
+                    "font-size": this.chart.theme("pieOuterFontSize"),
+                    fill: this.chart.theme("pieOuterFontColor"),
                     "text-anchor": (isLeft) ? "end" : "start",
                     y: textY
-                }, text).translate(ex + (isLeft ? -3 : 3), ty);
-            });
+                }, text);
+
+                text.translate(ex + (isLeft ? -3 : 3), ty);
+
+                g.append(text);
+                g.append(path);
+                g.order = 0;
+            }
+
+            return g;
         }
 
 		this.drawUnit = function (index, data, g) {
@@ -192,41 +229,47 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                 var value = data[target[i]],
                     endAngle = all * (value / max),
                     centerAngle = startAngle + (endAngle / 2) - 90,
-                    pie = this.drawPie(centerX, centerY, outerRadius, startAngle, endAngle, this.color(i));
+                    pie = this.drawPie(centerX, centerY, outerRadius, startAngle, endAngle, this.color(i)),
+                    text = this.drawText(centerX, centerY, centerAngle, outerRadius, this.getFormatText(target[i], value, max));
 
                 // 설정된 키 활성화
                 if (active == target[i] || _.inArray(target[i], active) != -1) {
+                    if(this.brush.showText == "inner") {
+                        this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, outerRadius, true);
+                    }
+
                     this.setActiveEvent(pie, centerX, centerY, centerAngle);
                     cache_active[centerAngle] = true;
                 }
 
                 // 활성화 이벤트 설정
                 if (this.brush.activeEvent != null) {
-                    (function(p, cx, cy, ca) {
+                    (function(p, t, cx, cy, ca, r) {
                         p.on(self.brush.activeEvent, function(e) {
                             if(!cache_active[ca]) {
+                                if(self.brush.showText == "inner") {
+                                    self.setActiveTextEvent(t, cx, cy, ca, r, true);
+                                }
+
                                 self.setActiveEvent(p, cx, cy, ca);
                                 cache_active[ca] = true;
                             } else {
+                                if(self.brush.showText == "inner") {
+                                    self.setActiveTextEvent(t, cx, cy, ca, r, false);
+                                }
+
                                 p.translate(cx, cy);
                                 cache_active[ca] = false;
                             }
                         });
 
                         p.attr({ cursor: "pointer" });
-                    })(pie, centerX, centerY, centerAngle);
-                }
-
-                if (this.brush.showText) {
-                    var text = this.getFormatText(target[i], value, max),
-                        elem = this.drawText(centerX, centerY, centerAngle, outerRadius, text);
-
-                    this.addEvent(elem, index, i);
-                    g.append(elem);
+                    })(pie, text.get(0), centerX, centerY, centerAngle, outerRadius);
                 }
 
                 self.addEvent(pie, index, i);
                 g.append(pie);
+                g.append(text);
 
 				startAngle += endAngle;
 			}
@@ -249,8 +292,8 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
         return {
             /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
             clip: false,
-            /** @cfg {Boolean} [showText=false] Set the text appear.  */
-            showText: false,
+            /** @cfg {String} [showText=null] Set the text appear. (outer or inner)  */
+            showText: null,
             /** @cfg {Function} [format=null] Returns a value from the format callback function of a defined option. */
             format: null,
             /** @cfg {Boolean} [3d=false] check 3d support */

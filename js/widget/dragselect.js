@@ -8,10 +8,11 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
      *
      */
     var DragSelectWidget = function() {
-        var self = this;
+        var thumb = null;
 
-        function setDragEvent(brush, thumb) {
-            var axis = self.chart.axis(brush.axis),
+        this.setDragEvent = function(brush) {
+            var self = this,
+                axis = this.chart.axis(brush.axis),
                 isMove = false,
                 mouseStartX = 0,
                 mouseStartY = 0,
@@ -20,7 +21,7 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                 startValueX = 0,
                 startValueY = 0;
 
-            self.on("axis.mousedown", function(e) {
+            this.on("axis.mousedown", function(e) {
                 if(isMove) return;
 
                 isMove = true;
@@ -29,29 +30,25 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                 startValueX = axis.x.invert(e.chartX);
                 startValueY = axis.y.invert(e.chartY);
 
-                self.chart.emit("dragselect.start");
+                this.chart.emit("dragselect.start");
             }, brush.axis);
 
-            self.on("axis.mousemove", function(e) {
+            this.on("axis.mousemove", function(e) {
                 if(!isMove) return;
 
                 thumbWidth = e.bgX - mouseStartX;
-                thumbHeight = e.bgY - mouseStartY
+                thumbHeight = e.bgY - mouseStartY;
 
-                thumb.attr({
-                    width: (thumbWidth >= 0) ? thumbWidth : Math.abs(thumbWidth),
-                    height: (thumbHeight >= 0) ? thumbHeight : Math.abs(thumbHeight)
-                });
+                // Reset drag
+                resetDragDraw();
 
-                thumb.translate(
-                    (thumbWidth >= 0) ? mouseStartX : mouseStartX + thumbWidth,
-                    (thumbHeight >= 0) ? mouseStartY : mouseStartY + thumbHeight
-                );
+                // Draw drag
+                this.onDrawStart(mouseStartX, mouseStartY, thumbWidth, thumbHeight);
             }, brush.axis);
 
-            self.on("axis.mouseup", endZoomAction, brush.axis);
-            self.on("chart.mouseup", endZoomAction);
-            self.on("bg.mouseup", endZoomAction);
+            this.on("axis.mouseup", endZoomAction, brush.axis);
+            this.on("chart.mouseup", endZoomAction);
+            this.on("bg.mouseup", endZoomAction);
 
             function endZoomAction(e) {
                 isMove = false;
@@ -163,25 +160,35 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                 startValueX = 0;
                 startValueY = 0;
 
-                thumb.attr({
-                    width: 0,
-                    height: 0
-                });
+                resetDragDraw();
+            }
+
+            function resetDragDraw() {
+                self.onDrawEnd(
+                    self.chart.area("x") + axis.area("x"),
+                    self.chart.area("y") + axis.area("y"),
+                    axis.area("width"),
+                    axis.area("height")
+                );
             }
         }
 
-        this.drawSection = function(brush) {
-            return this.chart.svg.group({}, function() {
-                var thumb = self.chart.svg.rect({
-                    width: 0,
-                    height: 0,
-                    stroke: self.chart.theme("dragSelectBorderColor"),
-                    "stroke-width": self.chart.theme("dragSelectBorderWidth"),
-                    fill: self.chart.theme("dragSelectBackgroundColor"),
-                    "fill-opacity": self.chart.theme("dragSelectBackgroundOpacity")
-                });
+        this.onDrawStart = function(x, y, w, h) {
+            thumb.attr({
+                width: (w >= 0) ? w : Math.abs(w),
+                height: (h >= 0) ? h : Math.abs(h)
+            });
 
-                setDragEvent(brush, thumb);
+            thumb.translate(
+                (w >= 0) ? x : x + w,
+                (h >= 0) ? y : y + h
+            );
+        }
+
+        this.onDrawEnd = function(x, y, w, h) {
+            thumb.attr({
+                width: 0,
+                height: 0
             });
         }
 
@@ -194,7 +201,17 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                 var brush = this.chart.get("brush", bIndexes[i]);
 
                 if(brush != null) {
-                    g.append(this.drawSection(brush));
+                    thumb = this.svg.rect({
+                        width: 0,
+                        height: 0,
+                        stroke: this.chart.theme("dragSelectBorderColor"),
+                        "stroke-width": this.chart.theme("dragSelectBorderWidth"),
+                        fill: this.chart.theme("dragSelectBackgroundColor"),
+                        "fill-opacity": this.chart.theme("dragSelectBackgroundOpacity")
+                    });
+
+                    this.setDragEvent(brush);
+                    g.append(thumb);
                 }
             }
 

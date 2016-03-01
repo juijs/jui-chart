@@ -64,6 +64,10 @@ jui.define("chart.widget.core", [ "util.base" ], function(_) {
                 }
             }, this.isRender() ? "render" : "renderAll");
         }
+
+        this.drawAfter = function(obj) {
+            obj.attr({ "class" : "widget " + this.widget.type });
+        }
 	}
 
     CoreWidget.setup = function() {

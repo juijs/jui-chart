@@ -82,6 +82,9 @@
     jui.ready([ "chart.builder", "util.time" ], function(chart, time) {
 
         c = chart("#chart", {
+            padding : {
+                bottom: 60
+            },
             height : 500,
             axis : [{
                 x : {
@@ -94,14 +97,11 @@
                 y : {
                     type : "range",
                     domain : [ 20, 30 ],
-                    step : 5,
+                    step : 2,
                     line : true,
                     orient : "right"
                 },
                 area : { x : 0, y : 0, width : "100%", height : "35%" },
-                data : dataSource,
-                start : 10,
-                end : 30,
                 keymap : {
                     low: "l",
                     high: "h",
@@ -132,9 +132,20 @@
             }],
             widget : [{
                 type : "zoomscroll",
-                target : "c"
-            }]
+                key : "l",
+                color : "red",
+                format : function(d, i) {
+                    return ((i % 6) == 0) ? i : "";
+                }
+            }],
+            render : false
         });
+
+        c.axis(0).update(dataSource);
+        c.axis(0).zoom(10, 30);
+        c.axis(1).update(dataSource);
+        c.axis(1).zoom(10, 30);
+        c.render(true);
 	})
 </script>
 
