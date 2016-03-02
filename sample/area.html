@@ -13,27 +13,35 @@
     jui.ready([ "chart.builder" ], function(chart) {
 
         c = chart("#chart", {
-            theme: "pattern",
-            icon: {
-                path: "../../img/icon-list"
-            },
             width: 400,
             height : 400,
             axis : [{
                 x : {
-                    domain : [ "week1", "week2", "week3", "week4" ],
-                    line : 'solid gradient',
-                    orient : 'top'
+                    type : "fullblock",
+                    domain : "quarter",
+                    line : 'solid gradient'
                 },
                 y : {
                     type : 'range',
-                    domain : function(data) {
-                        return Math.max(data.name, data.value, data.test);
-                    },
+                    domain : [ -100, 100 ],
                     step : 10,
                     line : 'gradient dashed'
-
-                }
+                },
+                data : [
+                    { quarter : "1Q", sales : 10, profit : 3 },
+                    { quarter : "2Q", sales : 60, profit : 2 },
+                    { quarter : "3Q", sales : 30, profit : 1 },
+                    { quarter : "4Q", sales : -50, profit : 4 },
+                    { quarter : "5Q", sales : 50, profit : 4 },
+                    { quarter : "6Q", sales : 30, profit : 4 },
+                    { quarter : "7Q", sales : 20, profit : 4 },
+                    { quarter : "8Q", sales : 100, profit : 4 }
+                ]
+            }],
+            brush : [{
+                type : "area",
+                target : [ "sales" ],
+                startZero : true
             }]
         });
 	})

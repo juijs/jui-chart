@@ -12023,8 +12023,8 @@ jui.define("chart.brush.area", [], function() {
             activeEvent: null,
             /** @cfg {"max"/"min"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
             display: null,
-            /** @cfg {Boolean} [startZero=false]  The end of the area is zero point. */
-            startZero: false,
+            /** @cfg {Boolean} [startZero=true]  The end of the area is zero point. */
+            startZero: true,
             /** @cfg {Boolean} [line=true]  Visible line */
             line: true
         };
