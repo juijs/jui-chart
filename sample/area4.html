@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    var baseDate = +new Date(1968, 9, 3),
+        baseValue = Math.random() * 150,
+        oneDay = 24 * 3600 * 1000,
+        data = [{
+            date: new Date(baseDate),
+            value: baseValue
+        }];
+
+    for (var i = 1; i < 3650; i++) {
+        var now = new Date(baseDate += oneDay);
+
+        data.push({
+            date: now,
+            value: Math.round((Math.random() - 0.498) * 40 + data[i - 1].value)
+        });
+    }
+
+    jui.ready([ "chart.builder" ], function(chart) {
+
+        c = chart("#chart", {
+            width: 800,
+            height : 400,
+            axis : [{
+                x : {
+                    type : "date",
+                    domain : [ data[0].date, data[data.length - 1].date ],
+                    interval : oneDay * 365,
+                    format : "yyyy",
+                    key : "date",
+                    line : 'solid'
+                },
+                y : {
+                    type : "range",
+                    domain : "value",
+                    step : 10,
+                    line : 'solid'
+                },
+                data : data
+            }],
+            brush : [{
+                type : "area",
+                target : [ "value" ]
+            }]
+        });
+	})
+</script>
+
+
+</body>
+</html>

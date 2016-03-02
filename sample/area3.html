@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    jui.ready([ "chart.builder" ], function(chart) {
+
+        c = chart("#chart", {
+            width: 800,
+            height : 400,
+            axis : [{
+                x : {
+                    type : "fullblock",
+                    domain : "quarter",
+                    line : 'solid gradient'
+                },
+                y : {
+                    type : 'range',
+                    domain : [ 0, 100 ],
+                    step : 10,
+                    line : 'gradient dashed',
+                    reverse : true
+                },
+                data : [
+                    { quarter : "1Q", sales : 10, profit : 3 },
+                    { quarter : "2Q", sales : 60, profit : 2 },
+                    { quarter : "3Q", sales : 30, profit : 1 },
+                    { quarter : "4Q", sales : 50, profit : 4 },
+                    { quarter : "5Q", sales : 50, profit : 4 },
+                    { quarter : "6Q", sales : 30, profit : 4 },
+                    { quarter : "7Q", sales : 20, profit : 4 },
+                    { quarter : "8Q", sales : 100, profit : 4 }
+                ]
+            }],
+            brush : [{
+                type : "area",
+                target : [ "sales" ],
+                startZero : true
+            }]
+        });
+	})
+</script>
+
+
+</body>
+</html>
