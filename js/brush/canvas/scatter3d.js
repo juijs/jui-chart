@@ -13,14 +13,7 @@ jui.define("chart.brush.canvas.scatter3d",
                 r = this.brush.size / 2,
                 x = this.axis.x(dataIndex),
                 y = this.axis.y(data[target]),
-                z = null;
-
-            if(_.typeCheck("function", zkey)) {
-                var zk = zkey.call(this.chart, data);
-                z = this.axis.z(zk);
-            } else {
-                z = this.axis.z(data[zkey]);
-            }
+                z = this.axis.z(dataIndex);
 
             this.addPolygon(new PointPolygon(x, y, z), function(p) {
                 var tx = p.vectors[0].x,
@@ -53,8 +46,6 @@ jui.define("chart.brush.canvas.scatter3d",
 
     CanvasScatter3DBrush.setup = function() {
         return {
-            zkey: null,
-
             /** @cfg {Number} [size=7]  Determines the size of a starter. */
             size: 7
         };
