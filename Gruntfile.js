@@ -106,6 +106,7 @@ module.exports = function(grunt) {
         "js/brush/focus.js", // brush supporter
         "js/brush/pin.js",  // brush supporter
         "js/brush/timeline.js",  // brush supporter
+        "js/brush/hudcolumn.js",
 
         // map brush
         "js/brush/map/core.js",
