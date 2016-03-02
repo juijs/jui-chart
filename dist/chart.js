@@ -5579,12 +5579,18 @@ jui.define("chart.grid.block", [ "util.scale", "util.base" ], function(UtilScale
 			var old_scale = scale;
 			var self = this;
 			var len = self.domain.length;
+			var reverse = self.grid.reverse;
 
 			function new_scale(i) {
-				return old_scale(len - i - 1);
+				if (typeof i == 'number' && key) {
+					return old_scale(self.axis.data[i][key]);
+				} else {
+					return old_scale(reverse ? len - i - 1 : i);
+				}
+
 			}
 
-			return (this.grid.reverse) ? _.extend(new_scale, old_scale) : old_scale;
+			return (key) ? _.extend(new_scale, old_scale) : old_scale;
 		}
 
 		this.drawBefore = function() {
@@ -5623,7 +5629,9 @@ jui.define("chart.grid.block", [ "util.scale", "util.base" ], function(UtilScale
 			/** @cfg {Number} [max=10] Sets the maximum value of a grid. */
 			max: 10,
 			/** @cfg {Boolean} [hideText=false] Determines whether to show text across the grid. */
-			hideText: false
+			hideText: false,
+			/** @cfg {String} [key=null] Sets the value on the grid to the value for the specified key. */
+			key: null
 		};
 	}
 
@@ -5996,6 +6004,24 @@ jui.define("chart.grid.fullblock", [ "util.scale", "util.base" ], function(UtilS
 
             return domain;
 
+        }
+
+        this.wrapper = function(scale, key) {
+            var old_scale = scale;
+            var self = this;
+            var len = self.domain.length;
+            var reverse = self.grid.reverse;
+
+            function new_scale(i) {
+                if (typeof i == 'number' && key) {
+                    return old_scale(self.axis.data[i][key]);
+                } else {
+                    return old_scale(reverse ? len - i : i);
+                }
+
+            }
+
+            return (key) ? _.extend(new_scale, old_scale) : old_scale;
         }
 
         this.drawBefore = function() {

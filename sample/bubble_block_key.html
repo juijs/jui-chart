@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    jui.ready(["chart.builder"], function(chart) {
+        var d = [
+            { week : 0, name : 2, value : 15, text : "2015", scale : 3 },   // week1
+            { week : 0, name : 10, value : 6, text : "2016", scale : 4 },   // week2
+            { week : 0, name : 8, value : 10, text : "2017", scale : 5 },   // week3
+            { week : 0, name : 18, value : 5, text : "2018", scale : 6 },    // week4
+            { week : 1, name : 2, value : 15, text : "2015", scale : 3 },   // week1
+            { week : 1, name : 10, value : 6, text : "2016", scale : 4 },   // week2
+            { week : 1, name : 8, value : 10, text : "2017", scale : 5 },   // week3
+            { week : 1, name : 18, value : 5, text : "2018", scale : 6 },    // week4
+            { week : 3, name : 2, value : 15, text : "2015", scale : 3 },   // week1
+            { week : 3, name : 10, value : 6, text : "2016", scale : 4 },   // week2
+            { week : 3, name : 8, value : 10, text : "2017", scale : 5 },   // week3
+            { week : 3, name : 18, value : 5, text : "2018", scale : 6 }    // week4
+        ];
+
+        var c = chart("#chart", {
+            width: 400,
+            height : 400,
+            theme : "jennifer",
+            axis : [{
+                x : {
+                    //type : "block",  // default type is block
+                    domain : [ "week1", "week2", "week3", "week4" ],
+                    key : 'week',
+                    line : true
+                },
+                y : {
+                    type : 'range',
+                    domain : function(d) {
+                        return Math.max(d.name, d.value);
+                    },
+                    step : 10,
+                    line : true
+                }
+            }],
+            brush : {
+                type : 'bubble',
+                //colors : [ "red", "blue" ],
+                target : [ 'name', 'value'],
+                min : 30,
+                max : 50,
+                showText : true,
+                active : 0,
+                activeEvent : "click",
+                scaleKey : "scale",
+                colors : function(data) {
+                    if(data.value > 5 && data.name > 5) {
+                        return "red";
+                    }
+
+                    return "blue";
+                },
+                format : function(data) {
+                    return data.text;
+                }
+            },
+            event: {
+                click: function(obj, e) {
+                    console.log(obj);
+                }
+            }
+        });
+
+        c.axis(0).update(d);
+	})
+</script>
+
+
+</body>
+</html>

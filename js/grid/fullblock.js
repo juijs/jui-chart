@@ -71,6 +71,24 @@ jui.define("chart.grid.fullblock", [ "util.scale", "util.base" ], function(UtilS
 
         }
 
+        this.wrapper = function(scale, key) {
+            var old_scale = scale;
+            var self = this;
+            var len = self.domain.length;
+            var reverse = self.grid.reverse;
+
+            function new_scale(i) {
+                if (typeof i == 'number' && key) {
+                    return old_scale(self.axis.data[i][key]);
+                } else {
+                    return old_scale(reverse ? len - i : i);
+                }
+
+            }
+
+            return (key) ? _.extend(new_scale, old_scale) : old_scale;
+        }
+
         this.drawBefore = function() {
             var domain = this.initDomain();
 
