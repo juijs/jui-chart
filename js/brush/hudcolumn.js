@@ -76,7 +76,7 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 
 				var point1 = this.svg.circle({
 					r: r,
-					fill: this.chart.theme("hudColumnGridPointBackgroundColor"),
+					fill: this.chart.theme("axisBackgroundColor"),
 					stroke: stroke,
 					"stroke-width": width,
 					cx: move,

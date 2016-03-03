@@ -172,7 +172,6 @@ jui.define("chart.theme.pastel", [], function() {
 		timelineHorizontalLineColor: "#d2d2d2",
 
 		hudColumnGridPointRadius: 7,
-		hudColumnGridPointBackgroundColor: "#222",
 		hudColumnGridPointBorderColor: "#868686",
 		hudColumnGridPointBorderWidth: 2,
 		hudColumnGridFontColor: "#868686",

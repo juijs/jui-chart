@@ -2773,7 +2773,6 @@ jui.define("chart.theme.jennifer", [], function() {
         timelineHorizontalLineColor: "#d2d2d2",
 
         hudColumnGridPointRadius: 7,
-        hudColumnGridPointBackgroundColor: "#222",
         hudColumnGridPointBorderColor: "#868686",
         hudColumnGridPointBorderWidth: 2,
         hudColumnGridFontColor: "#868686",
@@ -3060,7 +3059,6 @@ jui.define("chart.theme.gradient", [], function() {
         timelineHorizontalLineColor: "#d2d2d2",
 
         hudColumnGridPointRadius: 7,
-        hudColumnGridPointBackgroundColor: "#222",
         hudColumnGridPointBorderColor: "#868686",
         hudColumnGridPointBorderWidth: 2,
         hudColumnGridFontColor: "#868686",
@@ -3345,7 +3343,6 @@ jui.define("chart.theme.dark", [], function() {
         timelineHorizontalLineColor: "#404040",
 
         hudColumnGridPointRadius: 7,
-        hudColumnGridPointBackgroundColor: "#222",
         hudColumnGridPointBorderColor: "#868686",
         hudColumnGridPointBorderWidth: 2,
         hudColumnGridFontColor: "#868686",
@@ -3627,7 +3624,6 @@ jui.define("chart.theme.pastel", [], function() {
 		timelineHorizontalLineColor: "#d2d2d2",
 
 		hudColumnGridPointRadius: 7,
-		hudColumnGridPointBackgroundColor: "#222",
 		hudColumnGridPointBorderColor: "#868686",
 		hudColumnGridPointBorderWidth: 2,
 		hudColumnGridFontColor: "#868686",
@@ -3908,7 +3904,6 @@ jui.define("chart.theme.pattern", [], function() {
         timelineHorizontalLineColor: "#d2d2d2",
 
         hudColumnGridPointRadius: 7,
-        hudColumnGridPointBackgroundColor: "#222",
         hudColumnGridPointBorderColor: "#868686",
         hudColumnGridPointBorderWidth: 2,
         hudColumnGridFontColor: "#868686",
@@ -14125,7 +14120,7 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 
 				var point1 = this.svg.circle({
 					r: r,
-					fill: this.chart.theme("hudColumnGridPointBackgroundColor"),
+					fill: this.chart.theme("axisBackgroundColor"),
 					stroke: stroke,
 					"stroke-width": width,
 					cx: move,
