@@ -5,7 +5,7 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
      * @extends chart.brush.core
      */
 	var HUDColumnBrush = function() {
-		var g;
+		var g, points = [];
 		var domains, zeroY, width, col_width, half_width;
 		var x1, x2, y1, y2;
 
@@ -73,13 +73,22 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 					move = this.axis.x(i),
 					moveX = move - (half_width / 2);
 
-				var circle = this.svg.circle({
+				var point1 = this.svg.circle({
 					r: r,
 					fill: "#222",
 					stroke: "#868686",
 					"stroke-width": 2,
 					cx: move,
 					cy: y2
+				});
+
+				var point2 = this.svg.circle({
+					r: r * 0.65,
+					fill: "#868686",
+					"stroke-width": 0,
+					cx: move,
+					cy: y2,
+					"fill-opacity": 0
 				});
 
 				var text = this.chart.text({
@@ -92,6 +101,8 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 					"font-weight": this.chart.theme("gridXFontWeight")
 				}, domain);
 
+				var group = this.svg.group();
+
 				for(var j = 0; j < 2; j++) {
 					var rect = this.createColumn(j, {
 						fill: "transparent",
@@ -99,17 +110,30 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 						"stroke-width": 2
 					}, moveX, y1);
 
-					g.append(rect);
+					this.addEvent(rect, i, j);
+					group.append(rect);
+
 					moveX += col_width + this.brush.innerPadding;
 				}
 
-				g.append(circle);
+				(function(g, p) {
+					g.hover(function() {
+						p.attr({ "fill-opacity": 1 });
+
+					}, function() {
+						p.attr({ "fill-opacity": 0 });
+					});
+				})(group, point2);
+
+				g.append(group);
+				g.append(point1);
+				g.append(point2);
 				g.append(text);
 			}
 		}
 
 		this.createColumn = function(type, attr, moveX, moveY) {
-			var tick = 15, padding = 20;
+			var padding = 20, dist = 15 + padding;
 			var rect = this.svg.polygon(attr);
 
 			rect.point(moveX, moveY);
@@ -117,10 +141,14 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 
 			if(type == 0) {
 				rect.point(moveX + col_width, y2 - padding);
-				rect.point(moveX, y2 - tick - padding);
+				rect.point(moveX, y2 - dist);
 			} else {
-				rect.point(moveX + col_width, y2 - tick - padding);
+				rect.point(moveX + col_width, y2 - dist);
 				rect.point(moveX, y2 - padding);
+			}
+
+			if(moveY >= zeroY - dist) {
+				rect.attr({ visibility: "hidden" });
 			}
 
 			return rect;

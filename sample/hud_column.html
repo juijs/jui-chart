@@ -28,7 +28,7 @@
                     hide : true
                 },
                 data : [
-                    { quarter : "1Q", left : 3, right : 5 },
+                    { quarter : "1Q", left : 1, right : 0 },
                     { quarter : "2Q", left : 3, right : 7 },
                     { quarter : "3Q", left : 10, right : 2 },
                     { quarter : "4Q", left : 6, right : 4},
@@ -39,7 +39,12 @@
             },
             brush : [{
                 type : "hudcolumn"
-            }]
+            }],
+            event : {
+                click : function(obj, e) {
+                    console.log(obj);
+                }
+            }
         });
 	})
 </script>
