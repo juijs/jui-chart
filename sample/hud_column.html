@@ -40,6 +40,16 @@
             brush : [{
                 type : "hudcolumn"
             }],
+            widget : [{
+                type : "tooltip",
+                all : "all",
+                format : function(data, key) {
+                    return {
+                        key: (key == "left") ? "LEFT" : "RIGHT",
+                        value: data[key]
+                    }
+                }
+            }],
             event : {
                 click : function(obj, e) {
                     console.log(obj);

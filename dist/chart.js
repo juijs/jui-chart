@@ -2772,6 +2772,16 @@ jui.define("chart.theme.jennifer", [], function() {
         timelineVerticalLineColor: "#c9c9c9",
         timelineHorizontalLineColor: "#d2d2d2",
 
+        hudColumnGridPointRadius: 7,
+        hudColumnGridPointBackgroundColor: "#222",
+        hudColumnGridPointBorderColor: "#868686",
+        hudColumnGridPointBorderWidth: 2,
+        hudColumnGridFontColor: "#868686",
+        hudColumnGridFontSize: 12,
+        hudColumnGridFontWeight: "normal",
+        hudColumnLeftBackgroundColor: "#3C3C3C",
+        hudColumnRightBackgroundColor: "#838383",
+
         // Widget styles
         titleFontColor : "#333",
         titleFontSize : 13,
@@ -3049,6 +3059,16 @@ jui.define("chart.theme.gradient", [], function() {
         timelineVerticalLineColor: "#c9c9c9",
         timelineHorizontalLineColor: "#d2d2d2",
 
+        hudColumnGridPointRadius: 7,
+        hudColumnGridPointBackgroundColor: "#222",
+        hudColumnGridPointBorderColor: "#868686",
+        hudColumnGridPointBorderWidth: 2,
+        hudColumnGridFontColor: "#868686",
+        hudColumnGridFontSize: 12,
+        hudColumnGridFontWeight: "normal",
+        hudColumnLeftBackgroundColor: "#3C3C3C",
+        hudColumnRightBackgroundColor: "#838383",
+
         // widget styles
         titleFontColor : "#333",
         titleFontSize : 13,
@@ -3324,6 +3344,16 @@ jui.define("chart.theme.dark", [], function() {
         timelineVerticalLineColor: "#4d4d4d",
         timelineHorizontalLineColor: "#404040",
 
+        hudColumnGridPointRadius: 7,
+        hudColumnGridPointBackgroundColor: "#222",
+        hudColumnGridPointBorderColor: "#868686",
+        hudColumnGridPointBorderWidth: 2,
+        hudColumnGridFontColor: "#868686",
+        hudColumnGridFontSize: 12,
+        hudColumnGridFontWeight: "normal",
+        hudColumnLeftBackgroundColor: "#3C3C3C",
+        hudColumnRightBackgroundColor: "#838383",
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,
@@ -3596,6 +3626,16 @@ jui.define("chart.theme.pastel", [], function() {
 		timelineVerticalLineColor: "#c9c9c9",
 		timelineHorizontalLineColor: "#d2d2d2",
 
+		hudColumnGridPointRadius: 7,
+		hudColumnGridPointBackgroundColor: "#222",
+		hudColumnGridPointBorderColor: "#868686",
+		hudColumnGridPointBorderWidth: 2,
+		hudColumnGridFontColor: "#868686",
+		hudColumnGridFontSize: 12,
+		hudColumnGridFontWeight: "normal",
+		hudColumnLeftBackgroundColor: "#3C3C3C",
+		hudColumnRightBackgroundColor: "#838383",
+
         // widget styles
         titleFontColor : "#333",
         titleFontSize : 18,
@@ -3867,8 +3907,17 @@ jui.define("chart.theme.pattern", [], function() {
         timelineVerticalLineColor: "#c9c9c9",
         timelineHorizontalLineColor: "#d2d2d2",
 
-        // widget styles
+        hudColumnGridPointRadius: 7,
+        hudColumnGridPointBackgroundColor: "#222",
+        hudColumnGridPointBorderColor: "#868686",
+        hudColumnGridPointBorderWidth: 2,
+        hudColumnGridFontColor: "#868686",
+        hudColumnGridFontSize: 12,
+        hudColumnGridFontWeight: "normal",
+        hudColumnLeftBackgroundColor: "#3C3C3C",
+        hudColumnRightBackgroundColor: "#838383",
 
+        // widget styles
         titleFontColor : "#333",
         titleFontSize : 13,
         titleFontWeight : "normal",
@@ -14005,7 +14054,7 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
      * @extends chart.brush.core
      */
 	var HUDColumnBrush = function() {
-		var g, points = [];
+		var g;
 		var domains, zeroY, width, col_width, half_width;
 		var x1, x2, y1, y2;
 
@@ -14017,7 +14066,7 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 			g = this.chart.svg.group();
 			zeroY = this.axis.y(0);
 			width = this.axis.x.rangeBand();
-			domains = _.clone(this.axis.x.domain());
+			domains = this.axis.x.domain();
 
 			half_width = (width - op * 2);
 			col_width = (width - op * 2 - (len - 1) * ip) / len;
@@ -14041,9 +14090,8 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 					var moveY = this.axis.y((j == 0) ? left : right);
 
 					var rect = this.createColumn(j, {
-						fill: (j == 0) ? "#3C3C3C" : "#838383",
-						stroke: (j == 0) ? "#3C3C3C" : "#838383",
-						"stroke-width": 2
+						fill: (j == 0) ? this.chart.theme("hudColumnLeftBackgroundColor") :
+							this.chart.theme("hudColumnRightBackgroundColor")
 					}, moveX, moveY);
 
 					g.append(rect);
@@ -14057,11 +14105,13 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 		}
 
 		this.drawGrid = function() {
-			var r = 7;
+			var r = this.chart.theme("hudColumnGridPointRadius"),
+				stroke = this.chart.theme("hudColumnGridPointBorderColor"),
+				width = this.chart.theme("hudColumnGridPointBorderWidth");
 
 			g.append(this.svg.line({
-				stroke: "#868686",
-				"stroke-width": 2,
+				stroke: stroke,
+				"stroke-width": width,
 				x1: x1,
 				x2: x2,
 				y1: y2,
@@ -14075,16 +14125,16 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 
 				var point1 = this.svg.circle({
 					r: r,
-					fill: "#222",
-					stroke: "#868686",
-					"stroke-width": 2,
+					fill: this.chart.theme("hudColumnGridPointBackgroundColor"),
+					stroke: stroke,
+					"stroke-width": width,
 					cx: move,
 					cy: y2
 				});
 
 				var point2 = this.svg.circle({
 					r: r * 0.65,
-					fill: "#868686",
+					fill: stroke,
 					"stroke-width": 0,
 					cx: move,
 					cy: y2,
@@ -14094,11 +14144,11 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 				var text = this.chart.text({
 					x: move,
 					y: y2,
-					dy: this.chart.theme("gridXFontSize") * 2,
-					fill: this.chart.theme("gridXFontColor"),
+					dy: this.chart.theme("hudColumnGridFontSize") * 2,
+					fill: this.chart.theme("hudColumnGridFontColor"),
 					"text-anchor": "middle",
-					"font-size": this.chart.theme("gridXFontSize"),
-					"font-weight": this.chart.theme("gridXFontWeight")
+					"font-size": this.chart.theme("hudColumnGridFontSize"),
+					"font-weight": this.chart.theme("hudColumnGridFontWeight")
 				}, domain);
 
 				var group = this.svg.group();
@@ -14106,11 +14156,11 @@ jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
 				for(var j = 0; j < 2; j++) {
 					var rect = this.createColumn(j, {
 						fill: "transparent",
-						stroke: "#868686",
+						stroke: stroke,
 						"stroke-width": 2
 					}, moveX, y1);
 
-					this.addEvent(rect, i, j);
+					this.addEvent(rect, i, null);
 					group.append(rect);
 
 					moveX += col_width + this.brush.innerPadding;

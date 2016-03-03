@@ -174,6 +174,16 @@ jui.define("chart.theme.dark", [], function() {
         timelineVerticalLineColor: "#4d4d4d",
         timelineHorizontalLineColor: "#404040",
 
+        hudColumnGridPointRadius: 7,
+        hudColumnGridPointBackgroundColor: "#222",
+        hudColumnGridPointBorderColor: "#868686",
+        hudColumnGridPointBorderWidth: 2,
+        hudColumnGridFontColor: "#868686",
+        hudColumnGridFontSize: 12,
+        hudColumnGridFontWeight: "normal",
+        hudColumnLeftBackgroundColor: "#3C3C3C",
+        hudColumnRightBackgroundColor: "#838383",
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,
