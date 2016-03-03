@@ -9,7 +9,6 @@ jui.define("chart.brush.canvas.scatter3d",
     var CanvasScatter3DBrush = function () {
         this.createScatter = function(data, target, dataIndex, targetIndex) {
             var color = this.color(dataIndex, targetIndex),
-                zkey = this.brush.zkey,
                 r = this.brush.size / 2,
                 x = this.axis.x(dataIndex),
                 y = this.axis.y(data[target]),

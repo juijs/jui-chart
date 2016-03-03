@@ -283,6 +283,8 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
         }
 
         this.drawValueTextCenter = function(axis, ticks, values, checkActive, moveZ) {
+            if (this.grid.hideText) return;
+
             var margin = this.chart.theme("gridTickBorderSize") + this.chart.theme("gridTickPadding"),
                 isLeft = (this.axis.get("y").orient == "left"),
                 isTop = (this.axis.get("x").orient == "top"),

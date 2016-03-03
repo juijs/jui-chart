@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../../lib/core.js"></script>
+    <script src="../../dist/chart.js"></script>
+    <script src="../resource/model/f16.js"></script>
+    <script src="../resource/model/dodge.js"></script>
+    <script src="../resource/model/hind.js"></script>
+</head>
+<body class="jui">
+
+<div id="chart"></div>
+
+<script>
+jui.ready([ "chart.builder" ], function(builder) {
+    var chart = builder("#chart", {
+        width: 1000,
+        height : 1000,
+        padding : 50,
+        theme : "jennifer",
+        axis : [{
+            x : {
+                type : "range",
+                domain : [ -5, 20 ],
+                hide : true
+            },
+            y : {
+                type : "range",
+                domain : [ -3, 5 ],
+                hide : true
+            },
+            z : {
+                type : "range",
+                domain : [ -7, 7 ],
+                hide : true
+            },
+            degree : {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            depth : 400,
+            perspective : 0.8,
+            area : {
+                width : "50%",
+                height : "50%"
+            }
+        }, {
+            extend : 0,
+            x : {
+                domain : [ -10, 10 ]
+            },
+            y : {
+                domain : [ -5, 20 ]
+            },
+            z : {
+                domain : [ -7, 7 ]
+            },
+            degree : {
+                x: 90,
+                y: 0,
+                z: 90
+            },
+            area : {
+                x : "50%"
+            }
+        }, {
+            extend : 1,
+            x : {
+                domain : [ -10, 10 ]
+            },
+            y : {
+                domain : [ -5, 5 ]
+            },
+            z : {
+                domain : [ -7, 7 ]
+            },
+            degree : {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            area : {
+                x : "33%",
+                y : "50%"
+            }
+        }],
+        brush : [{
+            type : "canvas.model3d",
+            model : "f16",
+            axis : 0
+        }, {
+            type : "canvas.model3d",
+            model : "hind",
+            axis : 1
+        }, {
+            type : "canvas.model3d",
+            model : "dodge",
+            axis : 2
+        }],
+        widget : [{
+            type : "polygon.rotate3d",
+            axis : 0
+        }, {
+            type : "polygon.rotate3d",
+            axis : 1
+        }, {
+            type : "polygon.rotate3d",
+            axis : 2
+        }],
+        style : {
+            gridXAxisBorderWidth: 1,
+            gridYAxisBorderWidth: 1,
+            gridZAxisBorderWidth: 1
+        },
+        canvas : true
+    });
+});
+</script>
+
+
+</body>
+</html>

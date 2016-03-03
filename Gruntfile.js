@@ -127,8 +127,9 @@ module.exports = function(grunt) {
         // canvas brush
         "js/brush/canvas/core.js",
         "js/brush/canvas/scatter.js",
-        "js/brush/canvas/scatter3d.js",
         "js/brush/canvas/line.js",
+        "js/brush/canvas/scatter3d.js",
+        "js/brush/canvas/model3d.js",
 
         // chart.widget
         "js/widget/core.js",

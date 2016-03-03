@@ -5075,6 +5075,8 @@ jui.define("chart.grid.draw3d", [ "util.base", "chart.polygon.grid", "chart.poly
         }
 
         this.drawValueTextCenter = function(axis, ticks, values, checkActive, moveZ) {
+            if (this.grid.hideText) return;
+
             var margin = this.chart.theme("gridTickBorderSize") + this.chart.theme("gridTickPadding"),
                 isLeft = (this.axis.get("y").orient == "left"),
                 isTop = (this.axis.get("x").orient == "top"),
@@ -15324,61 +15326,6 @@ jui.define("chart.brush.canvas.scatter", [ "util.base" ], function(_) {
 
     return CanvasScatterBrush;
 }, "chart.brush.canvas.core");
-jui.define("chart.brush.canvas.scatter3d",
-    [ "util.base", "util.math", "util.color", "chart.polygon.point" ],
-    function(_, MathUtil, ColorUtil, PointPolygon) {
-
-    /**
-     * @class chart.brush.canvas.scatter3d
-     * @extends chart.brush.canvas.core
-     */
-    var CanvasScatter3DBrush = function () {
-        this.createScatter = function(data, target, dataIndex, targetIndex) {
-            var color = this.color(dataIndex, targetIndex),
-                zkey = this.brush.zkey,
-                r = this.brush.size / 2,
-                x = this.axis.x(dataIndex),
-                y = this.axis.y(data[target]),
-                z = this.axis.z(dataIndex);
-
-            this.addPolygon(new PointPolygon(x, y, z), function(p) {
-                var tx = p.vectors[0].x,
-                    ty = p.vectors[0].y,
-                    tr = r * MathUtil.scaleValue(z, 0, this.axis.depth, 1, p.perspective),
-                    tc = ColorUtil.lighten(color, this.chart.theme("polygonScatterRadialOpacity"));
-
-                var grd = this.canvas.createRadialGradient(tx, ty, tr / 2, tx, ty, tr);
-                grd.addColorStop(0, color);
-                grd.addColorStop(1, tc);
-
-                this.canvas.beginPath();
-                this.canvas.arc(tx, ty, tr, 0, 2 * Math.PI, false);
-                this.canvas.fillStyle = grd;
-                this.canvas.fill();
-            });
-        }
-
-        this.draw = function() {
-            var datas = this.listData(),
-                targets = this.brush.target;
-
-            for(var i = 0; i < datas.length; i++) {
-                for(var j = 0; j < targets.length; j++) {
-                    this.createScatter(datas[i], targets[j], i, j);
-                }
-            }
-        }
-    }
-
-    CanvasScatter3DBrush.setup = function() {
-        return {
-            /** @cfg {Number} [size=7]  Determines the size of a starter. */
-            size: 7
-        };
-    }
-
-    return CanvasScatter3DBrush;
-}, "chart.brush.canvas.core");
 jui.define("chart.brush.canvas.line.tooltip", [], function() {
 
     /**
@@ -15567,6 +15514,143 @@ jui.define("chart.brush.canvas.line", ["chart.brush.canvas.line.pathpoint"],
     }
 
 	return LineBrush;
+}, "chart.brush.canvas.core");
+jui.define("chart.brush.canvas.scatter3d",
+    [ "util.base", "util.math", "util.color", "chart.polygon.point" ],
+    function(_, MathUtil, ColorUtil, PointPolygon) {
+
+    /**
+     * @class chart.brush.canvas.scatter3d
+     * @extends chart.brush.canvas.core
+     */
+    var CanvasScatter3DBrush = function () {
+        this.createScatter = function(data, target, dataIndex, targetIndex) {
+            var color = this.color(dataIndex, targetIndex),
+                r = this.brush.size / 2,
+                x = this.axis.x(dataIndex),
+                y = this.axis.y(data[target]),
+                z = this.axis.z(dataIndex);
+
+            this.addPolygon(new PointPolygon(x, y, z), function(p) {
+                var tx = p.vectors[0].x,
+                    ty = p.vectors[0].y,
+                    tr = r * MathUtil.scaleValue(z, 0, this.axis.depth, 1, p.perspective),
+                    tc = ColorUtil.lighten(color, this.chart.theme("polygonScatterRadialOpacity"));
+
+                var grd = this.canvas.createRadialGradient(tx, ty, tr / 2, tx, ty, tr);
+                grd.addColorStop(0, color);
+                grd.addColorStop(1, tc);
+
+                this.canvas.beginPath();
+                this.canvas.arc(tx, ty, tr, 0, 2 * Math.PI, false);
+                this.canvas.fillStyle = grd;
+                this.canvas.fill();
+            });
+        }
+
+        this.draw = function() {
+            var datas = this.listData(),
+                targets = this.brush.target;
+
+            for(var i = 0; i < datas.length; i++) {
+                for(var j = 0; j < targets.length; j++) {
+                    this.createScatter(datas[i], targets[j], i, j);
+                }
+            }
+        }
+    }
+
+    CanvasScatter3DBrush.setup = function() {
+        return {
+            /** @cfg {Number} [size=7]  Determines the size of a starter. */
+            size: 7
+        };
+    }
+
+    return CanvasScatter3DBrush;
+}, "chart.brush.canvas.core");
+jui.define("chart.brush.canvas.model3d", [ "util.base", "util.math" ], function(_, MathUtil) {
+
+    /**
+     * @class chart.brush.canvas.model3d
+     * @extends chart.brush.canvas.core
+     */
+    var CanvasModel3DBrush = function () {
+        var data = null;
+
+        this.drawBefore = function() {
+            var Model3D = jui.include("chart.polygon." + this.brush.model);
+
+            if(Model3D != null) {
+                data = new Model3D();
+
+                for (var i = 0, len = data.sources.length; i < len; i++) {
+                    var x = this.axis.x(data.sources[i][0]),
+                        y = this.axis.y(data.sources[i][1]),
+                        z = this.axis.z(data.sources[i][2]);
+
+                    data.vertices[i] = new Float32Array([x, y, z, 1])
+                }
+            }
+        }
+
+        this.draw = function() {
+            if(data == null) return;
+
+            this.canvas.lineWidth = 0.5;
+            this.canvas.strokeStyle = this.color(0);
+            this.canvas.beginPath();
+
+            this.addPolygon(data, function(p) {
+                var cache = [],
+                    vertices = p.vertices,
+                    faces = p.faces;
+
+                for (var i = 0, len = vertices.length; i < len; i++) {
+                    var v = vertices[i];
+                    cache.push(new Float32Array([ v[0], v[1] ]));
+                }
+
+                for (var i = 0, len = faces.length; i < len; i++) {
+                    var f = faces[i]
+
+                    for (var j = 0, len2 = f.length; j < len2; j++) {
+                        var targetPoint = cache[f[j]];
+
+                        if (targetPoint) {
+                            var x = targetPoint[0],
+                                y = targetPoint[1];
+
+                            if (j == 0) {
+                                this.canvas.moveTo(x, y);
+                            } else {
+                                if (j == f.length - 1) {
+                                    var firstPoint = cache[f[0]],
+                                        x = firstPoint[0],
+                                        y = firstPoint[1];
+
+                                    this.canvas.lineTo(x, y);
+                                } else {
+                                    this.canvas.lineTo(x, y);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                this.canvas.stroke();
+                this.canvas.closePath();
+            });
+        }
+    }
+
+    CanvasModel3DBrush.setup = function() {
+        return {
+            model: null
+        }
+    }
+
+    return CanvasModel3DBrush;
 }, "chart.brush.canvas.core");
 jui.define("chart.widget.core", [ "util.base" ], function(_) {
 
