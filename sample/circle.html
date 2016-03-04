@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+    <style>
+        body {
+            background-color:black;
+        }
+
+        #chart {
+            height:800px;
+        }
+    </style>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    jui.ready([ "chart.builder" ], function(chart) {
+        var c = chart("#chart", {
+            padding:0,
+            theme : "jennifer",
+            axis : {
+                c : {
+                  type : 'table',
+                    rows : 2,
+                    columns : 4
+                },
+                data : [
+                    { value : 90, min : 0, max : 100 },
+                    { value : 10, min : 0, max : 100 },
+                    { value : 50, min : 0, max : 100 },
+                    { value : 10, min : 0, max : 100 },
+                    { value : 10, min : 0, max : 100 },
+                    { value : 70, min : 0, max : 100 },
+                    { value : 10, min : 0, max : 100 },
+                    { value : 100, min : 0, max : 100 }
+                ]
+            },
+            brush : {
+                type : "circle",
+                colors : jui.include("util.color").map.jet(1)
+            },
+            widget : {
+                type : "tooltip"
+            },
+            style : {
+                backgroundColor : 'transparent'
+            }
+        });
+	})
+</script>
+
+
+</body>
+</html>
