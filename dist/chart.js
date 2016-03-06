@@ -18486,10 +18486,15 @@ jui.define("chart.widget.map.minimap", [ "util.base", "chart.builder" ], functio
                 startX = null;
                 startY = null;
 
-                self.axis.map.view(
-                    (moveX * scale) / self.widget.scale + viewX,
-                    (moveY * scale) / self.widget.scale + viewY
-                );
+                var newViewX = (moveX * scale) / self.widget.scale + viewX,
+                    newViewY = (moveY * scale) / self.widget.scale + viewY;
+
+                self.axis.updateGrid("map", {
+                    viewX: newViewX,
+                    viewY: newViewY
+                });
+
+                self.axis.map.view(newViewX, newViewY);
             }
 
             return rect;

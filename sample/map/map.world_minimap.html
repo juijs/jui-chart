@@ -56,6 +56,18 @@
                     scale : 3,
                     viewY : 200,
                     viewX : -400
+                },
+                data : data
+            }],
+            brush : [{
+                type : "map.selector",
+                active : [ "KR", "JP", "CN" ]
+            }, {
+                type : "map.note",
+                active : [ "KR" ],
+                activeEvent : "map.mouseover",
+                format : function(data) {
+                    return names[data.id];
                 }
             }],
             widget : [{
