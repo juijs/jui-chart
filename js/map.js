@@ -208,8 +208,7 @@ jui.define("chart.map", [ "util.base", "util.dom", "util.math", "util.svg" ], fu
             return group;
         }
 
-        function getScaleXY() {
-            // 현재 스케일에 따른 계산이 필요함
+        function getScaleXY() { // 차후에 공통 함수로 변경해야 함
             var w = self.map.width,
                 h = self.map.height,
                 px = ((w * pathScale) - w) / 2,

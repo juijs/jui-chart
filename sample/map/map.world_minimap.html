@@ -53,27 +53,22 @@
                     path : "../../img/map/world-1040x660.svg",
                     width : 1040,
                     height : 660,
-                    scale : 4,
+                    scale : 3,
                     viewY : 200,
                     viewX : -400
                 }
             }],
             widget : [{
                 type : "map.minimap",
-                scale : 0.3,
+                scale : 0.2,
                 align : "end",
-                orient : "top"
+                orient : "top",
+                dx : -50
             }],
             style : {
-                fontFamily: "noto sans, sans-serif",
-                backgroundColor: "transparent",
                 mapPathBackgroundColor: "rgb(255,229,149)",
                 mapPathBorderColor: "#ffcb2b",
-                mapPathBorderWidth: 0.5,
-                mapControlButtonColor: "#ffcb2b",
-                mapSelectorHoverColor: "rgb(255,255,255)",
-                mapSelectorActiveColor: "rgb(242,140,8)",
-                tooltipBorderColor: "#a9a9a9"
+                mapPathBorderWidth: 0.5
             }
         });
     });

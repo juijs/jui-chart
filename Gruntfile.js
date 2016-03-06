@@ -149,6 +149,7 @@ module.exports = function(grunt) {
         "js/widget/map/core.js",
         "js/widget/map/control.js",
         "js/widget/map/tooltip.js",
+        "js/widget/map/minimap.js",
 
         // polygon widget (full 3d)
         "js/widget/polygon/core.js",

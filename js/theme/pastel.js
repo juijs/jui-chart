@@ -269,6 +269,18 @@ jui.define("chart.theme.pastel", [], function() {
 		mapControlDownButtonImage : "data:image/gif;base64,R0lGODlhCwALAPABAP///wAAACH5BAUAAAEALAAAAAALAAsAAAIMjI+py+0BopSv2qsKADs=",
 		mapControlScrollColor : "#000",
 		mapControlScrollLineColor : "#fff",
+		mapMinimapBackgroundColor : "transparent",
+		mapMinimapBorderColor : "transparent",
+		mapMinimapBorderWidth : 1,
+		mapMinimapPathBackgroundColor : "#67B7DC",
+		mapMinimapPathBackgroundOpacity : 0.5,
+		mapMinimapPathBorderColor : "#67B7DC",
+		mapMinimapPathBorderWidth : 0.5,
+		mapMinimapPathBorderOpacity : 0.1,
+		mapMinimapDragBackgroundColor : "#7CC7C3",
+		mapMinimapDragBackgroundOpacity : 0.3,
+		mapMinimapDragBorderColor : "#56B4AF",
+		mapMinimapDragBorderWidth : 1,
 
 		// Polygon Brushes
 		polygonColumnBackgroundOpacity: 0.6,
