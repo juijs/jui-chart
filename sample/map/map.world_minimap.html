@@ -44,22 +44,27 @@
         }];
 
         builder("#chart", {
-            width : 500,
-            height : 300,
-            theme : "pattern",
+            width : 1040,
+            height : 660,
+            theme : "jennifer",
             padding : 0,
             axis : [{
                 map : {
                     path : "../../img/map/world-1040x660.svg",
                     width : 1040,
-                    height : 630,
-                    scale : 0.45,
-                    viewX : 270,
-                    viewY : 170
-                },
-                data : data
+                    height : 660,
+                    scale : 4,
+                    viewY : 200,
+                    viewX : -400
+                }
             }],
-            style: {
+            widget : [{
+                type : "map.minimap",
+                scale : 0.3,
+                align : "end",
+                orient : "top"
+            }],
+            style : {
                 fontFamily: "noto sans, sans-serif",
                 backgroundColor: "transparent",
                 mapPathBackgroundColor: "rgb(255,229,149)",
