@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body class="jui">
+
+<div id="chart"></div>
+
+<script>
+    jui.ready([ "chart.builder" ], function(chart) {
+
+        window.c = chart("#chart", {
+            width: 600,
+            height : 600,
+            theme : "dark",
+            axis : {
+                x : {
+                    type : "block",
+                    domain : "quarter",
+                    hide : true
+                },
+                y : {
+                    type : "range",
+                    domain : [ 0, 10 ],
+                    hide : true
+                },
+                data : [
+                    { quarter : "1Q", left : 1, right : 0 },
+                    { quarter : "2Q", left : 3, right : 7 },
+                    { quarter : "3Q", left : 10, right : 2 },
+                    { quarter : "4Q", left : 6, right : 4},
+                    { quarter : "5Q", left : 6, right : 4},
+                    { quarter : "6Q", left : 6, right : 4},
+                    { quarter : "7Q", left : 6, right : 4}
+                ]
+            },
+            brush : [{
+                type : "hudbar"
+            }],
+            widget : [{
+                type : "tooltip",
+                all : "all",
+                format : function(data, key) {
+                    return {
+                        key: (key == "left") ? "LEFT" : "RIGHT",
+                        value: data[key]
+                    }
+                }
+            }],
+            event : {
+                click : function(obj, e) {
+                    console.log(obj);
+                }
+            }
+        });
+	})
+</script>
+
+
+</body>
+</html>
