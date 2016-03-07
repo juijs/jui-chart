@@ -1,4 +1,4 @@
-jui.define("chart.brush.hudbar", [ "util.base" ], function(_) {
+jui.define("chart.brush.hudbar", [], function() {
 
     /**
      * @class chart.brush.hudbar
@@ -6,7 +6,7 @@ jui.define("chart.brush.hudbar", [ "util.base" ], function(_) {
      */
 	var HUDBarBrush = function() {
 		var g;
-		var domains, zeroY, width, col_width, half_width;
+		var domains, zeroX, height, col_height, half_height;
 		var x1, x2, y1, y2;
 
 		this.drawBefore = function() {
@@ -15,13 +15,13 @@ jui.define("chart.brush.hudbar", [ "util.base" ], function(_) {
 				len = 2;
 
 			g = this.chart.svg.group();
-			zeroY = this.axis.y(0);
-			width = this.axis.x.rangeBand();
-			domains = this.axis.x.domain();
+			zeroX = this.axis.x(0) + ip;
+			height = this.axis.y.rangeBand();
+			domains = this.axis.y.domain();
 
-			half_width = (width - op * 2);
-			col_width = (width - op * 2 - (len - 1) * ip) / len;
-			col_width = (col_width < 0) ? 0 : col_width;
+			half_height = (height - op * 2);
+			col_height = (height - op * 2 - (len - 1) * ip) / len;
+			col_height = (col_height < 0) ? 0 : col_height;
 
 			x1 = this.axis.area("x");
 			x2 = this.axis.area("x2");
@@ -30,23 +30,52 @@ jui.define("chart.brush.hudbar", [ "util.base" ], function(_) {
 		}
 
 		this.draw = function() {
-			var data = this.axis.data;
+			var data = this.axis.data,
+				padding = this.brush.innerPadding,
+				linePadding = this.chart.theme("hudBarTextLinePadding");
 
 			for(var i = 0; i < data.length; i++) {
-				var left = this.getValue(data[i], "left", 0),
-					right = this.getValue(data[i], "right", 0),
-					moveX = this.axis.x(i) - (half_width / 2);
+				var top = this.getValue(data[i], "top", 0),
+					bottom = this.getValue(data[i], "bottom", 0),
+					moveY = this.axis.y(i) - (half_height / 2) + padding/2;
 
 				for(var j = 0; j < 2; j++) {
-					var moveY = this.axis.y((j == 0) ? left : right);
+					var moveX = this.axis.x((j == 0) ? top : bottom),
+						width = moveX - zeroX;
 
-					var rect = this.createColumn(j, {
-						fill: (j == 0) ? this.chart.theme("hudColumnLeftBackgroundColor") :
-							this.chart.theme("hudColumnRightBackgroundColor")
-					}, moveX, moveY);
+					var rect = this.svg.rect({
+						fill: this.chart.theme((j == 0) ? "hudBarTopBackgroundColor" : "hudBarBottomBackgroundColor"),
+						"fill-opacity": this.chart.theme("hudBarBackgroundOpacity"),
+						width: width,
+						height: col_height - padding/2,
+						x: zeroX,
+						y: moveY
+					});
+
+					var path = this.svg.path({
+						stroke: this.chart.theme("hudBarTextLineColor"),
+						"stroke-width": this.chart.theme("hudBarTextLineWidth"),
+						fill: "transparent"
+					});
+
+					var text = this.chart.text({
+						x: padding + width + linePadding,
+						y: moveY,
+						dx: 3,
+						dy: col_height,
+						fill: this.chart.theme("hudBarTextLineFontColor"),
+						"font-size": this.chart.theme("hudBarTextLineFontSize")
+					}, this.format((j == 0) ? top : bottom, j));
+
+					path.MoveTo(padding + width, moveY + 1);
+					path.LineTo(padding + width + linePadding, moveY + 1);
+					path.LineTo(padding + width + linePadding, moveY + col_height + 1);
 
 					g.append(rect);
-					moveX += col_width + this.brush.innerPadding;
+					g.append(path);
+					g.append(text);
+
+					moveY += col_height + padding/2;
 				}
 			}
 
@@ -56,114 +85,64 @@ jui.define("chart.brush.hudbar", [ "util.base" ], function(_) {
 		}
 
 		this.drawGrid = function() {
-			var r = this.chart.theme("hudColumnGridPointRadius"),
-				stroke = this.chart.theme("hudColumnGridPointBorderColor"),
-				width = this.chart.theme("hudColumnGridPointBorderWidth");
-
-			g.append(this.svg.line({
-				stroke: stroke,
-				"stroke-width": width,
-				x1: x1,
-				x2: x2,
-				y1: y2,
-				y2: y2
-			}));
+			var barWidth = height / 3.5;
 
 			for(var i = 0; i < domains.length; i++) {
 				var domain = domains[i],
-					move = this.axis.x(i),
-					moveX = move - (half_width / 2);
+					move = this.axis.y(i),
+					moveStart = move - (half_height / 2),
+					moveEnd = move + (half_height / 2);
 
-				var point1 = this.svg.circle({
-					r: r,
-					fill: this.chart.theme("axisBackgroundColor"),
-					stroke: stroke,
-					"stroke-width": width,
-					cx: move,
-					cy: y2
-				});
-
-				var point2 = this.svg.circle({
-					r: r * 0.65,
-					fill: stroke,
+				var p = this.svg.polygon({
 					"stroke-width": 0,
-					cx: move,
-					cy: y2,
-					"fill-opacity": 0
+					fill: this.chart.theme("hudBarGridBackgroundColor"),
+					"fill-opacity": this.chart.theme("hudBarGridBackgroundOpacity")
 				});
 
-				var text = this.chart.text({
-					x: move,
-					y: y2,
-					dy: this.chart.theme("hudColumnGridFontSize") * 2,
-					fill: this.chart.theme("hudColumnGridFontColor"),
-					"text-anchor": "middle",
-					"font-size": this.chart.theme("hudColumnGridFontSize"),
-					"font-weight": this.chart.theme("hudColumnGridFontWeight")
+				var l = this.svg.line({
+					stroke: this.chart.theme("hudBarGridLineColor"),
+					"stroke-width": this.chart.theme("hudBarGridLineWidth"),
+					"stroke-opacity": this.chart.theme("hudBarGridLineOpacity"),
+					x1: x1 - barWidth * 2,
+					y1: move,
+					x2: x1 - barWidth * 4,
+					y2: move
+				});
+
+				var t = this.chart.text({
+					x: x1 - barWidth * 4,
+					y: move,
+					dx: -7,
+					dy: this.chart.theme("hudBarGridFontSize") / 3,
+					fill: this.chart.theme("hudBarGridFontColor"),
+					"text-anchor": "end",
+					"font-size": this.chart.theme("hudBarGridFontSize"),
+					"font-weight": "bold"
 				}, domain);
 
-				var group = this.svg.group();
+				p.point(x1, moveStart);
+				p.point(x1, moveEnd);
+				p.point(x1 - barWidth, moveEnd);
+				p.point(x1 - barWidth * 2, move);
+				p.point(x1 - barWidth, moveStart);
+				p.point(x1, moveStart);
 
-				for(var j = 0; j < 2; j++) {
-					var rect = this.createColumn(j, {
-						fill: "transparent",
-						stroke: stroke,
-						"stroke-width": 2
-					}, moveX, y1);
-
-					this.addEvent(rect, i, null);
-					group.append(rect);
-
-					moveX += col_width + this.brush.innerPadding;
-				}
-
-				(function(g, p) {
-					g.hover(function() {
-						p.attr({ "fill-opacity": 1 });
-
-					}, function() {
-						p.attr({ "fill-opacity": 0 });
-					});
-				})(group, point2);
-
-				g.append(group);
-				g.append(point1);
-				g.append(point2);
-				g.append(text);
+				g.append(p);
+				g.append(l);
+				g.append(t);
 			}
-		}
-
-		this.createColumn = function(type, attr, moveX, moveY) {
-			var padding = 20, dist = 15 + padding;
-			var rect = this.svg.polygon(attr);
-
-			rect.point(moveX, moveY);
-			rect.point(moveX + col_width, moveY);
-
-			if(type == 0) {
-				rect.point(moveX + col_width, y2 - padding);
-				rect.point(moveX, y2 - dist);
-			} else {
-				rect.point(moveX + col_width, y2 - dist);
-				rect.point(moveX, y2 - padding);
-			}
-
-			if(moveY >= zeroY - dist) {
-				rect.attr({ visibility: "hidden" });
-			}
-
-			return rect;
 		}
 	}
 
 	HUDBarBrush.setup = function() {
 		return {
 			/** @cfg {Number} [outerPadding=2] Determines the outer margin of a hud column.  */
-			outerPadding: 5,
+			outerPadding: 7,
 			/** @cfg {Number} [innerPadding=1] Determines the inner margin of a hud column. */
-			innerPadding: 5,
+			innerPadding: 7,
 
-			clip: false
+			clip: false,
+			format: null
 		};
 	}
 

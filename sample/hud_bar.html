@@ -14,31 +14,37 @@
 
         window.c = chart("#chart", {
             width: 600,
-            height : 600,
+            height : 400,
+            padding : {
+                left : 150,
+                right : 100
+            },
             theme : "dark",
             axis : {
                 x : {
-                    type : "block",
-                    domain : "quarter",
-                    hide : true
-                },
-                y : {
                     type : "range",
                     domain : [ 0, 10 ],
                     hide : true
                 },
+                y : {
+                    type : "block",
+                    domain : "quarter",
+                    hide : true
+                },
                 data : [
-                    { quarter : "1Q", left : 1, right : 0 },
-                    { quarter : "2Q", left : 3, right : 7 },
-                    { quarter : "3Q", left : 10, right : 2 },
-                    { quarter : "4Q", left : 6, right : 4},
-                    { quarter : "5Q", left : 6, right : 4},
-                    { quarter : "6Q", left : 6, right : 4},
-                    { quarter : "7Q", left : 6, right : 4}
+                    { quarter : "1Q", top : 1, bottom : 1 },
+                    { quarter : "2Q", top : 3, bottom : 7 },
+                    { quarter : "3Q", top : 10, bottom : 2 },
+                    { quarter : "4Q", top : 6, bottom : 4}
                 ]
             },
             brush : [{
-                type : "hudbar"
+                type : "hudbar",
+                format : function(value, type) {
+                    return (type == 0 ? "T" : "B") + " " + value;
+                }
+                //outerPadding : 6,
+                //innerPadding : 6
             }],
             widget : [{
                 type : "tooltip",
