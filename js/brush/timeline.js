@@ -188,6 +188,10 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     h = (_.typeCheck("function", size)) ? size.apply(this.chart, [ d, i ]) : size,
                     color = this.color(i, 0);
 
+                if(x2 - x1 < 0) { // 음수 처리
+                    continue;
+                }
+
                 var r1 = this.svg.rect({
                     width: x2 - x1,
                     height: h,
