@@ -14418,12 +14418,12 @@ jui.define("chart.brush.hudbar", [], function() {
 					"stroke-opacity": this.chart.theme("hudBarGridLineOpacity"),
 					x1: x1 - barWidth * 2,
 					y1: move,
-					x2: x1 - barWidth * 4,
+					x2: x1 - barWidth * 3,
 					y2: move
 				});
 
 				var t = this.chart.text({
-					x: x1 - barWidth * 4,
+					x: x1 - barWidth * 3,
 					y: move,
 					dx: -7,
 					dy: this.chart.theme("hudBarGridFontSize") / 3,
