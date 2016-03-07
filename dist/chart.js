@@ -14377,7 +14377,7 @@ jui.define("chart.brush.hudbar", [], function() {
 						dy: col_height,
 						fill: this.chart.theme("hudBarTextLineFontColor"),
 						"font-size": this.chart.theme("hudBarTextLineFontSize")
-					}, this.format((j == 0) ? top : bottom, j));
+					}, (j == 0) ? this.format(top, "top") : this.format(bottom, "bottom"));
 
 					path.MoveTo(padding + width, moveY + 1);
 					path.LineTo(padding + width + linePadding, moveY + 1);
@@ -14387,6 +14387,7 @@ jui.define("chart.brush.hudbar", [], function() {
 					g.append(path);
 					g.append(text);
 
+					this.addEvent(rect, i, null);
 					moveY += col_height + padding/2;
 				}
 			}

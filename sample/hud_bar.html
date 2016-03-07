@@ -40,8 +40,9 @@
             },
             brush : [{
                 type : "hudbar",
-                format : function(value, type) {
-                    return (type == 0 ? "T" : "B") + " " + value;
+                target : [ "top", "bottom" ],
+                format : function(value, key) {
+                    return (key == "top" ? "T" : "B") + " " + value;
                 }
                 //outerPadding : 6,
                 //innerPadding : 6
@@ -51,7 +52,7 @@
                 all : "all",
                 format : function(data, key) {
                     return {
-                        key: (key == "left") ? "LEFT" : "RIGHT",
+                        key: (key == "top") ? "TOP" : "BOTTOM",
                         value: data[key]
                     }
                 }
