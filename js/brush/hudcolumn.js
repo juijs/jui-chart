@@ -1,4 +1,4 @@
-jui.define("chart.brush.hudcolumn", [ "util.base" ], function(_) {
+jui.define("chart.brush.hudcolumn", [], function() {
 
     /**
      * @class chart.brush.hudcolumn
