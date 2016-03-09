@@ -1,3 +1,83 @@
+jui.define("chart.topology.sort.random", [], function() {
+    return function(data, area, space) {
+        console.log(arguments);
+
+        var xy = [];
+
+        for(var i = 0; i < data.length; i++) {
+            var x = Math.floor(Math.random() * (area.width - space)),
+                y = Math.floor(Math.random() * (area.height - space));
+
+            xy[i] = {
+                x: area.x + x,
+                y: area.y + y
+            };
+        }
+
+        return xy;
+    }
+});
+
+jui.define("chart.topology.sort.linear", [], function() {
+    var cache = {};
+
+    function getRandomRowIndex(row_cnt) {
+        var row_index = Math.floor(Math.random() * row_cnt);
+
+        if(cache[row_index]) {
+            var cnt = 0;
+            for(var k in cache) { cnt++; }
+
+            if(cnt < row_cnt) {
+                return getRandomRowIndex(row_cnt);
+            } else {
+                cache = {};
+            }
+        } else {
+            cache[row_index] = true;
+        }
+
+        return row_index;
+    }
+
+    return function(data, area, space) {
+        var xy = [],
+            row_cnt = Math.floor(area.height / space),
+            col_cnt = Math.floor(area.width / space),
+            col_step = Math.floor(col_cnt / data.length),
+            col_index = 0;
+
+        var left = -1,
+            right = data.length;
+
+        for(var i = 0; i < data.length; i++) {
+            var x = 0, y = 0, index = 0;
+
+            if(i % 2 == 0) {
+                x = col_index * space;
+                y = getRandomRowIndex(row_cnt) * space;
+                col_index += col_step;
+
+                left += 1;
+                index = left;
+            } else {
+                x = (col_cnt - col_index) * space + space;
+                y = getRandomRowIndex(row_cnt) * space;
+
+                right -=1;
+                index = right;
+            }
+
+            xy[index] = {
+                x: area.x + x + space,
+                y: area.y + y + (space / 2)
+            };
+        }
+
+        return xy;
+    }
+});
+
 jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
 
     /**
@@ -5,9 +85,7 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
      * @extends chart.grid.core
      */
     var TopologyTableGrid = function() {
-        var self = this,
-            area, size, data_cnt,
-            cache = {};
+        var self = this;
 
         function getDataIndex(key) {
             var index = null,
@@ -23,83 +101,19 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
             return index;
         }
 
-        function initDefaultXY() {
-            var row_cnt = Math.floor(area.height / size),
-                col_cnt = Math.floor(area.width / size),
-                col_step = Math.floor(col_cnt / data_cnt),
-                col_index = 0;
-
-            var left = -1,
-                right = data_cnt;
-
-            for(var i = 0; i < data_cnt; i++) {
-                var x = 0, y = 0, index = 0;
-
-                if(i % 2 == 0) {
-                    x = col_index * size;
-                    y = getRandomRowIndex(row_cnt) * size;
-                    col_index += col_step;
-
-                    left += 1;
-                    index = left;
-                } else {
-                    x = (col_cnt - col_index) * size + size;
-                    y = getRandomRowIndex(row_cnt) * size;
-
-                    right -=1;
-                    index = right;
-                }
-
-                self.axis.cacheXY[index] = {
-                    x: area.x + x + size,
-                    y: area.y + y + (size / 2)
-                };
-            }
-
-            function getRandomRowIndex() {
-                var row_index = Math.floor(Math.random() * row_cnt);
-
-                if(cache[row_index]) {
-                    var cnt = 0;
-                    for(var k in cache) { cnt++; }
-
-                    if(cnt < row_cnt) {
-                        return getRandomRowIndex(row_cnt);
-                    } else {
-                        cache = {};
-                    }
-                } else {
-                    cache[row_index] = true;
-                }
-
-                return row_index;
-            }
-        }
-
-        function initRandomXY() {
-            for(var i = 0; i < data_cnt; i++) {
-                var x = Math.floor(Math.random() * (area.width - size)),
-                    y = Math.floor(Math.random() * (area.height - size));
-
-                self.axis.cacheXY[i] = {
-                    x: area.x + x,
-                    y: area.y + y
-                };
-            }
-        }
-
         this.drawBefore = function() {
-            area = this.axis.area();
-            size = this.grid.space;
-            data_cnt = this.axis.data.length;
-
             if(!this.axis.cacheXY) {
-                this.axis.cacheXY = [];
+                var sortFunc = jui.include("chart.topology.sort." + this.grid.sort),
+                    sortArgs = [ this.axis.data, this.axis.area(), this.grid.space ];
 
-                if(this.grid.sort == "random") {
-                    initRandomXY();
+                if(_.typeCheck("function", sortFunc)) {
+                    this.axis.cacheXY = sortFunc.apply(this, sortArgs);
                 } else {
-                    initDefaultXY();
+                    sortFunc = jui.include(this.grid.sort);
+
+                    if(_.typeCheck("function", sortFunc)) {
+                        this.axis.cacheXY = sortFunc.apply(this, sortArgs);
+                    }
                 }
             }
 
@@ -164,7 +178,7 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
     TopologyTableGrid.setup = function() {
         return {
             /** @cfg {String} [sort=null]  */
-            sort: null, // or random
+            sort: "linear", // or random
             /** @cfg {Number} [space=50]  */
             space: 50
         }

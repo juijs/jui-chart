@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+    <script src="resource/topology_data_small.js"></script>
+    <script src="resource/topology_data_large.js"></script>
+</head>
+<body>
+<div id="chart"></div>
+
+<script>
+    jui.ready([ "chart.builder", "util.base" ], function(builder, _) {
+        c = builder("#chart", {
+            width : 1024,
+            height : 768,
+            icon: {
+                type: "jennifer",
+                path: "../img/icon/icomoon.ttf"
+            },
+            theme: "jennifer",
+            padding: 5,
+            axis: {
+                c: {
+                    type: "topologytable",
+                    sort: "random"
+                },
+                data: data_small
+            },
+            brush: {
+                type: "topologynode",
+                colors : [ "black" ],
+                nodeText: function(data) {
+                    if(data.type == "server") {
+                        return "{server}";
+                    } else if(data.type == "was") {
+                        return "{was}";
+                    } else {
+                        return "{db}";
+                    }
+                },
+                nodeTitle: function(data) {
+                    return data.name;
+                }
+            },
+            widget: {
+                type: "topologyctrl"
+            }
+        });
+    });
+</script>
+
+
+</body>
+</html>

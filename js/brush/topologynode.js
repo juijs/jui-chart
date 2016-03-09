@@ -1,7 +1,7 @@
-jui.define("chart.brush.topologynode.edge", [], function() {
+jui.define("chart.topology.edge", [], function() {
 
     /**
-     * @class chart.brush.topologynode.edge
+     * @class chart.topology.edge
      *
      */
     var TopologyEdge = function(start, end, in_xy, out_xy, scale) {
@@ -43,9 +43,10 @@ jui.define("chart.brush.topologynode.edge", [], function() {
     return TopologyEdge;
 });
 
-jui.define("chart.brush.topologynode.edgemanager", [ "util.base" ], function(_) {
+jui.define("chart.topology.edgemanager", [ "util.base" ], function(_) {
+
     /**
-     * @class chart.brush.topologynode.edgemananger
+     * @class chart.topology.edgemanager
      *
      */
     var TopologyEdgeManager = function() {
@@ -82,7 +83,7 @@ jui.define("chart.brush.topologynode.edgemanager", [ "util.base" ], function(_) 
 });
 
 jui.define("chart.brush.topologynode",
-    [ "util.base", "util.math", "chart.brush.topologynode.edge", "chart.brush.topologynode.edgemanager" ],
+    [ "util.base", "util.math", "chart.topology.edge", "chart.topology.edgemanager" ],
     function(_, math, Edge, EdgeManager) {
 
     /**
