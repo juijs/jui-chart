@@ -32,20 +32,37 @@
                 type: "topologynode",
                 colors : [ "black" ],
                 nodeText: function(data) {
-                    if(data.type == "server") {
+                    var len = data.outgoing.length;
+
+                    if(len > 20) {
                         return "{server}";
-                    } else if(data.type == "was") {
-                        return "{was}";
-                    } else {
-                        return "{db}";
                     }
+
+                    return "";
                 },
                 nodeTitle: function(data) {
                     return data.name;
+                },
+                nodeSize: function(data) {
+                    var len = data.outgoing.length;
+
+                    if(len > 50) {
+                        return 15;
+                    } else if(len > 30) {
+                        return 12;
+                    } else if(len > 10) {
+                        return 9;
+                    }
+
+                    return 7;
                 }
             },
             widget: {
                 type: "topologyctrl"
+            },
+            style : {
+                topologyNodeRadius: 8,
+                //topologyNodeFontSize: 10
             }
         });
     });

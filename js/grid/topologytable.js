@@ -178,7 +178,7 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
     TopologyTableGrid.setup = function() {
         return {
             /** @cfg {String} [sort=null]  */
-            sort: "linear", // or random
+            sort: "random", // or linear
             /** @cfg {Number} [space=50]  */
             space: 50
         }

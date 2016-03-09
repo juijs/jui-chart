@@ -153,11 +153,22 @@ jui.define("chart.brush.topologynode",
             return key;
         }
 
+        function getNodeRadius(data) {
+            var r = self.chart.theme("topologyNodeRadius");
+
+            if(_.typeCheck("function", self.brush.nodeSize) && data) {
+                r= self.brush.nodeSize.call(self.chart, data);
+            }
+
+            return r;
+        }
+
         function createNodes(index, data) {
             var xy = self.axis.c(index),
                 color = self.color(index, 0),
                 title = _.typeCheck("function", self.brush.nodeTitle) ? self.brush.nodeTitle.call(self.chart, data) : "",
-                text =_.typeCheck("function", self.brush.nodeText) ? self.brush.nodeText.call(self.chart, data) : "";
+                text =_.typeCheck("function", self.brush.nodeText) ? self.brush.nodeText.call(self.chart, data) : "",
+                r = getNodeRadius(data);
 
             var node = self.svg.group({
                 index: index
@@ -181,12 +192,14 @@ jui.define("chart.brush.topologynode",
                 }
 
                 if(text && text != "") {
+                    var fontSize = self.chart.theme("topologyNodeFontSize");
+
                     self.chart.text({
                         "class": "text",
                         x: 0.1 * xy.scale,
-                        y: 6 * xy.scale,
+                        y: (r / 2) * xy.scale,
                         fill: self.chart.theme("topologyNodeFontColor"),
-                        "font-size": self.chart.theme("topologyNodeFontSize") * xy.scale,
+                        "font-size": fontSize * xy.scale,
                         "text-anchor": "middle",
                         cursor: "pointer"
                     }, text);
@@ -252,7 +265,7 @@ jui.define("chart.brush.topologynode",
             }));
 
             g.on("click", function(e) {
-                onEdgeActiveHanlder(edge);
+                onEdgeActiveHandler(edge);
             });
 
             g.on("mouseover", function(e) {
@@ -300,7 +313,7 @@ jui.define("chart.brush.topologynode",
                     }
 
                     text.on("click", function (e) {
-                        onEdgeActiveHanlder(edge);
+                        onEdgeActiveHandler(edge);
                     });
 
                     text.on("mouseover", function (e) {
@@ -318,13 +331,15 @@ jui.define("chart.brush.topologynode",
 
         function setDataEdges(index, targetIndex) {
             var data = self.getData(index),
+                targetData = self.getData(targetIndex),
                 targetKey = self.getValue(data, "outgoing", [])[targetIndex],
                 target = self.axis.c(targetKey),
                 xy = self.axis.c(index);
 
-            var dist = r + point + 1,
-                in_xy = getDistanceXY(target.x, target.y, xy.x, xy.y, -(dist)),
-                out_xy = getDistanceXY(xy.x, xy.y, target.x, target.y, -(dist)),
+            var in_dist = getNodeRadius(data) + point + 1,
+                out_dist = getNodeRadius(targetData) + point + 1,
+                in_xy = getDistanceXY(target.x, target.y, xy.x, xy.y, -(in_dist)),
+                out_xy = getDistanceXY(xy.x, xy.y, target.x, target.y, -(out_dist)),
                 edge = new Edge(self.getValue(data, "key"), targetKey, in_xy, out_xy, xy.scale);
 
             if(edges.is(edge.reverseKey())) {
@@ -332,77 +347,6 @@ jui.define("chart.brush.topologynode",
             }
 
             edges.add(edge);
-        }
-
-        function setNodeCharts(node, data) {
-            var inner = self.svg.image({ visibility: "hidden" }),
-                c = null,
-                i = null,
-                t = null;
-
-            node.each(function(j, elem) {
-                var attr = elem.attributes;
-
-                if(attr["class"] == "circle")
-                    c = elem;
-                if(attr["class"] == "text")
-                    i = elem;
-                if(attr["class"] == "title")
-                    t = elem;
-            });
-
-            node.append(inner);
-
-            node.on("dblclick", function(e) {
-                if(active != null) resetActiveChart();
-
-                var nc = self.brush.nodeChart.call(self.chart, data, e),
-                    w = nc.padding("left") + nc.padding("right") + nc.area("width"),
-                    h = nc.padding("top") + nc.padding("bottom") + nc.area("height"),
-                    r = Math.sqrt((w * w) + (h * h)) / 2;
-
-                // 노드 반지름 설정
-                c.attr({
-                    r: r,
-                    stroke: self.chart.theme("backgroundColor"),
-                    "stroke-width": 2
-                });
-
-                inner.attr({
-                    x: -(w / 2),
-                    y: -(h / 2),
-                    width: w,
-                    height: h,
-                    "xlink:href": nc.svg.toDataURI(),
-                    visibility: "visible"
-                });
-
-                i.attr({ visibility: "hidden" });
-                t.attr({ visibility: "hidden" });
-
-                active = {
-                    c: c,
-                    i: i,
-                    t: t,
-                    inner: inner
-                };
-            });
-        }
-
-        function resetActiveChart() {
-            if(active == null) return;
-
-            active.i.attr({ visibility: "visible" });
-            active.t.attr({ visibility: "visible" });
-            active.inner.attr({ visibility: "hidden" });
-
-            if (_.typeCheck("function", self.brush.nodeImage)) {
-                active.c.attr({ width: r * 2, height: r * 2 });
-            } else {
-                active.c.attr({ r: r });
-            }
-
-            active = null;
         }
 
         function showTooltip(edge, e) {
@@ -460,7 +404,7 @@ jui.define("chart.brush.topologynode",
             }
         }
 
-        function onEdgeActiveHanlder(edge) {
+        function onEdgeActiveHandler(edge) {
             edges.each(function(newEdge) {
                 var elem = newEdge.element(),
                     circle = (elem.children.length == 2) ? elem.get(1) : elem.get(0),
@@ -532,7 +476,6 @@ jui.define("chart.brush.topologynode",
 
         this.drawBefore = function() {
             g = self.svg.group();
-            r = self.chart.theme("topologyNodeRadius");
             point = self.chart.theme("topologyEdgePointRadius");
 
             tooltip = self.svg.group({
@@ -576,7 +519,7 @@ jui.define("chart.brush.topologynode",
             // 툴팁 숨기기 이벤트 (차트 배경 클릭시)
             this.on("chart.mousedown", function(e) {
                 if(self.svg.root.element == e.target) {
-                    onEdgeActiveHanlder(null);
+                    onEdgeActiveHandler(null);
                     tooltip.attr({ visibility: "hidden" });
                 }
             });
@@ -586,16 +529,9 @@ jui.define("chart.brush.topologynode",
                 this.on("render", function(init) {
                     if(!init) {
                         var edge = edges.get(self.brush.activeEdge);
-                        onEdgeActiveHanlder(edge);
+                        onEdgeActiveHandler(edge);
                     }
                 });
-            }
-
-            // 노드 차트 설정
-            if(_.typeCheck("function", self.brush.nodeChart) && self.brush.nodeImage == null) {
-                for(var i = 0; i < nodes.length; i++) {
-                    setNodeCharts(nodes[i].node, nodes[i].data);
-                }
             }
 
             return g;
@@ -614,8 +550,8 @@ jui.define("chart.brush.topologynode",
             nodeText: null,
             /** @cfg {Function} [nodeImage=null] */
             nodeImage: null,
-            /** @cfg {Function} [nodeChart=null] */
-            nodeChart: null,
+            /** @cfg {Function} [nodeSize=null] */
+            nodeSize: null,
 
             /** @cfg {Array} [edgeData=[]] */
             edgeData: [],
