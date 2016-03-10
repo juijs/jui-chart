@@ -43,25 +43,25 @@
                 nodeTitle: function(data) {
                     return data.name;
                 },
-                nodeSize: function(data) {
+                nodeScale: function(data) {
                     var len = data.outgoing.length;
 
                     if(len > 50) {
-                        return 15;
+                        return 1.75;
                     } else if(len > 30) {
-                        return 12;
+                        return 1.5;
                     } else if(len > 10) {
-                        return 9;
+                        return 1;
                     }
 
-                    return 7;
+                    return 0.5;
                 }
             },
             widget: {
                 type: "topologyctrl"
             },
             style : {
-                topologyNodeRadius: 8,
+                //topologyNodeRadius: 8,
                 //topologyNodeFontSize: 10
             }
         });
