@@ -103,8 +103,7 @@ jui.define("chart.brush.topologynode",
             edges = new EdgeManager(),
             g, tooltip, point,
             textY = 14, padding = 7, anchor = 7,
-            active = null,      // 활성화된 노드 차트
-            activeEdge = null;  // 선택된 엣지 객체
+            activeEdges = [];  // 선택된 엣지 객체
 
         function getDistanceXY(x1, y1, x2, y2, dist) {
             var a = x1 - x2,
@@ -256,6 +255,7 @@ jui.define("chart.brush.topologynode",
             }).translate(xy.x, xy.y);
 
             node.on("click", function(e) {
+                onNodeActiveHandler(data);
                 self.chart.emit("topology.nodeclick", [ data, e ]);
             });
 
@@ -453,6 +453,47 @@ jui.define("chart.brush.topologynode",
             }
         }
 
+        function onNodeActiveHandler(data) {
+            var color = self.chart.theme("topologyEdgeColor"),
+                activeColor = self.chart.theme("topologyActiveEdgeColor"),
+                size = self.chart.theme("topologyEdgeWidth"),
+                activeSize = self.chart.theme("topologyActiveEdgeWidth");
+
+            activeEdges = [];
+            for(var i = 0; i < data.outgoing.length; i++) {
+                var key = data.key + ":" + data.outgoing[i],
+                    edge = edges.get(key);
+
+                activeEdges.push(edge);
+                if(edge.connect()) { // 같이 연결된 노드도 추가
+                    activeEdges.push(edges.get(edge.reverseKey()));
+                }
+            }
+
+            edges.each(function(edge) {
+                var elem = edge.element(),
+                    circle = (elem.children.length == 2) ? elem.get(1) : elem.get(0),
+                    line = (elem.children.length == 2) ? elem.get(0) : null;
+
+                if(_.inArray(edge, activeEdges) != -1) { // 연결된 엣지
+                    var lineAttr = { stroke: activeColor, "stroke-width": activeSize * edge.get("scale") },
+                        circleAttr = { fill: activeColor };
+
+                    if(line != null) {
+                        line.attr(lineAttr);
+                    }
+                    circle.attr(circleAttr);
+
+                    tooltip.attr({ visibility: "hidden" });
+                } else { // 연결되지 않은 엣지
+                    if(line != null) {
+                        line.attr({ stroke: color, "stroke-width": size * edge.get("scale") });
+                    }
+                    circle.attr({ fill: color });
+                }
+            });
+        }
+
         function onEdgeActiveHandler(edge) {
             edges.each(function(newEdge) {
                 var elem = newEdge.element(),
@@ -475,7 +516,10 @@ jui.define("chart.brush.topologynode",
                         showTooltip(edge);
                     }
 
-                    activeEdge = edge;
+                    activeEdges = [ edge ];
+                    if(edge.connect()) { // 같이 연결된 노드도 추가
+                        activeEdges.push(edges.get(edge.reverseKey()));
+                    }
                 } else {
                     if(line != null) {
                         line.attr({ stroke: color, "stroke-width": size * newEdge.get("scale") });
@@ -486,7 +530,7 @@ jui.define("chart.brush.topologynode",
         }
 
         function onEdgeMouseOverHandler(edge) {
-            if(edge == activeEdge) return;
+            if(_.inArray(edge, activeEdges) != -1) return;
 
             var elem = edge.element(),
                 circle = (elem.children.length == 2) ? elem.get(1) : elem.get(0),
@@ -507,7 +551,7 @@ jui.define("chart.brush.topologynode",
         }
 
         function onEdgeMouseOutHandler(edge) {
-            if(edge == activeEdge) return;
+            if(_.inArray(edge, activeEdges) != -1) return;
 
             var elem = edge.element(),
                 circle = (elem.children.length == 2) ? elem.get(1) : elem.get(0),
