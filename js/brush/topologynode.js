@@ -292,6 +292,11 @@ jui.define("chart.brush.topologynode",
                     "stroke-opacity": opacity,
                     "shape-rendering": "geometricPrecision"
                 }));
+            } else {
+                var reverseElem = edges.get(edge.reverseKey()).element();
+
+                reverseElem.get(0).attr({ "stroke-opacity": opacity });
+                reverseElem.get(1).attr({ "fill-opacity": opacity });
             }
 
             g.append(self.svg.circle({
