@@ -1,7 +1,5 @@
 jui.define("chart.topology.sort.random", [], function() {
     return function(data, area, space) {
-        console.log(arguments);
-
         var xy = [];
 
         for(var i = 0; i < data.length; i++) {

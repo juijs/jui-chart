@@ -155,6 +155,7 @@ jui.define("chart.theme.dark", [], function() {
         topologyEdgeFontSize : 10,
         topologyEdgeFontColor : "#c5c5c5",
         topologyEdgePointRadius : 3,
+        topologyEdgeOpacity : 1,
         topologyTooltipBackgroundColor : "#222222",
         topologyTooltipBorderColor : "#ccc",
         topologyTooltipFontSize : 11,

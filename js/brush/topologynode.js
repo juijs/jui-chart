@@ -189,6 +189,16 @@ jui.define("chart.brush.topologynode",
             }
         }
 
+        function getEdgeOpacity(data) {
+            var opacity = self.chart.theme("topologyEdgeOpacity");
+
+            if(_.typeCheck("function", self.brush.edgeOpacity) && data) {
+                opacity = self.brush.edgeOpacity.call(self.chart, data);
+            }
+
+            return opacity;
+        }
+
         function createNodes(index, data) {
             var xy = self.axis.c(index),
                 color = self.color(index, 0),
@@ -267,7 +277,8 @@ jui.define("chart.brush.topologynode",
 
         function createEdgeLine(edge, in_xy, out_xy) {
             var g = self.svg.group(),
-                size = self.chart.theme("topologyEdgeWidth");
+                size = self.chart.theme("topologyEdgeWidth"),
+                opacity = getEdgeOpacity(getEdgeData(edge.key()));
 
             if(!edge.connect()) {
                 g.append(self.svg.line({
@@ -278,14 +289,16 @@ jui.define("chart.brush.topologynode",
                     y2: out_xy.y,
                     stroke: self.chart.theme("topologyEdgeColor"),
                     "stroke-width": size * edge.get("scale"),
+                    "stroke-opacity": opacity,
                     "shape-rendering": "geometricPrecision"
                 }));
             }
 
             g.append(self.svg.circle({
                 fill: self.chart.theme("topologyEdgeColor"),
+                "fill-opacity": opacity,
                 stroke: self.chart.theme("backgroundColor"),
-                "stroke-width": (size * 1.5) * edge.get("scale"),
+                "stroke-width": (size * 2) * edge.get("scale"),
                 r: point * edge.get("scale"),
                 cx: out_xy.x,
                 cy: out_xy.y
@@ -591,11 +604,14 @@ jui.define("chart.brush.topologynode",
             edgeData: [],
             /** @cfg {String} [edgeText=null] */
             edgeText: null,
-            /** @cfg {Function} [tooltipTitle=null] */
+            /** @cfg {Function} [edgeText=null] */
+            edgeOpacity: null,
 
+            /** @cfg {Function} [tooltipTitle=null] */
             tooltipTitle: null,
             /** @cfg {Function} [tooltipText=null] */
             tooltipText: null,
+
             /** @cfg {String} [activeEdge=null] */
             activeEdge: null
         }

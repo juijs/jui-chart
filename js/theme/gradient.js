@@ -157,6 +157,7 @@ jui.define("chart.theme.gradient", [], function() {
         topologyEdgeFontSize : 10,
         topologyEdgeFontColor : "#666",
         topologyEdgePointRadius : 3,
+        topologyEdgeOpacity : 1,
         topologyTooltipBackgroundColor : "#fff",
         topologyTooltipBorderColor : "#ccc",
         topologyTooltipFontSize : 11,

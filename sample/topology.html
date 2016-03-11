@@ -105,6 +105,10 @@
 
                     return text;
                 },
+                edgeOpacity: function(data) {
+                    if(data.time > 1000) return 1;
+                    return 0.3;
+                },
                 tooltipTitle: function(data, align) {
                     if(align == "start") {
                         return data.reverse().join(" ← ");
@@ -161,7 +165,7 @@
             style: {
                 axisBackgroundColor: "#fff",
                 axisBackgroundOpacity: 1,
-                topologyEdgeWidth : 0.5
+                topologyEdgeWidth : 1
             }
         });
     });
