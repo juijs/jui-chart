@@ -119,7 +119,8 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                 this.axis.cache = {
                     scale: 1,
                     viewX: 0,
-                    viewY: 0
+                    viewY: 0,
+                    nodeKey: null // 활성화 상태의 노드 키
                 }
             }
 

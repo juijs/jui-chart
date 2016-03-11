@@ -7565,7 +7565,8 @@ jui.define("chart.grid.topologytable", [ "util.base" ], function(_) {
                 this.axis.cache = {
                     scale: 1,
                     viewX: 0,
-                    viewY: 0
+                    viewY: 0,
+                    nodeKey: null // 활성화 상태의 노드 키
                 }
             }
 
@@ -13424,7 +13425,8 @@ jui.define("chart.brush.topologynode",
         }
 
         function createNodes(index, data) {
-            var xy = self.axis.c(index),
+            var key = self.getValue(data, "key"),
+                xy = self.axis.c(index),
                 color = self.color(index, 0),
                 title = _.typeCheck("function", self.brush.nodeTitle) ? self.brush.nodeTitle.call(self.chart, data) : "",
                 text =_.typeCheck("function", self.brush.nodeText) ? self.brush.nodeText.call(self.chart, data) : "",
@@ -13479,10 +13481,15 @@ jui.define("chart.brush.topologynode",
                 }
             }).translate(xy.x, xy.y);
 
-            node.on("click", function(e) {
+            node.on(self.brush.activeEvent, function(e) {
                 onNodeActiveHandler(data);
                 self.chart.emit("topology.nodeclick", [ data, e ]);
             });
+
+            // 맨 앞에 배치할 노드 체크
+            if(self.axis.cache.nodeKey == key) {
+                node.order = 1;
+            }
 
             return node;
         }
@@ -13534,7 +13541,7 @@ jui.define("chart.brush.topologynode",
                 cy: out_xy.y
             }));
 
-            g.on("click", function(e) {
+            g.on(self.brush.activeEvent, function(e) {
                 onEdgeActiveHandler(edge);
             });
 
@@ -13582,7 +13589,7 @@ jui.define("chart.brush.topologynode",
                             .rotate(math.degree(in_xy.angle), out_xy.x, out_xy.y);
                     }
 
-                    text.on("click", function (e) {
+                    text.on(self.brush.activeEvent, function (e) {
                         onEdgeActiveHandler(edge);
                     });
 
@@ -13689,9 +13696,11 @@ jui.define("chart.brush.topologynode",
                 var key = data.key + ":" + data.outgoing[i],
                     edge = edges.get(key);
 
-                activeEdges.push(edge);
-                if(edge.connect()) { // 같이 연결된 노드도 추가
-                    activeEdges.push(edges.get(edge.reverseKey()));
+                if(edge != null) {
+                    activeEdges.push(edge);
+                    if (edge.connect()) { // 같이 연결된 노드도 추가
+                        activeEdges.push(edges.get(edge.reverseKey()));
+                    }
                 }
             }
 
@@ -13838,8 +13847,8 @@ jui.define("chart.brush.topologynode",
             });
 
             // 툴팁 숨기기 이벤트 (차트 배경 클릭시)
-            this.on("chart.mousedown", function(e) {
-                if(self.svg.root.element == e.target) {
+            this.on("axis.mousedown", function(e) {
+                if(self.axis.root.element == e.target) {
                     onEdgeActiveHandler(null);
                     tooltip.attr({ visibility: "hidden" });
                 }
@@ -13851,6 +13860,15 @@ jui.define("chart.brush.topologynode",
                     if(!init) {
                         var edge = edges.get(self.brush.activeEdge);
                         onEdgeActiveHandler(edge);
+                    }
+                });
+            }
+
+            // 액티브 노드 선택 (렌더링 이후에 설정)
+            if(_.typeCheck("string", self.brush.activeNode)) {
+                this.on("render", function(init) {
+                    if(!init) {
+                        onNodeActiveHandler(getNodeData(self.brush.activeNode));
                     }
                 });
             }
@@ -13886,8 +13904,12 @@ jui.define("chart.brush.topologynode",
             /** @cfg {Function} [tooltipText=null] */
             tooltipText: null,
 
+            /** @cfg {String} [activeNode=null] */
+            activeNode: null,
             /** @cfg {String} [activeEdge=null] */
-            activeEdge: null
+            activeEdge: null,
+            /** @cfg {String} [activeEvent="click"] */
+            activeEvent: "click"
         }
     }
 
@@ -17884,6 +17906,7 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
         var targetKey, startX, startY;
         var renderWait = false;
         var scale = 1, boxX = 0, boxY = 0;
+        var nodeIndex = 0;
 
         function renderChart() {
             if(renderWait === false) {
@@ -18018,8 +18041,10 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
                         startX = xy.x / xy.scale;
                         startY = xy.y / xy.scale;
 
+                        axis.cache.activeNodeKey = targetKey;
+
                         // 선택한 노드 맨 마지막으로 이동
-                        xy.moveLast();
+                        //xy.moveLast();
                     });
                 })(parseInt(node.attr("index")));
             });

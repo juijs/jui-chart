@@ -9,6 +9,7 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
         var targetKey, startX, startY;
         var renderWait = false;
         var scale = 1, boxX = 0, boxY = 0;
+        var nodeIndex = 0;
 
         function renderChart() {
             if(renderWait === false) {
@@ -143,8 +144,10 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
                         startX = xy.x / xy.scale;
                         startY = xy.y / xy.scale;
 
+                        axis.cache.activeNodeKey = targetKey;
+
                         // 선택한 노드 맨 마지막으로 이동
-                        xy.moveLast();
+                        //xy.moveLast();
                     });
                 })(parseInt(node.attr("index")));
             });
