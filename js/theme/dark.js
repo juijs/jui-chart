@@ -202,6 +202,15 @@ jui.define("chart.theme.dark", [], function() {
         hudBarTopBackgroundColor: "#bbb",
         hudBarBottomBackgroundColor: "#3C3C3C",
 
+        heatmapBackgroundColor: "#222222",
+        heatmapBackgroundOpacity: 1,
+        heatmapHoverBackgroundOpacity: 0.2,
+        heatmapBorderColor: "#fff",
+        heatmapBorderWidth: 0.5,
+        heatmapBorderOpacity: 1,
+        heatmapFontSize: 11,
+        heatmapFontColor: "#868686",
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,

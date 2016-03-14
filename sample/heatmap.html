@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+jui.ready([ "chart.builder" ], function(chart) {
+    var data = [
+        { x: 0, y: 0, value: 100 },
+        { x: 0, y: 1, value: 93 },
+        { x: 0, y: 2, value: 96 },
+        { x: 0, y: 3, value: 100 },
+        { x: 0, y: 4, value: 100 },
+        { x: 0, y: 5, value: 100 },
+        { x: 1, y: 0, value: 85 },
+        { x: 1, y: 1, value: 86 },
+        { x: 1, y: 2, value: 84 },
+        { x: 1, y: 3, value: 86 },
+        { x: 1, y: 4, value: 100 },
+        { x: 1, y: 5, value: 100 },
+        { x: 2, y: 0, value: 77 },
+        { x: 2, y: 1, value: 77 },
+        { x: 2, y: 2, value: 72 },
+        { x: 2, y: 3, value: 82 },
+        { x: 2, y: 4, value: 100 },
+        { x: 2, y: 5, value: 100 },
+        { x: 3, y: 0, value: 74 },
+        { x: 3, y: 1, value: 68 },
+        { x: 3, y: 2, value: 64 },
+        { x: 3, y: 3, value: 72 },
+        { x: 3, y: 4, value: 100 },
+        { x: 4, y: 0, value: 68 },
+        { x: 4, y: 1, value: 62 },
+        { x: 4, y: 2, value: 56 },
+        { x: 4, y: 3, value: 65 },
+        { x: 4, y: 4, value: 100 },
+        { x: 5, y: 0, value: 54 },
+        { x: 5, y: 1, value: 57 },
+        { x: 5, y: 2, value: 52 },
+        { x: 5, y: 3, value: 62 },
+        { x: 5, y: 4, value: 100 },
+        { x: 6, y: 0, value: 48 },
+        { x: 6, y: 1, value: 55 },
+        { x: 6, y: 2, value: 52 },
+        { x: 6, y: 3, value: 55 },
+        { x: 6, y: 4, value: 100 },
+        { x: 7, y: 0, value: 48 },
+        { x: 7, y: 1, value: 55 },
+        { x: 7, y: 2, value: 52 },
+        { x: 7, y: 3, value: 55 },
+        { x: 8, y: 0, value: 48 },
+        { x: 8, y: 1, value: 55 },
+        { x: 8, y: 2, value: 52 },
+        { x: 8, y: 3, value: 55 },
+        { x: 9, y: 0, value: 48 },
+        { x: 9, y: 1, value: 55 },
+        { x: 9, y: 2, value: 52 },
+        { x: 9, y: 3, value: 55 },
+        { x: 10, y: 0, value: 48 },
+        { x: 10, y: 1, value: 53 },
+        { x: 10, y: 2, value: 52 },
+        { x: 10, y: 3, value: 55 },
+        { x: 11, y: 0, value: 48 },
+        { x: 11, y: 1, value: 53 },
+        { x: 11, y: 2, value: 48 },
+        { x: 11, y: 3, value: 55 },
+        { x: 12, y: 0, value: 45 },
+        { x: 12, y: 1, value: 53 },
+        { x: 12, y: 2, value: 48 },
+        { x: 13, y: 0, value: 45 },
+        { x: 13, y: 1, value: 53 },
+        { x: 13, y: 2, value: 48 },
+        { x: 14, y: 0, value: 45 },
+        { x: 14, y: 1, value: 53 },
+        { x: 14, y: 2, value: 48 },
+        { x: 15, y: 0, value: 45 },
+        { x: 15, y: 1, value: 53 },
+        { x: 15, y: 2, value: 48 },
+        { x: 16, y: 0, value: 45 },
+        { x: 16, y: 1, value: 53 },
+        { x: 17, y: 0, value: 45 },
+        { x: 17, y: 1, value: 53 },
+        { x: 18, y: 0, value: 45 },
+        { x: 18, y: 1, value: 53 },
+        { x: 19, y: 0, value: 45 },
+        { x: 19, y: 1, value: 53 },
+        { x: 20, y: 0, value: 45 },
+        { x: 21, y: 0, value: 45 },
+        { x: 22, y: 0, value: 45 },
+        { x: 23, y: 0, value: 42 },
+        { x: 24, y: 0, value: 42 },
+        { x: 25, y: 0, value: 11, isLast: true },
+        { x: 25, y: 1, value: 8, isLast: true },
+        { x: 25, y: 2, value: 11, isLast: true },
+        { x: 25, y: 3, value: 10, isLast: true },
+    ];
+
+    chart("#chart", {
+        theme : "dark",
+        width: "100%",
+        height : 400,
+        axis : [
+            {
+                x : {
+                    type : "block",
+                    domain : [
+                        "Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7", "Week 8", "Week 9", "Week 10",
+                        "Week 11", "Week 12", "Week 13", "Week 14", "Week 15", "Week 16", "Week 17", "Week 18", "Week 19", "Week 20",
+                        "Week 21", "Week 22", "Week 23", "Week 24", "Week 25", "Attrn Avg"
+                    ],
+                    line : "solid",
+                    key : "x"
+                },
+                y : {
+                    type : "block",
+                    domain : [ "Oct", "Nov", "Dec", "Jan", "Feb", "Mar" ],
+                    line : "solid",
+                    key : "y"
+
+                },
+                data : data
+            }
+
+        ],
+        brush : {
+            type : "heatmap",
+            target : "value",
+            colors : function(d) {
+                if(d.isLast) return "#aeceeb";
+                else {
+                    if(d.value > 95) return "#588526";
+                    else if(d.value > 60) return "#8cba00";
+                    return "#fab913";
+                }
+            },
+            format : function(d) {
+                return d.value + "%";
+            }
+        },
+        widget : {
+            type : "tooltip"
+        }
+    });
+})
+</script>
+
+</body>
+</html>

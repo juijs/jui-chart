@@ -210,6 +210,15 @@ jui.define("chart.theme.jennifer", [], function() {
         hudBarTopBackgroundColor: "#bbb",
         hudBarBottomBackgroundColor: "#3C3C3C",
 
+        heatmapBackgroundColor: "#fff",
+        heatmapBackgroundOpacity: 1,
+        heatmapHoverBackgroundOpacity: 0.2,
+        heatmapBorderColor: "#000",
+        heatmapBorderWidth: 0.5,
+        heatmapBorderOpacity: 1,
+        heatmapFontSize: 11,
+        heatmapFontColor: "#000",
+
         // Widget styles
         titleFontColor : "#333",
         titleFontSize : 13,

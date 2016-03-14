@@ -109,6 +109,7 @@ module.exports = function(grunt) {
         "js/brush/timeline.js",  // brush supporter
         "js/brush/hudbar.js",
         "js/brush/hudcolumn.js",
+        "js/brush/heatmap.js",
 
         // map brush
         "js/brush/map/core.js",
