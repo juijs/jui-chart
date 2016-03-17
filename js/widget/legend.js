@@ -50,18 +50,16 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
 
         function changeTargetOption(brushList) {
             var target = [],
-                index = brushList[0].index,
-                colors = [];
+                index = brushList[0].index;
 
             for(var key in columns[index]) {
                 if(columns[index][key]) {
                     target.push(key);
-                    colors.push(colorIndex[key]);
                 }
             }
 
             for(var i = 0; i < brushList.length; i++) {
-                chart.updateBrush(brushList[i].index, { target: target, colors : colors });
+                chart.updateBrush(brushList[i].index, { target: target });
             }
 
             // 차트 렌더링이 활성화되지 않았을 경우
