@@ -16861,7 +16861,7 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                 var group = chart.svg.group(),
                     target = brush.target[i],
                     text = target,
-                    color = chart.color(i, brush.colors);
+                    color = chart.color(i, widget.colors || brush.colors);
 
                 // 컬러 인덱스 설정
                 colorIndex[target] = color;
@@ -17071,6 +17071,8 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
             filter: false,
             /** @cfg {Function/String} [icon=null]   */
             icon: null,
+            /** @cfg {Array} [colors=null]   */
+            colors: null,
             /** @cfg {Boolean} [brushSync=false] Applies all brushes equally when using a filter function. */
             brushSync: false,
             /** @cfg {Number/Array} [brush=0] Specifies a brush index for which a widget is used. */
