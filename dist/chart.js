@@ -17303,10 +17303,10 @@ jui.define("chart.widget.zoom", [ "util.base" ], function(_) {
 
         this.draw = function() {
             var g = this.chart.svg.group(),
-                count = this.chart.axis().length;
+                list = (_.typeCheck("array", this.widget.axis)) ? this.widget.axis : [ this.widget.axis ];
 
-            for(var i = 0; i < count; i++) {
-                g.append(this.drawSection(i));
+            for (var i = 0; i < list.length; i++) {
+                g.append(this.drawSection(list[i]));
             }
 
             return g;
@@ -17315,8 +17315,12 @@ jui.define("chart.widget.zoom", [ "util.base" ], function(_) {
 
     ZoomWidget.setup = function() {
         return {
-            interval: null, // x축이 date일 때만 적용됨
-            format: null    // 위와 동일
+            axis: 0,
+
+            /** @cfg {Number} [interval=1000] Sets the interval of the scale displayed on a grid.*/
+            interval: null,
+            /** @cfg {Function} [format=null]  Determines whether to format the value on an axis. */
+            format: null
         }
     }
 

@@ -43,7 +43,7 @@
             width: 1000,
             height : 400,
             theme : "jennifer",
-            axis : {
+            axis : [{
                 x : {
                     type : "block",  // default type is block
                     domain : 'date',
@@ -65,13 +65,42 @@
                     high: "h",
                     open: "o",
                     close: "c"
+                },
+                area : {
+                    height : "45%"
                 }
-            },
+            }, {
+                x : {
+                    type : "block",  // default type is block
+                    domain : 'date',
+                    format: function(d) {
+                        return time.format(d, "MM-dd");
+                    },
+                    hide : true
+                },
+                y : {
+                    type : 'range',
+                    domain: [ 0, 100 ],
+                    line : true,
+                    orient : "right"
+                },
+                //buffer : 5,
+                data : dataSource,
+                area : {
+                    y : "50%",
+                    height : "45%"
+                }
+            }],
             brush : [{
-                type : 'candlestick'
+                type : 'candlestick',
+                axis : 0
+            }, {
+                type : 'line',
+                axis : 1
             }],
             widget : [{
-                type : "zoom"
+                type : "zoom",
+                axis : [ 0, 1 ]
             }, {
                 type : "title",
                 text : "Zoom Widget Test"
