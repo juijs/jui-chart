@@ -265,6 +265,9 @@ jui.define("chart.brush.topologynode",
                 node.order = 1;
             }
 
+            // 노드에 공통 이벤트 설정
+            self.addEvent(node, index, null);
+
             return node;
         }
 

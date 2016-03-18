@@ -145,8 +145,8 @@
 
                     return 1;
                 },
-                //activeEdge: "1000_2:1000_3",
-                activeNode: "1000_2",
+                activeEdge: "1000_2:1000_3",
+                //activeNode: "1000_2",
                 activeEvent: "dblclick"
             },
             widget: {
@@ -160,8 +160,12 @@
                     console.log(data);
                 },
                 "topology.nodeclick": function(data, e) {
-                    //console.log("nodeclick ---------------------");
-                    //console.log(data);
+                    console.log("nodeclick ---------------------");
+                    console.log(data);
+                },
+                "click": function(obj, e) {
+                    console.log("click ----------------");
+                    console.log(obj);
                 }
             },
             style: {
