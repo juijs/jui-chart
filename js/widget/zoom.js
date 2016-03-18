@@ -198,6 +198,9 @@ jui.define("chart.widget.zoom", [ "util.base" ], function(_) {
                         if(!self.chart.isRender()) {
                             self.chart.render();
                         }
+
+                        // 줌 종료
+                        self.chart.emit("zoom.close");
                     });
 
                 }).translate(left + axis.area("x"), top + axis.area("y"));

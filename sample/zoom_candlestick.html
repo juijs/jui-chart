@@ -65,9 +65,6 @@
                     high: "h",
                     open: "o",
                     close: "c"
-                },
-                area : {
-                    height : "45%"
                 }
             }, {
                 x : {
@@ -85,11 +82,7 @@
                     orient : "right"
                 },
                 //buffer : 5,
-                data : dataSource,
-                area : {
-                    y : "50%",
-                    height : "45%"
-                }
+                data : dataSource
             }],
             brush : [{
                 type : 'candlestick',
@@ -100,7 +93,7 @@
             }],
             widget : [{
                 type : "zoom",
-                axis : [ 0, 1 ]
+                axis : 0
             }, {
                 type : "title",
                 text : "Zoom Widget Test"
@@ -109,9 +102,13 @@
                 "zoom.start": function() {
                     console.log("zoom.start");
                 },
-                "zoom.end": function() {
+                "zoom.end": function(start, end) {
                     console.log("zoom.end");
-                    console.log(arguments);
+                    this.axis(1).zoom(start, end);
+                },
+                "zoom.close": function() {
+                    console.log("zoom.close");
+                    this.axis(1).screen(1);
                 }
             }
         });
