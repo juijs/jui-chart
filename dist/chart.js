@@ -14906,6 +14906,23 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
             return list;
         }
 
+        this.createText = function(cx, cy, dist) {
+            var x = cx + 30,
+                y = cy + ((dist > 0 && dist < 30) ? cy - dist/2 : 0);
+
+            var line = this.svg.line({
+                stroke: "red",
+                x1: cx,
+                y1: cy,
+                x2: x,
+                y2: y
+            });
+
+            console.log(dist);
+
+            return line;
+        }
+
         this.draw = function() {
             var g = this.svg.group(),
                 obj = (this.axis.data.length > 0) ? this.axis.data[0] : {},
@@ -14917,7 +14934,8 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
             var startX = 0,
                 endX = dx * 2,
                 startRad = Math.atan2(dy, dx),
-                distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+                distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2)),
+                textY = 0;
 
             for(var i = 0; i < data.length; i++) {
                 var d = data[i],
@@ -14934,6 +14952,7 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
                 this.addEvent(poly, 0, d.index);
                 g.append(poly);
 
+                // 라인 그리기
                 if(i > 0) {
                     var width = this.chart.theme("pyramidLineWidth");
 
@@ -14948,6 +14967,18 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
 
                     line.translate(area.x, area.y);
                     g.append(line);
+                }
+
+                // 텍스트 그리기
+                if(this.brush.showText) {
+                    var tx = (ex + endX) / 2,
+                        ty = (y + dy) / 2;
+
+                    var text = this.createText(tx, ty, textY - ty);
+                    text.translate(area.x, area.y);
+
+                    g.append(text);
+                    textY = ty;
                 }
 
                 poly.point(startX, dy);
@@ -14967,8 +14998,8 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
 
     PyramidBrush.setup = function() {
         return {
-            /** @cfg {String} [showText=null] Set the text appear. (outer or inner)  */
-            showText: null,
+            /** @cfg {Boolean} [showText=false] Set the text appear. */
+            showText: false,
             /** @cfg {Function} [format=null] Returns a value from the format callback function of a defined option. */
             format: null
         }
