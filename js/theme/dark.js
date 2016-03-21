@@ -211,6 +211,9 @@ jui.define("chart.theme.dark", [], function() {
         heatmapFontSize: 11,
         heatmapFontColor: "#868686",
 
+        pyramidLineColor: "#464646",
+        pyramidLineWidth: 1,
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,

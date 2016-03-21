@@ -219,6 +219,9 @@ jui.define("chart.theme.jennifer", [], function() {
         heatmapFontSize: 11,
         heatmapFontColor: "#000",
 
+        pyramidLineColor: "#fff",
+        pyramidLineWidth: 1,
+
         // Widget styles
         titleFontColor : "#333",
         titleFontSize : 13,

@@ -208,6 +208,9 @@ jui.define("chart.theme.pastel", [], function() {
 		heatmapFontSize: 11,
 		heatmapFontColor: "#000",
 
+		pyramidLineColor: "#fff",
+		pyramidLineWidth: 1,
+
         // widget styles
         titleFontColor : "#333",
         titleFontSize : 18,
