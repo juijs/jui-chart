@@ -110,6 +110,7 @@ module.exports = function(grunt) {
         "js/brush/hudbar.js",
         "js/brush/hudcolumn.js",
         "js/brush/heatmap.js",
+        "js/brush/pyramid.js",
 
         // map brush
         "js/brush/map/core.js",
