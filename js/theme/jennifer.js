@@ -221,6 +221,11 @@ jui.define("chart.theme.jennifer", [], function() {
 
         pyramidLineColor: "#fff",
         pyramidLineWidth: 1,
+        pyramidTextLineColor: "#a9a9a9",
+        pyramidTextLineWidth: 1,
+        pyramidTextLineSize: 30,
+        pyramidTextFontSize: 10,
+        pyramidTextFontColor: "#333",
 
         // Widget styles
         titleFontColor : "#333",

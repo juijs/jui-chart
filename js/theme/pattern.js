@@ -209,6 +209,11 @@ jui.define("chart.theme.pattern", [], function() {
 
         pyramidLineColor: "#fff",
         pyramidLineWidth: 1,
+        pyramidTextLineColor: "#a9a9a9",
+        pyramidTextLineWidth: 1,
+        pyramidTextLineSize: 30,
+        pyramidTextFontSize: 10,
+        pyramidTextFontColor: "#333",
 
         // widget styles
         titleFontColor : "#333",

@@ -213,6 +213,11 @@ jui.define("chart.theme.dark", [], function() {
 
         pyramidLineColor: "#464646",
         pyramidLineWidth: 1,
+        pyramidTextLineColor: "#B2A6A6",
+        pyramidTextLineWidth: 1,
+        pyramidTextLineSize: 30,
+        pyramidTextFontSize: 10,
+        pyramidTextFontColor: "#222",
 
         // widget styles
         titleFontColor : "#ffffff",

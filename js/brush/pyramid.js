@@ -34,21 +34,36 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
             return list;
         }
 
-        this.createText = function(cx, cy, dist) {
-            var x = cx + 30,
-                y = cy + ((dist > 0 && dist < 30) ? cy - dist/2 : 0);
+        this.createText = function(text, cx, cy, dist) {
+            var l_size = this.chart.theme("pyramidTextLineSize"),
+                f_size = this.chart.theme("pyramidTextFontSize"),
+                x = cx + l_size,
+                y = cy + ((dist > 0 && dist < l_size) ? cy - dist/2 : 0);
 
-            var line = this.svg.line({
-                stroke: "red",
+            var g = this.svg.group();
+
+            var l = this.svg.line({
+                stroke: this.chart.theme("pyramidTextLineColor"),
+                "stroke-width": this.chart.theme("pyramidTextLineWidth"),
                 x1: cx,
                 y1: cy,
                 x2: x,
                 y2: y
             });
 
-            console.log(dist);
+            var t = this.chart.text({
+                "font-size": this.chart.theme("pyramidTextFontSize"),
+                fill: this.chart.theme("pyramidTextFontColor"),
+                x: x,
+                y: y,
+                dx: 3,
+                dy: f_size / 3
+            }).text(text)
 
-            return line;
+            g.append(l);
+            g.append(t);
+
+            return g;
         }
 
         this.draw = function() {
@@ -102,7 +117,10 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
                     var tx = (ex + endX) / 2,
                         ty = (y + dy) / 2;
 
-                    var text = this.createText(tx, ty, textY - ty);
+                    var text = this.createText(
+                        _.typeCheck("function", this.brush.format) ? this.format(d.key, d.value, d.rate) : d.value,
+                        tx, ty, textY - ty);
+
                     text.translate(area.x, area.y);
 
                     g.append(text);
@@ -126,6 +144,8 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
 
     PyramidBrush.setup = function() {
         return {
+            /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
+            clip: false,
             /** @cfg {Boolean} [showText=false] Set the text appear. */
             showText: false,
             /** @cfg {Function} [format=null] Returns a value from the format callback function of a defined option. */
