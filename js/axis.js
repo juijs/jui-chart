@@ -292,18 +292,19 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
         }
 
         function drawAxisBackground() {
-            var lr = _padding.left + _padding.right,
+            var bw = chart.theme("axisBorderWidth"),
+                lr = _padding.left + _padding.right,
                 tb = _padding.top + _padding.bottom;
 
             var bg = chart.svg.rect({
+                rx: chart.theme("axisBorderRadius"),
+                ry: chart.theme("axisBorderRadius"),
                 fill: chart.theme("axisBackgroundColor"),
                 "fill-opacity": chart.theme("axisBackgroundOpacity"),
                 stroke: chart.theme("axisBorderColor"),
-                "stroke-width": chart.theme("axisBorderWidth"),
-                rx: chart.theme("axisBorderRadius"),
-                ry: chart.theme("axisBorderRadius"),
-                width: _area.width + lr,
-                height: _area.height + tb,
+                "stroke-width": bw,
+                width: _area.width + lr - bw,
+                height: _area.height + tb - bw,
                 x: _area.x - _padding.left,
                 y: _area.y - _padding.top
             });

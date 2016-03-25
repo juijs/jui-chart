@@ -559,18 +559,19 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
         }
 
         function drawAxisBackground() {
-            var lr = _padding.left + _padding.right,
+            var bw = chart.theme("axisBorderWidth"),
+                lr = _padding.left + _padding.right,
                 tb = _padding.top + _padding.bottom;
 
             var bg = chart.svg.rect({
+                rx: chart.theme("axisBorderRadius"),
+                ry: chart.theme("axisBorderRadius"),
                 fill: chart.theme("axisBackgroundColor"),
                 "fill-opacity": chart.theme("axisBackgroundOpacity"),
                 stroke: chart.theme("axisBorderColor"),
-                "stroke-width": chart.theme("axisBorderWidth"),
-                rx: chart.theme("axisBorderRadius"),
-                ry: chart.theme("axisBorderRadius"),
-                width: _area.width + lr,
-                height: _area.height + tb,
+                "stroke-width": bw,
+                width: _area.width + lr - bw,
+                height: _area.height + tb - bw,
                 x: _area.x - _padding.left,
                 y: _area.y - _padding.top
             });
@@ -12655,33 +12656,36 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 	 * @extends chart.brush.donut
 	 */
 	var FullGaugeBrush = function() {
-		var self = this, textY = 5;
+		var self = this;
         var group, w, centerX, centerY, outerRadius, innerRadius, textScale;
 
 		function createText(value, index) {
-			var g = self.chart.svg.group().translate(centerX, centerY);
+			var g = self.chart.svg.group().translate(centerX, centerY),
+				size = self.chart.theme("gaugeFontSize");
 
             g.append(self.chart.text({
                 "text-anchor" : "middle",
-                "font-size" : self.chart.theme("gaugeFontSize"),
+                "font-size" : size,
                 "font-weight" : self.chart.theme("gaugeFontWeight"),
-                "fill" : self.color(0),
-                y: textY
+                "fill" : self.color(index),
+                y: size / 3
             }, self.format(value, index)).scale(textScale));
 
 			return g;
 		}
 
-        function createTitle(title, dx, dy) {
+        function createTitle(title, index, dx, dy) {
             var g = self.chart.svg.group().translate(centerX + dx, centerY + dy),
-                anchor = (dx == 0) ? "middle" : ((dx < 0) ? "end" : "start");
+                anchor = (dx == 0) ? "middle" : ((dx < 0) ? "end" : "start"),
+				color = self.chart.theme("gaugeTitleFontColor"),
+				size = self.chart.theme("gaugeTitleFontSize");
 
             g.append(self.chart.text({
                 "text-anchor" : anchor,
-                "font-size" : self.chart.theme("gaugeTitleFontSize"),
+                "font-size" : size,
                 "font-weight" : self.chart.theme("gaugeTitleFontWeight"),
-                fill : self.chart.theme("gaugeTitleFontColor"),
-                y: textY
+                fill : (!color) ? self.color(index) : color,
+                y: size / 3
             }, title).scale(textScale));
 
             return g;
@@ -12736,7 +12740,7 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
             }
 
             if(title != "") {
-                group.append(createTitle(title, this.brush.titleX, this.brush.titleY));
+                group.append(createTitle(title, index, this.brush.titleX, this.brush.titleY));
             }
 
 			return group;
