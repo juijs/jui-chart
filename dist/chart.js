@@ -14929,7 +14929,7 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
             }
 
             list.sort(function(a, b) {
-               return b.value - a.value;
+                return b.value - a.value;
             });
 
             return list;
@@ -14979,14 +14979,18 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
                 endX = dx * 2,
                 startRad = Math.atan2(dy, dx),
                 distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2)),
-                textY = 0;
+                textY = 0,
+                isReverse = this.brush.reverse;
+
+            if(isReverse) dy = 0;
 
             for(var i = 0; i < data.length; i++) {
                 var d = data[i],
                     dist = d.rate * distance,
                     sx = startX + (dist * Math.cos(startRad)),
                     ex = endX - (dist * Math.cos(-startRad)),
-                    y = dy - (dist * Math.sin(startRad));
+                    ty = dist * Math.sin(startRad),
+                    y = (isReverse) ? dy + ty : dy - ty;
 
                 var poly = this.svg.polygon({
                     fill: this.color(i),
@@ -15050,7 +15054,9 @@ jui.define("chart.brush.pyramid", [ "util.base" ], function(_) {
             /** @cfg {Boolean} [showText=false] Set the text appear. */
             showText: false,
             /** @cfg {Function} [format=null] Returns a value from the format callback function of a defined option. */
-            format: null
+            format: null,
+            /** @cfg {Boolean} [reverse=false]  */
+            reverse: false
         }
     }
 
