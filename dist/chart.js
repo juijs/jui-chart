@@ -18797,7 +18797,13 @@ jui.define("chart.widget.map.control", [ "util.base" ], function(_) {
                 });
 
                 axis.map.view(viewX, viewY);
+
+                // 차트 렌더링이 활성화되지 않았을 경우
+                if(!chart.isRender()) {
+                    chart.render();
+                }
             }
+
             function zoom() {
                 axis.updateGrid("map", {
                     scale: scale,
@@ -18808,6 +18814,11 @@ jui.define("chart.widget.map.control", [ "util.base" ], function(_) {
                 scrollY = getScrollThumbY(scale);
                 axis.map.scale(scale);
                 btn.thumb.translate(0, scrollY);
+
+                // 차트 렌더링이 활성화되지 않았을 경우
+                if(!chart.isRender()) {
+                    chart.render();
+                }
             }
         }
 
@@ -18844,6 +18855,11 @@ jui.define("chart.widget.map.control", [ "util.base" ], function(_) {
 
                     axis.map.scale(scale);
                     btn.thumb.translate(0, getScrollThumbY(scale));
+
+                    // 차트 렌더링이 활성화되지 않았을 경우
+                    if(!chart.isRender()) {
+                        chart.render();
+                    }
                 }
             }
 
@@ -19165,6 +19181,11 @@ jui.define("chart.widget.map.minimap", [ "util.base", "chart.builder" ], functio
                 });
 
                 self.axis.map.view(newViewX, newViewY);
+
+                // 차트 렌더링이 활성화되지 않았을 경우
+                if(!chart.isRender()) {
+                    chart.render();
+                }
             }
 
             return rect;
