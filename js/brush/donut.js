@@ -214,7 +214,7 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
                 var value = data[target[i]],
                     endAngle = all * (value / max),
                     centerAngle = startAngle + (endAngle / 2) - 90,
-                    radius = (this.brush.showText == "inner") ? this.brush.size + innerRadius + outerRadius : outerRadius,
+                    radius = (this.brush.showText == "inside") ? this.brush.size + innerRadius + outerRadius : outerRadius,
                     donut = this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
                         stroke : this.color(i),
                         fill : 'transparent'
@@ -223,7 +223,7 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
 
                 // 설정된 키 활성화
                 if (active == target[i] || _.inArray(target[i], active) != -1) {
-                    if(this.brush.showText == "inner") {
+                    if(this.brush.showText == "inside") {
                         this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, radius, true);
                     }
 
@@ -236,14 +236,14 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
                     (function (p, t, cx, cy, ca, r) {
                         p.on(self.brush.activeEvent, function (e) {
                             if (!cache_active[ca]) {
-                                if(self.brush.showText == "inner") {
+                                if(self.brush.showText == "inside") {
                                     self.setActiveTextEvent(t, cx, cy, ca, r, true);
                                 }
 
                                 self.setActiveEvent(p, cx, cy, ca);
                                 cache_active[ca] = true;
                             } else {
-                                if(self.brush.showText == "inner") {
+                                if(self.brush.showText == "inside") {
                                     self.setActiveTextEvent(t, cx, cy, ca, r, false);
                                 }
 
