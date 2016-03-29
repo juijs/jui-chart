@@ -61,7 +61,9 @@ jui.define("chart.widget.map.minimap", [ "util.base", "chart.builder" ], functio
         }
 
         this.createCtrlButton = function(attr) {
-            var startX, startY, moveX = 0, moveY = 0;
+            var area = this.axis.get("area"),
+                map = this.axis.get("map"),
+                startX, startY, moveX = 0, moveY = 0;
 
             var xy = this.getScaleXY(this.axis),
                 w = attr.width / scale,
@@ -70,6 +72,10 @@ jui.define("chart.widget.map.minimap", [ "util.base", "chart.builder" ], functio
                 y = (xy.y / scale) * this.widget.scale,
                 dx = (viewX / scale) * this.widget.scale,
                 dy = (viewY / scale) * this.widget.scale;
+
+            // 차트 크기에 대한 스케일
+            w = w * (area.width / map.width);
+            h = h * (area.height / map.width);
 
             var rect = this.svg.rect({
                 stroke: this.chart.theme("mapMinimapDragBorderColor"),
