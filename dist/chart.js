@@ -19175,6 +19175,8 @@ jui.define("chart.widget.map.minimap", [ "util.base", "chart.builder" ], functio
             }
 
             function endMoveButton(e) {
+                if(!startX || !startY) return;
+
                 startX = null;
                 startY = null;
 
