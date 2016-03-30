@@ -113,7 +113,7 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
             for(var i = 0; i < children.length; i++) {
                 var cls = children[i].attr("class");
 
-                if(cls && cls.indexOf("brush") != -1) {
+                if(cls && cls.indexOf("topologynode") != -1) {
                     if(index == self.widget.brush) {
                         element = children[i];
                         break;

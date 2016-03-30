@@ -5751,7 +5751,7 @@ jui.define("chart.grid.core", [ "util.base", "util.math", "chart.grid.draw2d", "
 		 * @protected
 		 */
 		this.drawAfter = function(obj) {
-			obj.root.attr({ "class" : "grid " + this.grid.type });
+			obj.root.attr({ "class" : "grid-" + this.grid.type });
 			obj.root.translate(this.chart.area("x") , this.chart.area("y"));
 		}
 	}
@@ -7898,7 +7898,7 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
                 obj.attr({ "clip-path" : "url(#" + this.axis.get("clipId") + ")" });
             }
 
-            obj.attr({ "class" : "brush " + this.brush.type });
+            obj.attr({ "class" : "brush-" + this.brush.type });
             obj.translate(this.chart.area("x"), this.chart.area("y")); // 브러쉬일 경우, 기본 좌표 설정
         }
 
@@ -16567,7 +16567,7 @@ jui.define("chart.widget.core", [ "util.base" ], function(_) {
         }
 
         this.drawAfter = function(obj) {
-            obj.attr({ "class" : "widget " + this.widget.type });
+            obj.attr({ "class" : "widget-" + this.widget.type });
         }
 	}
 
@@ -18356,7 +18356,7 @@ jui.define("chart.widget.topologyctrl", [ "util.base" ], function(_) {
             for(var i = 0; i < children.length; i++) {
                 var cls = children[i].attr("class");
 
-                if(cls && cls.indexOf("brush") != -1) {
+                if(cls && cls.indexOf("topologynode") != -1) {
                     if(index == self.widget.brush) {
                         element = children[i];
                         break;

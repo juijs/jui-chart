@@ -45,7 +45,7 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
                 obj.attr({ "clip-path" : "url(#" + this.axis.get("clipId") + ")" });
             }
 
-            obj.attr({ "class" : "brush " + this.brush.type });
+            obj.attr({ "class" : "brush-" + this.brush.type });
             obj.translate(this.chart.area("x"), this.chart.area("y")); // 브러쉬일 경우, 기본 좌표 설정
         }
 
