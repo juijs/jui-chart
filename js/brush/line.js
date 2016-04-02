@@ -52,12 +52,19 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                     var newColor = this.color(i, tIndex);
 
                     if(color != newColor) {
-                        p = this.svg.path(_.extend({ stroke: newColor }, opts));
+                        p = this.svg.path(_.extend({
+                            stroke: newColor,
+                            x1: x[i] // Start coordinates of area brush
+                        }, opts));
 
                         p.MoveTo(x[i], y[i]);
                         g.append(p);
 
                         color = newColor;
+                    } else {
+                        p.attr({
+                            x2: x[i + 1] // End coordinates of area brush
+                        });
                     }
 
                     if (this.brush.symbol == "curve") {

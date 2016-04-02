@@ -31,7 +31,7 @@
                     { quarter : "1Q", sales : 10, profit : 3 },
                     { quarter : "2Q", sales : 60, profit : 2 },
                     { quarter : "3Q", sales : 30, profit : 1 },
-                    { quarter : "4Q", sales : -50, profit : 4 },
+                    { quarter : "4Q", sales : -60, profit : 4 },
                     { quarter : "5Q", sales : 50, profit : 4 },
                     { quarter : "6Q", sales : 30, profit : 4 },
                     { quarter : "7Q", sales : 20, profit : 4 },
@@ -40,8 +40,15 @@
             }],
             brush : [{
                 type : "area",
+                symbol : "curve",
                 target : [ "sales" ],
-                startZero : true
+                colors : function(d, i) {
+                    if(i < 3) {
+                        return "red";
+                    }
+
+                    return "blue";
+                }
             }]
         });
 	})
