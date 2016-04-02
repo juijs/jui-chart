@@ -77,7 +77,7 @@ jui.define("chart.brush.map.weather", [ "util.base" ], function(_) {
 		this.draw = function() {
             var g = chart.svg.group();
 
-            this.eachData(function(i, d) {
+            this.eachData(function(d, i) {
                 var id = axis.getValue(d, "id", null),
                     temp = axis.getValue(d, "temperature", 0),
                     icon = axis.getValue(d, "weather", "sunny");

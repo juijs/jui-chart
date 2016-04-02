@@ -122,7 +122,7 @@ jui.define("chart.brush.gauge", [ "util.math" ], function(math) {
 		this.draw = function() {
 			var group = this.chart.svg.group();
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				this.drawUnit(i, data, group);
 			});
 

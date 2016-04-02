@@ -25,7 +25,7 @@ jui.define("chart.brush.rangecolumn", [], function() {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startX = this.offset("x", i) - (half_width / 2);
 
 				for(var j = 0; j < brush.target.length; j++) {

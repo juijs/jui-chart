@@ -24,7 +24,7 @@ jui.define("chart.brush.bubble3d", [ "util.math" ], function(math) {
             var g = this.chart.svg.group(),
                 count = this.brush.target.length;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 for(var j = 0; j < count; j++) {
                     var value = data[this.brush.target[j]],
                         xy = this.axis.c(i, value, j, count),

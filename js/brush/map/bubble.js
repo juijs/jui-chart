@@ -47,7 +47,7 @@ jui.define("chart.brush.map.bubble", [ "util.base", "util.math" ], function(_, m
             var g = chart.svg.group(),
                 minmax = getMinMaxValues();
 
-            this.eachData(function(i, d) {
+            this.eachData(function(d, i) {
                 var value = axis.getValue(d, "value", 0),
                     size = math.scaleValue(value, minmax.min, minmax.max, brush.min, brush.max),
                     xy = axis.map(axis.getValue(d, "id", null)),

@@ -14,7 +14,7 @@ jui.define("chart.brush.bargauge", [], function() {
                 x = obj.x,
                 y = obj.y;
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
                 var g = chart.svg.group(),
                     v = this.getValue(data, "value", 0),
                     t = this.getValue(data, "title", ""),

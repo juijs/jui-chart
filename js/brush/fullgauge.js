@@ -98,7 +98,7 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 		this.draw = function() {
 			group = this.chart.svg.group();
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				this.drawUnit(i, data);
 			});
 

@@ -12,7 +12,7 @@ jui.define("chart.brush.ohlc", [], function() {
         }
 
         this.draw = function() {
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var startX = this.offset("x", i);
 
                 var high = this.getValue(data, "high", 0),

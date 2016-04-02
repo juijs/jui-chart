@@ -20,7 +20,7 @@ jui.define("chart.brush.clustercolumn3d", [], function() {
         this.draw = function() {
             var count = this.brush.target.length;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 for(var j = 0; j < count; j++) {
                     var value = data[this.brush.target[j]],
                         xy = this.axis.c(i, value, j, count),

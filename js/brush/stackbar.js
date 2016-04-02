@@ -87,7 +87,7 @@ jui.define("chart.brush.stackbar", [], function() {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var group = chart.svg.group();
 				
 				var startY = this.offset("y", i) - bar_height / 2,

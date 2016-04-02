@@ -157,7 +157,7 @@ jui.define("chart.brush.topologynode",
             var names = [],
                 keys = key.split(":");
 
-            self.eachData(function(i, data) {
+            self.eachData(function(data, i) {
                 var title = _.typeCheck("function", self.brush.nodeTitle) ? self.brush.nodeTitle.call(self.chart, data) : "";
 
                 if(data.key == keys[0]) {
@@ -606,7 +606,7 @@ jui.define("chart.brush.topologynode",
         this.draw = function() {
             var nodes = [];
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 for(var j = 0; j < data.outgoing.length; j++) {
                     setDataEdges(i, j);
                 }
@@ -616,7 +616,7 @@ jui.define("chart.brush.topologynode",
             createEdges();
 
             // 노드 그리기
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var node = createNodes(i, data);
                 g.append(node);
 

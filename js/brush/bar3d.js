@@ -18,7 +18,7 @@ jui.define("chart.brush.bar3d", [], function() {
 		this.draw = function() {
             var count = brush.target.length;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var zeroXY = axis.c(0, i),
                     startY = zeroXY.y - (height - brush.outerPadding * 2) / 2;
 

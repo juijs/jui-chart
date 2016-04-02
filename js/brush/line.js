@@ -1,4 +1,4 @@
-jui.define("chart.brush.line", [], function() {
+jui.define("chart.brush.line", [ "util.base" ], function(_) {
 
     /**
      * @class chart.brush.line
@@ -31,30 +31,38 @@ jui.define("chart.brush.line", [], function() {
             this.lineList.push(elem);
         }
 
-        this.createLine = function(pos, index) {
+        this.createLine = function(pos, tIndex) {
             var x = pos.x,
-                y = pos.y;
+                y = pos.y,
+                px = (this.brush.symbol == "curve") ? this.curvePoints(x) : null,
+                py = (this.brush.symbol == "curve") ? this.curvePoints(y) : null,
+                color = null,
+                opts = {
+                    "stroke-width" : lineBorderWidth,
+                    "stroke-dasharray" : lineBorderDashArray,
+                    fill : "transparent",
+                    "cursor" : (this.brush.activeEvent != null) ? "pointer" : "normal"
+                };
 
-            var p = this.chart.svg.path({
-                stroke : this.color(index),
-                "stroke-width" : lineBorderWidth,
-                "stroke-dasharray" : lineBorderDashArray,
-                fill : "transparent",
-                "cursor" : (this.brush.activeEvent != null) ? "pointer" : "normal"
-            });
+            var g = this.svg.group(),
+                p = null;
 
             if(pos.length > 0) {
-                p.MoveTo(x[0], y[0]);
+                for (var i = 0; i < x.length - 1; i++) {
+                    var newColor = this.color(i, tIndex);
 
-                if (this.brush.symbol == "curve") {
-                    var px = this.curvePoints(x),
-                        py = this.curvePoints(y);
+                    if(color != newColor) {
+                        p = this.svg.path(_.extend({ stroke: newColor }, opts));
 
-                    for (var i = 0; i < x.length - 1; i++) {
-                        p.CurveTo(px.p1[i], py.p1[i], px.p2[i], py.p2[i], x[i + 1], y[i + 1]);
+                        p.MoveTo(x[i], y[i]);
+                        g.append(p);
+
+                        color = newColor;
                     }
-                } else {
-                    for (var i = 0; i < x.length - 1; i++) {
+
+                    if (this.brush.symbol == "curve") {
+                        p.CurveTo(px.p1[i], py.p1[i], px.p2[i], py.p2[i], x[i + 1], y[i + 1]);
+                    } else {
                         if (this.brush.symbol == "step") {
                             var sx = x[i] + ((x[i + 1] - x[i]) / 2);
 
@@ -67,7 +75,7 @@ jui.define("chart.brush.line", [], function() {
                 }
             }
 
-            return p;
+            return g;
         }
 
         this.createTooltip = function(g, pos, index) {

@@ -25,7 +25,7 @@ jui.define("chart.brush.stackcolumn", [], function() {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var group = chart.svg.group();
 				
 				var startX = this.offset("x", i) - bar_width / 2,

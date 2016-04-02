@@ -121,7 +121,7 @@ jui.define("chart.brush.map.flightroute", [ "util.base" ], function(_) {
         }
 
 		this.draw = function() {
-            this.eachData(function(i, d) {
+            this.eachData(function(d, i) {
                 var id = axis.getValue(d, "id", null),
                     type = axis.getValue(d, "airport", null),
                     routes = axis.getValue(d, "routes", []),

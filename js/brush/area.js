@@ -12,23 +12,27 @@ jui.define("chart.brush.area", [], function() {
                 y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min());
 
             for(var k = 0; k < path.length; k++) {
-                var p = this.createLine(path[k], k),
+                var children = this.createLine(path[k], k).children,
                     xList = path[k].x;
 
-                if(path[k].length > 0) {
-                    p.LineTo(xList[xList.length - 1], y);
-                    p.LineTo(xList[0], y);
-                    p.ClosePath();
+                for(var i = 0; i < children.length; i++) {
+                    var p = children[i];
+
+                    if (path[k].length > 0) {
+                        p.LineTo(xList[xList.length - 1], y);
+                        p.LineTo(xList[0], y);
+                        p.ClosePath();
+                    }
+
+                    p.attr({
+                        fill: this.color(k),
+                        "fill-opacity": this.chart.theme("areaBackgroundOpacity"),
+                        "stroke-width": 0
+                    });
+
+                    this.addEvent(p, null, k);
+                    g.prepend(p);
                 }
-
-                p.attr({
-                    fill: this.color(k),
-                    "fill-opacity": this.chart.theme("areaBackgroundOpacity"),
-                    "stroke-width": 0
-                });
-
-                this.addEvent(p, null, k);
-                g.prepend(p);
 
                 // Add line
                 if(this.brush.line) {

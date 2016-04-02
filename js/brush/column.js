@@ -31,7 +31,7 @@ jui.define("chart.brush.column", [], function() {
 			var points = this.getXY(),
 				style = this.getBarStyle();
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startX = this.offset("x", i) - (half_width / 2);
 
 				for (var j = 0; j < this.brush.target.length; j++) {

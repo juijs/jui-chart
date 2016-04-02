@@ -28,7 +28,7 @@ jui.define("chart.brush.fullstackbar3d", [], function() {
         }
 
 		this.draw = function() {
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var group = chart.svg.group(),
                     startY = axis.c(0, i).y - bar_height / 2,
                     col_width = 0,

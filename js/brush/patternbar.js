@@ -42,7 +42,7 @@ jui.define("chart.brush.patternbar", [ "util.base" ], function(_) {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startY = this.offset("y", i) -(half_height / 2);
 
 				for (var j = 0; j < targets.length; j++) {

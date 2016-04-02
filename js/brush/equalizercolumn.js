@@ -21,7 +21,7 @@ jui.define("chart.brush.equalizercolumn", [], function() {
                 unit = band / (this.brush.unit * padding),
                 height = unit + padding;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var startX = this.offset("x", i) - bar_width / 2,
                     startY = this.axis.y(0),
                     y = startY,

@@ -25,7 +25,7 @@ jui.define("chart.brush.rangebar", [], function() {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var group = chart.svg.group(),
 					startY = this.offset("y", i) - (half_height / 2);
 

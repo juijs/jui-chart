@@ -280,7 +280,7 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
         }
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				this.drawUnit(i, data, g);
 			});
 

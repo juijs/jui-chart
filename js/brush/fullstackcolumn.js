@@ -29,7 +29,7 @@ jui.define("chart.brush.fullstackcolumn", [], function() {
 		this.draw = function() {
 			var chart_height = axis.area("height");
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var group = chart.svg.group();
 
 				var startX = this.offset("x", i) - bar_width / 2,

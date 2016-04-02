@@ -21,7 +21,7 @@ jui.define("chart.brush.path", [], function() {
 	
 				g.append(path);
 	
-				this.eachData(function(i, data) {
+				this.eachData(function(data, i) {
 					var obj = this.axis.c(i, data[this.brush.target[ti]]),
 						x = obj.x - this.chart.area("x") + this.axis.padding("left"),
 						y = obj.y - this.chart.area("y") + this.axis.padding("top");

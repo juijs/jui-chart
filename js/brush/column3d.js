@@ -22,7 +22,7 @@ jui.define("chart.brush.column3d", [], function() {
 		this.draw = function() {
             var count = this.brush.target.length;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var zeroXY = this.axis.c(i, 0),
                     startX = zeroXY.x - (width - this.brush.outerPadding * 2) / 2;
 

@@ -10,7 +10,7 @@ jui.define("chart.brush.map.marker", [ "util.base" ], function(_) {
                 w = brush.width,
                 h = brush.height;
 
-            this.eachData(function(i, d) {
+            this.eachData(function(d, i) {
                 var id = axis.getValue(d, "id", null),
                     xy = axis.map(id);
 

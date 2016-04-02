@@ -20,7 +20,7 @@ jui.define("chart.brush.patterncolumn", [ "util.base" ], function(_) {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startX = this.offset("x", i) -(half_width / 2);
 
 				for (var j = 0; j < targets.length; j++) {

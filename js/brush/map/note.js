@@ -29,7 +29,7 @@ jui.define("chart.brush.map.note", [ "util.base" ], function(_) {
 				});
 			}
 
-			this.eachData(function(i, d) {
+			this.eachData(function(d, i) {
 				var id = axis.getValue(d, "id"),
 					value = axis.getValue(d, "value", 0),
 					texts = axis.getValue(d, "texts", []),

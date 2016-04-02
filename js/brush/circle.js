@@ -90,7 +90,7 @@ jui.define("chart.brush.circle", ["util.base"], function(_) {
 		this.draw = function() {
             group = chart.svg.group();
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 this.drawUnit(i, data);
             });
 

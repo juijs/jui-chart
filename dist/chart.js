@@ -8050,7 +8050,7 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
                 }
             } else {
                 for(var index = 0, len = list.length; index < len; index++) {
-                    callback.call(this, index, list[index]);
+                    callback.call(this, list[index], index);
                 }
             }
         }
@@ -8175,7 +8175,7 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
             var xy = this.getXY(isCheckMinMax),
                 isRangeY = (this.axis.y.type == "range");
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var valueSum = 0;
 
                 for(var j = 0; j < this.brush.target.length; j++) {
@@ -8292,7 +8292,7 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
             }
 
             if(_.typeCheck("function", colors)) {
-                var newColor = colors.call(this.chart, this.getData(rowIndex));
+                var newColor = colors.call(this.chart, this.getData(rowIndex), rowIndex);
 
                 if(_.typeCheck([ "string", "integer" ], newColor)) {
                     color = this.chart.color(newColor);
@@ -8432,7 +8432,7 @@ jui.define("chart.brush.imagebar", [ "util.base" ], function(_) {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startY = this.offset("y", i) - (half_height / 2);
 
 				for (var j = 0; j < targets.length; j++) {
@@ -8528,7 +8528,7 @@ jui.define("chart.brush.imagecolumn", [ "util.base" ], function(_) {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startX = this.offset("x", i) - (half_width / 2);
 
 				for (var j = 0; j < targets.length; j++) {
@@ -8635,7 +8635,7 @@ jui.define("chart.brush.patternbar", [ "util.base" ], function(_) {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startY = this.offset("y", i) -(half_height / 2);
 
 				for (var j = 0; j < targets.length; j++) {
@@ -8706,7 +8706,7 @@ jui.define("chart.brush.patterncolumn", [ "util.base" ], function(_) {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startX = this.offset("x", i) -(half_width / 2);
 
 				for (var j = 0; j < targets.length; j++) {
@@ -8881,7 +8881,7 @@ jui.define("chart.brush.bar", [ "util.base" ], function(_) {
 			var points = this.getXY(),
 				style = this.getBarStyle();
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startY = this.offset("y", i) - (half_height / 2);
 
 				for(var j = 0; j < this.brush.target.length; j++) {
@@ -9023,7 +9023,7 @@ jui.define("chart.brush.column", [], function() {
 			var points = this.getXY(),
 				style = this.getBarStyle();
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startX = this.offset("x", i) - (half_width / 2);
 
 				for (var j = 0; j < this.brush.target.length; j++) {
@@ -9133,7 +9133,7 @@ jui.define("chart.brush.bar3d", [], function() {
 		this.draw = function() {
             var count = brush.target.length;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var zeroXY = axis.c(0, i),
                     startY = zeroXY.y - (height - brush.outerPadding * 2) / 2;
 
@@ -9195,7 +9195,7 @@ jui.define("chart.brush.column3d", [], function() {
 		this.draw = function() {
             var count = this.brush.target.length;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var zeroXY = this.axis.c(i, 0),
                     startX = zeroXY.x - (width - this.brush.outerPadding * 2) / 2;
 
@@ -9336,7 +9336,7 @@ jui.define("chart.brush.clustercolumn3d", [], function() {
         this.draw = function() {
             var count = this.brush.target.length;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 for(var j = 0; j < count; j++) {
                     var value = data[this.brush.target[j]],
                         xy = this.axis.c(i, value, j, count),
@@ -9488,7 +9488,7 @@ jui.define("chart.brush.circle", ["util.base"], function(_) {
 		this.draw = function() {
             group = chart.svg.group();
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 this.drawUnit(i, data);
             });
 
@@ -9607,7 +9607,7 @@ jui.define("chart.brush.stackbar", [], function() {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var group = chart.svg.group();
 				
 				var startY = this.offset("y", i) - bar_height / 2,
@@ -9681,7 +9681,7 @@ jui.define("chart.brush.stackcolumn", [], function() {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var group = chart.svg.group();
 				
 				var startX = this.offset("x", i) - bar_width / 2,
@@ -9740,7 +9740,7 @@ jui.define("chart.brush.stackbar3d", [], function() {
 		}
 
 		this.draw = function() {
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var group = chart.svg.group(),
                     startY = axis.c(0, i).y - bar_height / 2,
                     col_width = 0;
@@ -9807,7 +9807,7 @@ jui.define("chart.brush.stackcolumn3d", [], function() {
         }
 
 		this.draw = function() {
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var group = this.chart.svg.group(),
                     startX = this.axis.c(i, 0).x - bar_width / 2,
                     col_height = 0;
@@ -9894,7 +9894,7 @@ jui.define("chart.brush.fullstackbar", [], function() {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var group = chart.svg.group();
 
 				var startY = this.offset("y", i) - bar_height / 2,
@@ -9993,7 +9993,7 @@ jui.define("chart.brush.fullstackcolumn", [], function() {
 		this.draw = function() {
 			var chart_height = axis.area("height");
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var group = chart.svg.group();
 
 				var startX = this.offset("x", i) - bar_width / 2,
@@ -10082,7 +10082,7 @@ jui.define("chart.brush.fullstackbar3d", [], function() {
         }
 
 		this.draw = function() {
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var group = chart.svg.group(),
                     startY = axis.c(0, i).y - bar_height / 2,
                     col_width = 0,
@@ -10172,7 +10172,7 @@ jui.define("chart.brush.fullstackcolumn3d", [], function() {
         }
 
 		this.draw = function() {
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var group = this.chart.svg.group(),
                     startX = this.axis.c(i, 0).x - bar_width / 2,
                     startY = zeroXY.y,
@@ -10464,7 +10464,7 @@ jui.define("chart.brush.bubble3d", [ "util.math" ], function(math) {
             var g = this.chart.svg.group(),
                 count = this.brush.target.length;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 for(var j = 0; j < count; j++) {
                     var value = data[this.brush.target[j]],
                         xy = this.axis.c(i, value, j, count),
@@ -10514,7 +10514,7 @@ jui.define("chart.brush.candlestick", [], function() {
         }
 
         this.draw = function() {
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var startX = this.offset("x", i),
                     r = null,
                     l = null;
@@ -10596,7 +10596,7 @@ jui.define("chart.brush.ohlc", [], function() {
         }
 
         this.draw = function() {
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var startX = this.offset("x", i);
 
                 var high = this.getValue(data, "high", 0),
@@ -10665,7 +10665,7 @@ jui.define("chart.brush.equalizer", [], function() {
         }
 
         this.draw = function() {
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var startX = this.offset("x", i) - half_width;
 
                 for (var j = 0; j < brush.target.length; j++) {
@@ -10759,7 +10759,7 @@ jui.define("chart.brush.equalizerbar", [], function() {
                 unit = band / (this.brush.unit * padding),
                 width = unit + padding;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var startY = this.offset("y", i) - bar_height / 2,
                     startX = this.axis.x(0),
                     x = startX,
@@ -10834,7 +10834,7 @@ jui.define("chart.brush.equalizercolumn", [], function() {
                 unit = band / (this.brush.unit * padding),
                 height = unit + padding;
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var startX = this.offset("x", i) - bar_width / 2,
                     startY = this.axis.y(0),
                     y = startY,
@@ -10886,7 +10886,7 @@ jui.define("chart.brush.equalizercolumn", [], function() {
     return EqualizerColumnBrush;
 }, "chart.brush.stackcolumn");
 
-jui.define("chart.brush.line", [], function() {
+jui.define("chart.brush.line", [ "util.base" ], function(_) {
 
     /**
      * @class chart.brush.line
@@ -10919,30 +10919,38 @@ jui.define("chart.brush.line", [], function() {
             this.lineList.push(elem);
         }
 
-        this.createLine = function(pos, index) {
+        this.createLine = function(pos, tIndex) {
             var x = pos.x,
-                y = pos.y;
+                y = pos.y,
+                px = (this.brush.symbol == "curve") ? this.curvePoints(x) : null,
+                py = (this.brush.symbol == "curve") ? this.curvePoints(y) : null,
+                color = null,
+                opts = {
+                    "stroke-width" : lineBorderWidth,
+                    "stroke-dasharray" : lineBorderDashArray,
+                    fill : "transparent",
+                    "cursor" : (this.brush.activeEvent != null) ? "pointer" : "normal"
+                };
 
-            var p = this.chart.svg.path({
-                stroke : this.color(index),
-                "stroke-width" : lineBorderWidth,
-                "stroke-dasharray" : lineBorderDashArray,
-                fill : "transparent",
-                "cursor" : (this.brush.activeEvent != null) ? "pointer" : "normal"
-            });
+            var g = this.svg.group(),
+                p = null;
 
             if(pos.length > 0) {
-                p.MoveTo(x[0], y[0]);
+                for (var i = 0; i < x.length - 1; i++) {
+                    var newColor = this.color(i, tIndex);
 
-                if (this.brush.symbol == "curve") {
-                    var px = this.curvePoints(x),
-                        py = this.curvePoints(y);
+                    if(color != newColor) {
+                        p = this.svg.path(_.extend({ stroke: newColor }, opts));
 
-                    for (var i = 0; i < x.length - 1; i++) {
-                        p.CurveTo(px.p1[i], py.p1[i], px.p2[i], py.p2[i], x[i + 1], y[i + 1]);
+                        p.MoveTo(x[i], y[i]);
+                        g.append(p);
+
+                        color = newColor;
                     }
-                } else {
-                    for (var i = 0; i < x.length - 1; i++) {
+
+                    if (this.brush.symbol == "curve") {
+                        p.CurveTo(px.p1[i], py.p1[i], px.p2[i], py.p2[i], x[i + 1], y[i + 1]);
+                    } else {
                         if (this.brush.symbol == "step") {
                             var sx = x[i] + ((x[i + 1] - x[i]) / 2);
 
@@ -10955,7 +10963,7 @@ jui.define("chart.brush.line", [], function() {
                 }
             }
 
-            return p;
+            return g;
         }
 
         this.createTooltip = function(g, pos, index) {
@@ -11103,7 +11111,7 @@ jui.define("chart.brush.path", [], function() {
 	
 				g.append(path);
 	
-				this.eachData(function(i, data) {
+				this.eachData(function(data, i) {
 					var obj = this.axis.c(i, data[this.brush.target[ti]]),
 						x = obj.x - this.chart.area("x") + this.axis.padding("left"),
 						y = obj.y - this.chart.area("y") + this.axis.padding("top");
@@ -11407,7 +11415,7 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
         }
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				this.drawUnit(i, data, g);
 			});
 
@@ -12078,7 +12086,7 @@ jui.define("chart.brush.bargauge", [], function() {
                 x = obj.x,
                 y = obj.y;
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
                 var g = chart.svg.group(),
                     v = this.getValue(data, "value", 0),
                     t = this.getValue(data, "title", ""),
@@ -12194,7 +12202,7 @@ jui.define("chart.brush.circlegauge", [], function() {
 		this.draw = function() {
             group = chart.svg.group();
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 this.drawUnit(i, data);
             });
 
@@ -12394,23 +12402,27 @@ jui.define("chart.brush.area", [], function() {
                 y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min());
 
             for(var k = 0; k < path.length; k++) {
-                var p = this.createLine(path[k], k),
+                var children = this.createLine(path[k], k).children,
                     xList = path[k].x;
 
-                if(path[k].length > 0) {
-                    p.LineTo(xList[xList.length - 1], y);
-                    p.LineTo(xList[0], y);
-                    p.ClosePath();
+                for(var i = 0; i < children.length; i++) {
+                    var p = children[i];
+
+                    if (path[k].length > 0) {
+                        p.LineTo(xList[xList.length - 1], y);
+                        p.LineTo(xList[0], y);
+                        p.ClosePath();
+                    }
+
+                    p.attr({
+                        fill: this.color(k),
+                        "fill-opacity": this.chart.theme("areaBackgroundOpacity"),
+                        "stroke-width": 0
+                    });
+
+                    this.addEvent(p, null, k);
+                    g.prepend(p);
                 }
-
-                p.attr({
-                    fill: this.color(k),
-                    "fill-opacity": this.chart.theme("areaBackgroundOpacity"),
-                    "stroke-width": 0
-                });
-
-                this.addEvent(p, null, k);
-                g.prepend(p);
 
                 // Add line
                 if(this.brush.line) {
@@ -12627,7 +12639,7 @@ jui.define("chart.brush.gauge", [ "util.math" ], function(math) {
 		this.draw = function() {
 			var group = this.chart.svg.group();
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				this.drawUnit(i, data, group);
 			});
 
@@ -12749,7 +12761,7 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 		this.draw = function() {
 			group = this.chart.svg.group();
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				this.drawUnit(i, data);
 			});
 
@@ -12820,7 +12832,7 @@ jui.define("chart.brush.stackgauge", [ "util.math" ], function(math) {
 		this.draw = function() {
 			var group = chart.svg.group();
 			
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var rate = (data[brush.target] - brush.min) / (brush.max - brush.min),
                     currentAngle = (brush.endAngle) * rate,
                     innerRadius = outerRadius - brush.size + brush.cut;
@@ -12907,7 +12919,7 @@ jui.define("chart.brush.waterfall", [], function() {
 			var target = brush.target[0],
 				stroke = chart.theme("waterfallLineColor");
 
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startX = this.offset("x", i) - half_width / 2,
 					startY = axis.y(data[target]),
 					r = null, l = null;
@@ -13199,7 +13211,7 @@ jui.define("chart.brush.rangecolumn", [], function() {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var startX = this.offset("x", i) - (half_width / 2);
 
 				for(var j = 0; j < brush.target.length; j++) {
@@ -13268,7 +13280,7 @@ jui.define("chart.brush.rangebar", [], function() {
 		}
 
 		this.draw = function() {
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var group = chart.svg.group(),
 					startY = this.offset("y", i) - (half_height / 2);
 
@@ -13472,7 +13484,7 @@ jui.define("chart.brush.topologynode",
             var names = [],
                 keys = key.split(":");
 
-            self.eachData(function(i, data) {
+            self.eachData(function(data, i) {
                 var title = _.typeCheck("function", self.brush.nodeTitle) ? self.brush.nodeTitle.call(self.chart, data) : "";
 
                 if(data.key == keys[0]) {
@@ -13921,7 +13933,7 @@ jui.define("chart.brush.topologynode",
         this.draw = function() {
             var nodes = [];
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 for(var j = 0; j < data.outgoing.length; j++) {
                     setDataEdges(i, j);
                 }
@@ -13931,7 +13943,7 @@ jui.define("chart.brush.topologynode",
             createEdges();
 
             // 노드 그리기
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var node = createNodes(i, data);
                 g.append(node);
 
@@ -15185,7 +15197,7 @@ jui.define("chart.brush.map.note", [ "util.base" ], function(_) {
 				});
 			}
 
-			this.eachData(function(i, d) {
+			this.eachData(function(d, i) {
 				var id = axis.getValue(d, "id"),
 					value = axis.getValue(d, "value", 0),
 					texts = axis.getValue(d, "texts", []),
@@ -15297,7 +15309,7 @@ jui.define("chart.brush.map.bubble", [ "util.base", "util.math" ], function(_, m
             var g = chart.svg.group(),
                 minmax = getMinMaxValues();
 
-            this.eachData(function(i, d) {
+            this.eachData(function(d, i) {
                 var value = axis.getValue(d, "value", 0),
                     size = math.scaleValue(value, minmax.min, minmax.max, brush.min, brush.max),
                     xy = axis.map(axis.getValue(d, "id", null)),
@@ -15621,7 +15633,7 @@ jui.define("chart.brush.map.flightroute", [ "util.base" ], function(_) {
         }
 
 		this.draw = function() {
-            this.eachData(function(i, d) {
+            this.eachData(function(d, i) {
                 var id = axis.getValue(d, "id", null),
                     type = axis.getValue(d, "airport", null),
                     routes = axis.getValue(d, "routes", []),
@@ -15659,7 +15671,7 @@ jui.define("chart.brush.map.marker", [ "util.base" ], function(_) {
                 w = brush.width,
                 h = brush.height;
 
-            this.eachData(function(i, d) {
+            this.eachData(function(d, i) {
                 var id = axis.getValue(d, "id", null),
                     xy = axis.map(id);
 
@@ -15782,7 +15794,7 @@ jui.define("chart.brush.map.weather", [ "util.base" ], function(_) {
 		this.draw = function() {
             var g = chart.svg.group();
 
-            this.eachData(function(i, d) {
+            this.eachData(function(d, i) {
                 var id = axis.getValue(d, "id", null),
                     temp = axis.getValue(d, "temperature", 0),
                     icon = axis.getValue(d, "weather", "sunny");

@@ -197,7 +197,7 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
                 }
             } else {
                 for(var index = 0, len = list.length; index < len; index++) {
-                    callback.call(this, index, list[index]);
+                    callback.call(this, list[index], index);
                 }
             }
         }
@@ -322,7 +322,7 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
             var xy = this.getXY(isCheckMinMax),
                 isRangeY = (this.axis.y.type == "range");
 
-            this.eachData(function(i, data) {
+            this.eachData(function(data, i) {
                 var valueSum = 0;
 
                 for(var j = 0; j < this.brush.target.length; j++) {
@@ -439,7 +439,7 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
             }
 
             if(_.typeCheck("function", colors)) {
-                var newColor = colors.call(this.chart, this.getData(rowIndex));
+                var newColor = colors.call(this.chart, this.getData(rowIndex), rowIndex);
 
                 if(_.typeCheck([ "string", "integer" ], newColor)) {
                     color = this.chart.color(newColor);

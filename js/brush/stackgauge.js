@@ -39,7 +39,7 @@ jui.define("chart.brush.stackgauge", [ "util.math" ], function(math) {
 		this.draw = function() {
 			var group = chart.svg.group();
 			
-			this.eachData(function(i, data) {
+			this.eachData(function(data, i) {
 				var rate = (data[brush.target] - brush.min) / (brush.max - brush.min),
                     currentAngle = (brush.endAngle) * rate,
                     innerRadius = outerRadius - brush.size + brush.cut;
