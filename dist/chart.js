@@ -10937,9 +10937,15 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                 p = null;
 
             if(pos.length > 0) {
+                var start = null, end = null;
+
                 for (var i = 0; i < x.length - 1; i++) {
-                    if( _.typeCheck([ "undefined", "null" ], v[i]) ||
-                        _.typeCheck([ "undefined", "null" ], v[i + 1]) )
+                    if(!_.typeCheck([ "undefined", "null" ], v[i]))
+                        start = i;
+                    if(!_.typeCheck([ "undefined", "null" ], v[i + 1]))
+                        end = i + 1;
+
+                    if(start == null || end == null || start == end)
                         continue;
 
                     var newColor = this.color(i, tIndex);
@@ -10947,30 +10953,30 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                     if(color != newColor) {
                         p = this.svg.path(_.extend({
                             stroke: newColor,
-                            x1: x[i] // Start coordinates of area brush
+                            x1: x[start] // Start coordinates of area brush
                         }, opts));
 
-                        p.MoveTo(x[i], y[i]);
+                        p.MoveTo(x[start], y[start]);
                         g.append(p);
 
                         color = newColor;
                     } else {
                         p.attr({
-                            x2: x[i + 1] // End coordinates of area brush
+                            x2: x[end] // End coordinates of area brush
                         });
                     }
 
                     if (this.brush.symbol == "curve") {
-                        p.CurveTo(px.p1[i], py.p1[i], px.p2[i], py.p2[i], x[i + 1], y[i + 1]);
+                        p.CurveTo(px.p1[start], py.p1[start], px.p2[start], py.p2[start], x[end], y[end]);
                     } else {
                         if (this.brush.symbol == "step") {
-                            var sx = x[i] + ((x[i + 1] - x[i]) / 2);
+                            var sx = x[start] + ((x[end] - x[start]) / 2);
 
-                            p.LineTo(sx, y[i]);
-                            p.LineTo(sx, y[i + 1]);
+                            p.LineTo(sx, y[start]);
+                            p.LineTo(sx, y[end]);
                         }
 
-                        p.LineTo(x[i + 1], y[i + 1]);
+                        p.LineTo(x[end], y[end]);
                     }
                 }
             }
