@@ -13,13 +13,13 @@
     jui.ready([ "chart.builder" ], function(chart) {
 
         var dataSource = [
-            { name : 2, value : 15 },
-            { name : 5, value : 11 },
-            { name : 8, value : 10 },
-            { name : 1, value : 12 },
-            { name : 3, value : 12 },
-            { name : 5, value : 12 },
-            { name : 4, value : 12 },
+            { name : 2, value : null },
+            { name : 5, value : null },
+            { name : 8, value : 8 },
+            { name : null, value : 9 },
+            { name : null, value : 7 },
+            { name : null, value : 5 },
+            { name : null, value : 10 },
         ];
 
         chart("#chart", {
@@ -44,29 +44,19 @@
             brush : [{
                 type : "line",
                 target : "name",
-                symbol : "curve",
-                colors : function(d, i) {
-                    if(i < 3) {
-                        return "red";
-                    }
-
-                    return "blue";
-                }
+                colors : [ "red" ]
+            }, {
+                type : "line",
+                target : "value",
+                colors : [ "blue" ]
             }, {
                 type : "scatter",
                 target : "name",
-                colors : function(d, i) {
-                    if(i < 3) {
-                        return "red";
-                    }
-
-                    return "blue";
-                }
-            }],
-            widget : [{
-                type : "tooltip",
-                brush : [ 1 ],
-                all : true
+                colors : [ "red" ]
+            }, {
+                type : "scatter",
+                target : "value",
+                colors : [ "blue" ]
             }],
             style : {
                 tooltipBorderColor : "black"

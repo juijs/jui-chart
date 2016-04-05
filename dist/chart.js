@@ -10922,6 +10922,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
         this.createLine = function(pos, tIndex) {
             var x = pos.x,
                 y = pos.y,
+                v = pos.value,
                 px = (this.brush.symbol == "curve") ? this.curvePoints(x) : null,
                 py = (this.brush.symbol == "curve") ? this.curvePoints(y) : null,
                 color = null,
@@ -10937,6 +10938,10 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
 
             if(pos.length > 0) {
                 for (var i = 0; i < x.length - 1; i++) {
+                    if( _.typeCheck([ "undefined", "null" ], v[i]) ||
+                        _.typeCheck([ "undefined", "null" ], v[i + 1]) )
+                        continue;
+
                     var newColor = this.color(i, tIndex);
 
                     if(color != newColor) {
@@ -11885,6 +11890,10 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                         min: points[i].min[j],
                         value: points[i].value[j]
                     };
+
+                    // 값이 null이나 undefined일 때, 그리지 않음
+                    if(_.typeCheck([ "undefined", "null" ], data.value))
+                        continue;
 
                     var symbol = this.getSymbolType(i, data.value),
                         p = this.createScatter(data, j, i, symbol),

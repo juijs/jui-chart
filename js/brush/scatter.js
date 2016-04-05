@@ -157,6 +157,10 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                         value: points[i].value[j]
                     };
 
+                    // 값이 null이나 undefined일 때, 그리지 않음
+                    if(_.typeCheck([ "undefined", "null" ], data.value))
+                        continue;
+
                     var symbol = this.getSymbolType(i, data.value),
                         p = this.createScatter(data, j, i, symbol),
                         d = this.brush.display;
