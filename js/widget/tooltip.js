@@ -70,7 +70,7 @@ jui.define("chart.widget.tooltip", [ "util.base", "util.color" ], function(_, Co
                         onlyValue = true;
                     }
 
-                    if(msg.value) {
+                    if(!_.typeCheck([ "null", "undefined" ], msg.value)) {
                         texts.get(i).get(1).attr({ x: 0 }).text(msg.value);
                     }
 
