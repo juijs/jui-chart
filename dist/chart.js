@@ -10901,7 +10901,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
 
             for(var i = 0; i < lines.length; i++) {
                 var opacity = (elem == lines[i].element) ? 1 : disableOpacity,
-                    color = lines[i].element.attr("stroke");
+                    color = lines[i].element.get(0).attr("stroke");
 
                 if(lines[i].tooltip != null) {
                     lines[i].tooltip.style(color, circleColor, opacity);
@@ -10955,6 +10955,10 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                             stroke: newColor,
                             x1: x[start] // Start coordinates of area brush
                         }, opts));
+
+                        p.css({
+                            "pointer-events": "stroke"
+                        });
 
                         p.MoveTo(x[start], y[start]);
                         g.append(p);
@@ -17074,16 +17078,21 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
 
         function changeTargetOption(brushList) {
             var target = [],
+                colors = [],
                 index = brushList[0].index;
 
             for(var key in columns[index]) {
                 if(columns[index][key]) {
                     target.push(key);
+                    colors.push(colorIndex[key]);
                 }
             }
 
             for(var i = 0; i < brushList.length; i++) {
-                chart.updateBrush(brushList[i].index, { target: target });
+                chart.updateBrush(brushList[i].index, {
+                    target: target,
+                    colors: colors
+                });
             }
 
             // 차트 렌더링이 활성화되지 않았을 경우

@@ -13,7 +13,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
 
             for(var i = 0; i < lines.length; i++) {
                 var opacity = (elem == lines[i].element) ? 1 : disableOpacity,
-                    color = lines[i].element.attr("stroke");
+                    color = lines[i].element.get(0).attr("stroke");
 
                 if(lines[i].tooltip != null) {
                     lines[i].tooltip.style(color, circleColor, opacity);
@@ -67,6 +67,10 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                             stroke: newColor,
                             x1: x[start] // Start coordinates of area brush
                         }, opts));
+
+                        p.css({
+                            "pointer-events": "stroke"
+                        });
 
                         p.MoveTo(x[start], y[start]);
                         g.append(p);
