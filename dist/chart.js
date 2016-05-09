@@ -14430,7 +14430,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
                     h = (_.typeCheck("function", size)) ? size.apply(this.chart, [ d, i ]) : size,
                     color = this.color(i, 0);
 
-                if(x2 - x1 < 0) { // 음수 처리
+                if(x2 - x1 < 0 || isNaN(x2)) { // 음수 처리
                     continue;
                 }
 
