@@ -5846,7 +5846,6 @@ jui.define("chart.grid.block", [ "util.scale", "util.base" ], function(UtilScale
 		}
 
 		this.initDomain = function() {
-
 			var domain = [];
 
 			if (_.typeCheck("string", this.grid.domain)) {
@@ -5867,10 +5866,9 @@ jui.define("chart.grid.block", [ "util.scale", "util.base" ], function(UtilScale
 					domain.push(data[i][field]);
 				}
 
-				//grid.domain = domain;
 			} else if (_.typeCheck("function", this.grid.domain)) {	// block 은 배열을 통째로 리턴함
 				domain = this.grid.domain.call(this.chart);
-			} else {
+			} else if (_.typeCheck("array", this.grid.domain)) {
 				domain = this.grid.domain;
 			}
 
@@ -5879,7 +5877,6 @@ jui.define("chart.grid.block", [ "util.scale", "util.base" ], function(UtilScale
 			}
 
 			return domain;
-
 		}
 
 		this.wrapper = function(scale, key) {
@@ -6277,7 +6274,6 @@ jui.define("chart.grid.fullblock", [ "util.scale", "util.base" ], function(UtilS
         }
 
         this.initDomain = function() {
-
             var domain = [];
 
             if (_.typeCheck("string", this.grid.domain)) {
@@ -6298,10 +6294,9 @@ jui.define("chart.grid.fullblock", [ "util.scale", "util.base" ], function(UtilS
                     domain.push(data[i][field]);
                 }
 
-                //grid.domain = domain;
             } else if (_.typeCheck("function", this.grid.domain)) {	// block 은 배열을 통째로 리턴함
                 domain = this.grid.domain.call(this.chart);
-            } else {
+            } else if (_.typeCheck("array", this.grid.domain)) {
                 domain = this.grid.domain;
             }
 
@@ -6310,7 +6305,6 @@ jui.define("chart.grid.fullblock", [ "util.scale", "util.base" ], function(UtilS
             }
 
             return domain;
-
         }
 
         this.wrapper = function(scale, key) {
