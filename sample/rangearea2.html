@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    jui.ready([ "chart.builder" ], function(chart) {
+
+        chart("#chart", {
+            width: 400,
+            height : 800,
+            axis : {
+                y : {
+                    type : "fullblock",
+                    domain : [ "week1", "week2", "week3", "week4" ],
+                    line : true
+                },
+                x : {
+                    type : 'range',
+                    domain : [ 0, 100 ],
+                    step : 10,
+                    line : true,
+                    orient : "right"
+                },
+                data : [
+                    { name : [5, 20], value : [ 3, 10], l: 15, l2: 7 },
+                    { name : [10, 20], value : [6, 10], l: 12, l2: 8 },
+                    { name : [30, 40], value : [50, 90], l: 36, l2: 67 },
+                    { name : [18, 55], value : [90, 97], l : 25, l2: 95 }
+                ]
+            },
+            brush : [{
+                type : 'rangearea',
+                target : ['name','value']
+            }, {
+                type : 'line',
+                target : ['l','l2'],
+            }],
+            widget : {
+                type : "tooltip"
+            }
+        });
+	})
+</script>
+
+
+</body>
+</html>
