@@ -1,6 +1,12 @@
 jui.define("chart.icon.jennifer", [], function() {
 	return {
 		"grip3" : "\ue998",
+		"clip" : "\ue999",
+		"scissors" : "\ue99a",
+		"topology" : "\ue99b",
+		"equalizer" : "\ue99c",
+		"idea" : "\ue99d",
+		"screenshot" : "\ue99e",
 		"tag" : "\ue993",
 		"all" : "\ue994",
 		"grip2" : "\ue995",
