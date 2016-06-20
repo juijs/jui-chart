@@ -7,20 +7,19 @@
 </head>
 <body >
 
-<div id="chart"></div>
+<div id="chart1"></div>
+<div id="chart2"></div>
 
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
 
-        chart("#chart", {
+        c = chart("#chart1", {
             //padding: 100,
             width: 400,
             height : 400,
             theme : "jennifer",
             axis : {
-                data : [
-                    { yellow : 46, red : 20 }
-                ]
+                data: []
             },
             brush : [{
                 type : "donut",
@@ -30,11 +29,14 @@
                 activeEvent : "click"
             }],
             widget : [{
-                type : "legend"
-            }, {
                 type : "tooltip"
+            }, {
+                type : "legend"
             }]
         });
+
+        c.axis(0).update([ { ie: 4, ff: 6 } ]);
+        c.render(true);
     })
 </script>
 

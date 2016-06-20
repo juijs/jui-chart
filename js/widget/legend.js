@@ -241,12 +241,14 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                         }
                     }
                 }
-                
+
                 if (total_width > 0) {
                     total_widthes.push(total_width);
                 }
-                
-                total_width  = Math.max.apply(Math, total_widthes);
+
+                if (total_widthes.length > 0) {
+                    total_width = Math.max.apply(Math, total_widthes);
+                }
 
                 setLegendStatus(brush);
             }
@@ -260,7 +262,7 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                 if (widget.align == "start") {
                     x = chart.area("x");
                 } else if (widget.align == "center") {
-                    x = chart.area("x") + (chart.area("width") / 2- total_width / 2);
+                    x = chart.area("x") + (chart.area("width")/2 - total_width / 2);
                 } else if (widget.align == "end") {
                     x = chart.area("x2") - total_width;
                 }
@@ -277,7 +279,7 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                     y = chart.area("y2") - total_height;
                 }
             } 
-            
+
             group.translate(Math.floor(x), Math.floor(y));
 
             return group;

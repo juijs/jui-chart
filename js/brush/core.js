@@ -211,6 +211,14 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
          * @returns {Array} axis.data
          */
         this.listData = function() {
+            if(!this.axis) {
+                return [];
+            } else {
+                if(!this.axis.data) {
+                    return [];
+                }
+            }
+
             return this.axis.data;
         }
 
