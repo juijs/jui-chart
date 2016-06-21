@@ -200,6 +200,8 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
 			}
 
 			for (var i = 0; i < target.length; i++) {
+                if(data[target[i]] == 0) continue;
+
                 var value = data[target[i]],
                     endAngle = all * (value / max);
 
