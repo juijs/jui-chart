@@ -184,22 +184,10 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
         }
 
 		this.drawUnit = function (index, data, g) {
-			var obj = this.axis.c(index);
-
-			var width = obj.width,
-                height = obj.height,
-                x = obj.x,
-                y = obj.y,
-                min = width;
-
-			if (height < min) {
-				min = height;
-			}
-
-			// center
-			var centerX = width / 2 + x,
-                centerY = height / 2 + y,
-                outerRadius = min / 2;
+			var props = this.getProperty(index),
+                centerX = props.centerX,
+                centerY = props.centerY,
+                outerRadius = props.outerRadius;
 
 			var target = this.brush.target,
                 active = this.brush.active,
@@ -275,17 +263,47 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
 			}
 		}
 
+        this.drawNoData = function(g) {
+            var props = this.getProperty(0);
+
+            g.append(this.drawPie(props.centerX, props.centerY, props.outerRadius, 0, 360, this.chart.theme("pieNoDataBackgroundColor")));
+        }
+
         this.drawBefore = function() {
             g = this.chart.svg.group();
         }
 
 		this.draw = function() {
-			this.eachData(function(data, i) {
-				this.drawUnit(i, data, g);
-			});
+            if(this.listData().length == 0) {
+                this.drawNoData(g);
+            } else {
+                this.eachData(function(data, i) {
+                    this.drawUnit(i, data, g);
+                });
+            }
 
             return g;
 		}
+
+        this.getProperty = function(index) {
+            var obj = this.axis.c(index);
+
+            var width = obj.width,
+                height = obj.height,
+                x = obj.x,
+                y = obj.y,
+                min = width;
+
+            if (height < min) {
+                min = height;
+            }
+
+            return {
+                centerX: width / 2 + x,
+                centerY: height / 2 + y,
+                outerRadius: min / 2
+            }
+        }
 	}
 
     PieBrush.setup = function() {

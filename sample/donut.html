@@ -26,7 +26,8 @@
                 showText : "inside",
                 size : 30,
                 active : [ "red" ],
-                activeEvent : "click"
+                activeEvent : "click",
+                showValue : true
             }],
             widget : [{
                 type : "tooltip"
@@ -35,8 +36,10 @@
             }]
         });
 
-        c.axis(0).update([ { ie: 4, ff: 6 } ]);
-        c.render(true);
+        setTimeout(function() {
+            c.axis(0).update([ { ie: 4, ff: 6 } ]);
+            c.render(true);
+        }, 3000);
     })
 </script>
 

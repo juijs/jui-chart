@@ -12,15 +12,13 @@
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
 
-        chart("#chart", {
+        var c = chart("#chart", {
             padding: 100,
             width: 400,
             height : 400,
             theme : "jennifer",
             axis : {
-                data : [
-                    { yellow : 36, red : 45, black : 18, blue : 10, green : 5, cyan : 100, cross : 33, xxx : 30, ddd : 2 }
-                ]
+                data : []
             },
             brush : [{
                 type : "pie",
@@ -39,6 +37,12 @@
                 type : "tooltip"
             }]
         });
+
+        setTimeout(function() {
+            c.axis(0).update([
+                { yellow : 36, red : 45, black : 18, blue : 10, green : 5, cyan : 100, cross : 33, xxx : 30, ddd : 2 }
+            ]);
+        }, 3000);
 	})
 </script>
 
