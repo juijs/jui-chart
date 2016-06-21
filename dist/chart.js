@@ -11537,7 +11537,6 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
      */
 	var DonutBrush = function() {
         var self = this,
-            g = null,
             cache_active = {};
 
 		this.drawDonut = function(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
@@ -11556,7 +11555,6 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
 				startX = obj.x,
 				startY = obj.y;
 
-
 			// 시작 하는 위치로 옮김
 			path.MoveTo(startX, startY);
 
@@ -11568,6 +11566,11 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
 
 			// outer arc 그림
 			path.Arc(outerRadius, outerRadius, 0, (endAngle > 180) ? 1 : 0, 1, obj.x, obj.y);
+
+            // 마우스 이벤트 빈공간 제외
+            path.css({
+                "pointer-events": "stroke"
+            });
 
 			g.append(path);
             g.order = 1;
@@ -11729,7 +11732,7 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
             for (var i = 0; i < target.length; i++) {
                 if(data[target[i]] == 0) continue;
 
-                var value = data[target[i]];
+                var value = data[target[i]],
                     endAngle = all * (value / max),
                     centerAngle = startAngle + (endAngle / 2) - 90,
                     radius = (this.brush.showText == "inside") ? this.brush.size + innerRadius + outerRadius : outerRadius,
