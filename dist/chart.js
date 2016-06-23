@@ -11349,6 +11349,7 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                 g.order = 2;
             } else {
                 var rate = this.chart.theme("pieOuterLineRate"),
+                    minRate = 1.2,
                     diffAngle = Math.abs(centerAngle - preAngle);
 
                 if(diffAngle < 3) {
@@ -11362,38 +11363,40 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                     preRate = rate;
                 }
 
-                var dist = this.chart.theme("pieOuterLineSize"),
-                    r = outerRadius * preRate,
-                    cx = centerX + (Math.cos(math.radian(centerAngle)) * outerRadius),
-                    cy = centerY + (Math.sin(math.radian(centerAngle)) * outerRadius),
-                    tx = centerX + (Math.cos(math.radian(centerAngle)) * r),
-                    ty = centerY + (Math.sin(math.radian(centerAngle)) * r),
-                    ex = (isLeft) ? tx - dist : tx + dist;
+                if(preRate > minRate) {
+                    var dist = this.chart.theme("pieOuterLineSize"),
+                        r = outerRadius * preRate,
+                        cx = centerX + (Math.cos(math.radian(centerAngle)) * outerRadius),
+                        cy = centerY + (Math.sin(math.radian(centerAngle)) * outerRadius),
+                        tx = centerX + (Math.cos(math.radian(centerAngle)) * r),
+                        ty = centerY + (Math.sin(math.radian(centerAngle)) * r),
+                        ex = (isLeft) ? tx - dist : tx + dist;
 
-                var path = this.svg.path({
-                    fill: "transparent",
-                    stroke: this.chart.theme("pieOuterLineColor"),
-                    "stroke-width": 0.7
-                });
+                    var path = this.svg.path({
+                        fill: "transparent",
+                        stroke: this.chart.theme("pieOuterLineColor"),
+                        "stroke-width": 0.7
+                    });
 
-                path.MoveTo(cx, cy)
-                    .LineTo(tx, ty)
-                    .LineTo(ex, ty);
+                    path.MoveTo(cx, cy)
+                        .LineTo(tx, ty)
+                        .LineTo(ex, ty);
 
-                var text = this.chart.text({
-                    "font-size": this.chart.theme("pieOuterFontSize"),
-                    fill: this.chart.theme("pieOuterFontColor"),
-                    "text-anchor": (isLeft) ? "end" : "start",
-                    y: textY
-                }, text);
+                    var text = this.chart.text({
+                        "font-size": this.chart.theme("pieOuterFontSize"),
+                        fill: this.chart.theme("pieOuterFontColor"),
+                        "text-anchor": (isLeft) ? "end" : "start",
+                        y: textY
+                    }, text);
 
-                text.translate(ex + (isLeft ? -3 : 3), ty);
+                    text.translate(ex + (isLeft ? -3 : 3), ty);
 
-                g.append(text);
-                g.append(path);
-                g.order = 0;
+                    g.append(text);
+                    g.append(path);
+                    g.order = 0;
 
-                preAngle = centerAngle;
+                    preAngle = centerAngle;
+                }
             }
 
             return g;
