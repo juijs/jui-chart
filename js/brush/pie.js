@@ -6,7 +6,7 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
      */
     var PieBrush = function() {
         var self = this, textY = 3;
-        var preAngle = 0, preRate = 0;
+        var preAngle = 0, preRate = 0, preOpacity = 1;
         var g, cache_active = {};
 
         this.setActiveEvent = function(pie, centerX, centerY, centerAngle) {
@@ -148,22 +148,25 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                 g.append(text);
                 g.order = 2;
             } else {
+                // TODO: 각도가 좁을 때, 텍스트와 라인을 보정하는 코드 개선 필요
+
                 var rate = this.chart.theme("pieOuterLineRate"),
-                    minRate = 1.2,
                     diffAngle = Math.abs(centerAngle - preAngle);
 
-                if(diffAngle < 3) {
-                    if(preRate == 0) { // 값 초기화
+                if(diffAngle < 2) {
+                    if(preRate == 0) {
                         preRate = rate;
                     }
 
                     var tick = rate * 0.05;
                     preRate -= tick;
+                    preOpacity -= 0.25;
                 } else {
                     preRate = rate;
+                    preOpacity = 1;
                 }
 
-                if(preRate > minRate) {
+                if(preRate > 1.2) {
                     var dist = this.chart.theme("pieOuterLineSize"),
                         r = outerRadius * preRate,
                         cx = centerX + (Math.cos(math.radian(centerAngle)) * outerRadius),
@@ -175,7 +178,8 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                     var path = this.svg.path({
                         fill: "transparent",
                         stroke: this.chart.theme("pieOuterLineColor"),
-                        "stroke-width": 0.7
+                        "stroke-width": this.chart.theme("pieOuterLineWidth"),
+                        "stroke-opacity": preOpacity
                     });
 
                     path.MoveTo(cx, cy)
@@ -184,7 +188,8 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
 
                     var text = this.chart.text({
                         "font-size": this.chart.theme("pieOuterFontSize"),
-                        fill: this.chart.theme("pieOuterFontColor"),
+                        "fill": this.chart.theme("pieOuterFontColor"),
+                        "fill-opacity": preOpacity,
                         "text-anchor": (isLeft) ? "end" : "start",
                         y: textY
                     }, text);

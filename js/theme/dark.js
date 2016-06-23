@@ -100,6 +100,7 @@ jui.define("chart.theme.dark", [], function() {
         pieOuterLineColor : "#a9a9a9",
         pieOuterLineSize : 8,
         pieOuterLineRate : 1.3,
+        pieOuterLineWidth : 0.7,
         pieInnerFontSize : 11,
         pieInnerFontColor : "#868686",
         pieActiveDistance : 5,
