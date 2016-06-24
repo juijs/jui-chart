@@ -108,7 +108,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                     var orient = (display == "max" && pos.max[i]) ? "top" : "bottom";
 
                     var minmax = this.drawTooltip(this.color(index), circleColor, 1);
-                    minmax.control(orient, pos.x[i], pos.y[i], this.format(pos.value[i]));
+                    minmax.control(orient, +pos.x[i], +pos.y[i], this.format(pos.value[i]));
 
                     g.append(minmax.tooltip);
 
