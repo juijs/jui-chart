@@ -17505,7 +17505,7 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                 }
             } 
 
-            group.translate(Math.floor(x), Math.floor(y));
+            group.translate(Math.floor(x) + widget.dx, Math.floor(y) + widget.dy);
 
             return group;
         }
@@ -17521,6 +17521,10 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
             filter: false,
             /** @cfg {Function/String} [icon=null]   */
             icon: null,
+            /** @cfg {Number} [dx=0] Moves the x coordinate by a set value from the location where the chart is drawn.  */
+            dx: 0,
+            /** @cfg {Number} [dy=0] Moves the y coordinate by a set value from the location where the chart is drawn. */
+            dy: 0,
             /** @cfg {Array} [colors=null]   */
             colors: null,
             /** @cfg {Boolean} [brushSync=false] Applies all brushes equally when using a filter function. */
