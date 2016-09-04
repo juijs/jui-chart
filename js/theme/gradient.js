@@ -226,6 +226,10 @@ jui.define("chart.theme.gradient", [], function() {
         pyramidTextFontSize: 10,
         pyramidTextFontColor: "#333",
 
+        heatmapscatterBorderWidth: 0.5,
+        heatmapscatterBorderColor: "#fff",
+        heatmapscatterActiveBackgroundColor: "#fff",
+
         // widget styles
         titleFontColor : "#333",
         titleFontSize : 13,

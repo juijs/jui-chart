@@ -224,6 +224,10 @@ jui.define("chart.theme.dark", [], function() {
         pyramidTextFontSize: 10,
         pyramidTextFontColor: "#222",
 
+        heatmapscatterBorderWidth: 0.5,
+        heatmapscatterBorderColor: "#222222",
+        heatmapscatterActiveBackgroundColor: "#222222",
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,
