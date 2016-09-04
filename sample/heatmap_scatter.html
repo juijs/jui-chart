@@ -11,7 +11,8 @@
 
 <script id="script_code">
 jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
-    var txData = [];
+    var txData = [],
+        domain = getDomain();
 
     var chart = builder("#chart", {
         width : 500,
@@ -19,7 +20,7 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
         axis : {
             x : {
                 type : "date",
-                domain : getDomain(),
+                domain : domain,
                 interval : 1,
                 realtime : "minutes",
                 format : "HH:mm",
@@ -33,6 +34,9 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
                 line : true,
                 orient : "left"
             },
+            data : [
+                { time: domain[0], delay: 4444 }
+            ]
         },
         brush : {
             type : "heatmapscatter",
@@ -58,7 +62,7 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
         render : false
     });
 
-    /**/
+    /*/
     window.interval = setInterval(function() {
         var domain = getDomain();
 

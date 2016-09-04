@@ -9,23 +9,11 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
         var yValue, yDist, ySize, xValue, xDist, xSize;
 
         // TODO: 아주 무식한 방법이므로 개선해야 함.
-        function getTableData(x, y) {
-            var xIndex = 0,
-                yIndex = 0;
+        function getTableData(self, xValue, yValue) {
+            var xIndex = Math.floor((xValue - self.axis.x.min()) / self.brush.xInterval),
+                yIndex = Math.floor((yValue - self.axis.y.min()) / self.brush.yInterval);
 
-            for(var i = 0; i < yDist - 1; i++) {
-                if(y <= map[i][0].y && y > map[i + 1][0].y) {
-                    yIndex = i;
-                    break;
-                }
-            }
-
-            for(var j = 0; j < xDist - 1; j++) {
-                if (x > map[0][j].x && x <= map[0][j + 1].x) {
-                    xIndex = j;
-                    break;
-                }
-            }
+            console.log(xIndex, yIndex);
 
             return {
                 map: map[yIndex][xIndex],
@@ -60,7 +48,7 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
         }
 
         this.createScatter = function(pos, dataIndex, targetIndex) {
-            var tableInfo = getTableData(pos.x, pos.y),
+            var tableInfo = getTableData(this, this.axis.x.invert(pos.x), this.axis.y.invert(pos.y)),
                 tableObj = tableInfo.map,
                 color = this.color(dataIndex, targetIndex);
 
@@ -97,19 +85,10 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
 
             for(var i = 0; i < points.length; i++) {
                 for(var j = 0; j < points[i].length; j++) {
-                    var data = {
+                    var obj = this.createScatter({
                         x: points[i].x[j],
-                        y: points[i].y[j],
-                        max: points[i].max[j],
-                        min: points[i].min[j],
-                        value: points[i].value[j]
-                    };
-
-                    // 값이 null이나 undefined일 때, 그리지 않음
-                    if(_.typeCheck([ "undefined", "null" ], data.value))
-                        continue;
-
-                    var obj = this.createScatter(data, j, i);
+                        y: points[i].y[j]
+                    }, j, i);
 
                     if(obj.draw == false) {
                         var activeEvent = this.brush.activeEvent;
@@ -143,28 +122,32 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                 xMin = this.axis.x.min();
 
             // 히트맵 생성
-            for(var i = 1; i <= yDist; i++) {
-                if(!map[i - 1]) {
-                    map[i - 1] = [];
+            for(var i = 0; i < yDist; i++) {
+                if(!map[i]) {
+                    map[i] = [];
                 }
 
                 var yVal = yMin + ((yValue / yDist) * i),
                     yPos = this.axis.y(this.axis.y.type == "date" ? new Date(yVal) : yVal);
 
-                for(var j = 1; j <= xDist; j++) {
+                for(var j = 0; j < xDist; j++) {
                     var xVal = xMin + ((xValue / xDist) * j),
                         xPos = this.axis.x(this.axis.x.type == "date" ? new Date(xVal) : xVal);
 
-                    map[i - 1][j - 1] = {
+                    map[i][j] = {
                         data: [],
                         element: null,
                         draw: false,
                         color: null,
                         x: xPos,
-                        y: yPos
+                        y: yPos,
+                        xValue: xVal,
+                        yValue: yVal
                     };
                 }
             }
+
+            console.log(map);
 
             this.drawScatter(g, this.getXY());
 
@@ -179,6 +162,9 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
             xValue = this.axis.x.max() - this.axis.x.min();
             xDist = xValue / this.brush.xInterval;
             xSize = this.axis.area("width") / xDist;
+
+            console.log(yValue, yDist, ySize);
+            console.log("-----------------------------");
         }
     }
 
