@@ -34,9 +34,11 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
                 line : true,
                 orient : "left"
             },
+            /*/
             data : [
-                { time: domain[0], delay: 4444 }
+                { time: domain[0], delay: 0 }
             ]
+            /**/
         },
         brush : {
             type : "heatmapscatter",
@@ -62,7 +64,7 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
         render : false
     });
 
-    /*/
+    /**/
     window.interval = setInterval(function() {
         var domain = getDomain();
 
@@ -72,12 +74,12 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
         chart.render();
 
         console.log(txData.length);
-    }, 3000);
+    }, 5000);
 
     /**/
 
     function appendTxData(list, domain) {
-        var count = Math.floor(Math.random() * 2);
+        var count = Math.floor(Math.random() * 10);
 
         for(var i = 0; i < list.length; i++) {
             if(list[i].time < domain[0]){

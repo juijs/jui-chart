@@ -13,7 +13,10 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
             var xIndex = Math.floor((xValue - self.axis.x.min()) / self.brush.xInterval),
                 yIndex = Math.floor((yValue - self.axis.y.min()) / self.brush.yInterval);
 
-            console.log(xIndex, yIndex);
+            if(xIndex >= xDist) xIndex = xDist - 1;
+            if(yIndex >= yDist) yIndex = yDist - 1;
+            if(xIndex < 0) xIndex = 0;
+            if(yIndex < 0) yIndex = 0;
 
             return {
                 map: map[yIndex][xIndex],
@@ -80,15 +83,21 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
             };
         }
 
-        this.drawScatter = function(g, points) {
-            var self = this;
+        this.drawScatter = function(g) {
+            var self = this,
+                data = this.axis.data,
+                target = this.brush.target;
 
-            for(var i = 0; i < points.length; i++) {
-                for(var j = 0; j < points[i].length; j++) {
+            for(var i = 0; i < data.length; i++) {
+                var xValue = this.axis.x(i);
+
+                for(var j = 0; j < target.length; j++) {
+                    var yValue = this.axis.y(data[i][target[j]]);
+
                     var obj = this.createScatter({
-                        x: points[i].x[j],
-                        y: points[i].y[j]
-                    }, j, i);
+                        x: xValue,
+                        y: yValue
+                    }, i, j);
 
                     if(obj.draw == false) {
                         var activeEvent = this.brush.activeEvent;
@@ -99,16 +108,16 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                             })
                         }
 
-                        (function(i, j) {
+                        (function(ii, jj) {
                             obj.element.on(activeEvent, function (e) {
-                                setActiveNodeData(self, i, j);
-                                self.chart.emit("heatmapscatter.select", [ map[i][j].data, e ]);
+                                setActiveNodeData(self, ii, jj);
+                                self.chart.emit("heatmapscatter.select", [ map[ii][jj].data, e ]);
                             });
                         }(obj.rowIndex, obj.columnIndex));
                     }
 
                     if(obj.element != null) {
-                        this.addEvent(obj.element, j, i);
+                        this.addEvent(obj.element, i, j);
                         g.append(obj.element);
                     }
                 }
@@ -140,16 +149,14 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                         draw: false,
                         color: null,
                         x: xPos,
-                        y: yPos,
+                        y: yPos - ySize,
                         xValue: xVal,
                         yValue: yVal
                     };
                 }
             }
 
-            console.log(map);
-
-            this.drawScatter(g, this.getXY());
+            this.drawScatter(g);
 
             return g;
         }
@@ -162,9 +169,6 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
             xValue = this.axis.x.max() - this.axis.x.min();
             xDist = xValue / this.brush.xInterval;
             xSize = this.axis.area("width") / xDist;
-
-            console.log(yValue, yDist, ySize);
-            console.log("-----------------------------");
         }
     }
 
