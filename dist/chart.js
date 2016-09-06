@@ -15402,7 +15402,7 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                     columnIndex: tableInfo.columnIndex
                 };
             } catch(e) {
-                console.log(e);
+                result = null;
             }
 
             return result;
