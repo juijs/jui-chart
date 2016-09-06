@@ -35,6 +35,7 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
                 line : true,
                 orient : "left"
             },
+            buffer : 100000
             /*/
             data : [
                 { time: domain[0], delay: 0 }
@@ -95,7 +96,7 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
     }, 10000);
 
     function appendTxData(list, domain) {
-        var count = Math.floor(Math.random() * 100);
+        var count = Math.floor(Math.random() * 1000);
 
         for(var i = 0; i < list.length; i++) {
             if(list[i].time < domain[0]){

@@ -15327,7 +15327,6 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
         var g = null, map = [];
         var yValue, yDist, ySize, xValue, xDist, xSize;
 
-        // TODO: 아주 무식한 방법이므로 개선해야 함.
         function getTableData(self, xValue, yValue) {
             var xIndex = ((xValue - self.axis.x.min()) / self.brush.xInterval).toFixed(0),
                 yIndex = ((yValue - self.axis.y.min()) / self.brush.yInterval).toFixed(0);
@@ -15370,13 +15369,17 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
         }
 
         this.createScatter = function(pos, dataIndex, targetIndex) {
-            var tableInfo = getTableData(this, this.axis.x.invert(pos.x), this.axis.y.invert(pos.y)),
-                tableObj = tableInfo.map,
-                color = this.color(dataIndex, targetIndex);
+            var data = this.axis.data;
+
+            if(!data[dataIndex]) return null;
+
+            var color = this.color(dataIndex, targetIndex),
+                tableInfo = getTableData(this, this.axis.x.invert(pos.x), this.axis.y.invert(pos.y)),
+                tableObj = tableInfo.map;
 
             // 테이블 셀에 데이터 추가하기
-            tableObj.data.push(this.axis.data[dataIndex]);
             tableObj.color = color;
+            tableObj.data.push(this.axis.data[dataIndex]);
 
             // 테이블 셀 그리기
             if(tableObj.element == null) {
@@ -15391,10 +15394,6 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                 });
             } else {
                 tableObj.draw = true;
-            }
-
-            if(tableObj.draw == false) {
-                //console.log(dataIndex, count++, tableObj);
             }
 
             return {
@@ -15422,7 +15421,7 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                         y: yValue
                     }, i, j);
 
-                    if(obj.draw == false) {
+                    if(obj != null && obj.draw == false) {
                         var activeEvent = this.brush.activeEvent;
 
                         if(activeEvent != null) {
