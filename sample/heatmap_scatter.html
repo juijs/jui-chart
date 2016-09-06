@@ -46,7 +46,7 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
             target : [ "delay" ],
             yInterval : 250,
             xInterval : 5000,
-            activeEvent : "click",
+            //activeEvent : "click",
             colors : function(d) {
                 if(d.level == 0) {
                     return "#ff0000"
@@ -61,27 +61,41 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
             "heatmapscatter.select": function(d, e) {
                 txCount += d.length;
                 console.log(txCount + " (" + d.length + ")");
+            },
+            "dragselect.end": function(data) {
+                console.log(data.length);
+            },
+            "click": function(data) {
+                console.log(data);
             }
         },
+        widget : [{
+            type : "title",
+            text : "Scatter Sample"
+        }, {
+            type : "dragselect",
+            dataType : "list" // or "area"
+        }],
         render : false
     });
 
-    /**/
-    window.interval = setInterval(function() {
+    setInterval(function() {
+        var domain = getDomain();
+        appendTxData(txData, domain);
+    }, 5000);
+
+    setInterval(function() {
         var domain = getDomain();
 
-        appendTxData(txData, domain);
         chart.axis(0).update(txData);
-        chart.axis(0).updateGrid("x", { domain : domain });
+        chart.axis(0).updateGrid("x", { domain: domain });
         chart.render();
 
         console.log(txData.length);
-    }, 5000);
-
-    /**/
+    }, 10000);
 
     function appendTxData(list, domain) {
-        var count = Math.floor(Math.random() * 10);
+        var count = Math.floor(Math.random() * 100);
 
         for(var i = 0; i < list.length; i++) {
             if(list[i].time < domain[0]){

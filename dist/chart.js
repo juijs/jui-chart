@@ -15326,12 +15326,11 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
     var HeatmapScatterBrush = function() {
         var g = null, map = [];
         var yValue, yDist, ySize, xValue, xDist, xSize;
-        var count = 0;
 
         // TODO: 아주 무식한 방법이므로 개선해야 함.
         function getTableData(self, xValue, yValue) {
-            var xIndex = Math.floor((xValue - self.axis.x.min()) / self.brush.xInterval),
-                yIndex = Math.floor((yValue - self.axis.y.min()) / self.brush.yInterval);
+            var xIndex = ((xValue - self.axis.x.min()) / self.brush.xInterval).toFixed(0),
+                yIndex = ((yValue - self.axis.y.min()) / self.brush.yInterval).toFixed(0);
 
             if(xIndex >= xDist) xIndex = xDist - 1;
             if(yIndex >= yDist) yIndex = yDist - 1;
@@ -18985,6 +18984,10 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                         if(xType == "date" && yType == "range") {
                             var date = d[axis.get("x").key];
 
+                            if(_.typeCheck("integer", date)) {
+                                date = new Date(date);
+                            }
+
                             if(_.typeCheck("date", date)) {
                                 if( (date.getTime() >= startValueX.getTime() && date.getTime() <= endValueX.getTime()) &&
                                     (v >= startValueY && v <= endValueY) ) {
@@ -18993,6 +18996,10 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                             }
                         } else if(xType == "range" && yType == "date") {
                             var date = d[axis.get("y").key];
+
+                            if(_.typeCheck("integer", date)) {
+                                date = new Date(date);
+                            }
 
                             if(_.typeCheck("date", date)) {
                                 if( (date.getTime() >= startValueY.getTime() && date.getTime() <= endValueY.getTime()) &&

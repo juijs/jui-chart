@@ -7,12 +7,11 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
     var HeatmapScatterBrush = function() {
         var g = null, map = [];
         var yValue, yDist, ySize, xValue, xDist, xSize;
-        var count = 0;
 
         // TODO: 아주 무식한 방법이므로 개선해야 함.
         function getTableData(self, xValue, yValue) {
-            var xIndex = Math.floor((xValue - self.axis.x.min()) / self.brush.xInterval),
-                yIndex = Math.floor((yValue - self.axis.y.min()) / self.brush.yInterval);
+            var xIndex = ((xValue - self.axis.x.min()) / self.brush.xInterval).toFixed(0),
+                yIndex = ((yValue - self.axis.y.min()) / self.brush.yInterval).toFixed(0);
 
             if(xIndex >= xDist) xIndex = xDist - 1;
             if(yIndex >= yDist) yIndex = yDist - 1;

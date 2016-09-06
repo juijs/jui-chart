@@ -98,6 +98,10 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                         if(xType == "date" && yType == "range") {
                             var date = d[axis.get("x").key];
 
+                            if(_.typeCheck("integer", date)) {
+                                date = new Date(date);
+                            }
+
                             if(_.typeCheck("date", date)) {
                                 if( (date.getTime() >= startValueX.getTime() && date.getTime() <= endValueX.getTime()) &&
                                     (v >= startValueY && v <= endValueY) ) {
@@ -106,6 +110,10 @@ jui.define("chart.widget.dragselect", [ "util.base" ], function(_) {
                             }
                         } else if(xType == "range" && yType == "date") {
                             var date = d[axis.get("y").key];
+
+                            if(_.typeCheck("integer", date)) {
+                                date = new Date(date);
+                            }
 
                             if(_.typeCheck("date", date)) {
                                 if( (date.getTime() >= startValueY.getTime() && date.getTime() <= endValueY.getTime()) &&
