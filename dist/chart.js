@@ -15369,40 +15369,43 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
         }
 
         this.createScatter = function(pos, dataIndex, targetIndex) {
-            var data = this.axis.data;
-
-            if(!data[dataIndex]) return null;
-
-            var color = this.color(dataIndex, targetIndex),
+            var result = null,
                 tableInfo = getTableData(this, this.axis.x.invert(pos.x), this.axis.y.invert(pos.y)),
-                tableObj = tableInfo.map;
+                tableObj = tableInfo.map,
+                color = this.color(dataIndex, targetIndex);
 
-            // 테이블 셀에 데이터 추가하기
-            tableObj.color = color;
-            tableObj.data.push(this.axis.data[dataIndex]);
+            try {
+                // 테이블 셀에 데이터 추가하기
+                tableObj.color = color;
+                tableObj.data.push(this.axis.data[dataIndex]);
 
-            // 테이블 셀 그리기
-            if(tableObj.element == null) {
-                tableObj.element = this.chart.svg.rect({
-                    width: xSize,
-                    height: ySize,
-                    x: tableObj.x,
-                    y: tableObj.y,
-                    fill: color,
-                    stroke: this.chart.theme("heatmapscatterBorderColor"),
-                    "stroke-width": this.chart.theme("heatmapscatterBorderWidth")
-                });
-            } else {
-                tableObj.draw = true;
+                // 테이블 셀 그리기
+                if(tableObj.element == null) {
+                    tableObj.element = this.chart.svg.rect({
+                        width: xSize,
+                        height: ySize,
+                        x: tableObj.x,
+                        y: tableObj.y,
+                        fill: color,
+                        stroke: this.chart.theme("heatmapscatterBorderColor"),
+                        "stroke-width": this.chart.theme("heatmapscatterBorderWidth")
+                    });
+                } else {
+                    tableObj.draw = true;
+                }
+
+                result = {
+                    data: tableObj.data,
+                    element: tableObj.element,
+                    draw: tableObj.draw,
+                    rowIndex: tableInfo.rowIndex,
+                    columnIndex: tableInfo.columnIndex
+                };
+            } catch(e) {
+                console.log(e);
             }
 
-            return {
-                data: tableObj.data,
-                element: tableObj.element,
-                draw: tableObj.draw,
-                rowIndex: tableInfo.rowIndex,
-                columnIndex: tableInfo.columnIndex
-            };
+            return result;
         }
 
         this.drawScatter = function(g) {
