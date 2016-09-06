@@ -15326,6 +15326,7 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
     var HeatmapScatterBrush = function() {
         var g = null, map = [];
         var yValue, yDist, ySize, xValue, xDist, xSize;
+        var count = 0;
 
         // TODO: 아주 무식한 방법이므로 개선해야 함.
         function getTableData(self, xValue, yValue) {
@@ -15393,6 +15394,10 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                 tableObj.draw = true;
             }
 
+            if(tableObj.draw == false) {
+                //console.log(dataIndex, count++, tableObj);
+            }
+
             return {
                 data: tableObj.data,
                 element: tableObj.element,
@@ -15424,7 +15429,7 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                         if(activeEvent != null) {
                             obj.element.attr({
                                 cursor: "pointer"
-                            })
+                            });
                         }
 
                         (function(ii, jj) {
@@ -15433,9 +15438,7 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                                 self.chart.emit("heatmapscatter.select", [ map[ii][jj].data, e ]);
                             });
                         }(obj.rowIndex, obj.columnIndex));
-                    }
 
-                    if(obj.element != null) {
                         this.addEvent(obj.element, i, j);
                         g.append(obj.element);
                     }

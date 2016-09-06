@@ -12,6 +12,7 @@
 <script id="script_code">
 jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
     var txData = [],
+        txCount = 0,
         domain = getDomain();
 
     var chart = builder("#chart", {
@@ -58,7 +59,8 @@ jui.ready([ "chart.builder", "util.time" ], function(builder, time) {
         },
         event : {
             "heatmapscatter.select": function(d, e) {
-                console.log(d);
+                txCount += d.length;
+                console.log(txCount + " (" + d.length + ")");
             }
         },
         render : false
