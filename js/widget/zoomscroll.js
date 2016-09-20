@@ -42,10 +42,10 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 if(isCenter) {
                     bgWidth = ctrl.size().width;
                     centerStart = l_rect.size().width;
-                    mouseStart = e.x;
+                    mouseStart = e.clientX;
                 } else {
                     bgWidth = bg.size().width;
-                    mouseStart = e.x;
+                    mouseStart = e.clientX;
                 }
 
                 // 커스텀 이벤트 발생
@@ -59,7 +59,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
 
             function dragZoomAction(e) {
                 if(!isMove) return;
-                var dis = e.x - mouseStart;
+                var dis = e.clientX - mouseStart;
 
                 if(isCenter) {
                     var tw = centerStart + dis,
@@ -242,23 +242,27 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                     cursor: "move"
                 }).translate(lw, 0);
 
-                l_ctrl = self.svg.image({
+                l_ctrl = self.svg.rect({
                     x: lw - size/2,
                     y: h / 2 - size/2,
                     width: size,
                     height: size,
-                    "xmlns:xlink": "http://www.w3.org/1999/xlink",
-                    "xlink:href": btnImage,
-                    cursor: "e-resize"
+                    fill:"#e0e0e0",
+                    cursor: "e-resize",
+					rx:size/2,
+					"stroke-linecap":"round",
+					"stroke":"#616161"
                 });
-                r_ctrl = self.svg.image({
+                r_ctrl = self.svg.rect({
                     x: w - rw - size/2,
                     y: h / 2 - size/2,
                     width: size,
                     height: size,
-                    "xmlns:xlink": "http://www.w3.org/1999/xlink",
-                    "xlink:href": btnImage,
-                    cursor: "e-resize"
+					fill:"#e0e0e0",
+                    cursor: "e-resize",
+					rx:size/2,
+					"stroke-linecap":"round",
+					"stroke":"#616161"
                 });
 
                 setDragEvent(l_rect, l_ctrl, true);
