@@ -120,7 +120,7 @@ jui.define("chart.widget.zoomscroll", [ "util.base", "chart.builder" ], function
                 self.chart.emit("zoomscroll.dragend", [ start, end - 1 ]);
 
                 for(var i = 0; i < axes.length; i++) {
-                    axes[i].zoom(start, end - 1);
+                    axes[i].zoom(start, end);
                 }
 
                 // 차트 렌더링이 활성화되지 않았을 경우
