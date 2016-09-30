@@ -106,7 +106,7 @@ jui.define("chart.widget.cross", [ "util.base" ], function(_) {
 
             this.on("axis.mousemove", function(e) {
                 g.attr({ visibility: "visible" });
-				var offset=3;
+                var offset=3;
 				
                 var left = e.bgX - pl + offset,
                     top = e.bgY - pt + offset;
@@ -143,7 +143,7 @@ jui.define("chart.widget.cross", [ "util.base" ], function(_) {
                 }
             }, widget.axis);
 			
-			return g;
+            return g;
         }
     }
 
