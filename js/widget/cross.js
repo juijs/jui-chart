@@ -142,6 +142,8 @@ jui.define("chart.widget.cross", [ "util.base" ], function(_) {
                     printTooltip(1, xTooltip.get(1), message);
                 }
             }, widget.axis);
+			
+			return g;
         }
     }
 
