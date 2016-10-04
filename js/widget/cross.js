@@ -105,8 +105,11 @@ jui.define("chart.widget.cross", [ "util.base" ], function(_) {
             }, widget.axis);
 
             this.on("axis.mousemove", function(e) {
-                var left = e.bgX - pl,
-                    top = e.bgY - pt + 2;
+                g.attr({ visibility: "visible" });
+                var offset=3;
+				
+                var left = e.bgX - pl + offset,
+                    top = e.bgY - pt + offset;
 
                 if(xline) {
                     xline.attr({
@@ -126,7 +129,7 @@ jui.define("chart.widget.cross", [ "util.base" ], function(_) {
                 if(yTooltip) {
                     yTooltip.translate(-(tw + ta), top - (th / 2));
 
-                    var value = axis.y.invert(e.chartY),
+                    var value = axis.y.invert(e.chartY+offset),
                         message = widget.yFormat.call(self.chart, value);
                     printTooltip(0, yTooltip.get(1), message);
                 }
@@ -134,12 +137,12 @@ jui.define("chart.widget.cross", [ "util.base" ], function(_) {
                 if(xTooltip) {
                     xTooltip.translate(left - (tw / 2), axis.area("height") + ta);
 
-                    var value = axis.x.invert(e.chartX),
+                    var value = axis.x.invert(e.chartX+offset),
                         message = widget.xFormat.call(self.chart, value);
                     printTooltip(1, xTooltip.get(1), message);
                 }
             }, widget.axis);
-
+			
             return g;
         }
     }
