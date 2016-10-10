@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    jui.ready([ "chart.builder" ], function(chart) {
+
+        c = chart("#chart", {
+            width: 400,
+            height : 400,
+            axis : [{
+                x : {
+                    type : "range",
+                    domain : [ 0, 400 ],
+                    hide : true
+                },
+                y : {
+                    type : "range",
+                    domain : [ 0, 400 ],
+                    hide : true
+                },
+                data : [
+                    { text : "Korea" },
+                    { text : "Seoul", value : 800, parent : 0 },
+                    { text : "Busan", value : 1000, parent : 0 },
+                    { text : "Japan" },
+                    { text : "Tokyo", value : 2000, parent : 3 }
+                ]
+            }],
+            brush : [{
+                type : "treemap"
+            }]
+        });
+	})
+</script>
+
+
+</body>
+</html>
