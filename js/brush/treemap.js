@@ -13,6 +13,271 @@ jui.define("util.treemap", [], function() {
     }
 });
 
+jui.define("chart.brush.treemap.node", [], function() {
+
+    /**
+     * @class chart.brush.treemap.node
+     *
+     */
+    var Node = function(data) {
+        var self = this;
+
+        this.text = data.text;
+        this.value = data.value;
+        this.x = data.x;
+        this.y = data.y;
+        this.width = data.width;
+        this.height = data.height;
+
+        /** @property {Integer} [index=null] Index of a specified node */
+        this.index = null;
+
+        /** @property {Integer} [nodenum=null] Unique number of a specifiede node at the current depth */
+        this.nodenum = null;
+
+        /** @property {ui.tree.node} [parent=null] Variable that refers to the parent of the current node */
+        this.parent = null;
+
+        /** @property {Array} [children=null] List of child nodes of a specified node */
+        this.children = [];
+
+        /** @property {Integer} [depth=0] Depth of a specified node */
+        this.depth = 0;
+
+        function setIndexChild(node) {
+            var clist = node.children;
+
+            for(var i = 0; i < clist.length; i++) {
+                if(clist[i].children.length > 0) {
+                    setIndexChild(clist[i]);
+                }
+            }
+        }
+
+        this.reload = function(nodenum) {
+            this.nodenum = (!isNaN(nodenum)) ? nodenum : this.nodenum;
+
+            if(self.parent) {
+                if(this.parent.index == null) this.index = "" + this.nodenum;
+                else this.index = self.parent.index + "." + this.nodenum;
+            }
+
+            // 뎁스 체크
+            if(this.parent && typeof(self.index) == "string") {
+                this.depth = this.index.split(".").length;
+            }
+
+            // 자식 인덱스 체크
+            if(this.children.length > 0) {
+                setIndexChild(this);
+            }
+        }
+
+        this.isLeaf = function() {
+            return (this.children.length == 0) ? true : false;
+        }
+
+        this.appendChild = function(node) {
+            this.children.push(node);
+        }
+
+        this.insertChild = function(nodenum, node) {
+            var preNodes = this.children.splice(0, nodenum);
+            preNodes.push(node);
+
+            this.children = preNodes.concat(this.children);
+        }
+
+        this.removeChild = function(index) {
+            for(var i = 0; i < this.children.length; i++) {
+                var node = this.children[i];
+
+                if(node.index == index) {
+                    this.children.splice(i, 1); // 배열에서 제거
+                }
+            }
+        }
+
+        this.lastChild = function() {
+            if(this.children.length > 0)
+                return this.children[this.children.length - 1];
+
+            return null;
+        }
+
+        this.lastChildLeaf = function(lastRow) {
+            var row = (!lastRow) ? this.lastChild() : lastRow;
+
+            if(row.isLeaf()) return row;
+            else {
+                return this.lastChildLeaf(row.lastChild());
+            }
+        }
+    }
+
+    return Node;
+});
+
+jui.define("chart.brush.treemap.nodemanager", [ "util.base", "chart.brush.treemap.node" ], function(_, Node) {
+    
+   var NodeManager = function() {
+       var self = this,
+           root = new Node({
+               text: null,
+               value: -1,
+               x: -1,
+               y: -1,
+               width: -1,
+               height: -1
+           }),
+           iParser = _.index();
+
+       function createNode(data, no, pNode) {
+           var node = new Node(data);
+
+           node.parent = (pNode) ? pNode : null;
+           node.reload(no);
+
+           return node;
+       }
+
+       function setNodeChildAll(dataList, node) {
+           var c_nodes = node.children;
+
+           if(c_nodes.length > 0) {
+               for(var i = 0; i < c_nodes.length; i++) {
+                   dataList.push(c_nodes[i]);
+
+                   if(c_nodes[i].children.length > 0) {
+                       setNodeChildAll(dataList, c_nodes[i]);
+                   }
+               }
+           }
+       }
+
+       function getNodeChildLeaf(keys, node) {
+           if(!node) return null;
+           var tmpKey = keys.shift();
+
+           if(tmpKey == undefined) {
+               return node;
+           } else {
+               return getNodeChildLeaf(keys, node.children[tmpKey]);
+           }
+       }
+
+       function insertNodeDataChild(index, data) {
+           var keys = iParser.getIndexList(index);
+
+           var pNode = self.getNodeParent(index),
+               nodenum = keys[keys.length - 1],
+               node = createNode(data, nodenum, pNode);
+
+           // 데이터 갱신
+           pNode.insertChild(nodenum, node);
+
+           return node;
+       }
+
+       function appendNodeData(data) {
+           var node = createNode(data, root.children.length, root);
+           root.appendChild(node);
+
+           return node;
+       }
+
+       function appendNodeDataChild(index, data) {
+           var pNode = self.getNode(index),
+               cNode = createNode(data, pNode.children.length, pNode);
+
+           pNode.appendChild(cNode);
+
+           return cNode;
+       }
+
+       this.appendNode = function() {
+           var index = arguments[0],
+               data = arguments[1];
+
+           if(!data) {
+               return appendNodeData(index);
+           } else {
+               return appendNodeDataChild(index, data);
+           }
+       }
+
+       this.insertNode = function(index, data) {
+           if(root.children.length == 0 && parseInt(index) == 0) {
+               return this.appendNode(data);
+           } else {
+               return insertNodeDataChild(index, data);
+           }
+       }
+
+       this.updateNode = function(index, data) {
+           var node = this.getNode(index);
+
+           for(var key in data) {
+               node.data[key] = data[key];
+           }
+
+           node.reload(node.nodenum, true);
+
+           return node;
+       }
+
+       this.getNode = function(index) {
+           if(index == null) return root.children;
+           else {
+               var nodes = root.children;
+
+               if(iParser.isIndexDepth(index)) {
+                   var keys = iParser.getIndexList(index);
+                   return getNodeChildLeaf(keys, nodes[keys.shift()]);
+               } else {
+                   return (nodes[index]) ? nodes[index] : null;
+               }
+           }
+       }
+
+       this.getNodeAll = function(index) {
+           var dataList = [],
+               tmpNodes = (index == null) ? root.children : [ this.getNode(index) ];
+
+           for(var i = 0; i < tmpNodes.length; i++) {
+               if(tmpNodes[i]) {
+                   dataList.push(tmpNodes[i]);
+
+                   if(tmpNodes[i].children.length > 0) {
+                       setNodeChildAll(dataList, tmpNodes[i]);
+                   }
+               }
+           }
+
+           return dataList;
+       }
+
+       this.getNodeParent = function(index) { // 해당 인덱스의 부모 노드를 가져옴 (단, 해당 인덱스의 노드가 없을 경우)
+           var keys = iParser.getIndexList(index);
+
+           if(keys.length == 1) {
+               return root;
+           } else if(keys.length == 2) {
+               return this.getNode(keys[0]);
+           } else if(keys.length > 2) {
+               keys.pop();
+               return this.getNode(keys.join("."));
+           }
+       }
+
+       this.getRoot = function() {
+           return root;
+       }
+   }
+
+   return NodeManager;
+});
+
 jui.define("chart.brush.treemap.container", [ "util.treemap" ], function(util) {
 
     var Container = function(xoffset, yoffset, width, height) {
@@ -212,7 +477,7 @@ jui.define("chart.brush.treemap.calculator", [ "util.base", "util.treemap", "cha
     return treemapMultidimensional;
 });
 
-jui.define("chart.brush.treemap", [ "chart.brush.treemap.calculator" ], function(Calculator) {
+jui.define("chart.brush.treemap", [ "chart.brush.treemap.calculator", "chart.brush.treemap.nodemanager" ], function(Calculator, NodeManager) {
 
     /**
      * @class chart.brush.treemap
@@ -220,6 +485,26 @@ jui.define("chart.brush.treemap", [ "chart.brush.treemap.calculator" ], function
      * @extends chart.brush.core
      */
     var TreemapBrush = function() {
+
+        this.drawBefore = function() {
+            var nodes = new NodeManager();
+
+            for(var i = 0; i < this.axis.data.length; i++) {
+                var d = this.axis.data[i],
+                    k = this.getValue(d, "index");
+
+                nodes.insertNode(k, {
+                    text: this.getValue(d, "text", ""),
+                    value: this.getValue(d, "value", 0),
+                    x: this.getValue(d, "x", 0),
+                    y: this.getValue(d, "y", 0),
+                    width: this.getValue(d, "width", 0),
+                    height: this.getValue(d, "height", 0)
+                });
+            }
+
+            console.log(nodes.getNodeAll());
+        }
 
         this.draw = function() {
             var g = this.svg.group();
