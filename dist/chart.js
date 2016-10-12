@@ -15823,12 +15823,12 @@ jui.define("chart.brush.treemap.container", [ "util.treemap" ], function(util) {
 
             if (this.width >= this.height) {
                 for (var i = 0; i < row.length; i++) {
-                    coordinates.push([subxoffset, subyoffset, subxoffset + areawidth, subyoffset + row[i] / areawidth]);
+                    coordinates.push([ subxoffset, subyoffset, subxoffset + areawidth, subyoffset + row[i] / areawidth ]);
                     subyoffset = subyoffset + row[i] / areawidth;
                 }
             } else {
                 for (var i = 0; i < row.length; i++) {
-                    coordinates.push([subxoffset, subyoffset, subxoffset + row[i] / areaheight, subyoffset + areaheight]);
+                    coordinates.push([ subxoffset, subyoffset, subxoffset + row[i] / areaheight, subyoffset + areaheight ]);
                     subxoffset = subxoffset + row[i] / areaheight;
                 }
             }
@@ -16008,10 +16008,45 @@ jui.define("chart.brush.treemap", [ "chart.brush.treemap.calculator", "chart.bru
      * @extends chart.brush.core
      */
     var TreemapBrush = function() {
+        var nodes = new NodeManager();
+
+        function convertNodeToArray(nodes, result, now) {
+            if(!now) now = [];
+
+            for(var i = 0; i < nodes.length; i++) {
+                if(nodes[i].children.length == 0) {
+                    now.push(nodes[i].value);
+                } else {
+                    convertNodeToArray(nodes[i].children, result, []);
+                }
+            }
+
+            result.push(now);
+            return result;
+        }
+
+        function mergeArrayToNode(nodes, data) {
+            for(var i = 0; i < nodes.length; i++) {
+                if(nodes[i].children.length == 0) {
+                    var newData = null;
+
+                    if(data[i].length == 1) {
+                        newData = data[i][0];
+                    } else {
+                        newData = data[i];
+                    }
+
+                    nodes[i].x = newData[0];
+                    nodes[i].y = newData[1];
+                    nodes[i].width = newData[2] - newData[0];
+                    nodes[i].height = newData[3] - newData[1];
+                } else {
+                    mergeArrayToNode(nodes[i].children, data[i]);
+                }
+            }
+        }
 
         this.drawBefore = function() {
-            var nodes = new NodeManager();
-
             for(var i = 0; i < this.axis.data.length; i++) {
                 var d = this.axis.data[i],
                     k = this.getValue(d, "index");
@@ -16026,14 +16061,18 @@ jui.define("chart.brush.treemap", [ "chart.brush.treemap.calculator", "chart.bru
                 });
             }
 
-            console.log(nodes.getNodeAll());
+            var nodeList = nodes.getNode(),
+                preData = convertNodeToArray(nodeList, []),
+                afterData = Calculator(preData, this.axis.area("width"), this.axis.area("height"));
+
+            console.log(preData, afterData);
+            mergeArrayToNode(nodeList, afterData);
         }
 
         this.draw = function() {
             var g = this.svg.group();
 
-            var data = [[6, 6, 4], [3, 2, 1]];
-            console.log(Calculator(data, 600, 200));
+            console.log(nodes.getNodeAll());
 
             return g;
         }
