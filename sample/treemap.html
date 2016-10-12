@@ -16,16 +16,6 @@
             width: 400,
             height : 400,
             axis : [{
-                x : {
-                    type : "range",
-                    domain : [ 0, 400 ],
-                    hide : true
-                },
-                y : {
-                    type : "range",
-                    domain : [ 0, 400 ],
-                    hide : true
-                },
                 data : [
                     { index : "0", text: "Korea" },
                     { index : "0.0", text: "Seoul", value : 1000 },
@@ -36,7 +26,13 @@
                 ]
             }],
             brush : [{
-                type : "treemap"
+                type : "treemap",
+                nodeColor : function(d) {
+                    console.log(d);
+                    if(d.text == "Seoul") return 0;
+                    else if(d.text == "Dongrae1" || d.text == "Dongrae2") return 1;
+                    return 2;
+                }
             }]
         });
 	})
