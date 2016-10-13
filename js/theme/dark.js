@@ -228,6 +228,11 @@ jui.define("chart.theme.dark", [], function() {
         heatmapscatterBorderColor: "#222222",
         heatmapscatterActiveBackgroundColor: "#222222",
 
+        treemapNodeBorderWidth: 0.5,
+        treemapNodeBorderColor: "#222222",
+        treemapTextFontSize: 11,
+        treemapTextFontColor: "#868686",
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,

@@ -487,7 +487,9 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
      */
     var TreemapBrush = function() {
         var self = this,
-            nodes = new NodeManager();
+            nodes = new NodeManager(),
+            colorKeys = {},
+            colorIndex = 0;
 
         function convertNodeToArray(key, nodes, result, now) {
             if(!now) now = [];
@@ -537,7 +539,18 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                 return color;
             }
 
-            return null;
+            if(!colorKeys[node.parent.index]) {
+                colorKeys[node.parent.index] = colorIndex;
+                colorIndex++;
+            }
+
+            return self.color(colorKeys[node.parent.index]);
+        }
+
+        function getTextSize(node) {
+            var callback = self.brush.textSize;
+
+            return (_.typeCheck("function", callback) ? callback.call(self.chart, node.text) : node.text);
         }
 
         this.drawBefore = function() {
@@ -565,22 +578,41 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
 
         this.draw = function() {
             var g = this.svg.group(),
-                data = nodes.getNodeAll(),
                 sx = this.axis.area("x"),
-                sy = this.axis.area("y");
+                sy = this.axis.area("y"),
+                nodeList = nodes.getNodeAll();
 
-            for(var i = 0; i < data.length; i++) {
-                if(!isDrawNode(data[i])) continue;
+            for(var i = 0; i < nodeList.length; i++) {
+                if(!isDrawNode(nodeList[i])) continue;
+
+                var x = sx + nodeList[i].x,
+                    y = sy + nodeList[i].y,
+                    w = nodeList[i].width,
+                    h = nodeList[i].height;
 
                 var rect = this.svg.rect({
-                    fill: getNodeColor(data[i]),
-                    x: sx + data[i].x,
-                    y: sy + data[i].y,
-                    width: data[i].width,
-                    height: data[i].height
+                    stroke: this.chart.theme("treemapNodeBorderColor"),
+                    "stroke-width": this.chart.theme("treemapNodeBorderWidth"),
+                    fill: getNodeColor(nodeList[i]),
+                    x: x,
+                    y: y,
+                    width: w,
+                    height: h
                 });
 
                 g.append(rect);
+
+                if(this.brush.showText) {
+                    var text = this.chart.text({
+                        "font-size": this.chart.theme("treemapTextFontSize"),
+                        fill: this.chart.theme("treemapTextFontColor"),
+                        x: x + (w / 2),
+                        y: y + (h / 2),
+                        "text-anchor": "middle"
+                    }, getTextSize(nodeList[i]));
+
+                    g.append(text);
+                }
             }
 
             return g;
@@ -589,8 +621,10 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
 
     TreemapBrush.setup = function() {
         return {
-            showText : true,
-            nodeColor : null
+            showText: true,
+            nodeColor: null,
+            textSize: null,
+            clip: false
         };
     }
 
