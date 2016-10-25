@@ -4556,6 +4556,7 @@ jui.define("chart.pattern.jennifer", [], function() {
 });
 jui.define("chart.icon.jennifer", [], function() {
 	return {
+		"layout3" : "\ue9ac",
 		"tool" : "\ue900",
 		"screenshot" : "\ue901",
 		"server" : "\ue902",
