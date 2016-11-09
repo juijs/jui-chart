@@ -12,37 +12,18 @@
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
         var c = chart("#chart", {
-            width: 400,
+            width: 500,
             height : 400,
             theme : "jennifer",
             axis : [{
-                x : {
-
-                    domain : [ "week1", "week2", "week3", "week4" ],
-                    line : true
-                },
-                y : {
-                    type : 'range',
-                    domain : [ 0, 50 ],
-                    step : 5,
-                    line : true,
-                    reverse : false
+                c: {
+                    type: "panel"
                 }
             }],
-            brush : {
+            brush : [{
                 type : 'arcequalizer',
-                target : [ 'name', 'value', 'test' ],
-                unit : 10
-            },
-            event: {
-                rclick: function(obj, e) {
-                    console.log(obj);
-                }
-            },
-            widget: {
-                type : "tooltip",
-                all : true
-            }
+                target : [ 'name', 'value', 'test' ]
+            }]
         });
 
         setInterval(function() {
