@@ -16180,14 +16180,15 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
     return TreemapBrush;
 }, "chart.brush.core");
 
-jui.define("chart.brush.arcequalizer", [], function() {
+jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
 
     /**
      * @class chart.brush.arcequalizer
      */
     var ArcEqualizerBrush = function() {
+        var self = this;
         var g, r = 0, cx = 0, cy = 0;
-        var innerRadius = 50, stackSize = 0, stackAngle = 0;
+        var stackSize = 0, stackAngle = 0;
 
         function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
             var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
@@ -16200,8 +16201,9 @@ jui.define("chart.brush.arcequalizer", [], function() {
 
         function describeArc(radius, startAngle, endAngle) {
             var endAngleOriginal = endAngle;
+
             if(endAngleOriginal - startAngle === 360){
-                endAngle = 359;
+                endAngle = 359.9;
             }
 
             var start = polarToCartesian(cx, cy, radius, endAngle),
@@ -16229,6 +16231,34 @@ jui.define("chart.brush.arcequalizer", [], function() {
             p.ClosePath();
         }
 
+        function calculateData() {
+            var total = 0,
+                targets = self.brush.target,
+                maxValue = self.brush.maxValue,
+                stackData = [];
+
+            if(_.typeCheck("function", maxValue)) {
+
+            }
+
+            self.eachData(function(data, i) {
+                stackData[i] = [];
+
+                for(var j = 0; j < targets.length; j++) {
+                    var key = targets[j],
+                        rate = data[key] / maxValue;
+
+                    total += data[key];
+                    stackData[i][j] = Math.ceil(self.brush.stackCount * rate);
+                }
+            });
+
+            return {
+                total: total,
+                data: stackData
+            };
+        }
+
         this.drawBefore = function() {
             g = this.svg.group();
 
@@ -16239,25 +16269,47 @@ jui.define("chart.brush.arcequalizer", [], function() {
             cx = r + ((area.width > area.height) ? dist / 2 : 0);
             cy = r + ((area.width < area.height) ? dist / 2 : 0);
 
-            stackSize = (r - innerRadius) / this.brush.stackCount;
+            stackSize = (r - this.brush.textRadius) / this.brush.stackCount;
             stackAngle = 360 / this.listData().length;
         }
 
         this.draw = function() {
+            var data = calculateData().data;
+
+            for(var i = 0; i < data.length; i++) {
+                var start = 0;
+
+                for(var j = 0; j < data[i].length; j++) {
+                    var p = this.svg.path({
+                        fill: this.color(j),
+                        stroke: "white",
+                        "stroke-width": 1
+                    });
+
+                    for(var k = start; k < data[i][j]; k++) {
+                        drawPath(p, this.brush.textRadius + (k * stackSize), i * stackAngle, (i + 1) * stackAngle);
+                    }
+
+                    start = data[i][j];
+                }
+            }
+
+            /*/
             this.eachData(function(data, index) {
                 var p = this.svg.path({
                     fill: this.color(index),
                     stroke: "white",
-                    "stroke-width": 0.5
+                    "stroke-width": 1
                 });
 
                 var count = Math.floor((Math.random() * this.brush.stackCount) + 1);
                 for(var i = 0; i < count; i++) {
-                    drawPath(p, innerRadius + (i * stackSize), index * stackAngle, (index + 1) * stackAngle);
+                    drawPath(p, this.brush.textRadius + (i * stackSize), index * stackAngle, (index + 1) * stackAngle);
                 }
 
                 g.append(p);
             });
+            /**/
 
             return g;
         }
@@ -16266,7 +16318,9 @@ jui.define("chart.brush.arcequalizer", [], function() {
     ArcEqualizerBrush.setup = function() {
         return {
             clip: false,
-            stackCount: 25
+            maxValue: 100,
+            stackCount: 25,
+            textRadius: 50
         };
     }
 
