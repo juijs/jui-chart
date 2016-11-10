@@ -55,8 +55,13 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
                 maxValue = self.brush.maxValue,
                 stackData = [];
 
+            // 스택의 최대 개수를 콜백으로 설정
             if(_.typeCheck("function", maxValue)) {
+                maxValue = 0;
 
+                self.eachData(function(data) {
+                    maxValue = Math.max(maxValue, self.brush.maxValue.call(self, data));
+                });
             }
 
             self.eachData(function(data, i) {
@@ -70,6 +75,15 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
                     stackData[i][j] = Math.ceil(self.brush.stackCount * rate);
                 }
             });
+
+            // 값이 없을 경우
+            if(stackData.length == 0) {
+                stackData[0] = [];
+
+                for(var j = 0; j < targets.length; j++) {
+                    stackData[0][j] = (j == 0) ? self.brush.stackCount : 0;
+                }
+            }
 
             return {
                 total: total,
@@ -92,7 +106,14 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
         }
 
         this.draw = function() {
-            var data = calculateData().data;
+            var info = calculateData(),
+                data = info.data,
+                total = info.total;
+
+            var stackBorderColor = this.chart.theme("arcEqualizerBorderColor"),
+                stackBorderWidth = this.chart.theme("arcEqualizerBorderWidth"),
+                textFontSize = this.chart.theme("arcEqualizerFontSize"),
+                textFontColor = this.chart.theme("arcEqualizerFontColor");
 
             for(var i = 0; i < data.length; i++) {
                 var start = 0;
@@ -100,34 +121,28 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
                 for(var j = 0; j < data[i].length; j++) {
                     var p = this.svg.path({
                         fill: this.color(j),
-                        stroke: "white",
-                        "stroke-width": 1
+                        stroke: stackBorderColor,
+                        "stroke-width": stackBorderWidth
                     });
 
-                    for(var k = start; k < data[i][j]; k++) {
+                    for(var k = start; k < start + data[i][j]; k++) {
                         drawPath(p, this.brush.textRadius + (k * stackSize), i * stackAngle, (i + 1) * stackAngle);
                     }
 
-                    start = data[i][j];
+                    start += data[i][j];
+                    g.append(p);
                 }
             }
 
-            /*/
-            this.eachData(function(data, index) {
-                var p = this.svg.path({
-                    fill: this.color(index),
-                    stroke: "white",
-                    "stroke-width": 1
-                });
-
-                var count = Math.floor((Math.random() * this.brush.stackCount) + 1);
-                for(var i = 0; i < count; i++) {
-                    drawPath(p, this.brush.textRadius + (i * stackSize), index * stackAngle, (index + 1) * stackAngle);
-                }
-
-                g.append(p);
-            });
-            /**/
+            var text = this.chart.text({
+                "font-size": textFontSize,
+                "text-anchor": "middle",
+                fill: textFontColor,
+                x: cx,
+                y: cy,
+                dy: textFontSize / 3
+            }).text(this.format(total));
+            g.append(text);
 
             return g;
         }
@@ -138,9 +153,10 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
             clip: false,
             maxValue: 100,
             stackCount: 25,
-            textRadius: 50
+            textRadius: 50,
+            format: null
         };
     }
 
     return ArcEqualizerBrush;
-}, "chart.brush.stackcolumn");
+}, "chart.brush.core");

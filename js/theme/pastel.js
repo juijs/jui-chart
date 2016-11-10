@@ -230,6 +230,11 @@ jui.define("chart.theme.pastel", [], function() {
 		treemapTextFontSize: 11,
 		treemapTextFontColor: "#333",
 
+		arcEqualizerBorderColor: "#fff",
+		arcEqualizerBorderWidth: 1,
+		arcEqualizerFontSize: 13,
+		arcEqualizerFontColor: "#333",
+
         // widget styles
         titleFontColor : "#333",
         titleFontSize : 18,

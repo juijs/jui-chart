@@ -14,21 +14,22 @@
         var c = chart("#chart", {
             width: 500,
             height : 400,
+            padding : 0,
             theme : "jennifer",
             axis : [{
                 c: {
                     type: "panel"
                 },
-                data : [
-                    { v1: 10, v2: 30, v3: 50 },
-                    { v1: 5, v2: 32, v3: 55 },
-                    { v1: 2, v2: 30, v3: 12 }
-                ]
+                data: [{
+                    v1: 100,
+                    v2: 0,
+                    v3: 0
+                }]
             }],
             brush : [{
                 type : 'arcequalizer',
                 target : [ 'v1', 'v2', 'v3' ],
-                maxValue: 200,
+                maxValue: 100,
                 stackCount: 20,
                 textRadius: 30
             }]
@@ -38,11 +39,11 @@
         setInterval(function() {
             var data = [];
 
-            for(var i = 0; i < 4; i++) {
+            for(var i = 0; i < 100; i++) {
                 data.push({
-                    name: Math.floor(Math.random() * 15),
-                    value: Math.floor(Math.random() * 15),
-                    test: Math.floor(Math.random() * 15)
+                    v1: Math.floor(Math.random() * 50),
+                    v2: Math.floor(Math.random() * 20),
+                    v3: Math.floor(Math.random() * 10)
                 });
             }
 
