@@ -131,6 +131,8 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
                     }
 
                     start += data[i][j];
+
+                    this.addEvent(p, i, j);
                     g.append(p);
                 }
             }

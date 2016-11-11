@@ -364,12 +364,17 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
             if(this.brush.useEvent !== true) return;
 
             var chart = this.chart,
-                obj = {
-                brush: this.brush,
-                dataIndex: dataIndex,
-                dataKey: (targetIndex != null) ? this.brush.target[targetIndex] : null,
-                data: (dataIndex != null) ? this.getData(dataIndex) : null
-            };
+                obj = {};
+
+            if(_.typeCheck("object", dataIndex) && !targetIndex) {
+                obj.brush = this.brush;
+                obj.data = dataIndex;
+            } else {
+                obj.brush = this.brush;
+                obj.dataIndex = dataIndex;
+                obj.dataKey = (targetIndex != null) ? this.brush.target[targetIndex] : null;
+                obj.data = (dataIndex != null) ? this.getData(dataIndex) : null;
+            }
 
             elem.on("click", function(e) {
                 setMouseEvent(e);

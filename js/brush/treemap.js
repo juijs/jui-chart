@@ -600,6 +600,7 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                     height: h
                 });
 
+                this.addEvent(rect, nodeList[i]);
                 g.append(rect);
 
                 if(this.brush.showText) {

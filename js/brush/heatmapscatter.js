@@ -24,31 +24,6 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
             }
         }
 
-        function setActiveNodeData(self, rowIndex, columnIndex) {
-            var borderColor = self.chart.theme("heatmapscatterBorderColor"),
-                activeBgColor = self.chart.theme("heatmapscatterActiveBackgroundColor");
-
-            for(var i = 0; i < map.length; i++) {
-                for(var j = 0; j < map[0].length; j++) {
-                    var tableObj = map[i][j];
-
-                    if(tableObj.element != null) {
-                        if (i == rowIndex && j == columnIndex) {
-                            tableObj.element.attr({
-                                fill: activeBgColor,
-                                stroke: map[i][j].color
-                            });
-                        } else {
-                            tableObj.element.attr({
-                                fill: map[i][j].color,
-                                stroke: borderColor
-                            });
-                        }
-                    }
-                }
-            }
-        }
-
         this.createScatter = function(pos, dataIndex, targetIndex) {
             var result = null,
                 tableInfo = getTableData(this, this.axis.x.invert(pos.x), this.axis.y.invert(pos.y)),
@@ -106,21 +81,6 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
                     }, i, j);
 
                     if(obj != null && obj.draw == false) {
-                        var activeEvent = this.brush.activeEvent;
-
-                        if(activeEvent != null) {
-                            obj.element.attr({
-                                cursor: "pointer"
-                            });
-                        }
-
-                        (function(ii, jj) {
-                            obj.element.on(activeEvent, function (e) {
-                                setActiveNodeData(self, ii, jj);
-                                self.chart.emit("heatmapscatter.select", [ map[ii][jj].data, e ]);
-                            });
-                        }(obj.rowIndex, obj.columnIndex));
-
                         this.addEvent(obj.element, i, j);
                         g.append(obj.element);
                     }
@@ -178,7 +138,7 @@ jui.define("chart.brush.heatmapscatter", [ "util.base" ], function(_) {
 
     HeatmapScatterBrush.setup = function() {
         return {
-            activeEvent: null,
+            //activeEvent: null,
             xInterval: 0,
             yInterval: 0,
 
