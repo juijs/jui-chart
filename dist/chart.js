@@ -16148,12 +16148,29 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                 g.append(rect);
 
                 if(this.brush.showText) {
+                    var cx = x + (w / 2),
+                        cy = y + (h / 2),
+                        dist = 3,
+                        fontSize = this.chart.theme("treemapTextFontSize");
+
+                    if(this.brush.orient == "top") {
+                        cy = y + fontSize;
+                    } else if(this.brush.orient == "bottom") {
+                        cy = y + h - fontSize/2;
+                    }
+
+                    if(this.brush.align == "start") {
+                        cx = x + dist;
+                    } else if(this.brush.align == "end") {
+                        cx = x + w - dist;
+                    }
+
                     var text = this.chart.text({
-                        "font-size": this.chart.theme("treemapTextFontSize"),
+                        "font-size": fontSize,
                         fill: this.chart.theme("treemapTextFontColor"),
-                        x: x + (w / 2),
-                        y: y + (h / 2),
-                        "text-anchor": "middle"
+                        x: cx,
+                        y: cy,
+                        "text-anchor": this.brush.align
                     }, getTextSize(nodeList[i]));
 
                     g.append(text);
@@ -16166,6 +16183,10 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
 
     TreemapBrush.setup = function() {
         return {
+            /** @cfg {"top"/"center"/"bottom" } [orient="top"]  Determines the side on which the tool tip is displayed (top, center, bottom). */
+            orient: "top", // or bottom
+            /** @cfg {"start"/"middle"/"end" } [align="center"] Aligns the title message (start, middle, end).*/
+            align: "middle",
             showText: true,
             nodeColor: null,
             textSize: null,
@@ -18017,7 +18038,7 @@ jui.define("chart.widget.title", [], function() {
                     y = axis.area("y") + axis.area("height") / 2;
                 }
 
-                if (widget.align == "center") {
+                if (widget.align == "middle") {
                     x = axis.area("x") + axis.area("width") / 2;
                     anchor = "middle";
                 } else if (widget.align == "start") {
@@ -18040,7 +18061,7 @@ jui.define("chart.widget.title", [], function() {
                     y = chart.area("y") + chart.area("height") / 2
                 }
 
-                if (widget.align == "center") {
+                if (widget.align == "middle") {
                     x = chart.area("x") + chart.area("width") / 2;
                     anchor = "middle";
                 } else if (widget.align == "start") {
@@ -18083,10 +18104,10 @@ jui.define("chart.widget.title", [], function() {
     TitleWidget.setup = function() {
         return {
             axis: null,
-            /** @cfg {"bottom"/"top"/"left"/"right" } [orient="top"]  Determines the side on which the tool tip is displayed (top, bottom, left, right). */
+            /** @cfg {"top"/"center"/"bottom" } [orient="top"]  Determines the side on which the tool tip is displayed (top, center, bottom). */
             orient: "top", // or bottom
-            /** @cfg {"start"/"center"/"end" } [align="center"] Aligns the title message (center, start, end).*/
-            align: "center",
+            /** @cfg {"start"/"middle"/"end" } [align="center"] Aligns the title message (start, middle, end).*/
+            align: "middle",
             /** @cfg {String} [text=""] Sets the title message. */
             text: "",
             /** @cfg {Number} [dx=0] Moves the x coordinate by a set value from the location where the chart is drawn.  */
