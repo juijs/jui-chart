@@ -2835,6 +2835,7 @@ jui.define("chart.theme.jennifer", [], function() {
         arcEqualizerBorderWidth: 1,
         arcEqualizerFontSize: 13,
         arcEqualizerFontColor: "#333",
+        arcEqualizerBackgroundColor: "#a9a9a9",
 
         // Widget styles
         titleFontColor : "#333",
@@ -3189,6 +3190,7 @@ jui.define("chart.theme.gradient", [], function() {
         arcEqualizerBorderWidth: 1,
         arcEqualizerFontSize: 13,
         arcEqualizerFontColor: "#333",
+        arcEqualizerBackgroundColor: "#a9a9a9",
 
         // widget styles
         titleFontColor : "#333",
@@ -3540,6 +3542,7 @@ jui.define("chart.theme.dark", [], function() {
         arcEqualizerBorderWidth: 1,
         arcEqualizerFontSize: 13,
         arcEqualizerFontColor: "#868686",
+        arcEqualizerBackgroundColor: "#222222",
 
         // widget styles
         titleFontColor : "#ffffff",
@@ -3888,6 +3891,7 @@ jui.define("chart.theme.pastel", [], function() {
 		arcEqualizerBorderWidth: 1,
 		arcEqualizerFontSize: 13,
 		arcEqualizerFontColor: "#333",
+		arcEqualizerBackgroundColor: "#a9a9a9",
 
         // widget styles
         titleFontColor : "#333",
@@ -4235,6 +4239,7 @@ jui.define("chart.theme.pattern", [], function() {
         arcEqualizerBorderWidth: 1,
         arcEqualizerFontSize: 13,
         arcEqualizerFontColor: "#333",
+        arcEqualizerBackgroundColor: "#a9a9a9",
 
         // widget styles
         titleFontColor : "#333",
@@ -16213,7 +16218,7 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
     var ArcEqualizerBrush = function() {
         var self = this;
         var g, r = 0, cx = 0, cy = 0;
-        var stackSize = 0, stackAngle = 0;
+        var stackSize = 0, stackAngle = 0, dataCount = 0;
 
         function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
             var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
@@ -16283,6 +16288,15 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
                 }
             });
 
+            // 값이 없을 경우
+            if(stackData.length == 0) {
+                stackData[0] = [];
+
+                for(var j = 0; j < targets.length; j++) {
+                    stackData[0][j] = (j == 0) ? self.brush.stackCount : 0;
+                }
+            }
+
             return {
                 total: total,
                 data: stackData
@@ -16299,8 +16313,9 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
             cx = r + ((area.width > area.height) ? dist / 2 : 0);
             cy = r + ((area.width < area.height) ? dist / 2 : 0);
 
+            dataCount = this.listData().length;
             stackSize = (r - this.brush.textRadius) / this.brush.stackCount;
-            stackAngle = 360 / this.listData().length;
+            stackAngle = 360 / (dataCount == 0 ? 1 : dataCount);
         }
 
         this.draw = function() {
@@ -16318,7 +16333,7 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
 
                 for(var j = 0; j < data[i].length; j++) {
                     var p = this.svg.path({
-                        fill: this.color(j),
+                        fill: (dataCount == 0) ? this.chart.theme("arcEqualizerBackgroundColor") : this.color(j),
                         stroke: stackBorderColor,
                         "stroke-width": stackBorderWidth
                     });

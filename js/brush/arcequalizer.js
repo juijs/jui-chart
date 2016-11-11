@@ -6,7 +6,7 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
     var ArcEqualizerBrush = function() {
         var self = this;
         var g, r = 0, cx = 0, cy = 0;
-        var stackSize = 0, stackAngle = 0;
+        var stackSize = 0, stackAngle = 0, dataCount = 0;
 
         function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
             var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
@@ -101,8 +101,9 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
             cx = r + ((area.width > area.height) ? dist / 2 : 0);
             cy = r + ((area.width < area.height) ? dist / 2 : 0);
 
+            dataCount = this.listData().length;
             stackSize = (r - this.brush.textRadius) / this.brush.stackCount;
-            stackAngle = 360 / this.listData().length;
+            stackAngle = 360 / (dataCount == 0 ? 1 : dataCount);
         }
 
         this.draw = function() {
@@ -120,7 +121,7 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
 
                 for(var j = 0; j < data[i].length; j++) {
                     var p = this.svg.path({
-                        fill: this.color(j),
+                        fill: (dataCount == 0) ? this.chart.theme("arcEqualizerBackgroundColor") : this.color(j),
                         stroke: stackBorderColor,
                         "stroke-width": stackBorderWidth
                     });

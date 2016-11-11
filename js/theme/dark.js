@@ -237,6 +237,7 @@ jui.define("chart.theme.dark", [], function() {
         arcEqualizerBorderWidth: 1,
         arcEqualizerFontSize: 13,
         arcEqualizerFontColor: "#868686",
+        arcEqualizerBackgroundColor: "#222222",
 
         // widget styles
         titleFontColor : "#ffffff",

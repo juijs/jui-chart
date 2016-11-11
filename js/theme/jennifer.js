@@ -245,6 +245,7 @@ jui.define("chart.theme.jennifer", [], function() {
         arcEqualizerBorderWidth: 1,
         arcEqualizerFontSize: 13,
         arcEqualizerFontColor: "#333",
+        arcEqualizerBackgroundColor: "#a9a9a9",
 
         // Widget styles
         titleFontColor : "#333",
