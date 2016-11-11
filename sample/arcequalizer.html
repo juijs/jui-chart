@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    jui.ready([ "chart.builder" ], function(chart) {
+        var c = chart("#chart", {
+            width: 500,
+            height : 400,
+            padding : 0,
+            theme : "jennifer",
+            axis : [{
+                c: {
+                    type: "panel"
+                }
+            }],
+            brush : [{
+                type : 'arcequalizer',
+                target : [ 'v1', 'v2', 'v3' ],
+                maxValue: 100,
+                stackCount: 20,
+                textRadius: 30
+            }]
+        });
+
+        setInterval(function() {
+            var data = [];
+
+            for(var i = 0; i < 10; i++) {
+                data.push({
+                    v1: Math.floor(Math.random() * 50),
+                    v2: Math.floor(Math.random() * 20),
+                    v3: Math.floor(Math.random() * 10)
+                });
+            }
+
+            c.axis(0).update(data)
+        }, 3000);
+	})
+</script>
+
+
+</body>
+</html>
