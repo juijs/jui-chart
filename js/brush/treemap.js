@@ -394,11 +394,15 @@ jui.define("chart.brush.treemap.calculator", [ "util.base", "util.treemap", "cha
     function flattenTreemap(rawtreemap) {
         var flattreemap = [];
 
-        for (var i = 0; i < rawtreemap.length; i++) {
-            for (var j = 0; j < rawtreemap[i].length; j++) {
-                flattreemap.push(rawtreemap[i][j]);
+        if(rawtreemap) {
+            for (var i = 0; i < rawtreemap.length; i++) {
+                for (var j = 0; j < rawtreemap[i].length; j++) {
+                    flattreemap.push(rawtreemap[i][j]);
+                }
+
             }
         }
+
         return flattreemap;
     }
 
@@ -480,16 +484,16 @@ jui.define("chart.brush.treemap.calculator", [ "util.base", "util.treemap", "cha
 jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator", "chart.brush.treemap.nodemanager" ],
     function(_, Calculator, NodeManager) {
 
+    var TEXT_MARGIN_LEFT = 3;
+
     /**
      * @class chart.brush.treemap
      *
      * @extends chart.brush.core
      */
     var TreemapBrush = function() {
-        var self = this,
-            nodes = new NodeManager(),
-            colorKeys = {},
-            colorIndex = 0;
+        var nodes = new NodeManager(),
+            titleKeys = {};
 
         function convertNodeToArray(key, nodes, result, now) {
             if(!now) now = [];
@@ -521,36 +525,51 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
         }
 
         function isDrawNode(node) {
-            if(node.x == 0 && node.y == 0 && node.width == 0 && node.height == 0) {
+            if(node.width == 0 && node.height == 0 && node.x == 0 && node.y == 0) {
                 return false;
             }
 
             return true;
         }
 
-        function getNodeColor(node) {
-            if(_.typeCheck("function", self.brush.nodeColor)) {
-                var color = self.brush.nodeColor.call(self.chart, node);
-
-                if(_.typeCheck("integer", color)) {
-                    return self.color(color);
+        function getMinimumXY(node, dx, dy) {
+            if(node.children.length == 0) {
+                return {
+                    x: Math.min(dx, node.x),
+                    y: Math.min(dy, node.y)
+                };
+            } else {
+                for(var i = 0; i < node.children.length; i++) {
+                    return getMinimumXY(node.children[i], dx, dy);
                 }
-
-                return color;
             }
-
-            if(!colorKeys[node.parent.index]) {
-                colorKeys[node.parent.index] = colorIndex;
-                colorIndex++;
-            }
-
-            return self.color(colorKeys[node.parent.index]);
         }
 
-        function getTextSize(node) {
-            var callback = self.brush.textSize;
+        function createTitleDepth(self, g, node, sx, sy) {
+            var fontSize = self.chart.theme("treemapTitleFontSize"),
+                w = self.axis.area("width"),
+                h = self.axis.area("height"),
+                xy = getMinimumXY(node, w, h);
 
-            return (_.typeCheck("function", callback) ? callback.call(self.chart, node.text) : node.text);
+            var text = self.chart.text({
+                "font-size": fontSize,
+                "font-weight": "bold",
+                fill: self.chart.theme("treemapTitleFontColor"),
+                x: sx + xy.x + TEXT_MARGIN_LEFT,
+                y: sy + xy.y + fontSize,
+                "text-anchor": "start"
+            }, node.text);
+
+            g.append(text);
+            titleKeys[node.index] = true;
+        }
+
+        function getRootNodeSeq(node) {
+            if(node.parent.depth > 0) {
+                return getRootNodeSeq(node.parent);
+            }
+
+            return node.nodenum;
         }
 
         this.drawBefore = function() {
@@ -583,6 +602,10 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                 nodeList = nodes.getNodeAll();
 
             for(var i = 0; i < nodeList.length; i++) {
+                if(this.brush.titleDepth == nodeList[i].depth) {
+                    createTitleDepth(this, g, nodeList[i], sx, sy);
+                }
+
                 if(!isDrawNode(nodeList[i])) continue;
 
                 var x = sx + nodeList[i].x,
@@ -590,35 +613,21 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                     w = nodeList[i].width,
                     h = nodeList[i].height;
 
-                var rect = this.svg.rect({
-                    stroke: this.chart.theme("treemapNodeBorderColor"),
-                    "stroke-width": this.chart.theme("treemapNodeBorderWidth"),
-                    fill: getNodeColor(nodeList[i]),
-                    x: x,
-                    y: y,
-                    width: w,
-                    height: h
-                });
-
-                this.addEvent(rect, nodeList[i]);
-                g.append(rect);
-
-                if(this.brush.showText) {
+                if(this.brush.showText && !titleKeys[nodeList[i].index]) {
                     var cx = x + (w / 2),
                         cy = y + (h / 2),
-                        dist = 3,
                         fontSize = this.chart.theme("treemapTextFontSize");
 
-                    if(this.brush.orient == "top") {
+                    if(this.brush.textOrient == "top") {
                         cy = y + fontSize;
-                    } else if(this.brush.orient == "bottom") {
+                    } else if(this.brush.textOrient == "bottom") {
                         cy = y + h - fontSize/2;
                     }
 
-                    if(this.brush.align == "start") {
-                        cx = x + dist;
-                    } else if(this.brush.align == "end") {
-                        cx = x + w - dist;
+                    if(this.brush.textAlign == "start") {
+                        cx = x + TEXT_MARGIN_LEFT;
+                    } else if(this.brush.textAlign == "end") {
+                        cx = x + w - TEXT_MARGIN_LEFT;
                     }
 
                     var text = this.chart.text({
@@ -626,11 +635,29 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                         fill: this.chart.theme("treemapTextFontColor"),
                         x: cx,
                         y: cy,
-                        "text-anchor": this.brush.align
-                    }, getTextSize(nodeList[i]));
+                        "text-anchor": this.brush.textAlign
+                    }, nodeList[i].text);
 
                     g.append(text);
                 }
+
+                var elem = this.svg.rect({
+                    stroke: this.chart.theme("treemapNodeBorderColor"),
+                    "stroke-width": this.chart.theme("treemapNodeBorderWidth"),
+                    x: x,
+                    y: y,
+                    width: w,
+                    height: h,
+                    fill: this.color(getRootNodeSeq(nodeList[i]))
+                });
+
+                if(_.typeCheck("function", this.brush.nodeColor)) {
+                    var color = this.brush.nodeColor.call(this.chart, nodeList[i]);
+                    elem.attr({ fill: this.color(color) });
+                }
+
+                this.addEvent(elem, nodeList[i]);
+                g.prepend(elem);
             }
 
             return g;
@@ -640,12 +667,12 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
     TreemapBrush.setup = function() {
         return {
             /** @cfg {"top"/"center"/"bottom" } [orient="top"]  Determines the side on which the tool tip is displayed (top, center, bottom). */
-            orient: "top", // or bottom
+            textOrient: "top", // or bottom
             /** @cfg {"start"/"middle"/"end" } [align="center"] Aligns the title message (start, middle, end).*/
-            align: "middle",
+            textAlign: "middle",
             showText: true,
+            titleDepth: 0,
             nodeColor: null,
-            textSize: null,
             clip: false
         };
     }

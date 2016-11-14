@@ -240,6 +240,8 @@ jui.define("chart.theme.jennifer", [], function() {
         treemapNodeBorderColor: "#333",
         treemapTextFontSize: 11,
         treemapTextFontColor: "#333",
+        treemapTitleFontSize: 12,
+        treemapTitleFontColor: "#333",
 
         arcEqualizerBorderColor: "#fff",
         arcEqualizerBorderWidth: 1,

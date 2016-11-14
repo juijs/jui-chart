@@ -232,6 +232,8 @@ jui.define("chart.theme.dark", [], function() {
         treemapNodeBorderColor: "#222222",
         treemapTextFontSize: 11,
         treemapTextFontColor: "#868686",
+        treemapTitleFontSize: 12,
+        treemapTitleFontColor: "#868686",
 
         arcEqualizerBorderColor: "#222222",
         arcEqualizerBorderWidth: 1,

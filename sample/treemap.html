@@ -19,22 +19,32 @@
                 data : [
                     { index : "0", text: "Korea" },
                     { index : "0.0", text: "Seoul", value : 1000 },
-                    { index : "0.1", text: "Busan" },
-                    { index : "0.1.0", text: "Dongrae1", value : 2000 },
-                    { index : "0.1.1", text: "Dongrae2", value : 1400 },
+                    { index : "0.1", text: "Busan", value: 500 },
+                    { index : "0.2", text: "Busan", value: 500 },
+                    { index : "0.3", text: "Busan", value: 500 },
                     { index : "1", text: "Japan" },
                     { index : "1.0", text: "Tokyo", value : 700 },
-                    { index : "2", text: "China", value : 500 },
+                    { index : "1.1", text: "Osaka", value : 700 },
+                    { index : "1.2", text: "Osaka", value : 700 },
+                    { index : "1.3", text: "Osaka", value : 700 },
+                    { index : "1.4", text: "Osaka", value : 700 },
+                    { index : "1.5", text: "Osaka", value : 700 },
+                    { index : "2", text: "China" },
+                    { index : "2.0", text: "China1", value: 5000 },
+                    { index : "2.1", text: "China2", value: 5000 },
+                    { index : "3", text: "Hongkong" },
+                    { index : "3.0", text: "Hongkong1", value: 2200 },
+                    { index : "3.1", text: "Hongkong2", value: 3200 },
                 ]
             }],
             brush : [{
                 type : "treemap",
                 colors : [ 8, 7, 6, 5, 4 ],
-                orient : "top",
-                align : "end"
+                textOrient : "bottom",
+                textAlign : "end",
+                titleDepth : 1,
                 /*/
                 nodeColor : function(d) {
-                    console.log(d);
                     if(d.text == "Seoul") return 0;
                     else if(d.text == "Dongrae1" || d.text == "Dongrae2") return 1;
                     return 2;
