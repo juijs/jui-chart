@@ -671,7 +671,7 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
             /** @cfg {"start"/"middle"/"end" } [align="center"] Aligns the title message (start, middle, end).*/
             textAlign: "middle",
             showText: true,
-            titleDepth: 0,
+            titleDepth: 1,
             nodeColor: null,
             clip: false
         };
