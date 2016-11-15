@@ -5,35 +5,33 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 	 * @extends chart.brush.donut
 	 */
 	var FullGaugeBrush = function() {
-		var self = this;
         var group, w, centerX, centerY, outerRadius, innerRadius, textScale;
 
-		function createText(value, index) {
-			var g = self.chart.svg.group().translate(centerX, centerY),
-				size = self.chart.theme("gaugeFontSize");
+		this.createText = function(value, index, centerX, centerY, textScale) {
+			var g = this.svg.group().translate(centerX, centerY),
+				size = this.chart.theme("gaugeFontSize");
 
-            g.append(self.chart.text({
+            g.append(this.chart.text({
                 "text-anchor" : "middle",
                 "font-size" : size,
-                "font-weight" : self.chart.theme("gaugeFontWeight"),
-                "fill" : self.color(index),
+                "font-weight" : this.chart.theme("gaugeFontWeight"),
+                "fill" : this.color(index),
                 y: size / 3
-            }, self.format(value, index)).scale(textScale));
+            }, this.format(value, index)).scale(textScale));
 
 			return g;
 		}
 
-        function createTitle(title, index, dx, dy) {
-            var g = self.chart.svg.group().translate(centerX + dx, centerY + dy),
+        this.createTitle = function(title, index, centerX, centerY, dx, dy, textScale) {
+            var g = this.svg.group().translate(centerX + dx, centerY + dy),
                 anchor = (dx == 0) ? "middle" : ((dx < 0) ? "end" : "start"),
-				color = self.chart.theme("gaugeTitleFontColor"),
-				size = self.chart.theme("gaugeTitleFontSize");
+				size = this.chart.theme("gaugeTitleFontSize");
 
-            g.append(self.chart.text({
+            g.append(this.chart.text({
                 "text-anchor" : anchor,
                 "font-size" : size,
-                "font-weight" : self.chart.theme("gaugeTitleFontWeight"),
-                fill : (!color) ? self.color(index) : color,
+                "font-weight" : this.chart.theme("gaugeTitleFontWeight"),
+                fill : this.chart.theme("gaugeTitleFontColor"),
                 y: size / 3
             }, title).scale(textScale));
 
@@ -74,22 +72,26 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 			innerRadius = outerRadius - this.brush.size;
             textScale = math.scaleValue(w, 40, 400, 1, 1.5);
 
-			group.append(this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle + currentAngle, endAngle - currentAngle, {
-				stroke : this.chart.theme("gaugeBackgroundColor"),
-				fill : "transparent"
+			// 심볼 타입에 따라 여백 각도 설정
+			var paddingAngle = (this.brush.symbol == "butt") ? this.chart.theme("gaugePaddingAngle") : 0;
+
+			group.append(this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle + currentAngle + paddingAngle, endAngle - currentAngle - paddingAngle*2, {
+				stroke: this.chart.theme("gaugeBackgroundColor"),
+				fill: "transparent"
 			}));
 
 			group.append(this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle, currentAngle, {
-				stroke : this.color(index),
-				fill : "transparent"
+				stroke: this.color(index),
+				"stroke-linecap": this.brush.symbol,
+				fill: "transparent"
 			}));
 
             if(this.brush.showText) {
-                group.append(createText(value, index));
+                group.append(this.createText(value, index, centerX, centerY - (outerRadius * 0.1), textScale));
             }
 
             if(title != "") {
-                group.append(createTitle(title, index, this.brush.titleX, this.brush.titleY));
+                group.append(this.createTitle(title, index, centerX, centerY - (outerRadius * 0.1), this.brush.titleX, this.brush.titleY, textScale));
             }
 
 			return group;
@@ -108,6 +110,8 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 
 	FullGaugeBrush.setup = function() {
 		return {
+			symbol: "butt",
+
 			/** @cfg {Number} [size=30] Determines the stroke width of a gauge.  */
 			size: 60,
 			/** @cfg {Number} [startAngle=0] Determines the start angle(as start point) of a gauge. */

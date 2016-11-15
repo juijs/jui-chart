@@ -8,30 +8,29 @@
 <body >
 
 <div id="chart"></div>
+
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
-
         var c = chart("#chart", {
-            padding: 0,
-            width: 300,
-            height : 300,
+            width: 200,
+            height : 200,
+            padding : 0,
             theme : "jennifer",
-            axis : {
+            axis : [{
+                c: {
+                    type : "panel"
+                },
                 data : [
-                    { title : 'Overall Visits', value : 200, max : 300, min : 0 }
+                    { title : 'Overall Visits', value : 100, max : 300, min : 0 }
                 ]
-            },
-            brush : {
-                type : 'fullgauge',
-                size : 15,
-                startAngle : 0,
+            }],
+            brush : [{
+                type : "arcgauge",
                 titleY : 25,
-                animate : true,
-                //symbol : "round",
                 format : function(v) {
                     return v + "k";
                 }
-            }
+            }]
         });
 	})
 </script>

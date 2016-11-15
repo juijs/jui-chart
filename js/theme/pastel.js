@@ -87,6 +87,7 @@ jui.define("chart.theme.pastel", [], function() {
         gaugeTitleFontSize : 12,
         gaugeTitleFontWeight : "normal",
         gaugeTitleFontColor : "#333",
+		gaugePaddingAngle : 2,
         bargaugeBackgroundColor : "#f5f5f5",
         bargaugeFontSize : 11,
         bargaugeFontColor : "#333333",
