@@ -11145,15 +11145,17 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
 
             for (var i = 0; i < pos.x.length; i++) {
                 if((display == "max" && pos.max[i]) || (display == "min" && pos.min[i]) || display == "all") {
-                    var orient = (display == "max" && pos.max[i]) ? "top" : "bottom";
+                    var orient = (display == "max" && pos.max[i]) ? "top" : "bottom",
+                        tooltip = this.lineList[index].tooltip;
 
-                    var minmax = this.drawTooltip(this.color(index), circleColor, 1);
-                    minmax.control(orient, +pos.x[i], +pos.y[i], this.format(pos.value[i]));
+                    // 최소/최대 값은 무조건 한개만 보여야 함.
+                    if(display == "all" || tooltip == null) {
+                        var minmax = this.drawTooltip(this.color(index), circleColor, 1);
+                        minmax.control(orient, +pos.x[i], +pos.y[i], this.format(pos.value[i]));
 
-                    g.append(minmax.tooltip);
-
-                    // 컬럼 상태 설정 (툴팁)
-                    this.lineList[index].tooltip = minmax;
+                        g.append(minmax.tooltip);
+                        this.lineList[index].tooltip = minmax;
+                    }
                 }
             }
         }
@@ -12131,7 +12133,8 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
             var self = this,
                 g = this.chart.svg.group(),
                 borderColor = this.chart.theme("scatterBorderColor"),
-                borderWidth = this.chart.theme("scatterBorderWidth");
+                borderWidth = this.chart.theme("scatterBorderWidth"),
+                isTooltipDraw = false;
 
             for(var i = 0; i < points.length; i++) {
                 for(var j = 0; j < points[i].length; j++) {
@@ -12164,9 +12167,13 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                         this.cachedSymbol[j].push(p);
                     }
 
-                    // Max & Min 툴팁 생성
+                    // Max & Min & All 툴팁 생성
                     if((d == "max" && data.max) || (d == "min" && data.min) || d == "all") {
-                        g.append(this.drawTooltip(data.x, data.y, this.format(data.value)));
+                        // 최소/최대 값은 무조건 한개만 보여야 함.
+                        if(d == "all" || !isTooltipDraw) {
+                            g.append(this.drawTooltip(data.x, data.y, this.format(data.value)));
+                            isTooltipDraw = true;
+                        }
                     }
 
                     // 컬럼 및 기본 브러쉬 이벤트 설정

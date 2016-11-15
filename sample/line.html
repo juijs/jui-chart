@@ -12,9 +12,9 @@
 <script id="script_code">
     var data = [
         { apple : 26.1, ms : -1, oracle : 2 },
-        { apple : 43.83, ms : 27.14, oracle : 4 },
+        { apple : 55.03, ms : 27.14, oracle : 4 },
         { apple : 55.03, ms : 24, oracle : 2 },
-        { apple : 72.95, ms : 25.39, oracle : 0 }
+        { apple : 23.95, ms : 25.39, oracle : 0 }
     ];
 
     var data2 = [
@@ -47,16 +47,20 @@
                 data : data
             },
             brush : [
+/*/
                 {
                     type : 'line',
                     display : 'max',
                     activeEvent : "click",
                     colors : [ "red", "blue", "purple" ],
-                    animate : true
+                    animate : true,
+                    target : [ "apple"]
                 },
+/**/
                 {
                     type : 'scatter',
-                    hide : true
+                    display : 'max',
+                    target : [ "apple" ]
                 }
             ],
             widget : [

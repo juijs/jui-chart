@@ -105,15 +105,17 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
 
             for (var i = 0; i < pos.x.length; i++) {
                 if((display == "max" && pos.max[i]) || (display == "min" && pos.min[i]) || display == "all") {
-                    var orient = (display == "max" && pos.max[i]) ? "top" : "bottom";
+                    var orient = (display == "max" && pos.max[i]) ? "top" : "bottom",
+                        tooltip = this.lineList[index].tooltip;
 
-                    var minmax = this.drawTooltip(this.color(index), circleColor, 1);
-                    minmax.control(orient, +pos.x[i], +pos.y[i], this.format(pos.value[i]));
+                    // 최소/최대 값은 무조건 한개만 보여야 함.
+                    if(display == "all" || tooltip == null) {
+                        var minmax = this.drawTooltip(this.color(index), circleColor, 1);
+                        minmax.control(orient, +pos.x[i], +pos.y[i], this.format(pos.value[i]));
 
-                    g.append(minmax.tooltip);
-
-                    // 컬럼 상태 설정 (툴팁)
-                    this.lineList[index].tooltip = minmax;
+                        g.append(minmax.tooltip);
+                        this.lineList[index].tooltip = minmax;
+                    }
                 }
             }
         }
