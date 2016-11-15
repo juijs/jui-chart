@@ -43,6 +43,7 @@
                 textOrient : "bottom",
                 textAlign : "end",
                 titleDepth : 1,
+                target : [ "value" ]
                 /*/
                 nodeColor : function(d) {
                     if(d.text == "Seoul") return 0;
@@ -50,6 +51,15 @@
                     return 2;
                 }
                 /**/
+            }],
+            widget : [{
+                type : "tooltip",
+                format : function(data) {
+                    return {
+                        key: data.text,
+                        value: data.value
+                    }
+                }
             }],
             event : {
                 click: function(d, e) {
