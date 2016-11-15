@@ -12,20 +12,21 @@
     jui.ready([ "chart.builder" ], function(chart) {
 
         var c = chart("#chart", {
-            width: 400,
-            height : 400,
+            width: 300,
+            height : 300,
             theme : "jennifer",
             axis : {
                 data : [
-                    { title : 'Overall Visits', value : 292, max : 300, min : 0, unit : "k" }
+                    { title : 'Overall Visits', value : 200, max : 300, min : 0, unit : "k" }
                 ]
             },
             brush : {
                 type : 'fullgauge',
-                size : 30,
+                size : 15,
                 startAngle : 0,
                 titleY : 25,
                 animate : true,
+                //symbol : "round",
                 format : function(v) {
                     return v + "k";
                 }

@@ -12,37 +12,25 @@
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
         var c = chart("#chart", {
-            width: 500,
-            height : 400,
+            width: 150,
+            height : 150,
             padding : 0,
             theme : "jennifer",
             axis : [{
                 c: {
                     type: "panel"
-                }
+                },
+                data: [{
+                    value: 80,
+                }]
             }],
             brush : [{
-                type : 'arcgauge',
-                target : [ 'v1', 'v2', 'v3' ],
+                type : "arcgauge",
+                target : [ "value" ],
                 maxValue: 100,
-                stackCount: 20,
-                textRadius: 30
+                textRadius: 60
             }]
         });
-
-        setInterval(function() {
-            var data = [];
-
-            for(var i = 0; i < 10; i++) {
-                data.push({
-                    v1: Math.floor(Math.random() * 50),
-                    v2: Math.floor(Math.random() * 20),
-                    v3: Math.floor(Math.random() * 10)
-                });
-            }
-
-            c.axis(0).update(data)
-        }, 3000);
 	})
 </script>
 

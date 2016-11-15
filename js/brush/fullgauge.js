@@ -74,14 +74,18 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 			innerRadius = outerRadius - this.brush.size;
             textScale = math.scaleValue(w, 40, 400, 1, 1.5);
 
-			group.append(this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle + currentAngle, endAngle - currentAngle, {
-				stroke : this.chart.theme("gaugeBackgroundColor"),
-				fill : "transparent"
+			// 심볼 타입에 따라 여백 각도 설정
+			var paddingAngle = (this.brush.symbol == "butt") ? this.chart.theme("gaugePaddingAngle") : 0;
+
+			group.append(this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle + currentAngle + paddingAngle, endAngle - currentAngle - paddingAngle*2, {
+				stroke: this.chart.theme("gaugeBackgroundColor"),
+				fill: "transparent"
 			}));
 
 			group.append(this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle, currentAngle, {
-				stroke : this.color(index),
-				fill : "transparent"
+				stroke: this.color(index),
+				"stroke-linecap": this.brush.symbol,
+				fill: "transparent"
 			}));
 
             if(this.brush.showText) {
@@ -108,6 +112,8 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 
 	FullGaugeBrush.setup = function() {
 		return {
+			symbol: "butt",
+
 			/** @cfg {Number} [size=30] Determines the stroke width of a gauge.  */
 			size: 60,
 			/** @cfg {Number} [startAngle=0] Determines the start angle(as start point) of a gauge. */
