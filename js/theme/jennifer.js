@@ -92,7 +92,7 @@ jui.define("chart.theme.jennifer", [], function() {
         barPointBorderColor : "#fff",
         barDisableBackgroundOpacity : 0.4,
     	gaugeBackgroundColor : "#ececec",
-        gaugeArrowColor : "#666666",
+        gaugeArrowColor : "#a9a9a9",
         gaugeFontColor : "#666666",
         gaugeFontSize : 20,
         gaugeFontWeight : "bold",

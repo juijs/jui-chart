@@ -12,23 +12,24 @@
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
         var c = chart("#chart", {
-            width: 150,
-            height : 150,
+            width: 200,
+            height : 200,
             padding : 0,
             theme : "jennifer",
             axis : [{
                 c: {
-                    type: "panel"
+                    type : "panel"
                 },
-                data: [{
-                    value: 80,
-                }]
+                data : [
+                    { title : 'Overall Visits', value : 100, max : 300, min : 0 }
+                ]
             }],
             brush : [{
                 type : "arcgauge",
-                target : [ "value" ],
-                maxValue: 100,
-                textRadius: 60
+                titleY : 25,
+                format : function(v) {
+                    return v + "k";
+                }
             }]
         });
 	})

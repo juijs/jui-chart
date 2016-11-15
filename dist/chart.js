@@ -2682,7 +2682,7 @@ jui.define("chart.theme.jennifer", [], function() {
         barPointBorderColor : "#fff",
         barDisableBackgroundOpacity : 0.4,
     	gaugeBackgroundColor : "#ececec",
-        gaugeArrowColor : "#666666",
+        gaugeArrowColor : "#a9a9a9",
         gaugeFontColor : "#666666",
         gaugeFontSize : 20,
         gaugeFontWeight : "bold",
@@ -12948,35 +12948,33 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 	 * @extends chart.brush.donut
 	 */
 	var FullGaugeBrush = function() {
-		var self = this;
         var group, w, centerX, centerY, outerRadius, innerRadius, textScale;
 
-		function createText(value, index) {
-			var g = self.chart.svg.group().translate(centerX, centerY),
-				size = self.chart.theme("gaugeFontSize");
+		this.createText = function(value, index, centerX, centerY, textScale) {
+			var g = this.svg.group().translate(centerX, centerY),
+				size = this.chart.theme("gaugeFontSize");
 
-            g.append(self.chart.text({
+            g.append(this.chart.text({
                 "text-anchor" : "middle",
                 "font-size" : size,
-                "font-weight" : self.chart.theme("gaugeFontWeight"),
-                "fill" : self.color(index),
+                "font-weight" : this.chart.theme("gaugeFontWeight"),
+                "fill" : this.color(index),
                 y: size / 3
-            }, self.format(value, index)).scale(textScale));
+            }, this.format(value, index)).scale(textScale));
 
 			return g;
 		}
 
-        function createTitle(title, index, dx, dy) {
-            var g = self.chart.svg.group().translate(centerX + dx, centerY + dy),
+        this.createTitle = function(title, index, centerX, centerY, dx, dy, textScale) {
+            var g = this.svg.group().translate(centerX + dx, centerY + dy),
                 anchor = (dx == 0) ? "middle" : ((dx < 0) ? "end" : "start"),
-				color = self.chart.theme("gaugeTitleFontColor"),
-				size = self.chart.theme("gaugeTitleFontSize");
+				size = this.chart.theme("gaugeTitleFontSize");
 
-            g.append(self.chart.text({
+            g.append(this.chart.text({
                 "text-anchor" : anchor,
                 "font-size" : size,
-                "font-weight" : self.chart.theme("gaugeTitleFontWeight"),
-                fill : (!color) ? self.color(index) : color,
+                "font-weight" : this.chart.theme("gaugeTitleFontWeight"),
+                fill : this.chart.theme("gaugeTitleFontColor"),
                 y: size / 3
             }, title).scale(textScale));
 
@@ -13032,11 +13030,11 @@ jui.define("chart.brush.fullgauge", [ "util.math" ], function(math) {
 			}));
 
             if(this.brush.showText) {
-                group.append(createText(value, index));
+                group.append(this.createText(value, index, centerX, centerY - (outerRadius * 0.1), textScale));
             }
 
             if(title != "") {
-                group.append(createTitle(title, index, this.brush.titleX, this.brush.titleY));
+                group.append(this.createTitle(title, index, centerX, centerY - (outerRadius * 0.1), this.brush.titleX, this.brush.titleY, textScale));
             }
 
 			return group;
@@ -16411,12 +16409,13 @@ jui.define("chart.brush.arcequalizer", [ "util.base" ], function(_) {
     return ArcEqualizerBrush;
 }, "chart.brush.core");
 
-jui.define("chart.brush.arcgauge", [ "util.base" ], function(_) {
+jui.define("chart.brush.arcgauge", [ "util.base", "util.math" ], function(_, math) {
 
     /**
      * @class chart.brush.arcgauge
      */
     var ArcGaugeBrush = function() {
+        var g = null;
 
         this.calculateArea = function() {
             var area = this.axis.c(0),
@@ -16424,8 +16423,8 @@ jui.define("chart.brush.arcgauge", [ "util.base" ], function(_) {
                 r = Math.min(area.width, area.height) / 2;
 
             return {
-                radius: this.brush.textRadius,
-                width: r - this.brush.textRadius,
+                radius: r - this.brush.size,
+                width: this.brush.size,
                 centerX: r + ((area.width > area.height) ? dist / 2 : 0),
                 centerY: r + ((area.width < area.height) ? dist / 2 : 0)
             }
@@ -16460,52 +16459,76 @@ jui.define("chart.brush.arcgauge", [ "util.base" ], function(_) {
             }
         }
 
-        this.drawStroke = function(p, radius, width, startAngle, endAngle, flag) {
+        this.drawStroke = function(p, radius, width, startAngle, endAngle) {
             var area = this.calculateArea(),
                 arc1 = this.describeArc(area.centerX, area.centerY, radius, startAngle, endAngle),
                 arc2 = this.describeArc(area.centerX, area.centerY, radius + width, startAngle, endAngle);
 
             p.MoveTo(arc1.sx, arc1.sy);
-            p.Arc(radius, radius, 0, arc1.sweep, (!flag) ? 1 : 0, arc1.ex, arc1.ey);
+            p.Arc(radius, radius, 0, arc1.sweep, 1, arc1.ex, arc1.ey);
             p.LineTo(arc2.ex, arc2.ey);
-            p.Arc(radius + width, radius + width, 0, arc2.sweep, (!flag) ? 0 : 1, arc2.sx, arc2.sy);
+            p.Arc(radius + width, radius + width, 0, arc2.sweep, 0, arc2.sx, arc2.sy);
             p.LineTo(arc1.sx, arc1.sy);
             p.ClosePath();
         }
 
-        this.draw = function() {
-            var g = this.svg.group(),
-                data = this.listData();
+        this.drawUnit = function(index, data) {
+            var startAngle = this.brush.startAngle,
+                endAngle = this.brush.endAngle;
 
-            if(data.length > 0) {
-                var area = this.calculateArea(),
-                    value = this.getValue(data[0], "value");
+            var title = this.getValue(data, "title"),
+                value = this.getValue(data, "value", 0),
+                max = this.getValue(data, "max", 100),
+                min = this.getValue(data, "min", 0),
+                rate = (value - min) / (max - min),
+                currentAngle = (endAngle - startAngle) * rate;
 
-                var bg = this.svg.path({
-                    fill: "#a9a9a9"
-                });
+            var area = this.calculateArea(),
+                textScale = math.scaleValue(area.radius, 40, 400, 1, 1.5),
+                stackSize = this.brush.size;
 
-                var stack = this.svg.path({
-                    fill: this.color(0),
-                    "stroke-linecap": "round"
-                });
+            // 도트 그리기
+            for(var i = startAngle; i < endAngle; i+=5) {
+                var rad = math.radian(i - 89),
+                    sx = Math.cos(rad) * (area.radius - stackSize),
+                    sy = Math.sin(rad) * (area.radius - stackSize),
+                    ex = Math.cos(rad) * (area.radius - stackSize*3),
+                    ey = Math.sin(rad) * (area.radius - stackSize*3);
 
-                var text = this.chart.text({
-                    "font-size": 13,
-                    "text-anchor": "middle",
-                    fill: "#333",
-                    x: area.centerX,
-                    y: area.centerY,
-                    dy: 13 / 3
-                }).text(this.format(value));
-
-                this.drawStroke(bg, area.radius, area.width, 0, 360);
-                this.drawStroke(stack, area.radius, area.width, 0, 90);
-
-                g.append(text);
-                g.append(bg);
-                g.append(stack);
+                g.append(this.svg.line({
+                    x1: area.centerX + sx,
+                    y1: area.centerY + sy,
+                    x2: area.centerX + ex,
+                    y2: area.centerY + ey,
+                    stroke: this.chart.theme("gaugeArrowColor")
+                }));
             }
+
+            // 바 그리기
+            var stack = this.svg.path({
+                fill: this.color(index)
+            });
+
+            this.drawStroke(stack, area.radius, area.width, startAngle, startAngle + currentAngle);
+            g.append(stack);
+
+            // 텍스트 그리기
+            if(this.brush.showText) {
+                g.append(this.createText(value, index, area.centerX, area.centerY - (area.radius * 0.2), textScale));
+            }
+
+            // 타이틀 그리기
+            if(title != "") {
+                g.append(this.createTitle(title, index, area.centerX, area.centerY - (area.radius * 0.2), this.brush.titleX, this.brush.titleY, textScale));
+            }
+        }
+
+        this.draw = function() {
+            g = this.chart.svg.group();
+
+            this.eachData(function(data, i) {
+                this.drawUnit(i, data);
+            });
 
             return g;
         }
@@ -16513,17 +16536,25 @@ jui.define("chart.brush.arcgauge", [ "util.base" ], function(_) {
 
     ArcGaugeBrush.setup = function() {
         return {
-            clip: false,
-            maxValue: 100,
-            textRadius: 50,
-            startAngle: 0,
-            endAngle: 360,
+            /** @cfg {Number} [size=30] Determines the stroke width of a gauge.  */
+            size: 5,
+            /** @cfg {Number} [startAngle=0] Determines the start angle(as start point) of a gauge. */
+            startAngle: 245,
+            /** @cfg {Number} [endAngle=360] Determines the end angle(as draw point) of a gauge. */
+            endAngle: 475,
+            /** @cfg {Boolean} [showText=true] */
+            showText: true,
+            /** @cfg {Number} [titleX=0] */
+            titleX: 0,
+            /** @cfg {Number} [titleY=0]  */
+            titleY: 0,
+            /** @cfg {Function} [format=null] */
             format: null
         };
     }
 
     return ArcGaugeBrush;
-}, "chart.brush.core");
+}, "chart.brush.fullgauge");
 
 jui.define("chart.brush.map.core", [], function() {
     /**
