@@ -41,6 +41,7 @@ jui.define("chart.brush.frame", [ "util.base", "chart.brush.treemap.nodemanager"
                 createNodeElements(g, cNode, cWidth, cStartX);
             }
 
+            self.addEvent(r, node);
             g.append(r);
         }
 

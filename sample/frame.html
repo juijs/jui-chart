@@ -4,34 +4,86 @@
     <meta http-equiv="content-type" content="charset=utf-8;"/>
     <script src="../lib/core.js"></script>
     <script src="../dist/chart.js"></script>
+    <script src="resource/data/frame_data.js"></script>
 </head>
 <body >
 
 <div id="chart"></div>
 
 <script id="script_code">
+    var result = [];
+    var _ = jui.include("util.base");
+
+    frameData.push({
+        depth: 0,
+        key: 0,
+        parentKey: -1,
+        sampleCount: 0,
+        stackTraceHash: -1
+    });
+
+    var qs = _.sort(frameData);
+    qs.setCompare(function(a, b) {
+        return (a.depth < b.depth) ? true : false;
+    });
+    qs.run();
+
+    var cache = {};
+    for(var i = 0; i < frameData.length; i++) {
+        var key = frameData[i].key;
+
+        if(!cache[key]) {
+            cache[key] = {
+                data: frameData[i],
+                children: []
+            }
+        }
+    }
+    for(var i = 1; i < frameData.length; i++) {
+        var d = frameData[i],
+            p = cache[d.parentKey];
+
+        p.children.push(cache[d.key]);
+    }
+
+    var root = cache[0];
+    for(var j = 0; j < root.children.length; j++) {
+        root.data.sampleCount += root.children[j].data.sampleCount;
+    }
+
+    function createNodeData(node, index) {
+        result.push({
+            index: index,
+            value: node.data.sampleCount,
+            text: node.data.stackTraceHash
+        });
+
+        for(var i = 0; i < node.children.length; i++) {
+            var cNode = node.children[i];
+            createNodeData(cNode, index + "." + i);
+        }
+    }
+
+    createNodeData(root, "0");
+
     jui.ready([ "chart.builder" ], function(chart) {
 
         c = chart("#chart", {
-            width: 400,
-            height : 150,
+            width: 800,
+            height : 1600,
             padding : 0,
             axis : [{
-                data : [
-                    { index : "0", value: 3, text: -13375110 },
-                    { index : "0.0", value: 1, text: -71395896 },
-                    { index : "0.0.0", value: 1, text: -101176431 },
-                    { index : "0.1", value: 2, text: -92471297 },
-                    { index : "0.1.0", value: 1, text: -71395896 },
-                    { index : "0.1.0.0", value: 1, text: -71395896 }
-                ]
+                data : result
             }],
             brush : [{
                 type : "frame",
                 target : [ "text" ]
             }],
             widget : [{
-                type : "tooltip"
+                type : "tooltip",
+                format : function(data) {
+                    return data.text;
+                }
             }],
             event : {
                 click: function(d, e) {
