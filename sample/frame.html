@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    jui.ready([ "chart.builder" ], function(chart) {
+
+        c = chart("#chart", {
+            width: 400,
+            height : 150,
+            padding : 0,
+            axis : [{
+                data : [
+                    { index : "0", value: 3, text: -13375110 },
+                    { index : "0.0", value: 1, text: -71395896 },
+                    { index : "0.0.0", value: 1, text: -101176431 },
+                    { index : "0.1", value: 2, text: -92471297 },
+                    { index : "0.1.0", value: 1, text: -71395896 },
+                    { index : "0.1.0.0", value: 1, text: -71395896 }
+                ]
+            }],
+            brush : [{
+                type : "frame",
+                target : [ "text" ]
+            }],
+            widget : [{
+                type : "tooltip"
+            }],
+            event : {
+                click: function(d, e) {
+                    console.log(d);
+                }
+            }
+        });
+	})
+</script>
+
+
+</body>
+</html>
