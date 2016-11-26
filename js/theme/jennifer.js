@@ -250,6 +250,11 @@ jui.define("chart.theme.jennifer", [], function() {
         arcEqualizerFontColor: "#333",
         arcEqualizerBackgroundColor: "#a9a9a9",
 
+        flameNodeBorderWidth: 0.5,
+        flameNodeBorderColor: "#fff",
+        flameTextFontSize: 11,
+        flameTextFontColor: "#333",
+
         // Widget styles
         titleFontColor : "#333",
         titleFontSize : 13,

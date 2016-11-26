@@ -2840,6 +2840,11 @@ jui.define("chart.theme.jennifer", [], function() {
         arcEqualizerFontColor: "#333",
         arcEqualizerBackgroundColor: "#a9a9a9",
 
+        flameNodeBorderWidth: 0.5,
+        flameNodeBorderColor: "#fff",
+        flameTextFontSize: 11,
+        flameTextFontColor: "#333",
+
         // Widget styles
         titleFontColor : "#333",
         titleFontSize : 13,
@@ -3198,6 +3203,11 @@ jui.define("chart.theme.gradient", [], function() {
         arcEqualizerFontColor: "#333",
         arcEqualizerBackgroundColor: "#a9a9a9",
 
+        flameNodeBorderWidth: 0.5,
+        flameNodeBorderColor: "#fff",
+        flameTextFontSize: 12,
+        flameTextFontColor: "#333",
+
         // widget styles
         titleFontColor : "#333",
         titleFontSize : 13,
@@ -3553,6 +3563,11 @@ jui.define("chart.theme.dark", [], function() {
         arcEqualizerFontColor: "#868686",
         arcEqualizerBackgroundColor: "#222222",
 
+        flameNodeBorderWidth: 0.5,
+        flameNodeBorderColor: "#222",
+        flameTextFontSize: 12,
+        flameTextFontColor: "#868686",
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,
@@ -3905,6 +3920,11 @@ jui.define("chart.theme.pastel", [], function() {
 		arcEqualizerFontColor: "#333",
 		arcEqualizerBackgroundColor: "#a9a9a9",
 
+        flameNodeBorderWidth: 0.5,
+        flameNodeBorderColor: "#fff",
+        flameTextFontSize: 12,
+        flameTextFontColor: "#333",
+
         // widget styles
         titleFontColor : "#333",
         titleFontSize : 18,
@@ -4255,6 +4275,11 @@ jui.define("chart.theme.pattern", [], function() {
         arcEqualizerFontSize: 13,
         arcEqualizerFontColor: "#333",
         arcEqualizerBackgroundColor: "#a9a9a9",
+
+        flameNodeBorderWidth: 0.5,
+        flameNodeBorderColor: "#fff",
+        flameTextFontSize: 12,
+        flameTextFontColor: "#333",
 
         // widget styles
         titleFontColor : "#333",
@@ -16128,7 +16153,7 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                 x: sx + xy.x + TEXT_MARGIN_LEFT,
                 y: sy + xy.y + fontSize,
                 "text-anchor": "start"
-            }, node.text);
+            }, (_.typeCheck("function", self.brush.format) ? self.format(node) : node.text));
 
             g.append(text);
             titleKeys[node.index] = true;
@@ -16206,7 +16231,7 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                         x: cx,
                         y: cy,
                         "text-anchor": this.brush.textAlign
-                    }, nodeList[i].text);
+                    }, (_.typeCheck("function", this.brush.format) ? this.format(nodeList[i]) : nodeList[i].text));
 
                     g.append(text);
                 }
@@ -16243,7 +16268,8 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
             showText: true,
             titleDepth: 1,
             nodeColor: null,
-            clip: false
+            clip: false,
+            format: null
         };
     }
 
@@ -16563,51 +16589,129 @@ jui.define("chart.brush.arcgauge", [ "util.base", "util.math" ], function(_, mat
     return ArcGaugeBrush;
 }, "chart.brush.fullgauge");
 
-jui.define("chart.brush.frame", [ "util.base", "chart.brush.treemap.nodemanager" ],
+jui.define("chart.brush.flame", [ "util.base", "chart.brush.treemap.nodemanager" ],
     function(_, NodeManager) {
 
+    var TEXT_MARGIN = 3;
+
     /**
-     * @class chart.brush.frame
+     * @class chart.brush.flame
      *
      * @extends chart.brush.core
      */
-    var FrameBrush = function() {
+    var FlameBrush = function() {
         var self = this,
             g = null,
             height = 0,
             maxHeight = 0,
             nodes = new NodeManager();
 
-        function createNodeElements(g, node, width, sx) {
-            node.width = width;
-            node.height = height;
-            node.x = sx;
-            node.y = maxHeight - (height * node.depth);
-
+        function createNodeElement(node, color) {
             var r = self.svg.rect({
-                fill: self.color(0),
-                stroke: "white",
+                fill: self.color(color),
+                stroke: self.chart.theme("flameNodeBorderColor"),
+                "stroke-width": self.chart.theme("flameNodeBorderWidth"),
                 width: node.width,
                 height: node.height,
                 x: node.x,
                 y: node.y
             });
 
+            // 마우스 오버 효과
+            r.hover(function() {
+                r.attr({ stroke: self.color(color) });
+            }, function() {
+                r.attr({ stroke: self.chart.theme("flameNodeBorderColor") });
+            });
+
+            // 노드 컬러 설정
+            if(_.typeCheck("function", self.brush.nodeColor)) {
+                var color = self.brush.nodeColor.call(self.chart, node);
+                r.attr({ fill: self.color(color) });
+            }
+
+            // 노드 공통 이벤트 설정
+            self.addEvent(r, node);
+
+            return r;
+        }
+
+        function createTextElement(node) {
+            if(!_.typeCheck("function", self.brush.format)) {
+                return null;
+            }
+
+            var fontSize = self.chart.theme("flameTextFontSize"),
+                startX = node.x;
+
+            if(self.brush.textAlign == "middle") {
+                startX += node.width / 2;
+            } else if(self.brush.textAlign == "end") {
+                startX += node.width - TEXT_MARGIN;
+            } else {
+                startX += TEXT_MARGIN;
+            }
+
+            var t = self.chart.text({
+                "font-size": fontSize,
+                "font-weight": "bold",
+                fill: self.chart.theme("flameTextFontColor"),
+                x: startX,
+                y: node.y + fontSize,
+                "text-anchor": self.brush.textAlign
+            }, self.format(node));
+
+            return t;
+        }
+
+        function drawNodeAll(g, node, width, sx) {
+            var color = self.color(0);
+
+            node.width = width;
+            node.height = height;
+            node.x = sx;
+
+            // 노드 그리는 위치 설정
+            if(self.brush.nodeOrient == "bottom") {
+                node.y = maxHeight - (height * node.depth);
+            } else {
+                node.y = height * node.depth;
+            }
+
+            // 노드 컬러 설정
+            if(_.typeCheck("function", self.brush.nodeColor)) {
+                color = self.brush.nodeColor.call(self.chart, node);
+            }
+
+            var r = createNodeElement(node, color),
+                t = createTextElement(node);
+
             for(var i = node.children.length - 1; i >= 0; i--) {
                 var cNode = node.children[i],
                     rate = cNode.value / node.value,
                     cWidth = node.width * rate,
-                    cStartX = node.x + node.width - cWidth;
+                    cStartX = node.x;
 
-                if(i < node.children.length - 1) {
-                    cStartX -= node.children[i + 1].width;
+                if(self.brush.nodeAlign == "start") {
+                    if(i < node.children.length - 1) {
+                        cStartX += node.children[i + 1].width;
+                    }
+                } else {
+                    cStartX += node.width - cWidth;
+
+                    if(i < node.children.length - 1) {
+                        cStartX -= node.children[i + 1].width;
+                    }
                 }
 
-                createNodeElements(g, cNode, cWidth, cStartX);
+                drawNodeAll(g, cNode, cWidth, cStartX);
             }
 
-            self.addEvent(r, node);
             g.append(r);
+
+            if(t != null) {
+                g.append(t);
+            }
         }
 
         function getMaxDepth(nodes) {
@@ -16644,21 +16748,25 @@ jui.define("chart.brush.frame", [ "util.base", "chart.brush.treemap.nodemanager"
 
         this.draw = function() {
             var area = this.axis.area();
-
-            createNodeElements(g, nodes.getNode()[0], area.width, area.x);
+            drawNodeAll(g, nodes.getNode()[0], area.width, area.x);
 
             return g;
         }
     }
 
-    FrameBrush.setup = function() {
+    FlameBrush.setup = function() {
         return {
             depth: null,
-            clip: false
+            nodeOrient: "bottom",
+            nodeAlign: "end",
+            textAlign: "start",
+            nodeColor: null,
+            clip: false,
+            format: null
         };
     }
 
-    return FrameBrush;
+    return FlameBrush;
 }, "chart.brush.core");
 
 jui.define("chart.brush.map.core", [], function() {

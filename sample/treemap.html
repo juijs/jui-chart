@@ -43,7 +43,14 @@
                 textOrient : "bottom",
                 textAlign : "end",
                 titleDepth : 1,
-                target : [ "value" ]
+                target : [ "value" ],
+                format : function(node) {
+                    if(node.text == "Osaka") {
+                        return node.value;
+                    }
+
+                    return node.text;
+                }
                 /*/
                 nodeColor : function(d) {
                     if(d.text == "Seoul") return 0;

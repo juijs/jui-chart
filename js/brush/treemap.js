@@ -558,7 +558,7 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                 x: sx + xy.x + TEXT_MARGIN_LEFT,
                 y: sy + xy.y + fontSize,
                 "text-anchor": "start"
-            }, node.text);
+            }, (_.typeCheck("function", self.brush.format) ? self.format(node) : node.text));
 
             g.append(text);
             titleKeys[node.index] = true;
@@ -636,7 +636,7 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
                         x: cx,
                         y: cy,
                         "text-anchor": this.brush.textAlign
-                    }, nodeList[i].text);
+                    }, (_.typeCheck("function", this.brush.format) ? this.format(nodeList[i]) : nodeList[i].text));
 
                     g.append(text);
                 }
@@ -673,7 +673,8 @@ jui.define("chart.brush.treemap", [ "util.base", "chart.brush.treemap.calculator
             showText: true,
             titleDepth: 1,
             nodeColor: null,
-            clip: false
+            clip: false,
+            format: null
         };
     }
 

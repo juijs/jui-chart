@@ -70,19 +70,32 @@
 
         c = chart("#chart", {
             width: 800,
-            height : 1600,
-            padding : 0,
+            height : 2500,
+            padding : 50,
             axis : [{
                 data : result
             }],
             brush : [{
-                type : "frame",
-                target : [ "text" ]
+                type : "flame",
+                target : [ "text" ],
+                nodeOrient : "bottom",
+                nodeAlign: "end",
+                nodeColor : function(node) {
+                    return 1;
+                },
+                textAlign : "start",
+                format : function(node) {
+                    if(node.width < 100) {
+                        return "";
+                    }
+
+                    return node.text;
+                }
             }],
             widget : [{
                 type : "tooltip",
                 format : function(data) {
-                    return data.text;
+                    return data.text + " (" + data.value + ")";
                 }
             }],
             event : {

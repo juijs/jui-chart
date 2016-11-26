@@ -242,6 +242,11 @@ jui.define("chart.theme.dark", [], function() {
         arcEqualizerFontColor: "#868686",
         arcEqualizerBackgroundColor: "#222222",
 
+        flameNodeBorderWidth: 0.5,
+        flameNodeBorderColor: "#222",
+        flameTextFontSize: 12,
+        flameTextFontColor: "#868686",
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,
