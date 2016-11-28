@@ -16660,9 +16660,10 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
                         var list = nodes.getNodeAll();
 
                         for(var i = 0; i < list.length; i++) {
-                            list[i].element.attr({
-                                "fill-opacity": (activeNode.depth > list[i].depth) ? disableOpacity : 1
-                            });
+                            var opacity = (activeNode.depth > list[i].depth) ? disableOpacity : 1;
+
+                            list[i].element.rect.attr({ "fill-opacity": opacity });
+                            list[i].element.text.attr({ "fill-opacity": opacity });
                         }
                     });
                 })(r, node);
@@ -16672,7 +16673,9 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             self.addEvent(r, node);
 
             // 노드 엘리먼트 캐싱
-            node.element = r;
+            node.element = {
+                rect: r
+            };
 
             return r;
         }
@@ -16702,6 +16705,9 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
                 y: node.y + fontSize,
                 "text-anchor": self.brush.textAlign
             }, self.format(node));
+
+            // 노드 엘리먼트 캐싱
+            node.element.text = t;
 
             return t;
         }
