@@ -66,7 +66,7 @@
 
     createNodeData(root, "0");
 
-    jui.ready([ "chart.builder" ], function(chart) {
+    jui.ready([ "chart.builder", "util.color" ], function(chart, color) {
 
         c = chart("#chart", {
             width: 800,
@@ -80,11 +80,10 @@
                 target : [ "text" ],
                 nodeOrient : "bottom",
                 nodeAlign: "end",
-                /*/
                 nodeColor : function(node) {
-                    return 1;
+                    var hash = color.colorHash(node.text);
+                    return "#" + hash.r.toString(16) + hash.g.toString(16) + hash.b.toString(16);
                 },
-                /**/
                 textAlign : "start",
                 format : function(node) {
                     if(node.width < 100) {
@@ -95,8 +94,7 @@
                 },
                 //activeNode : "0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0.0.0.0.0"
                 activeNode : 10,
-                activeEvent : "click",
-                autoColor: true
+                activeEvent : "click"
             }],
             widget : [{
                 type : "tooltip",

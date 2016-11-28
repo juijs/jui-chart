@@ -16631,15 +16631,10 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
         }
 
         function createNodeElement(node, color) {
-            if(self.brush.autoColor) {
-                var hash = ColorUtil.colorHash(node.text);
-                color = "#" + hash.r.toString(16) + hash.g.toString(16) + hash.b.toString(16);
-            } else {
-                color = self.color(color);
-            }
+            var newColor = self.chart.color(color);
 
             var r = self.svg.rect({
-                fill: color,
+                fill: newColor,
                 "fill-opacity": getNodeAndTextOpacity(node),
                 stroke: self.chart.theme("flameNodeBorderColor"),
                 "stroke-width": self.chart.theme("flameNodeBorderWidth"),
@@ -16651,7 +16646,7 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
 
             // 마우스 오버 효과
             r.hover(function() {
-                r.attr({ stroke: self.color(color) });
+                r.attr({ stroke: newColor });
             }, function() {
                 r.attr({ stroke: self.chart.theme("flameNodeBorderColor") });
             });
@@ -16811,7 +16806,6 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             nodeAlign: "end",
             textAlign: "start",
             nodeColor: null,
-            autoColor: false,
             activeNode: null,
             activeEvent: null,
             clip: false,
