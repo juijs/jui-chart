@@ -252,6 +252,7 @@ jui.define("chart.theme.jennifer", [], function() {
 
         flameNodeBorderWidth: 0.5,
         flameNodeBorderColor: "#fff",
+        flameDisableBackgroundOpacity: 0.4,
         flameTextFontSize: 11,
         flameTextFontColor: "#333",
 

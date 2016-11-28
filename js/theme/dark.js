@@ -244,6 +244,7 @@ jui.define("chart.theme.dark", [], function() {
 
         flameNodeBorderWidth: 0.5,
         flameNodeBorderColor: "#222",
+        flameDisableBackgroundOpacity: 0.4,
         flameTextFontSize: 12,
         flameTextFontColor: "#868686",
 

@@ -246,6 +246,7 @@ jui.define("chart.theme.gradient", [], function() {
 
         flameNodeBorderWidth: 0.5,
         flameNodeBorderColor: "#fff",
+        flameDisableBackgroundOpacity: 0.4,
         flameTextFontSize: 12,
         flameTextFontColor: "#333",
 

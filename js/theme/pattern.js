@@ -240,6 +240,7 @@ jui.define("chart.theme.pattern", [], function() {
 
         flameNodeBorderWidth: 0.5,
         flameNodeBorderColor: "#fff",
+        flameDisableBackgroundOpacity: 0.4,
         flameTextFontSize: 12,
         flameTextFontColor: "#333",
 

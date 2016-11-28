@@ -1,5 +1,5 @@
-jui.define("chart.brush.flame", [ "util.base", "chart.brush.treemap.nodemanager" ],
-    function(_, NodeManager) {
+jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treemap.nodemanager" ],
+    function(_, ColorUtil, NodeManager) {
 
     var TEXT_MARGIN = 3;
 
@@ -13,11 +13,38 @@ jui.define("chart.brush.flame", [ "util.base", "chart.brush.treemap.nodemanager"
             g = null,
             height = 0,
             maxHeight = 0,
-            nodes = new NodeManager();
+            nodes = new NodeManager(),
+            disableOpacity = 1;
+
+        function getNodeAndTextOpacity(node) {
+            var activeNode = self.brush.activeNode,
+                depth = -1;
+
+            // 활성화 노드 가져오기
+            if(_.typeCheck("string", activeNode)) {
+                var tmpNode = nodes.getNode(activeNode);
+
+                if(tmpNode != null) {
+                    depth = tmpNode.depth;
+                }
+            } else if(_.typeCheck("integer", activeNode)) {
+                depth = activeNode;
+            }
+
+            return (depth == -1) ? 1 : (depth > node.depth) ? disableOpacity : 1;
+        }
 
         function createNodeElement(node, color) {
+            if(self.brush.autoColor) {
+                var hash = ColorUtil.colorHash(node.text);
+                color = "#" + hash.r.toString(16) + hash.g.toString(16) + hash.b.toString(16);
+            } else {
+                color = self.color(color);
+            }
+
             var r = self.svg.rect({
-                fill: self.color(color),
+                fill: color,
+                "fill-opacity": getNodeAndTextOpacity(node),
                 stroke: self.chart.theme("flameNodeBorderColor"),
                 "stroke-width": self.chart.theme("flameNodeBorderWidth"),
                 width: node.width,
@@ -33,14 +60,28 @@ jui.define("chart.brush.flame", [ "util.base", "chart.brush.treemap.nodemanager"
                 r.attr({ stroke: self.chart.theme("flameNodeBorderColor") });
             });
 
-            // 노드 컬러 설정
-            if(_.typeCheck("function", self.brush.nodeColor)) {
-                var color = self.brush.nodeColor.call(self.chart, node);
-                r.attr({ fill: self.color(color) });
+            // 선택 효과 이벤트 설정
+            if(_.typeCheck("string", self.brush.activeEvent)) {
+                r.attr({ cursor: "pointer" });
+
+                (function(elem, activeNode) {
+                    elem.on(self.brush.activeEvent, function(e) {
+                        var list = nodes.getNodeAll();
+
+                        for(var i = 0; i < list.length; i++) {
+                            list[i].element.attr({
+                                "fill-opacity": (activeNode.depth > list[i].depth) ? disableOpacity : 1
+                            });
+                        }
+                    });
+                })(r, node);
             }
 
             // 노드 공통 이벤트 설정
             self.addEvent(r, node);
+
+            // 노드 엘리먼트 캐싱
+            node.element = r;
 
             return r;
         }
@@ -65,6 +106,7 @@ jui.define("chart.brush.flame", [ "util.base", "chart.brush.treemap.nodemanager"
                 "font-size": fontSize,
                 "font-weight": "bold",
                 fill: self.chart.theme("flameTextFontColor"),
+                "fill-opacity": getNodeAndTextOpacity(node),
                 x: startX,
                 y: node.y + fontSize,
                 "text-anchor": self.brush.textAlign
@@ -141,7 +183,7 @@ jui.define("chart.brush.flame", [ "util.base", "chart.brush.treemap.nodemanager"
                     k = this.getValue(d, "index");
 
                 nodes.insertNode(k, {
-                    text: this.getValue(d, "text", ""),
+                    text: "" + this.getValue(d, "text", ""),
                     value: this.getValue(d, "value", 0),
                     x: this.getValue(d, "x", 0),
                     y: this.getValue(d, "y", 0),
@@ -150,9 +192,12 @@ jui.define("chart.brush.flame", [ "util.base", "chart.brush.treemap.nodemanager"
                 });
             }
 
-            var maxDepth = (this.brush.depth == null) ? getMaxDepth(nodes.getNodeAll()) : this.brush.depth;
+            var maxDepth = (this.brush.maxDepth == null) ? getMaxDepth(nodes.getNodeAll()) : this.brush.maxDepth;
             height = this.axis.area("height") / maxDepth;
             maxHeight = this.axis.area("height");
+
+            // 비활성화 노드 투명도
+            disableOpacity = this.chart.theme("flameDisableBackgroundOpacity");
         }
 
         this.draw = function() {
@@ -165,11 +210,14 @@ jui.define("chart.brush.flame", [ "util.base", "chart.brush.treemap.nodemanager"
 
     FlameBrush.setup = function() {
         return {
-            depth: null,
+            maxDepth: null,
             nodeOrient: "bottom",
             nodeAlign: "end",
             textAlign: "start",
             nodeColor: null,
+            autoColor: false,
+            activeNode: null,
+            activeEvent: null,
             clip: false,
             format: null
         };

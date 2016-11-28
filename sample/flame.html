@@ -80,9 +80,11 @@
                 target : [ "text" ],
                 nodeOrient : "bottom",
                 nodeAlign: "end",
+                /*/
                 nodeColor : function(node) {
                     return 1;
                 },
+                /**/
                 textAlign : "start",
                 format : function(node) {
                     if(node.width < 100) {
@@ -90,7 +92,11 @@
                     }
 
                     return node.text;
-                }
+                },
+                //activeNode : "0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0.0.0.0.0"
+                activeNode : 10,
+                activeEvent : "click",
+                autoColor: true
             }],
             widget : [{
                 type : "tooltip",
