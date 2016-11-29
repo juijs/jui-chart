@@ -16822,6 +16822,10 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
 
             if(root) {
                 drawNodeAll(g, nodes.getNode()[0], area.width, area.x);
+
+                this.on("render", function() {
+                    this.chart.emit("flame.render", [ nodes.getNodeAll() ]);
+                });
             }
 
             return g;
