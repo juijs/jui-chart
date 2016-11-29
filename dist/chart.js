@@ -16610,24 +16610,12 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             height = 0,
             maxHeight = 0,
             nodes = new NodeManager(),
-            disableOpacity = 1;
+            disableOpacity = 1,
+            newData = [],
+            activeDepth = null;
 
-        function getNodeAndTextOpacity(node) {
-            var activeNode = self.brush.activeNode,
-                depth = -1;
-
-            // 활성화 노드 가져오기
-            if(_.typeCheck("string", activeNode)) {
-                var tmpNode = nodes.getNode(activeNode);
-
-                if(tmpNode != null) {
-                    depth = tmpNode.depth;
-                }
-            } else if(_.typeCheck("integer", activeNode)) {
-                depth = activeNode;
-            }
-
-            return (depth == -1) ? 1 : (depth > node.depth) ? disableOpacity : 1;
+        function getNodeAndTextOpacity(depth) {
+            return (activeDepth == null) ? 1 : (depth < activeDepth) ? disableOpacity : 1;
         }
 
         function createNodeElement(node, color) {
@@ -16635,13 +16623,14 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
 
             var r = self.svg.rect({
                 fill: newColor,
-                "fill-opacity": getNodeAndTextOpacity(node),
+                "fill-opacity": getNodeAndTextOpacity(node.depth),
                 stroke: self.chart.theme("flameNodeBorderColor"),
                 "stroke-width": self.chart.theme("flameNodeBorderWidth"),
                 width: node.width,
                 height: node.height,
                 x: node.x,
-                y: node.y
+                y: node.y,
+                cursor: "pointer"
             });
 
             // 마우스 오버 효과
@@ -16650,9 +16639,6 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             }, function() {
                 r.attr({ stroke: self.chart.theme("flameNodeBorderColor") });
             });
-
-            // 액티브 효과 설정
-            setActiveNodeAndText(r, node);
 
             // 노드 공통 이벤트 설정
             self.addEvent(r, node);
@@ -16686,10 +16672,11 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
                 "font-size": fontSize,
                 "font-weight": "bold",
                 fill: self.chart.theme("flameTextFontColor"),
-                "fill-opacity": getNodeAndTextOpacity(node),
+                "fill-opacity": getNodeAndTextOpacity(node.depth),
                 x: startX,
-                y: node.y + fontSize,
-                "text-anchor": self.brush.textAlign
+                y: node.y + (fontSize / 3) + (height / 2),
+                "text-anchor": self.brush.textAlign,
+                cursor: "pointer"
             }, self.format(node));
 
             // 마우스 오버 효과
@@ -16699,9 +16686,6 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
                 node.element.rect.attr({ stroke: self.chart.theme("flameNodeBorderColor") });
             });
 
-            // 액티브 효과 설정
-            setActiveNodeAndText(t, node);
-
             // 노드 공통 이벤트 설정
             self.addEvent(t, node);
 
@@ -16709,26 +16693,6 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             node.element.text = t;
 
             return t;
-        }
-
-        function setActiveNodeAndText(r, node) {
-            // 선택 효과 이벤트 설정
-            if(_.typeCheck("string", self.brush.activeEvent)) {
-                r.attr({ cursor: "pointer" });
-
-                (function(elem, activeNode) {
-                    elem.on(self.brush.activeEvent, function(e) {
-                        var list = nodes.getNodeAll();
-
-                        for(var i = 0; i < list.length; i++) {
-                            var opacity = (activeNode.depth > list[i].depth) ? disableOpacity : 1;
-
-                            list[i].element.rect.attr({ "fill-opacity": opacity });
-                            list[i].element.text.attr({ "fill-opacity": opacity });
-                        }
-                    });
-                })(r, node);
-            }
         }
 
         function drawNodeAll(g, node, width, sx) {
@@ -16791,10 +16755,104 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             return maxDepth;
         }
 
+        function createFilteredNodes(activeNode) {
+            setCacheParents(activeNode, activeNode.value);
+            setCacheChildren(activeNode);
+            sortingCacheNodes();
+
+            var tmpData = createIndexData(activeNode),
+                tmpNodes = new NodeManager();
+
+            for(var i = 0; i < tmpData.length; i++) {
+                var d = tmpData[i];
+
+                tmpNodes.insertNode(d.index, {
+                    text: d.text,
+                    value: d.value,
+                    x: 0,
+                    y: 0,
+                    width: 0,
+                    height: 0
+                });
+            }
+
+            return tmpNodes.getNode()[0];
+        }
+
+        function setCacheParents(node, value) {
+            if(node.depth > 0) {
+                node.value = value;
+                newData.push(node);
+
+                if(node.parent) {
+                    setCacheParents(node.parent, value);
+                }
+            }
+        }
+
+        function setCacheChildren(node) {
+            for(var i = 0; i < node.children.length; i++) {
+                var cNode = node.children[i];
+                newData.push(cNode);
+
+                if(cNode.children.length > 0) {
+                    setCacheChildren(cNode);
+                }
+            }
+        }
+
+        function sortingCacheNodes() {
+            var qs = _.sort(newData);
+
+            qs.setCompare(function(a, b) {
+                return (a.depth < b.depth) ? true : false;
+            });
+
+            qs.run();
+        }
+
+        function createIndexData(node) {
+            var tmpData = [], index = "";
+
+            for(var i = 0; i < newData.length; i++) {
+                if(index == "") {
+                    index = "0";
+                } else {
+                    index += ".0";
+                }
+
+                if(newData[i].depth < node.depth) {
+                    tmpData.push({
+                        index: index,
+                        text: newData[i].text,
+                        value: newData[i].value
+                    });
+                } else {
+                    createChildIndexData(node, index, tmpData);
+                    break;
+                }
+            }
+
+            return tmpData;
+        }
+
+        function createChildIndexData(node, index, result) {
+            result.push({
+                index: index,
+                value: node.value,
+                text: node.text
+            });
+
+            for(var i = 0; i < node.children.length; i++) {
+                var cNode = node.children[i];
+                createChildIndexData(cNode, index + "." + i, result);
+            }
+        }
+
         this.drawBefore = function() {
             g = this.svg.group();
 
-            for(var i = 0; i < this.axis.data.length; i++) {
+            for (var i = 0; i < this.axis.data.length; i++) {
                 var d = this.axis.data[i],
                     k = this.getValue(d, "index");
 
@@ -16821,11 +16879,15 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
                 root = nodes.getNode()[0];
 
             if(root) {
-                drawNodeAll(g, nodes.getNode()[0], area.width, area.x);
+                // 액티브 노드가 있을 경우, 노드 재정의
+                if(_.typeCheck("string", this.brush.activeIndex)) {
+                    var activeNode = nodes.getNode(this.brush.activeIndex);
 
-                this.on("render", function() {
-                    this.chart.emit("flame.render", [ nodes.getNodeAll() ]);
-                });
+                    root = createFilteredNodes(activeNode);
+                    activeDepth = activeNode.depth;
+                }
+
+                drawNodeAll(g, root, area.width, area.x);
             }
 
             return g;
@@ -16839,8 +16901,7 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             nodeAlign: "end",
             textAlign: "start",
             nodeColor: null,
-            activeNode: null,
-            activeEvent: null,
+            activeIndex: null,
             clip: false,
             format: null
         };

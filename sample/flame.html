@@ -11,92 +11,42 @@
 <div id="chart"></div>
 
 <script id="script_code">
-    var result = [];
-    var _ = jui.include("util.base");
-
-    frameData.push({
-        depth: 0,
-        key: 0,
-        parentKey: -1,
-        sampleCount: 0,
-        stackTraceHash: -1
-    });
-
-    var qs = _.sort(frameData);
-    qs.setCompare(function(a, b) {
-        return (a.depth < b.depth) ? true : false;
-    });
-    qs.run();
-
-    var cache = {};
-    for(var i = 0; i < frameData.length; i++) {
-        var key = frameData[i].key;
-
-        if(!cache[key]) {
-            cache[key] = {
-                data: frameData[i],
-                children: []
-            }
-        }
-    }
-    for(var i = 1; i < frameData.length; i++) {
-        var d = frameData[i],
-            p = cache[d.parentKey];
-
-        p.children.push(cache[d.key]);
-    }
-
-    var root = cache[0];
-    for(var j = 0; j < root.children.length; j++) {
-        root.data.sampleCount += root.children[j].data.sampleCount;
-    }
-
-    function createNodeData(node, index) {
-        result.push({
-            index: index,
-            value: node.data.sampleCount,
-            text: node.data.stackTraceHash
-        });
-
-        for(var i = 0; i < node.children.length; i++) {
-            var cNode = node.children[i];
-            createNodeData(cNode, index + "." + i);
-        }
-    }
-
-    createNodeData(root, "0");
-
     jui.ready([ "chart.builder", "util.color" ], function(chart, color) {
 
         c = chart("#chart", {
             width: 800,
-            height : 2500,
+            height : 180,
             padding : 50,
             axis : [{
                 c: {
                     type : "panel"
-                }
+                },
+                data : [
+                    { index : "0", value: 3, text: -13375110 },
+                    { index : "0.0", value: 1, text: -71395896 },
+                    { index : "0.0.0", value: 1, text: -101176431 },
+                    { index : "0.1", value: 2, text: -92471297 },
+                    { index : "0.1.0", value: 1, text: -71395896 },
+                    { index : "0.1.0.0", value: 1, text: -71395896 }
+                ]
             }],
             brush : [{
                 type : "flame",
                 target : [ "text" ],
                 nodeOrient : "bottom",
                 nodeAlign: "end",
-                nodeColor : function(node) {
-                    var hash = color.colorHash(node.text);
+                nodeColor : function(data) {
+                    var hash = color.colorHash(data.text);
                     return "rgb(" + hash.r + "," + hash.g + "," + hash.b + ")";
                 },
                 textAlign : "start",
-                format : function(node) {
-                    if(node.width < 100) {
+                format : function(data) {
+                    if(data.width < 100) {
                         return "";
                     }
 
-                    return node.text;
-                },
-                //activeNode : "0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0.0.0.0.0"
-                activeNode : 10,
-                activeEvent : "click"
+                    return data.text;
+                }
             }],
             widget : [{
                 type : "tooltip",
@@ -106,12 +56,12 @@
             }],
             event : {
                 click: function(d, e) {
-                    console.log(d);
+                    this.updateBrush(0, {
+                        activeIndex: d.data.index
+                    });
                 }
             }
         });
-
-        c.axis(0).update(result);
 	})
 </script>
 
