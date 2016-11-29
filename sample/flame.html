@@ -84,7 +84,7 @@
                 nodeAlign: "end",
                 nodeColor : function(node) {
                     var hash = color.colorHash(node.text);
-                    return "#" + hash.r.toString(16) + hash.g.toString(16) + hash.b.toString(16);
+                    return "rgb(" + hash.r + "," + hash.g + "," + hash.b + ")";
                 },
                 textAlign : "start",
                 format : function(node) {

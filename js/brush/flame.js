@@ -55,23 +55,8 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
                 r.attr({ stroke: self.chart.theme("flameNodeBorderColor") });
             });
 
-            // 선택 효과 이벤트 설정
-            if(_.typeCheck("string", self.brush.activeEvent)) {
-                r.attr({ cursor: "pointer" });
-
-                (function(elem, activeNode) {
-                    elem.on(self.brush.activeEvent, function(e) {
-                        var list = nodes.getNodeAll();
-
-                        for(var i = 0; i < list.length; i++) {
-                            var opacity = (activeNode.depth > list[i].depth) ? disableOpacity : 1;
-
-                            list[i].element.rect.attr({ "fill-opacity": opacity });
-                            list[i].element.text.attr({ "fill-opacity": opacity });
-                        }
-                    });
-                })(r, node);
-            }
+            // 액티브 효과 설정
+            setActiveNodeAndText(r, node);
 
             // 노드 공통 이벤트 설정
             self.addEvent(r, node);
@@ -84,12 +69,13 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             return r;
         }
 
-        function createTextElement(node) {
+        function createTextElement(node, color) {
             if(!_.typeCheck("function", self.brush.format)) {
                 return null;
             }
 
-            var fontSize = self.chart.theme("flameTextFontSize"),
+            var newColor = self.chart.color(color),
+                fontSize = self.chart.theme("flameTextFontSize"),
                 startX = node.x;
 
             if(self.brush.textAlign == "middle") {
@@ -110,6 +96,16 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
                 "text-anchor": self.brush.textAlign
             }, self.format(node));
 
+            // 마우스 오버 효과
+            t.hover(function() {
+                node.element.rect.attr({ stroke: newColor });
+            }, function() {
+                node.element.rect.attr({ stroke: self.chart.theme("flameNodeBorderColor") });
+            });
+
+            // 액티브 효과 설정
+            setActiveNodeAndText(t, node);
+
             // 노드 공통 이벤트 설정
             self.addEvent(t, node);
 
@@ -117,6 +113,26 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             node.element.text = t;
 
             return t;
+        }
+
+        function setActiveNodeAndText(r, node) {
+            // 선택 효과 이벤트 설정
+            if(_.typeCheck("string", self.brush.activeEvent)) {
+                r.attr({ cursor: "pointer" });
+
+                (function(elem, activeNode) {
+                    elem.on(self.brush.activeEvent, function(e) {
+                        var list = nodes.getNodeAll();
+
+                        for(var i = 0; i < list.length; i++) {
+                            var opacity = (activeNode.depth > list[i].depth) ? disableOpacity : 1;
+
+                            list[i].element.rect.attr({ "fill-opacity": opacity });
+                            list[i].element.text.attr({ "fill-opacity": opacity });
+                        }
+                    });
+                })(r, node);
+            }
         }
 
         function drawNodeAll(g, node, width, sx) {
@@ -139,7 +155,7 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             }
 
             var r = createNodeElement(node, color),
-                t = createTextElement(node);
+                t = createTextElement(node, color);
 
             for(var i = node.children.length - 1; i >= 0; i--) {
                 var cNode = node.children[i],
