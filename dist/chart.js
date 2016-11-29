@@ -16706,6 +16706,9 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
                 "text-anchor": self.brush.textAlign
             }, self.format(node));
 
+            // 노드 공통 이벤트 설정
+            self.addEvent(t, node);
+
             // 노드 엘리먼트 캐싱
             node.element.text = t;
 
@@ -16798,8 +16801,12 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
         }
 
         this.draw = function() {
-            var area = this.axis.area();
-            drawNodeAll(g, nodes.getNode()[0], area.width, area.x);
+            var area = this.axis.area(),
+                root = nodes.getNode()[0];
+
+            if(root) {
+                drawNodeAll(g, nodes.getNode()[0], area.width, area.x);
+            }
 
             return g;
         }

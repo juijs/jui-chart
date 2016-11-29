@@ -73,7 +73,9 @@
             height : 2500,
             padding : 50,
             axis : [{
-                data : result
+                c: {
+                    type : "panel"
+                }
             }],
             brush : [{
                 type : "flame",
@@ -108,6 +110,8 @@
                 }
             }
         });
+
+        c.axis(0).update(result);
 	})
 </script>
 
