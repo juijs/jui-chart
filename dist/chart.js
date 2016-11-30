@@ -16717,25 +16717,28 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
             var r = createNodeElement(node, color),
                 t = createTextElement(node, color);
 
-            for(var i = node.children.length - 1; i >= 0; i--) {
-                var cNode = node.children[i],
-                    rate = cNode.value / node.value,
-                    cWidth = node.width * rate,
-                    cStartX = node.x;
+            if(self.brush.nodeAlign == "start") {
+                var cStartX = node.x;
 
-                if(self.brush.nodeAlign == "start") {
-                    if(i < node.children.length - 1) {
-                        cStartX += node.children[i + 1].width;
-                    }
-                } else {
-                    cStartX += node.width - cWidth;
+                for (var i = 0; i < node.children.length; i++) {
+                    var cNode = node.children[i],
+                        cRate = cNode.value / node.value,
+                        cWidth = node.width * cRate;
 
-                    if(i < node.children.length - 1) {
-                        cStartX -= node.children[i + 1].width;
-                    }
+                    drawNodeAll(g, cNode, cWidth, cStartX);
+                    cStartX += cWidth;
                 }
+            } else {
+                var cStartX = node.x + node.width;
 
-                drawNodeAll(g, cNode, cWidth, cStartX);
+                for(var i = node.children.length - 1; i >= 0; i--) {
+                    var cNode = node.children[i],
+                        cRate = cNode.value / node.value,
+                        cWidth = node.width * cRate;
+
+                    cStartX -= cWidth;
+                    drawNodeAll(g, cNode, cWidth, cStartX);
+                }
             }
 
             g.append(r);

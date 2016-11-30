@@ -14,13 +14,16 @@
     jui.ready([ "chart.builder", "util.color" ], function(chart, color) {
 
         c = chart("#chart", {
-            width: 800,
-            height : 180,
-            padding : 50,
+            width: "100%",
+            height : flameData.maxDepth * 25,
+            padding : {
+                right: 200
+            },
             axis : [{
                 c: {
                     type : "panel"
                 },
+                /*/
                 data : [
                     { index : "0", value: 3, text: -13375110 },
                     { index : "0.0", value: 1, text: -71395896 },
@@ -29,39 +32,52 @@
                     { index : "0.1.0", value: 1, text: -71395896 },
                     { index : "0.1.0.0", value: 1, text: -71395896 }
                 ]
+                /**/
             }],
             brush : [{
                 type : "flame",
                 target : [ "text" ],
                 nodeOrient : "bottom",
                 nodeAlign: "end",
-                nodeColor : function(data) {
-                    var hash = color.colorHash(data.text);
+                nodeColor : function(node) {
+                    var hash = color.colorHash(node.text);
                     return "rgb(" + hash.r + "," + hash.g + "," + hash.b + ")";
                 },
                 textAlign : "start",
-                format : function(data) {
-                    if(data.width < 100) {
+                format : function(node) {
+                    var charWidth = 6,
+                        textWidth = node.text.length * charWidth;
+
+                    if(node.width < 100) {
                         return "";
+                    } else {
+                        if(textWidth > node.width) {
+                            var len = Math.floor(node.width / charWidth) - 1;
+                            return node.text.substr(0, len) + "...";
+                        }
                     }
 
-                    return data.text;
+                    return node.text;
                 }
             }],
             widget : [{
                 type : "tooltip",
+                orient : "bottom",
                 format : function(data) {
-                    return data.text + " (" + data.value + ")";
+                    return data.text + " (" + ((data.value / data.parent.value) * 100).toFixed(2) + "%, " + data.value + " samples)";
                 }
             }],
             event : {
                 click: function(d, e) {
-                    this.updateBrush(0, {
-                        activeIndex: d.data.index
-                    });
+                    this.updateBrush(0, { activeIndex: d.data.index });
+                    this.render();
                 }
-            }
+            },
+            render : false
         });
+
+        c.axis(0).update(flameData.list);
+        c.render();
 	})
 </script>
 
