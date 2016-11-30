@@ -16779,6 +16779,9 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
                 });
             }
 
+            // 필터링 된 노드 캐싱
+            self.axis.cacheNodes = tmpNodes;
+
             return tmpNodes.getNode()[0];
         }
 
@@ -16879,12 +16882,17 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
 
         this.draw = function() {
             var area = this.axis.area(),
-                root = nodes.getNode()[0];
+                root = nodes.getNode()[0],
+                activeIndex = this.brush.activeIndex;
 
             if(root) {
                 // 액티브 노드가 있을 경우, 노드 재정의
-                if(_.typeCheck("string", this.brush.activeIndex)) {
-                    var activeNode = nodes.getNode(this.brush.activeIndex);
+                if(_.typeCheck("string", activeIndex)) {
+                    var activeNode = nodes.getNode(activeIndex);
+
+                    if(activeNode == null) {
+                        activeNode = this.axis.cacheNodes.getNode(activeIndex);
+                    }
 
                     root = createFilteredNodes(activeNode);
                     activeDepth = activeNode.depth;
