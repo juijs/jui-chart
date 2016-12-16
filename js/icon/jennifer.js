@@ -1,5 +1,6 @@
 jui.define("chart.icon.jennifer", [], function() {
 	return {
+		"tool2" : "\ue9af",
 		"time" : "\ue900",
 		"dot" : "\ue901",
 		"check" : "\ue902",
@@ -174,6 +175,7 @@ jui.define("chart.icon.jennifer", [], function() {
 		"table" : "\ue9ab",
 		"trashcan" : "\ue9ac",
 		"underline" : "\ue9ad",
-		"unorderedlist" : "\ue9ae"
+		"unorderedlist" : "\ue9ae",
+		".jui .select.multi .items .item.option.selected" : "\✔"
 	}
 });
