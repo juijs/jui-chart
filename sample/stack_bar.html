@@ -7,24 +7,7 @@
 </head>
 <body class="jui">
 
-<ul id="tab" class="tab tab-top">
-    <li><a href="#view">View</a> </li>
-    <li><a href="#code">Code</a> </li>
-</ul>
-
-<div id="tab_contents" class="tab-contents">
-    <div id="view"><div id="chart"></div></div>
-    <div id="code"><textarea id="codemirror"></textarea></div>
-</div>
-
-<script>
-    jui.ready([ "uix.tab" ], function(tab) {
-        tab_1 = tab("#tab", {
-            target: "#tab_contents"
-        });
-    });
-
-</script>
+<div id="chart"></div>
 
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
@@ -48,11 +31,10 @@
                 },
                 x : {
                     type : 'range',
-                    reverse : true, 
                     domain : function(data) {
                         return [data.name + data.value + data.test, 0];
                     },
-                    hide : true
+                    reverse : true
                 }
             },
             brush : {
@@ -60,7 +42,8 @@
                 target : ['name', 'value', 'test'],
                 active : 1,
                 activeEvent : "click",
-                size : 15
+                //size : 15,
+                display : "all"
             },
             widget : [{
                 type : "tooltip"

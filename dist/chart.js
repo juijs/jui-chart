@@ -9791,19 +9791,75 @@ jui.define("chart.brush.stackbar", [], function() {
 			}
 		}
 
+        this.setActiveTooltips = function(minIndex, maxIndex) {
+            var type = this.brush.display,
+                activeIndex = (type == "min") ? minIndex : maxIndex;
+
+            for(var i = 0; i < this.stackTooltips.length; i++) {
+                if(i == activeIndex || type == "all") {
+                    this.stackTooltips[i].css({
+                        opacity: 1
+                    });
+                }
+            }
+        }
+
+        this.drawStackTooltip = function(group, index, value, x, y, pos) {
+            var fontSize = this.chart.theme("tooltipPointFontSize"),
+				orient = "middle",
+				dx = 0,
+				dy = 0;
+
+            if(pos == "left") {
+            	orient = "start";
+            	dx = 3;
+            	dy = fontSize / 3;
+            } else if(pos == "right") {
+            	orient = "end";
+                dx = -3;
+                dy = fontSize / 3;
+            } else if(pos == "top") {
+				dy = -(fontSize / 3);
+			} else {
+				dy = fontSize;
+			}
+
+            var tooltip = this.chart.text({
+                fill : this.chart.theme("tooltipPointFontColor"),
+                "font-size" : fontSize,
+                "font-weight" : this.chart.theme("tooltipPointFontWeight"),
+                "text-anchor" : orient,
+				dx: dx,
+                dy: dy,
+                opacity: 0
+            }).text(value).translate(x, y);
+
+            this.stackTooltips[index] = tooltip;
+            group.append(tooltip);
+        }
+
 		this.drawBefore = function() {
 			g = chart.svg.group();
 			height = axis.y.rangeBand();
 			bar_height = this.getTargetSize();
+
+            this.stackTooltips = [];
 		}
 
 		this.draw = function() {
+            var maxIndex = null,
+                maxValue = 0,
+                minIndex = null,
+                minValue = this.axis.x.max();
+
 			this.eachData(function(data, i) {
 				var group = chart.svg.group();
 				
-				var startY = this.offset("y", i) - bar_height / 2,
+				var offsetY = this.offset("y", i),
+					startY = offsetY - bar_height / 2,
                     startX = axis.x(0),
-                    value = 0;
+                    value = 0,
+                    sumValue = 0;
 				
 				for(var j = 0; j < brush.target.length; j++) {
 					var xValue = data[brush.target[j]] + value,
@@ -9817,16 +9873,33 @@ jui.define("chart.brush.stackbar", [], function() {
 						height : bar_height
 					});
 
-					group.append(r);
-
 					startX = endX;
 					value = xValue;
+                    sumValue += data[brush.target[j]];
+
+                    group.append(r);
 				}
 
+                // min & max 인덱스 가져오기
+                if(sumValue > maxValue) {
+                    maxValue = sumValue;
+                    maxIndex = i;
+                }
+                if(sumValue < minValue) {
+                    minValue = sumValue;
+                    minIndex = i;
+                }
+
+                this.drawStackTooltip(group, i, sumValue, startX, offsetY, (this.axis.get("x").reverse) ? "right" : "left");
 				this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
 				this.addBarElement(group);
 				g.append(group);
 			});
+
+            // 최소/최대/전체 값 표시하기
+            if(this.brush.display != null) {
+                this.setActiveTooltips(minIndex, maxIndex);
+            }
 
 			// 액티브 엘리먼트 설정
 			this.setActiveEffectOption();
@@ -9869,15 +9942,24 @@ jui.define("chart.brush.stackcolumn", [], function() {
 			g = chart.svg.group();
 			zeroY = axis.y(0);
 			bar_width = this.getTargetSize();
+
+			this.stackTooltips = [];
 		}
 
 		this.draw = function() {
+			var maxIndex = null,
+				maxValue = 0,
+				minIndex = null,
+				minValue = this.axis.y.max();
+
 			this.eachData(function(data, i) {
 				var group = chart.svg.group();
 				
-				var startX = this.offset("x", i) - bar_width / 2,
+				var offsetX = this.offset("x", i),
+					startX = offsetX - bar_width / 2,
                     startY = axis.y(0),
-                    value = 0;
+                    value = 0,
+					sumValue = 0;
 
 				for(var j = 0; j < brush.target.length; j++) {
 					var yValue = data[brush.target[j]] + value,
@@ -9890,17 +9972,34 @@ jui.define("chart.brush.stackcolumn", [], function() {
 						width : bar_width,
 						height : Math.abs(startY - endY)
 					});
-
-					group.append(r);
 					
 					startY = endY;
 					value = yValue;
+					sumValue += data[brush.target[j]];
+
+                    group.append(r);
 				}
 
+				// min & max 인덱스 가져오기
+				if(sumValue > maxValue) {
+					maxValue = sumValue;
+					maxIndex = i;
+				}
+                if(sumValue < minValue) {
+                    minValue = sumValue;
+                    minIndex = i;
+                }
+
+				this.drawStackTooltip(group, i, sumValue, offsetX, startY, (this.axis.get("y").reverse) ? "bottom" : "top");
 				this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
 				this.addBarElement(group);
 				g.append(group);
 			});
+
+			// 최소/최대/전체 값 표시하기
+			if(this.brush.display != null) {
+				this.setActiveTooltips(minIndex, maxIndex);
+			}
 
 			// 액티브 엘리먼트 설정
 			this.setActiveEffectOption();
