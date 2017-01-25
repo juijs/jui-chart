@@ -24,6 +24,7 @@ jui.define("chart.brush.stackcolumn", [], function() {
 			bar_width = this.getTargetSize();
 
 			this.stackTooltips = [];
+            this.tooltipIndexes = [];
 		}
 
 		this.draw = function() {

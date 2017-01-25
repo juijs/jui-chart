@@ -9717,7 +9717,7 @@ jui.define("chart.brush.circle", ["util.base"], function(_) {
 	return CircleBrush;
 }, "chart.brush.core");
 
-jui.define("chart.brush.stackbar", [], function() {
+jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 
 	/**
 	 * @class chart.brush.stackbar
@@ -9756,13 +9756,20 @@ jui.define("chart.brush.stackbar", [], function() {
 
 		this.setActiveEffect = function(group) {
 			var style = this.getBarStyle(),
-				columns = this.barList;
+				columns = this.barList,
+				tooltips = this.stackTooltips;
 
 			for(var i = 0; i < columns.length; i++) {
 				var opacity = (group == columns[i]) ? 1 : style.disableOpacity;
 
-				columns[i].attr({ opacity: opacity });
-			}
+				if(opacity == 1 || _.inArray(i, this.tooltipIndexes) != -1) {
+                    tooltips[i].attr({ opacity: 1 });
+				} else {
+                    tooltips[i].attr({ opacity: 0 });
+				}
+
+                columns[i].attr({ opacity: opacity });
+            }
 		}
 
 		this.setActiveEffectOption = function() {
@@ -9808,6 +9815,8 @@ jui.define("chart.brush.stackbar", [], function() {
                     this.stackTooltips[i].css({
                         opacity: 1
                     });
+
+                    this.tooltipIndexes.push(i);
                 }
             }
         }
@@ -9852,6 +9861,7 @@ jui.define("chart.brush.stackbar", [], function() {
 			bar_height = this.getTargetSize();
 
             this.stackTooltips = [];
+            this.tooltipIndexes = [];
 		}
 
 		this.draw = function() {
@@ -9952,6 +9962,7 @@ jui.define("chart.brush.stackcolumn", [], function() {
 			bar_width = this.getTargetSize();
 
 			this.stackTooltips = [];
+            this.tooltipIndexes = [];
 		}
 
 		this.draw = function() {
