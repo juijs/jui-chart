@@ -85,7 +85,8 @@ module.exports = function(grunt) {
         "js/brush/line.js",
         "js/brush/path.js",
         "js/brush/pie.js",
-        "js/brush/donut.js", // extends pie
+        "js/brush/donut.js", // extends pie"
+        "js/brush/doubledonut.js",
         "js/brush/scatter.js",
         "js/brush/scatterpath.js",
         "js/brush/bargauge.js",

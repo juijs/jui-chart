@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart1"></div>
+<div id="chart2"></div>
+
+<script id="script_code">
+    jui.ready([ "chart.builder" ], function(chart) {
+
+        c = chart("#chart1", {
+            //padding: 100,
+            width: 400,
+            height : 400,
+            padding: 70,
+            theme : "jennifer",
+            axis : {
+                data: [
+                    { yellow : 46, red : 15, black : 180, blue : 10 }
+                ]
+            },
+            brush : [{
+                type : "doubledonut",
+                size : 30,
+                showValue : true
+            }],
+            widget : [{
+                type : "tooltip"
+            }, {
+                type : "legend"
+            }]
+        });
+    })
+</script>
+
+
+</body>
+</html>
