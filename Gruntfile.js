@@ -118,6 +118,7 @@ module.exports = function(grunt) {
         "js/brush/arcequalizer.js",
         "js/brush/arcgauge.js",
         "js/brush/flame.js",
+        "js/brush/selectbox.js",
 
         // map brush
         "js/brush/map/core.js",

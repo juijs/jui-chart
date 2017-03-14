@@ -257,6 +257,11 @@ jui.define("chart.theme.jennifer", [], function() {
         flameTextFontSize: 11,
         flameTextFontColor: "#333",
 
+        selectBoxBackgroundColor: "#666",
+        selectBoxBackgroundOpacity: 0.1,
+        selectBoxBorderColor: "#666",
+        selectBoxBorderOpacity: 0.2,
+
         // Widget styles
         titleFontColor : "#333",
         titleFontSize : 13,

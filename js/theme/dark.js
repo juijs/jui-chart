@@ -249,6 +249,11 @@ jui.define("chart.theme.dark", [], function() {
         flameTextFontSize: 12,
         flameTextFontColor: "#868686",
 
+        selectBoxBackgroundColor: "#fff",
+        selectBoxBackgroundOpacity: 0.1,
+        selectBoxBorderColor: "#fff",
+        selectBoxBorderOpacity: 0.2,
+
         // widget styles
         titleFontColor : "#ffffff",
         titleFontSize : 14,

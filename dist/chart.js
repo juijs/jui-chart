@@ -2847,6 +2847,11 @@ jui.define("chart.theme.jennifer", [], function() {
         flameTextFontSize: 11,
         flameTextFontColor: "#333",
 
+        selectBoxBackgroundColor: "#666",
+        selectBoxBackgroundOpacity: 0.1,
+        selectBoxBorderColor: "#666",
+        selectBoxBorderOpacity: 0.2,
+
         // Widget styles
         titleFontColor : "#333",
         titleFontSize : 13,
@@ -3573,6 +3578,11 @@ jui.define("chart.theme.dark", [], function() {
         flameDisableBackgroundOpacity: 0.4,
         flameTextFontSize: 12,
         flameTextFontColor: "#868686",
+
+        selectBoxBackgroundColor: "#fff",
+        selectBoxBackgroundOpacity: 0.1,
+        selectBoxBorderColor: "#fff",
+        selectBoxBorderOpacity: 0.2,
 
         // widget styles
         titleFontColor : "#ffffff",
@@ -14812,8 +14822,6 @@ jui.define("chart.brush.focus", [], function() {
 			} else  {
 				start = this.axis[grid](this.brush.start);
 				end = this.axis[grid](this.brush.end);
-
-				console.log(this.brush.start, this.brush.end);
 			}
 
 			return this.drawFocus(start, end);
@@ -17300,6 +17308,71 @@ jui.define("chart.brush.flame", [ "util.base", "util.color", "chart.brush.treema
     return FlameBrush;
 }, "chart.brush.core");
 
+jui.define("chart.brush.selectbox", [], function() {
+    var SelectBoxBrush = function() {
+        var g, zeroY, width, height, ticks;
+
+        this.drawBefore = function() {
+            g = this.chart.svg.group();
+            zeroY = this.axis.y(0);
+            width = this.axis.x.rangeBand();
+            height = this.axis.area("height");
+            ticks = this.axis.x.ticks("milliseconds", this.axis.get("x").interval);
+        }
+
+        this.draw = function() {
+            var bgColor = this.chart.theme("selectBoxBackgroundColor"),
+                bgOpacity = this.chart.theme("selectBoxBackgroundOpacity"),
+                lineColor = this.chart.theme("selectBoxBorderColor"),
+                lineOpacity = this.chart.theme("selectBoxBorderOpacity");
+
+            for(var i = 0; i < ticks.length - 1; i++) {
+                var startX = this.axis.x(ticks[i]);
+
+                var r = this.svg.rect({
+                    width: width,
+                    height: height,
+                    fill: bgColor,
+                    "fill-opacity": 0,
+                    stroke: lineColor,
+                    "stroke-opacity": 0,
+                    cursor: "pointer"
+                }).translate(startX, zeroY - height);
+
+                (function(elem) {
+                    elem.hover(function() {
+                        elem.attr({
+                            "fill-opacity": bgOpacity,
+                            "stroke-opacity": lineOpacity
+                        });
+                    }, function() {
+                        elem.attr({
+                            "fill-opacity": 0,
+                            "stroke-opacity": 0
+                        });
+                    });
+                })(r);
+
+                this.addEvent(r, {
+                    start: ticks[i],
+                    end: ticks[i + 1]
+                });
+
+                g.append(r);
+            }
+
+            return g;
+        }
+    }
+
+    SelectBoxBrush.setup = function() {
+        return {
+            clip: false
+        }
+    }
+
+    return SelectBoxBrush;
+}, "chart.brush.core");
 jui.define("chart.brush.map.core", [], function() {
     /**
      * @class chart.brush.map.core

@@ -79,8 +79,6 @@ jui.define("chart.brush.focus", [], function() {
 			} else  {
 				start = this.axis[grid](this.brush.start);
 				end = this.axis[grid](this.brush.end);
-
-				console.log(this.brush.start, this.brush.end);
 			}
 
 			return this.drawFocus(start, end);

@@ -8,13 +8,11 @@
 <body >
 
 <div id="chart"></div>
-<br/>
-<a href="javascript:focus()">Focus</a>
 
 <script id="script_code">
     var areaChart = null;
 
-    var baseDate = +new Date(2017, 3, 14),
+    var baseDate = +new Date(2017, 2, 14),
         baseValue = Math.random() * 150,
         fiveMin = 1000 * 60 * 5,
         data = [{
@@ -44,56 +42,90 @@
         }
     }
 
-    console.log(data.length)
+    var theme = "dark";
+    var targets = [ "value1", "value2", "value3", "value4", "value5" ];
+    var colors = {
+        jennifer: {
+            area: [ "#cbcfd7", "#dfebfb", "#d7f2eb", "#e8ddf0", "#ffebbb" ],
+            line: [ "#666c9b", "#5d9ced", "#37bc9b", "#c6a9d9", "#ffce54" ]
+        },
+        dark: {
+            area: [ "#23344e", "#3c5b84", "#265b4e", "#70627a", "#766232" ],
+            line: [ "#666c8b", "#5d9ced", "#37bc9b", "#c6a9d9", "#ffce54" ]
+        }
+    };
 
     jui.ready([ "chart.builder" ], function(chart) {
-
         areaChart = chart("#chart", {
             width: 1200,
             height : 400,
+            padding : 100,
             axis : [{
                 x : {
                     type : "date",
-                    domain : [ data[0].date, data[data.length - 1].date ],
+                    domain : [ data[0].date, new Date(data[0].date.getTime() + 1000 * 60 * 60 * 24) ],
                     interval : 1000 * 60 * 60,
                     format : "HH",
-                    key : "date",
-                    line : "solid"
+                    key : "date"
                 },
                 y : {
                     type : "range",
                     domain : function(d) {
                         return (d.value1 + d.value2 + d.value3 + d.value4 + d.value5) * 1.2;
                     },
-                    step : 10,
-                    line : "solid"
+                    step : 10
                 },
                 data : data
             }],
             brush : [{
                 type : "stackarea",
-                target : [ "value1", "value2", "value3", "value4", "value5" ],
+                target : targets,
+                colors : colors[theme].area,
+                line : false,
+                opacity : 0
+            }, {
+                type : "stackline",
+                target : targets,
+                colors : colors[theme].line,
                 opacity : 0
             }, {
                 type : "stackarea",
-                target : [ "value1", "value2", "value3", "value4", "value5" ],
+                target : targets,
+                colors : colors[theme].area,
+                line : false,
+                opacity : 1
+            }, {
+                type : "stackline",
+                target : targets,
+                colors : colors[theme].line,
                 opacity : 1
             }, {
                 type : "focus",
                 start : -1,
                 end : -1
+            }, {
+                type : "selectbox"
             }],
             style : {
                 lineBorderOpacity : 1,
-                areaBackgroundOpacity : 1
-            }
+                areaBackgroundOpacity : 1,
+                focusBorderColor : "#9663f4",
+                focusBorderWidth : 2,
+                focusBackgroundOpacity : 0,
+                gridTickBorderSize : 0
+            },
+            event : {
+                click : function(obj) {
+                    focus(obj.data.start, obj.data.end);
+                }
+            },
+            theme : theme,
+            render : false
         });
 	});
 
-    function focus() {
-        var startFocus = new Date("2017/04/14 06:00:00"),
-            endFocus = new Date("2017/04/14 07:00:00"),
-            newStartFocus = null,
+    function focus(startFocus, endFocus) {
+        var newStartFocus = null,
             newEndFocus = null;
 
         for(var i = 0; i < data.length; i++) {
@@ -111,23 +143,39 @@
         }
 
         areaChart.updateBrush(0, {
-            opacity: 0.3
+            opacity: 0.4
         });
 
         areaChart.updateBrush(1, {
-            colors : function(data, i) {
+            opacity: 0.4
+        });
+
+        areaChart.updateBrush(2, {
+            colors : function(data) {
                 if(data.date.getTime() >= startFocus.getTime() && data.date.getTime() < endFocus.getTime()) {
-                    return [ 0, 1, 2, 3, 4 ];
+                    return colors[theme].area;
                 }
 
                 return "transparent";
             }
         });
 
-        areaChart.updateBrush(2, {
-            start: newStartFocus,
-            end: newEndFocus
+        areaChart.updateBrush(3, {
+            colors : function(data) {
+                if(data.date.getTime() >= startFocus.getTime() && data.date.getTime() < endFocus.getTime()) {
+                    return colors[theme].line;
+                }
+
+                return "transparent";
+            }
         });
+
+        areaChart.updateBrush(4, {
+            start: newStartFocus || startFocus,
+            end: newEndFocus || endFocus
+        });
+
+        areaChart.render();
     }
 </script>
 
