@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+<br/>
+<a href="javascript:focus()">Focus</a>
+
+<script id="script_code">
+    var areaChart = null;
+
+    var baseDate = +new Date(2017, 3, 14),
+        baseValue = Math.random() * 150,
+        fiveMin = 1000 * 60 * 5,
+        data = [{
+            date: new Date(baseDate),
+            value1: baseValue,
+            value2: baseValue,
+            value3: baseValue,
+            value4: baseValue,
+            value5: baseValue
+        }],
+        preData = data[0];
+
+    for (var i = 1; i < 288; i++) {
+        var now = new Date(baseDate += fiveMin),
+            obj = {
+                date: now,
+                value1: Math.round((Math.random() - 0.498) * 40 + preData.value1),
+                value2: Math.round((Math.random() - 0.498) * 40 + preData.value2),
+                value3: Math.round((Math.random() - 0.498) * 40 + preData.value3),
+                value4: Math.round((Math.random() - 0.498) * 40 + preData.value4),
+                value5: Math.round((Math.random() - 0.498) * 40 + preData.value5)
+            };
+
+        if(obj.value1 > 0 && obj.value2 > 0 && obj.value3 > 0 && obj.value4 > 0 && obj.value5 > 0) {
+            data.push(obj);
+            preData = obj;
+        }
+    }
+
+    console.log(data.length)
+
+    jui.ready([ "chart.builder" ], function(chart) {
+
+        areaChart = chart("#chart", {
+            width: 1200,
+            height : 400,
+            axis : [{
+                x : {
+                    type : "date",
+                    domain : [ data[0].date, data[data.length - 1].date ],
+                    interval : 1000 * 60 * 60,
+                    format : "HH",
+                    key : "date",
+                    line : "solid"
+                },
+                y : {
+                    type : "range",
+                    domain : function(d) {
+                        return (d.value1 + d.value2 + d.value3 + d.value4 + d.value5) * 1.2;
+                    },
+                    step : 10,
+                    line : "solid"
+                },
+                data : data
+            }],
+            brush : [{
+                type : "stackarea",
+                target : [ "value1", "value2", "value3", "value4", "value5" ]
+            }, {
+                type : "focus",
+                start : -1,
+                end : -1
+            }]
+        });
+	});
+
+    function focus() {
+        var startFocus = new Date("2017/04/14 06:00:00"),
+            endFocus = new Date("2017/04/14 07:00:00"),
+            newStartFocus = null,
+            newEndFocus = null;
+
+        for(var i = 0; i < data.length; i++) {
+            if(newStartFocus == null) {
+                if (data[i].date.getTime() >= startFocus.getTime()) {
+                    newStartFocus = data[i].date;
+                }
+            }
+
+            if(newEndFocus == null) {
+                if (data[i].date.getTime() >= endFocus.getTime()) {
+                    newEndFocus = data[i].date;
+                }
+            }
+        }
+
+        areaChart.updateBrush(0, {
+            colors : function(data, i) {
+                if(data.date.getTime() >= startFocus.getTime() && data.date.getTime() < endFocus.getTime()) {
+                    return [ 0, 1, 2, 3, 4 ];
+                }
+
+                return "#dcdcdc"
+            }
+        });
+
+        areaChart.updateBrush(1, {
+            start: newStartFocus,
+            end: newEndFocus
+        });
+    }
+</script>
+
+
+</body>
+</html>

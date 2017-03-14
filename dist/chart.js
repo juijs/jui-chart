@@ -2723,6 +2723,7 @@ jui.define("chart.theme.jennifer", [], function() {
         ohlcBorderRadius : 5,
         lineBorderWidth : 2,
         lineBorderDashArray : "none",
+        lineBorderOpacity : 1,
         lineDisableBorderOpacity : 0.3,
         linePointBorderColor : "#fff",
         lineSplitBorderColor : null,
@@ -3086,6 +3087,7 @@ jui.define("chart.theme.gradient", [], function() {
         ohlcBorderRadius : 5,
         lineBorderWidth : 2,
         lineBorderDashArray : "none",
+        lineBorderOpacity : 1,
         lineDisableBorderOpacity : 0.3,
         linePointBorderColor : "#fff",
         lineSplitBorderColor : null,
@@ -3447,6 +3449,7 @@ jui.define("chart.theme.dark", [], function() {
         ohlcBorderRadius : 5,
         lineBorderWidth : 2,
         lineBorderDashArray : "none",
+        lineBorderOpacity : 1,
         lineDisableBorderOpacity : 0.3,
         linePointBorderColor : "#fff",
         lineSplitBorderColor : null,
@@ -3805,6 +3808,7 @@ jui.define("chart.theme.pastel", [], function() {
         ohlcBorderRadius : 5,
 		lineBorderWidth : 2,
         lineBorderDashArray : "none",
+        lineBorderOpacity : 1,
 		lineDisableBorderOpacity : 0.3,
 		linePointBorderColor : "#fff",
 		lineSplitBorderColor : null,
@@ -4162,6 +4166,7 @@ jui.define("chart.theme.pattern", [], function() {
         ohlcBorderRadius : 5,
         lineBorderWidth : 2,
         lineBorderDashArray : "none",
+        lineBorderOpacity : 1,
         lineDisableBorderOpacity : 0.3,
         linePointBorderColor : "#fff",
         lineSplitBorderColor : null,
@@ -8495,6 +8500,8 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
 
                 if(_.typeCheck([ "string", "integer" ], newColor)) {
                     color = this.chart.color(newColor);
+                } else if(_.typeCheck("array", newColor)) {
+                    color = this.chart.color(colorIndex, newColor);
                 } else {
                     color = this.chart.color(0);
                 }
@@ -11203,7 +11210,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
      */
 	var LineBrush = function() {
         var g;
-        var circleColor, disableOpacity, lineBorderWidth, lineBorderDashArray;
+        var circleColor, disableOpacity, lineBorderWidth, lineBorderDashArray, lineBorderOpacity;
 
         this.setActiveEffect = function(elem) {
             var lines = this.lineList;
@@ -11236,6 +11243,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                 py = (this.brush.symbol == "curve") ? this.curvePoints(y) : null,
                 color = null,
                 opts = {
+                    "stroke-opacity" : lineBorderOpacity,
                     "stroke-width" : lineBorderWidth,
                     "stroke-dasharray" : lineBorderDashArray,
                     fill : "transparent",
@@ -11363,6 +11371,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
             disableOpacity = this.chart.theme("lineDisableBorderOpacity");
             lineBorderWidth = this.chart.theme("lineBorderWidth");
             lineBorderDashArray = this.chart.theme("lineBorderDashArray");
+            lineBorderOpacity = (_.typeCheck("number", this.brush.opacity)) ? this.brush.opacity : this.chart.theme("lineBorderOpacity");
         }
 
         this.draw = function() {
@@ -11415,7 +11424,9 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
             /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
             activeEvent: null,
             /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
-            display: null
+            display: null,
+            /** @cfg {Number} [opacity=null]  Stroke opacity.  */
+            opacity: null
         };
     }
 
@@ -13071,7 +13082,7 @@ jui.define("chart.brush.fillgauge", [ "util.base" ], function(_) {
 	return FillGaugeBrush;
 }, "chart.brush.core");
 
-jui.define("chart.brush.area", [], function() {
+jui.define("chart.brush.area", [ "util.base" ], function(_) {
 
     /**
      * @class chart.brush.area
@@ -13082,7 +13093,8 @@ jui.define("chart.brush.area", [], function() {
 
         this.drawArea = function(path) {
             var g = this.chart.svg.group(),
-                y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min());
+                y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min()),
+                opacity = (_.typeCheck("number", this.brush.opacity)) ? this.brush.opacity : this.chart.theme("areaBackgroundOpacity");
 
             for(var k = 0; k < path.length; k++) {
                 var children = this.createLine(path[k], k).children;
@@ -13098,7 +13110,7 @@ jui.define("chart.brush.area", [], function() {
 
                     p.attr({
                         fill: p.attr("stroke"),
-                        "fill-opacity": this.chart.theme("areaBackgroundOpacity"),
+                        "fill-opacity": opacity,
                         "stroke-width": 0
                     });
 
@@ -14800,6 +14812,8 @@ jui.define("chart.brush.focus", [], function() {
 			} else  {
 				start = this.axis[grid](this.brush.start);
 				end = this.axis[grid](this.brush.end);
+
+				console.log(this.brush.start, this.brush.end);
 			}
 
 			return this.drawFocus(start, end);

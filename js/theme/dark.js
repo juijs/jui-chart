@@ -124,6 +124,7 @@ jui.define("chart.theme.dark", [], function() {
         ohlcBorderRadius : 5,
         lineBorderWidth : 2,
         lineBorderDashArray : "none",
+        lineBorderOpacity : 1,
         lineDisableBorderOpacity : 0.3,
         linePointBorderColor : "#fff",
         lineSplitBorderColor : null,

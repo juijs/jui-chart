@@ -1,4 +1,4 @@
-jui.define("chart.brush.area", [], function() {
+jui.define("chart.brush.area", [ "util.base" ], function(_) {
 
     /**
      * @class chart.brush.area
@@ -9,7 +9,8 @@ jui.define("chart.brush.area", [], function() {
 
         this.drawArea = function(path) {
             var g = this.chart.svg.group(),
-                y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min());
+                y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min()),
+                opacity = (_.typeCheck("number", this.brush.opacity)) ? this.brush.opacity : this.chart.theme("areaBackgroundOpacity");
 
             for(var k = 0; k < path.length; k++) {
                 var children = this.createLine(path[k], k).children;
@@ -25,7 +26,7 @@ jui.define("chart.brush.area", [], function() {
 
                     p.attr({
                         fill: p.attr("stroke"),
-                        "fill-opacity": this.chart.theme("areaBackgroundOpacity"),
+                        "fill-opacity": opacity,
                         "stroke-width": 0
                     });
 

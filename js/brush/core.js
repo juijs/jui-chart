@@ -456,6 +456,8 @@ jui.define("chart.brush.core", [ "util.base", "util.dom" ], function(_, $) {
 
                 if(_.typeCheck([ "string", "integer" ], newColor)) {
                     color = this.chart.color(newColor);
+                } else if(_.typeCheck("array", newColor)) {
+                    color = this.chart.color(colorIndex, newColor);
                 } else {
                     color = this.chart.color(0);
                 }

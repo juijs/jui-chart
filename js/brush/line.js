@@ -6,7 +6,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
      */
 	var LineBrush = function() {
         var g;
-        var circleColor, disableOpacity, lineBorderWidth, lineBorderDashArray;
+        var circleColor, disableOpacity, lineBorderWidth, lineBorderDashArray, lineBorderOpacity;
 
         this.setActiveEffect = function(elem) {
             var lines = this.lineList;
@@ -39,6 +39,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                 py = (this.brush.symbol == "curve") ? this.curvePoints(y) : null,
                 color = null,
                 opts = {
+                    "stroke-opacity" : lineBorderOpacity,
                     "stroke-width" : lineBorderWidth,
                     "stroke-dasharray" : lineBorderDashArray,
                     fill : "transparent",
@@ -166,6 +167,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
             disableOpacity = this.chart.theme("lineDisableBorderOpacity");
             lineBorderWidth = this.chart.theme("lineBorderWidth");
             lineBorderDashArray = this.chart.theme("lineBorderDashArray");
+            lineBorderOpacity = (_.typeCheck("number", this.brush.opacity)) ? this.brush.opacity : this.chart.theme("lineBorderOpacity");
         }
 
         this.draw = function() {
@@ -218,7 +220,9 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
             /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
             activeEvent: null,
             /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
-            display: null
+            display: null,
+            /** @cfg {Number} [opacity=null]  Stroke opacity.  */
+            opacity: null
         };
     }
 
