@@ -4,7 +4,7 @@ jui.define("chart.brush.selectbox", [], function() {
 
         this.drawBefore = function() {
             g = this.chart.svg.group();
-            zeroY = this.axis.y(0);
+            zeroY = this.axis.area("y2");
             width = this.axis.x.rangeBand();
             height = this.axis.area("height");
             ticks = this.axis.x.ticks("milliseconds", this.axis.get("x").interval);
