@@ -12,7 +12,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
             var lines = this.lineList;
 
             for(var i = 0; i < lines.length; i++) {
-                var opacity = (elem == lines[i].element) ? 1 : disableOpacity,
+                var opacity = (elem == lines[i].element) ? lineBorderOpacity : disableOpacity,
                     color = lines[i].element.get(0).attr("stroke");
 
                 if(lines[i].tooltip != null) {
@@ -111,7 +111,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
 
                     // 최소/최대 값은 무조건 한개만 보여야 함.
                     if(display == "all" || tooltip == null) {
-                        var minmax = this.drawTooltip(this.color(index), circleColor, 1);
+                        var minmax = this.drawTooltip(this.color(index), circleColor, lineBorderOpacity);
                         minmax.control(orient, +pos.x[i], +pos.y[i], this.format(pos.value[i]));
 
                         g.append(minmax.tooltip);

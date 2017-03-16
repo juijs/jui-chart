@@ -11226,7 +11226,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
             var lines = this.lineList;
 
             for(var i = 0; i < lines.length; i++) {
-                var opacity = (elem == lines[i].element) ? 1 : disableOpacity,
+                var opacity = (elem == lines[i].element) ? lineBorderOpacity : disableOpacity,
                     color = lines[i].element.get(0).attr("stroke");
 
                 if(lines[i].tooltip != null) {
@@ -11325,7 +11325,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
 
                     // 최소/최대 값은 무조건 한개만 보여야 함.
                     if(display == "all" || tooltip == null) {
-                        var minmax = this.drawTooltip(this.color(index), circleColor, 1);
+                        var minmax = this.drawTooltip(this.color(index), circleColor, lineBorderOpacity);
                         minmax.control(orient, +pos.x[i], +pos.y[i], this.format(pos.value[i]));
 
                         g.append(minmax.tooltip);
@@ -12456,7 +12456,8 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
 
             var color = this.color(dataIndex, targetIndex),
                 borderColor = this.chart.theme("scatterBorderColor"),
-                borderWidth = this.chart.theme("scatterBorderWidth");
+                borderWidth = this.chart.theme("scatterBorderWidth"),
+                bgOpacity = this.brush.opacity;
 
             if(symbol.type == "image") {
                 elem = this.chart.svg.image({
@@ -12468,7 +12469,11 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                 });
             } else {
                 if(symbol.uri == "triangle" || symbol.uri == "cross") {
-                    elem = this.chart.svg.group({ width: w, height: h }, function() {
+                    elem = this.chart.svg.group({
+                        width: w,
+                        height: h,
+                        opacity: bgOpacity,
+                    }, function() {
                         if(symbol.uri == "triangle") {
                             var poly = self.chart.svg.polygon();
 
@@ -12486,14 +12491,16 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                             width: w,
                             height: h,
                             x: pos.x - (w / 2),
-                            y: pos.y - (h / 2)
+                            y: pos.y - (h / 2),
+                            opacity: bgOpacity
                         });
                     } else {
                         elem = this.chart.svg.ellipse({
                             rx: w / 2,
                             ry: h / 2,
                             cx: pos.x,
-                            cy: pos.y
+                            cy: pos.y,
+                            opacity: bgOpacity
                         });
                     }
                 }
@@ -12511,7 +12518,7 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                             fill: self.chart.theme("scatterHoverColor"),
                             stroke: color,
                             "stroke-width": borderWidth * 2,
-                            opacity: 1
+                            opacity: bgOpacity
                         };
 
                         if(self.brush.hoverSync) {
@@ -12529,7 +12536,7 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                             fill: color,
                             stroke: borderColor,
                             "stroke-width": borderWidth,
-                            opacity: (self.brush.hide) ? 0 : 1
+                            opacity: (self.brush.hide) ? 0 : bgOpacity
                         };
 
                         if(self.brush.hoverSync) {
@@ -12555,6 +12562,7 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                 g = this.chart.svg.group(),
                 borderColor = this.chart.theme("scatterBorderColor"),
                 borderWidth = this.chart.theme("scatterBorderWidth"),
+                bgOpacity = this.brush.opacity,
                 isTooltipDraw = false;
 
             for(var i = 0; i < points.length; i++) {
@@ -12611,7 +12619,7 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                                             fill: self.activeScatter.attributes["stroke"],
                                             stroke: borderColor,
                                             "stroke-width": borderWidth,
-                                            opacity: (self.brush.hide) ? 0 : 1
+                                            opacity: (self.brush.hide) ? 0 : bgOpacity
                                         });
                                     }
 
@@ -12620,7 +12628,7 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                                         fill: self.chart.theme("scatterHoverColor"),
                                         stroke: color,
                                         "stroke-width": borderWidth * 2,
-                                        opacity: 1
+                                        opacity: bgOpacity
                                     });
                                 }
 
@@ -12654,7 +12662,8 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
                 "text-anchor" : "middle",
                 fill : this.chart.theme("tooltipPointFontColor"),
                 "font-size" : this.chart.theme("tooltipPointFontSize"),
-                "font-weight" : this.chart.theme("tooltipPointFontWeight")
+                "font-weight" : this.chart.theme("tooltipPointFontWeight"),
+                opacity : this.brush.opacity
             }, text).translate(x, y);
         }
 
@@ -12693,6 +12702,8 @@ jui.define("chart.brush.scatter", [ "util.base" ], function(_) {
             activeEvent: null,
             /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tooltip on the scatter for the minimum/maximum value.  */
             display: null,
+            /** @cfg {Number} [opacity=1]  Stroke opacity.  */
+            opacity: 1,
             /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
             clip: false
         };
