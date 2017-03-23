@@ -172,9 +172,11 @@ jui.define("chart.theme.gradient", [], function() {
 
         timelineTitleFontSize: 11,
         timelineTitleFontColor: "#333",
+        timelineTitleFontWeight: 700,
         timelineColumnFontSize: 10,
         timelineColumnFontColor: "#333",
         timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
+        timelineHoverRowBackgroundColor: "#f4f0f9",
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
         timelineActiveBarBackgroundColor: "#9262cf",

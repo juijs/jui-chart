@@ -2768,9 +2768,11 @@ jui.define("chart.theme.jennifer", [], function() {
 
         timelineTitleFontSize: 11,
         timelineTitleFontColor: "#333",
+        timelineTitleFontWeight: 700,
         timelineColumnFontSize: 10,
         timelineColumnFontColor: "#333",
         timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
+        timelineHoverRowBackgroundColor: "#f4f0f9",
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
         timelineActiveBarBackgroundColor: "#9262cf",
@@ -3138,9 +3140,11 @@ jui.define("chart.theme.gradient", [], function() {
 
         timelineTitleFontSize: 11,
         timelineTitleFontColor: "#333",
+        timelineTitleFontWeight: 700,
         timelineColumnFontSize: 10,
         timelineColumnFontColor: "#333",
         timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
+        timelineHoverRowBackgroundColor: "#f4f0f9",
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
         timelineActiveBarBackgroundColor: "#9262cf",
@@ -3500,9 +3504,11 @@ jui.define("chart.theme.dark", [], function() {
 
         timelineTitleFontSize: 11,
         timelineTitleFontColor: "#c5c5c5",
+        timelineTitleFontWeight: 700,
         timelineColumnFontSize: 10,
         timelineColumnFontColor: "#c5c5c5",
         timelineColumnBackgroundColor: "linear(top) #3f3f3f,1 #343434",
+        timelineHoverRowBackgroundColor: "transparent",
         timelineEvenRowBackgroundColor: "#1c1c1c",
         timelineOddRowBackgroundColor: "#2f2f2f",
         timelineActiveBarBackgroundColor: "#6f32ba",
@@ -3864,9 +3870,11 @@ jui.define("chart.theme.pastel", [], function() {
 
 		timelineTitleFontSize: 11,
 		timelineTitleFontColor: "#333",
+        timelineTitleFontWeight: 700,
 		timelineColumnFontSize: 10,
 		timelineColumnFontColor: "#333",
 		timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
+        timelineHoverRowBackgroundColor: "#f4f0f9",
 		timelineEvenRowBackgroundColor: "#fafafa",
 		timelineOddRowBackgroundColor: "#f1f0f3",
 		timelineActiveBarBackgroundColor: "#9262cf",
@@ -4222,9 +4230,11 @@ jui.define("chart.theme.pattern", [], function() {
 
         timelineTitleFontSize: 11,
         timelineTitleFontColor: "#333",
+        timelineTitleFontWeight: 700,
         timelineColumnFontSize: 10,
         timelineColumnFontColor: "#333",
         timelineColumnBackgroundColor: "linear(top) #f9f9f9,1 #e9e9e9",
+        timelineHoverRowBackgroundColor: "#f4f0f9",
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
         timelineActiveBarBackgroundColor: "#9262cf",
@@ -15007,29 +15017,44 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
             var yFormat = this.axis.get("y").format,
                 rowWidth = this.axis.area("width") + startX;
 
+            var columnColor = this.chart.theme("timelineColumnBackgroundColor"),
+                hoverColor = this.chart.theme("timelineHoverRowBackgroundColor"),
+                evenColor = this.chart.theme("timelineEvenRowBackgroundColor"),
+                oddColor = this.chart.theme("timelineOddRowBackgroundColor");
+
             for (var j = 0; j < domains.length; j++) {
                 var domain = domains[j],
-                    y = this.axis.y(j);
+                    y = this.axis.y(j),
+                    fill = (j == 0) ? columnColor : ((j % 2) ? evenColor : oddColor);
 
-                var fill = (j == 0) ? this.chart.theme("timelineColumnBackgroundColor") :
-                    ((j % 2) ? this.chart.theme("timelineEvenRowBackgroundColor") : this.chart.theme("timelineOddRowBackgroundColor"));
-
-                g.append(this.svg.rect({
+                var r = this.svg.rect({
                     width: rowWidth,
                     height: height,
                     fill: fill,
                     x: titleX,
                     y: y - height / 2
-                }));
+                });
+
+                (function(elem, index) {
+                    if(index > 0) {
+                        elem.hover(function () {
+                            elem.attr({ fill: hoverColor });
+                        }, function () {
+                            elem.attr({ fill: index % 2 ? evenColor : oddColor });
+                        });
+                    }
+                })(r, j);
+
+                g.append(r);
 
                 if(startX > 0) {
                     var txt = this.chart.text({
                         "text-anchor": "start",
                         dx: 5,
-                        dy: this.chart.theme("timelineTitleFontSize") / 2,
+                        dy: this.chart.theme("timelineTitleFontSize") / 3,
                         "font-size": this.chart.theme("timelineTitleFontSize"),
                         fill: this.chart.theme("timelineTitleFontColor"),
-                        "font-weight": 700
+                        "font-weight": this.chart.theme("timelineTitleFontWeight")
                     }).translate(titleX, y);
 
                     if (_.typeCheck("function", yFormat)) {

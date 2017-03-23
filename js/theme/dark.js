@@ -170,9 +170,11 @@ jui.define("chart.theme.dark", [], function() {
 
         timelineTitleFontSize: 11,
         timelineTitleFontColor: "#c5c5c5",
+        timelineTitleFontWeight: 700,
         timelineColumnFontSize: 10,
         timelineColumnFontColor: "#c5c5c5",
         timelineColumnBackgroundColor: "linear(top) #3f3f3f,1 #343434",
+        timelineHoverRowBackgroundColor: "transparent",
         timelineEvenRowBackgroundColor: "#1c1c1c",
         timelineOddRowBackgroundColor: "#2f2f2f",
         timelineActiveBarBackgroundColor: "#6f32ba",

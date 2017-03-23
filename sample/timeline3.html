@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8"/>
+    <script src="../lib/core.js"></script>
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+    var originData = [{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"-941715376341998464","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":1384,"selfTime":1384,"cpuTime":0,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254453222,"endTime":1490254454606,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254454607},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"6427864068670586758","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":4783,"selfTime":4783,"cpuTime":0,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254456296,"endTime":1490254461079,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254461079},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"-684573555031297798","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":2301,"selfTime":2301,"cpuTime":1,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254463048,"endTime":1490254465349,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254465350},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"3089590746294558930","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":1089,"selfTime":1089,"cpuTime":0,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254465959,"endTime":1490254467048,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254467049},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"3308643581269032281","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":2312,"selfTime":2312,"cpuTime":0,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254468087,"endTime":1490254470399,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254470400},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"-7086332938178207942","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":3276,"selfTime":3276,"cpuTime":1,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254471191,"endTime":1490254474467,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254474468},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"8176015369621127503","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":3576,"selfTime":3576,"cpuTime":1,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254475007,"endTime":1490254478583,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254478584},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"-4778259531956074942","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":3469,"selfTime":3469,"cpuTime":1,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254479712,"endTime":1490254483181,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254483182},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"8501654992219351353","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":2422,"selfTime":2422,"cpuTime":0,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254485071,"endTime":1490254487493,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254487494},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"687648236289485868","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":2874,"selfTime":2874,"cpuTime":1,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254488535,"endTime":1490254491409,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254491410},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"995966271250607507","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":3983,"selfTime":3983,"cpuTime":0,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254492432,"endTime":1490254496415,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254496416},{"sid":8000,"domainName":"Local","sysOid":75536,"instanceName":"10000","bizOid":0,"bizName":"","serviceName":"/example/time_component_example.jsp","serviceHash":1139165408,"txid":"3730389407648274572","errCode":null,"errTextHash":null,"guid":"23+16+34","ipaddr":"127.0.0.1","userHash":0,"userId":null,"networkTime":0,"frontEndElapsedTime":0,"elapsedTime":2456,"selfTime":2456,"cpuTime":1,"sqlTime":0,"fetchTime":0,"txcallTime":0,"startTime":1490254497031,"endTime":1490254499487,"callTime":null,"browserHash":1261560368,"browserName":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36","wmonId":"-2502614426293955609","xtype":1,"langType":1,"piDataList":[],"collectionTime":1490254499489}];
+    var nameCache = {},
+        chartData = [],
+        builder = jui.include("chart.builder");
+
+    function calculateTxData() {
+        var firstData = originData[0];
+
+        for(var i = 0; i < originData.length; i++) {
+            var d = originData[i],
+                start = d.startTime - firstData.startTime;
+
+            nameCache[d.txid] = d.serviceName;
+
+            chartData.push({
+                key: d.txid,
+                stime: start,
+                etime: start + d.elapsedTime
+            });
+        }
+    }
+
+    function getDataToDomain() {
+        var cache = {},
+            domain = [ "Name" ];
+
+        for(var i = 0; i < chartData.length; i++) {
+            var key = chartData[i].key;
+
+            if(!cache[key]) {
+                cache[key] = true;
+                domain.push(key);
+            }
+        }
+
+        return domain;
+    }
+
+    // 데이터 가공하기
+    calculateTxData();
+
+    var chart = builder("#chart", {
+        width : 1024,
+        height : (chartData.length + 1) * 16,
+        padding : 0,
+        theme : "jennifer",
+        axis : {
+            padding : {
+                left : 160
+            },
+            x : {
+                type : "range",
+                domain : "etime",
+                step : 10,
+                hide : true,
+                format : function(d, i) {
+                    return Math.floor(d);
+                }
+            },
+            y : {
+                domain : getDataToDomain(),
+                hide : true,
+                format : function(d, i) {
+                    var name = nameCache[d] || d,
+                        max = 26;
+
+                    if(name.length > max) {
+                        return name.substr(0, max) + "...";
+                    }
+
+                    return name;
+                }
+            }
+        },
+        brush : [{
+            type : "timeline",
+            barSize : 4,
+            lineWidth : 0,
+            hideTitle : false
+        }],
+        event : {
+            click : function(d) {
+                console.log(d);
+            }
+        },
+        style : {
+            colors : [ "#6e6afc" ],
+            timelineTitleFontSize : 10,
+            timelineTitleFontColor : "#333",
+            timelineTitleFontWeight : 400,
+            timelineColumnBackgroundColor : "#fff",
+            timelineHoverRowBackgroundColor : "#f4f0f9",
+            timelineEvenRowBackgroundColor : "#f8f8f8",
+            timelineOddRowBackgroundColor : "#fff",
+            timelineVerticalLineColor: "#f0f0f0",
+            timelineHorizontalLineColor: "#ddd",
+        }
+    });
+
+    console.log(nameCache);
+    console.log(chartData);
+    chart.axis(0).update(chartData);
+</script>
+
+
+</body>
+</html>
