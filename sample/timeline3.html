@@ -87,12 +87,26 @@
         brush : [{
             type : "timeline",
             barSize : 4,
-            lineWidth : 0,
-            hideTitle : false
+            lineWidth : 0.3,
+            hideTitle : false,
+            activeTooltip : function(d) {
+                var v = d.etime - d.stime;
+
+                if(v > 1500) {
+                    return v;
+                }
+
+                return "";
+            },
+            activeType : "bar",
+            active : 2
         }],
         event : {
             click : function(d) {
                 console.log(d);
+            },
+            "timeline.title" : function(text, e) {
+                console.log(text);
             }
         },
         style : {
@@ -106,6 +120,9 @@
             timelineOddRowBackgroundColor : "#fff",
             timelineVerticalLineColor: "#f0f0f0",
             timelineHorizontalLineColor: "#ddd",
+
+            timelineActiveBarBackgroundColor: null,
+            timelineHoverBarBackgroundColor: null
         }
     });
 

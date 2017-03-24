@@ -180,6 +180,8 @@ jui.define("chart.theme.gradient", [], function() {
         timelineEvenRowBackgroundColor: "#fafafa",
         timelineOddRowBackgroundColor: "#f1f0f3",
         timelineActiveBarBackgroundColor: "#9262cf",
+        timelineActiveBarFontColor: "#fff",
+        timelineActiveBarFontSize: 9,
         timelineHoverBarBackgroundColor: null,
         timelineLayerBackgroundOpacity: 0.15,
         timelineActiveLayerBackgroundColor: "#A75CFF",
