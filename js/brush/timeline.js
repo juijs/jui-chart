@@ -187,7 +187,7 @@ jui.define("chart.brush.timeline", [ "util.base" ], function(_) {
 
                 if(i < ticks.length - 1) {
                     var vline = this.svg.line({
-                        stroke: this.chart.theme("timelineVerticalLineColor"),
+                        stroke: this.chart.theme((i == 0) ? "timelineHorizontalLineColor" : "timelineVerticalLineColor"),
                         "stroke-width": 1,
                         x1: x,
                         x2: x,

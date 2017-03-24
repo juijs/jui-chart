@@ -55,7 +55,7 @@
         width : 1024,
         height : (chartData.length + 1) * 16,
         padding : 0,
-        theme : "jennifer",
+        theme : "dark",
         axis : {
             padding : {
                 left : 160
@@ -87,7 +87,7 @@
         brush : [{
             type : "timeline",
             barSize : 4,
-            lineWidth : 0.3,
+            lineWidth : 0,
             hideTitle : false,
             activeTooltip : function(d) {
                 var v = d.etime - d.stime;
@@ -111,18 +111,8 @@
         },
         style : {
             colors : [ "#6e6afc" ],
-            timelineTitleFontSize : 10,
-            timelineTitleFontColor : "#333",
             timelineTitleFontWeight : 400,
-            timelineColumnBackgroundColor : "#fff",
-            timelineHoverRowBackgroundColor : "#f4f0f9",
-            timelineEvenRowBackgroundColor : "#f8f8f8",
-            timelineOddRowBackgroundColor : "#fff",
-            timelineVerticalLineColor: "#f0f0f0",
-            timelineHorizontalLineColor: "#ddd",
-
             timelineActiveBarBackgroundColor: null,
-            timelineHoverBarBackgroundColor: null
         }
     });
 
