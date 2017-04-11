@@ -92,6 +92,10 @@ jui.define("chart.widget.vscroll", [ "util.base" ], function (_) {
             var bgSize = chart.theme("scrollBackgroundSize"),
                 bgX = (widget.orient == "right") ? chart.area("x2") : chart.area("x") - bgSize;
 
+            if(dataLength == 0) {
+                return chart.svg.group();
+            }
+
             return chart.svg.group({}, function() {
                 chart.svg.rect({
                     width: bgSize,

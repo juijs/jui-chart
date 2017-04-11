@@ -20374,14 +20374,18 @@ jui.define("chart.widget.scroll", [ "util.base" ], function (_) {
 			dataLength =  axis.origin.length;
 			bufferCount = axis.buffer;
 			piece = chart.area("width") / bufferCount;
-			totalWidth = piece * dataLength;
+			totalWidth = piece * (dataLength || 1);
 			rate = totalWidth / chart.area("width");
-            thumbWidth = chart.area("width") * (bufferCount / dataLength) + 2;
+            thumbWidth = chart.area("width") * (bufferCount / (dataLength || 1)) + 2;
         }
 
         this.draw = function() {
             var bgSize = chart.theme("scrollBackgroundSize"),
                 bgY = (widget.orient == "top") ? chart.area("y") - bgSize : chart.area("y2");
+
+            if(dataLength == 0) {
+                return chart.svg.group();
+            }
 
             return chart.svg.group({}, function() {
                 chart.svg.rect({
@@ -20507,6 +20511,10 @@ jui.define("chart.widget.vscroll", [ "util.base" ], function (_) {
         this.draw = function() {
             var bgSize = chart.theme("scrollBackgroundSize"),
                 bgX = (widget.orient == "right") ? chart.area("x2") : chart.area("x") - bgSize;
+
+            if(dataLength == 0) {
+                return chart.svg.group();
+            }
 
             return chart.svg.group({}, function() {
                 chart.svg.rect({
