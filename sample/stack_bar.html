@@ -34,16 +34,17 @@
                     domain : function(data) {
                         return [data.name + data.value + data.test, 0];
                     },
-                    reverse : true
+                    reverse : false
                 }
             },
             brush : {
                 type : 'stackbar',
                 target : ['name', 'value', 'test'],
-                active : 1,
+                //active : 1,
                 activeEvent : "click",
                 //size : 15,
-                display : "max"
+                display : "max",
+                edge: true
             },
             widget : [{
                 type : "tooltip"

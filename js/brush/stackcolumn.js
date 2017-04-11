@@ -1,4 +1,4 @@
-jui.define("chart.brush.stackcolumn", [], function() {
+jui.define("chart.brush.stackcolumn", [ "util.base" ], function(_) {
 
 	/**
 	 * @class chart.brush.stackcolumn
@@ -17,27 +17,6 @@ jui.define("chart.brush.stackcolumn", [], function() {
 				return (size < this.brush.minSize) ? this.brush.minSize : size;
 			}
 		}
-
-        // TODO: 차후에는 스택바도 지원해야 함.
-        this.drawStackEdge = function(g) {
-			var borderWidth = this.chart.theme("barStackEdgeBorderWidth");
-
-            for(var i = 1; i < this.edgeData.length; i++) {
-                var pre = this.edgeData[i - 1],
-                    now = this.edgeData[i];
-
-            	for(var j = 0; j < this.brush.target.length; j++) {
-                    g.append(this.svg.line({
-                        x1: pre[j].x + pre[j].width,
-                        x2: now[j].x,
-                        y1: pre[j].y,
-                        y2: now[j].y,
-                        stroke: now[j].color,
-                        "stroke-width": borderWidth
-                    }));
-                }
-            }
-        }
 
 		this.drawBefore = function() {
 			g = chart.svg.group();
@@ -67,28 +46,21 @@ jui.define("chart.brush.stackcolumn", [], function() {
 				for(var j = 0; j < brush.target.length; j++) {
 					var yValue = data[brush.target[j]] + value,
                         endY = axis.y(yValue),
-						tmpY = (startY > endY) ? endY : startY,
-						r = this.getBarElement(i, j);
+						opts = {
+                            x : startX,
+                            y : (startY > endY) ? endY : startY,
+                            width : bar_width,
+                            height : Math.abs(startY - endY)
+                        },
+						r = this.getBarElement(i, j).attr(opts);
 
-					// TODO: 차후에는 스택바도 지원해야 함.
 					if(!this.edgeData[i]) {
                         this.edgeData[i] = {};
 					}
 
-					this.edgeData[i][j] = {
-						x: startX,
-						y: tmpY,
-						width: bar_width,
-						height: Math.abs(startY - endY),
+					this.edgeData[i][j] = _.extend({
 						color: this.color(j)
-					};
-
-					r.attr({
-						x : startX,
-						y : tmpY,
-						width : bar_width,
-						height : Math.abs(startY - endY)
-					});
+					}, opts);
 					
 					startY = endY;
 					value = yValue;
@@ -114,6 +86,7 @@ jui.define("chart.brush.stackcolumn", [], function() {
                 g.append(group);
 			});
 
+            // 스탭 연결선 그리기
             if(this.brush.edge) {
                 this.drawStackEdge(g);
             }
@@ -129,12 +102,6 @@ jui.define("chart.brush.stackcolumn", [], function() {
             return g;
 		}
 	}
-
-    ColumnStackBrush.setup = function() {
-        return {
-            edge: false
-        };
-    }
 
 	return ColumnStackBrush;
 }, "chart.brush.stackbar");

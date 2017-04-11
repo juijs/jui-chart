@@ -136,6 +136,26 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
             group.append(tooltip);
         }
 
+        this.drawStackEdge = function(g) {
+            var borderWidth = this.chart.theme("barStackEdgeBorderWidth");
+
+            for(var i = 1; i < this.edgeData.length; i++) {
+                var pre = this.edgeData[i - 1],
+                    now = this.edgeData[i];
+
+                for(var j = 0; j < this.brush.target.length; j++) {
+                    g.append(this.svg.line({
+                        x1: pre[j].x + pre[j].width,
+                        x2: now[j].x,
+                        y1: pre[j].y + pre[j].height,
+                        y2: now[j].y,
+                        stroke: now[j].color,
+                        "stroke-width": borderWidth
+                    }));
+                }
+            }
+        }
+
 		this.drawBefore = function() {
 			g = chart.svg.group();
 			height = axis.y.rangeBand();
@@ -143,6 +163,7 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 
             this.stackTooltips = [];
             this.tooltipIndexes = [];
+            this.edgeData = [];
 		}
 
 		this.draw = function() {
@@ -163,14 +184,21 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 				for(var j = 0; j < brush.target.length; j++) {
 					var xValue = data[brush.target[j]] + value,
                         endX = axis.x(xValue),
-						r = this.getBarElement(i, j);
+						opts = {
+                            x : (startX < endX) ? startX : endX,
+                            y : startY,
+                            width : Math.abs(startX - endX),
+                            height : bar_height
+                        },
+						r = this.getBarElement(i, j).attr(opts);
 
-					r.attr({
-						x : (startX < endX) ? startX : endX,
-						y : startY,
-						width : Math.abs(startX - endX),
-						height : bar_height
-					});
+                    if(!this.edgeData[i]) {
+                        this.edgeData[i] = {};
+                    }
+
+                    this.edgeData[i][j] = _.extend({
+                    	color: this.color(j)
+					}, opts)
 
 					startX = endX;
 					value = xValue;
@@ -195,6 +223,11 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 				g.append(group);
 			});
 
+			// 스탭 연결선 그리기
+            if(this.brush.edge) {
+                this.drawStackEdge(g);
+            }
+
             // 최소/최대/전체 값 표시하기
             if(this.brush.display != null) {
                 this.setActiveTooltips(minIndex, maxIndex);
@@ -210,7 +243,9 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 	StackBarBrush.setup = function() {
 		return {
 			/** @cfg {Number} [outerPadding=15] Determines the outer margin of a stack bar. */
-			outerPadding: 15
+			outerPadding: 15,
+            /** @cfg {Boolean} [edge=false] */
+			edge: false
 		};
 	}
 
