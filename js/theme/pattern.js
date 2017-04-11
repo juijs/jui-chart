@@ -78,6 +78,7 @@ jui.define("chart.theme.pattern", [], function() {
         barActiveBackgroundColor : "#06d9b6",
         barPointBorderColor : "#fff",
         barDisableBackgroundOpacity : 0.4,
+        barStackEdgeBorderWidth : 1,
         gaugeBackgroundColor : "#ececec",
         gaugeArrowColor : "#666666",
         gaugeFontColor : "#666666",

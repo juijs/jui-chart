@@ -44,13 +44,14 @@
             },
             brush : [{
                 type : 'stackcolumn',
-                active : 1,
-                activeEvent : "click",
+                //active : 1,
+                //activeEvent : "click",
                 minSize : 3,
                 display : "all",
                 format : function(v) {
                     return v + "!!!";
-                }
+                },
+                edge : true
             }],
             widget : [{
                 type : "tooltip"
@@ -67,7 +68,10 @@
                 click : function(obj, e) {
                     console.log(obj);
                 }
-            }
+            },
+             style : {
+                 barStackEdgeBorderWidth : 0.5
+             }
         });
 	})
 </script>

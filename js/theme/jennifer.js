@@ -91,6 +91,7 @@ jui.define("chart.theme.jennifer", [], function() {
         barBorderRadius : 3,
         barPointBorderColor : "#fff",
         barDisableBackgroundOpacity : 0.4,
+        barStackEdgeBorderWidth : 1,
     	gaugeBackgroundColor : "#ececec",
         gaugeArrowColor : "#a9a9a9",
         gaugeFontColor : "#666666",

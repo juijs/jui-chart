@@ -2691,6 +2691,7 @@ jui.define("chart.theme.jennifer", [], function() {
         barBorderRadius : 3,
         barPointBorderColor : "#fff",
         barDisableBackgroundOpacity : 0.4,
+        barStackEdgeBorderWidth : 1,
     	gaugeBackgroundColor : "#ececec",
         gaugeArrowColor : "#a9a9a9",
         gaugeFontColor : "#666666",
@@ -3064,6 +3065,7 @@ jui.define("chart.theme.gradient", [], function() {
         barActiveBackgroundColor : "linear(top) #3aedcf,0.9 #06d9b6",
         barPointBorderColor : "#fff",
         barDisableBackgroundOpacity : 0.4,
+        barStackEdgeBorderWidth : 1,
         gaugeBackgroundColor : "#ececec",
         gaugeArrowColor : "#666666",
         gaugeFontColor : "#666666",
@@ -3430,6 +3432,7 @@ jui.define("chart.theme.dark", [], function() {
         barActiveBackgroundColor : "#fc6d65",
         barPointBorderColor : "#fff",
         barDisableBackgroundOpacity : 0.4,
+        barStackEdgeBorderWidth : 1,
     	gaugeBackgroundColor : "#3e3e3e",
         gaugeArrowColor : "#a6a6a6",
         gaugeFontColor : "#c5c5c5",
@@ -3798,6 +3801,7 @@ jui.define("chart.theme.pastel", [], function() {
 		barActiveBackgroundColor : "#ffb9ce",
 		barPointBorderColor : "#ebebeb",
 		barDisableBackgroundOpacity : 0.4,
+        barStackEdgeBorderWidth : 1,
 		gaugeBackgroundColor : "#f5f5f5",
         gaugeArrowColor : "#808080",
 		gaugeFontColor : "#666666",
@@ -4160,6 +4164,7 @@ jui.define("chart.theme.pattern", [], function() {
         barActiveBackgroundColor : "#06d9b6",
         barPointBorderColor : "#fff",
         barDisableBackgroundOpacity : 0.4,
+        barStackEdgeBorderWidth : 1,
         gaugeBackgroundColor : "#ececec",
         gaugeArrowColor : "#666666",
         gaugeFontColor : "#666666",
@@ -10005,6 +10010,27 @@ jui.define("chart.brush.stackcolumn", [], function() {
 			}
 		}
 
+        // TODO: 차후에는 스택바도 지원해야 함.
+        this.drawStackEdge = function(g) {
+			var borderWidth = this.chart.theme("barStackEdgeBorderWidth");
+
+            for(var i = 1; i < this.edgeData.length; i++) {
+                var pre = this.edgeData[i - 1],
+                    now = this.edgeData[i];
+
+            	for(var j = 0; j < this.brush.target.length; j++) {
+                    g.append(this.svg.line({
+                        x1: pre[j].x + pre[j].width,
+                        x2: now[j].x,
+                        y1: pre[j].y,
+                        y2: now[j].y,
+                        stroke: now[j].color,
+                        "stroke-width": borderWidth
+                    }));
+                }
+            }
+        }
+
 		this.drawBefore = function() {
 			g = chart.svg.group();
 			zeroY = axis.y(0);
@@ -10012,6 +10038,7 @@ jui.define("chart.brush.stackcolumn", [], function() {
 
 			this.stackTooltips = [];
             this.tooltipIndexes = [];
+            this.edgeData = [];
 		}
 
 		this.draw = function() {
@@ -10032,11 +10059,25 @@ jui.define("chart.brush.stackcolumn", [], function() {
 				for(var j = 0; j < brush.target.length; j++) {
 					var yValue = data[brush.target[j]] + value,
                         endY = axis.y(yValue),
+						tmpY = (startY > endY) ? endY : startY,
 						r = this.getBarElement(i, j);
+
+					// TODO: 차후에는 스택바도 지원해야 함.
+					if(!this.edgeData[i]) {
+                        this.edgeData[i] = {};
+					}
+
+					this.edgeData[i][j] = {
+						x: startX,
+						y: tmpY,
+						width: bar_width,
+						height: Math.abs(startY - endY),
+						color: this.color(j)
+					};
 
 					r.attr({
 						x : startX,
-						y : (startY > endY) ? endY : startY,
+						y : tmpY,
 						width : bar_width,
 						height : Math.abs(startY - endY)
 					});
@@ -10061,8 +10102,13 @@ jui.define("chart.brush.stackcolumn", [], function() {
 				this.drawStackTooltip(group, i, sumValue, offsetX, startY, (this.axis.get("y").reverse) ? "bottom" : "top");
 				this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
 				this.addBarElement(group);
-				g.append(group);
+
+                g.append(group);
 			});
+
+            if(this.brush.edge) {
+                this.drawStackEdge(g);
+            }
 
 			// 최소/최대/전체 값 표시하기
 			if(this.brush.display != null) {
@@ -10075,6 +10121,12 @@ jui.define("chart.brush.stackcolumn", [], function() {
             return g;
 		}
 	}
+
+    ColumnStackBrush.setup = function() {
+        return {
+            edge: false
+        };
+    }
 
 	return ColumnStackBrush;
 }, "chart.brush.stackbar");
