@@ -408,6 +408,16 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
             this.z = drawGridType(this, "z");
             this.c = drawGridType(this, "c");
             this.map = drawMapType(this, "map");
+
+            this.buffer = options.buffer;
+            this.shift = options.shift;
+            this.index = options.index;
+            this.page = options.page;
+            this.start = options.start;
+            this.end = options.end;
+            this.degree = options.degree;
+            this.depth = options.depth;
+            this.perspective = options.perspective;
         }
 
         /**

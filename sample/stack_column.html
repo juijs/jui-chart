@@ -47,7 +47,10 @@
                 active : 1,
                 activeEvent : "click",
                 minSize : 3,
-                display : "all"
+                display : "all",
+                format : function(v) {
+                    return v + "!!!";
+                }
             }],
             widget : [{
                 type : "tooltip"

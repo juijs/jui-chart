@@ -83,9 +83,9 @@ jui.define("chart.widget.vscroll", [ "util.base" ], function (_) {
 			dataLength =  axis.origin.length;
 			bufferCount = axis.buffer;
 			piece = chart.area("height") / bufferCount;
-			totalHeight = piece * dataLength;
-			rate = totalHeight / chart.area("height");
-            thumbHeight = chart.area("height") * (bufferCount / dataLength) + 2;
+            totalHeight = piece * (dataLength || 1);
+            rate = totalHeight / chart.area("height");
+            thumbHeight = chart.area("height") * (bufferCount / (dataLength || 1)) + 2;
         }
 
         this.draw = function() {

@@ -675,6 +675,16 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
             this.z = drawGridType(this, "z");
             this.c = drawGridType(this, "c");
             this.map = drawMapType(this, "map");
+
+            this.buffer = options.buffer;
+            this.shift = options.shift;
+            this.index = options.index;
+            this.page = options.page;
+            this.start = options.start;
+            this.end = options.end;
+            this.degree = options.degree;
+            this.depth = options.depth;
+            this.perspective = options.perspective;
         }
 
         /**
@@ -9219,7 +9229,9 @@ jui.define("chart.brush.bar", [ "util.base" ], function(_) {
             /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
 			activeEvent: null,
             /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
-			display: null
+			display: null,
+            /** @cfg {Function} [format=null] Sets the format of the value that is displayed on the tool tip. */
+			format: null
 		};
 	}
 
@@ -9886,7 +9898,7 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 				dx: dx,
                 dy: dy,
                 opacity: 0
-            }).text(value).translate(x, y);
+            }).text(this.format(value)).translate(x, y);
 
             this.stackTooltips[index] = tooltip;
             group.append(tooltip);
@@ -11640,6 +11652,10 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                     visibility: !this.brush.showText ? "hidden" : "visible"
                 }),
                 isLeft = (centerAngle + 90 > 180) ? true : false;
+
+            if(text === "" || !text) {
+                return g;
+            }
 
             if(this.brush.showText == "inside") {
                 var cx = centerX + (Math.cos(math.radian(centerAngle)) * (outerRadius / 2)),
@@ -20483,9 +20499,9 @@ jui.define("chart.widget.vscroll", [ "util.base" ], function (_) {
 			dataLength =  axis.origin.length;
 			bufferCount = axis.buffer;
 			piece = chart.area("height") / bufferCount;
-			totalHeight = piece * dataLength;
-			rate = totalHeight / chart.area("height");
-            thumbHeight = chart.area("height") * (bufferCount / dataLength) + 2;
+            totalHeight = piece * (dataLength || 1);
+            rate = totalHeight / chart.area("height");
+            thumbHeight = chart.area("height") * (bufferCount / (dataLength || 1)) + 2;
         }
 
         this.draw = function() {

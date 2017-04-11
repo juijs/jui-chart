@@ -130,7 +130,7 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 				dx: dx,
                 dy: dy,
                 opacity: 0
-            }).text(value).translate(x, y);
+            }).text(this.format(value)).translate(x, y);
 
             this.stackTooltips[index] = tooltip;
             group.append(tooltip);

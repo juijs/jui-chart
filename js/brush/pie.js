@@ -132,6 +132,10 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                 }),
                 isLeft = (centerAngle + 90 > 180) ? true : false;
 
+            if(text === "" || !text) {
+                return g;
+            }
+
             if(this.brush.showText == "inside") {
                 var cx = centerX + (Math.cos(math.radian(centerAngle)) * (outerRadius / 2)),
                     cy = centerY + (Math.sin(math.radian(centerAngle)) * (outerRadius / 2));
