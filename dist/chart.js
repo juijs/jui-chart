@@ -9917,14 +9917,16 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
                     now = this.edgeData[i];
 
                 for(var j = 0; j < this.brush.target.length; j++) {
-                    g.append(this.svg.line({
-                        x1: pre[j].x + pre[j].width,
-                        x2: now[j].x,
-                        y1: pre[j].y + pre[j].height,
-                        y2: now[j].y,
-                        stroke: now[j].color,
-                        "stroke-width": borderWidth
-                    }));
+                	if(now[j].width > 0 && now[j].height > 0) {
+                        g.append(this.svg.line({
+                            x1: pre[j].x + pre[j].width - pre[j].dist,
+                            x2: now[j].x + now[j].dx - now[j].dist,
+                            y1: pre[j].y + pre[j].height,
+                            y2: now[j].y + now[j].dy,
+                            stroke: now[j].color,
+                            "stroke-width": borderWidth
+                        }));
+                    }
                 }
             }
         }
@@ -9943,7 +9945,8 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
             var maxIndex = null,
                 maxValue = 0,
                 minIndex = null,
-                minValue = this.axis.x.max();
+                minValue = this.axis.x.max(),
+				isReverse = this.axis.get("x").reverse;
 
 			this.eachData(function(data, i) {
 				var group = chart.svg.group();
@@ -9970,8 +9973,11 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
                     }
 
                     this.edgeData[i][j] = _.extend({
-                    	color: this.color(j)
-					}, opts)
+                    	color: this.color(j),
+						dx: opts.width,
+						dy: 0,
+						dist: (isReverse) ? opts.width : 0 // only stackbar
+					}, opts);
 
 					startX = endX;
 					value = xValue;
@@ -9990,7 +9996,7 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
                     minIndex = i;
                 }
 
-                this.drawStackTooltip(group, i, sumValue, startX, offsetY, (this.axis.get("x").reverse) ? "right" : "left");
+                this.drawStackTooltip(group, i, sumValue, startX, offsetY, (isReverse) ? "right" : "left");
 				this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
 				this.addBarElement(group);
 				g.append(group);
@@ -10059,7 +10065,8 @@ jui.define("chart.brush.stackcolumn", [ "util.base" ], function(_) {
 			var maxIndex = null,
 				maxValue = 0,
 				minIndex = null,
-				minValue = this.axis.y.max();
+				minValue = this.axis.y.max(),
+				isReverse = this.axis.get("y").reverse;
 
 			this.eachData(function(data, i) {
 				var group = chart.svg.group();
@@ -10086,7 +10093,10 @@ jui.define("chart.brush.stackcolumn", [ "util.base" ], function(_) {
 					}
 
 					this.edgeData[i][j] = _.extend({
-						color: this.color(j)
+						color: this.color(j),
+						dx: 0,
+						dy: (isReverse) ? opts.height : 0,
+                        dist: 0 // only stackbar
 					}, opts);
 					
 					startY = endY;
@@ -10106,7 +10116,7 @@ jui.define("chart.brush.stackcolumn", [ "util.base" ], function(_) {
                     minIndex = i;
                 }
 
-				this.drawStackTooltip(group, i, sumValue, offsetX, startY, (this.axis.get("y").reverse) ? "bottom" : "top");
+				this.drawStackTooltip(group, i, sumValue, offsetX, startY, (isReverse) ? "bottom" : "top");
 				this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
 				this.addBarElement(group);
 

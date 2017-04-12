@@ -32,7 +32,8 @@ jui.define("chart.brush.stackcolumn", [ "util.base" ], function(_) {
 			var maxIndex = null,
 				maxValue = 0,
 				minIndex = null,
-				minValue = this.axis.y.max();
+				minValue = this.axis.y.max(),
+				isReverse = this.axis.get("y").reverse;
 
 			this.eachData(function(data, i) {
 				var group = chart.svg.group();
@@ -59,7 +60,10 @@ jui.define("chart.brush.stackcolumn", [ "util.base" ], function(_) {
 					}
 
 					this.edgeData[i][j] = _.extend({
-						color: this.color(j)
+						color: this.color(j),
+						dx: 0,
+						dy: (isReverse) ? opts.height : 0,
+                        dist: 0 // only stackbar
 					}, opts);
 					
 					startY = endY;
@@ -79,7 +83,7 @@ jui.define("chart.brush.stackcolumn", [ "util.base" ], function(_) {
                     minIndex = i;
                 }
 
-				this.drawStackTooltip(group, i, sumValue, offsetX, startY, (this.axis.get("y").reverse) ? "bottom" : "top");
+				this.drawStackTooltip(group, i, sumValue, offsetX, startY, (isReverse) ? "bottom" : "top");
 				this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
 				this.addBarElement(group);
 
