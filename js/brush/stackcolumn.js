@@ -63,7 +63,8 @@ jui.define("chart.brush.stackcolumn", [ "util.base" ], function(_) {
 						color: this.color(j),
 						dx: 0,
 						dy: (isReverse) ? opts.height : 0,
-                        dist: 0 // only stackbar
+                        ex: 0,
+						ey: (isReverse) ? 0 : opts.height
 					}, opts);
 					
 					startY = endY;

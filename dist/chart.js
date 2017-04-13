@@ -9919,9 +9919,9 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
                 for(var j = 0; j < this.brush.target.length; j++) {
                 	if(now[j].width > 0 && now[j].height > 0) {
                         g.append(this.svg.line({
-                            x1: pre[j].x + pre[j].width - pre[j].dist,
-                            x2: now[j].x + now[j].dx - now[j].dist,
-                            y1: pre[j].y + pre[j].height,
+                            x1: pre[j].x + pre[j].width - pre[j].ex,
+                            x2: now[j].x + now[j].dx - now[j].ex,
+                            y1: pre[j].y + pre[j].height - pre[j].ey,
                             y2: now[j].y + now[j].dy,
                             stroke: now[j].color,
                             "stroke-width": borderWidth
@@ -9976,7 +9976,8 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
                     	color: this.color(j),
 						dx: opts.width,
 						dy: 0,
-						dist: (isReverse) ? opts.width : 0 // only stackbar
+						ex: (isReverse) ? opts.width : 0,
+						ey: 0
 					}, opts);
 
 					startX = endX;
@@ -10096,7 +10097,8 @@ jui.define("chart.brush.stackcolumn", [ "util.base" ], function(_) {
 						color: this.color(j),
 						dx: 0,
 						dy: (isReverse) ? opts.height : 0,
-                        dist: 0 // only stackbar
+                        ex: 0,
+						ey: (isReverse) ? 0 : opts.height
 					}, opts);
 					
 					startY = endY;
