@@ -19502,7 +19502,7 @@ jui.define("chart.widget.title", [], function() {
     return TitleWidget;
 }, "chart.widget.core");
 jui.define("chart.widget.legend", [ "util.base" ], function(_) {
-    var WIDTH = 17, HEIGHT = 13, PADDING = 10, RADIUS = 5.5, RATIO = 1.2, POINT = 2;
+    var WIDTH = 17, HEIGHT = 13, PADDING = 5, RADIUS = 5.5, RATIO = 1.2, POINT = 2;
 
     /**
      * @class chart.widget.legend
@@ -19598,7 +19598,9 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                 }
 
                 // 텍스트 길이 구하기
-                var rect = chart.svg.getTextSize(text);
+                var rect = chart.svg.getTextSize(text, {
+                    fontSize : chart.theme('legendFontSize')
+                });
 
                 if(widget.filter) {
                     group.append(chart.svg.line({
