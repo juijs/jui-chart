@@ -19727,12 +19727,14 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                             x = 0;
                             y += arr[k].height;
                             max_height += arr[k].height;
+                            arr[k].icon.translate(x, y); // HERE
                             total_widthes.push(total_width);
                             total_width = 0; 
-                        } else {
-                            x += arr[k].width;
-                            total_width += arr[k].width;
                         }
+
+                        // @thanks to canelia04
+                        x += arr[k].width;
+                        total_width += arr[k].width;
 
                         if (max_height < arr[k].height) {
                             max_height = arr[k].height;
