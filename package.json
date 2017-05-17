@@ -1,6 +1,6 @@
 {
   "name": "jui-chart",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "SVG-based JUI chart that can be used in the browser and Node.js. Support many types of charts. (Dashboard, Map, Topology, Full 3D)",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

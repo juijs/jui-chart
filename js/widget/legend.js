@@ -230,8 +230,8 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                         }
 
                         // @thanks to canelia04
-                        x += arr[k].width;
-                        total_width += arr[k].width;
+                        x += arr[k].width + PADDING;
+                        total_width += arr[k].width + PADDING;
 
                         if (max_height < arr[k].height) {
                             max_height = arr[k].height;
