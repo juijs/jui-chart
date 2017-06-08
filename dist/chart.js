@@ -19627,7 +19627,7 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                     }));
 
                     group.append(chart.text({
-                        x : WIDTH + PADDING,
+                        x : WIDTH + (PADDING * 2),
                         y : 0,
                         "font-size" : chart.theme("legendFontSize"),
                         "fill" : chart.theme("legendFontColor"),
@@ -19729,7 +19729,7 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
 
                     if (widget.orient == "bottom" || widget.orient == "top") {
 
-                        if (x + arr[k].width > chart.area('x2')) {
+                        if (x + arr[k].width > chart.area("x2")) {
                             x = 0;
                             y += arr[k].height;
                             max_height += arr[k].height;
@@ -19739,8 +19739,8 @@ jui.define("chart.widget.legend", [ "util.base" ], function(_) {
                         }
 
                         // @thanks to canelia04
-                        x += arr[k].width + PADDING;
-                        total_width += arr[k].width + PADDING;
+                        x += arr[k].width + (PADDING * 2.5);
+                        total_width += arr[k].width + (PADDING * 2.5);
 
                         if (max_height < arr[k].height) {
                             max_height = arr[k].height;
