@@ -28,6 +28,11 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 				"stroke-opacity" : style.borderOpacity
 			});
 
+			// 데이타가 0이면 화면에 표시하지 않음.
+			if (value == 0) {
+                r.attr({ display : 'none' });
+			}
+
 			if(value != 0) {
 				this.addEvent(r, dataIndex, targetIndex);
 			}
@@ -43,10 +48,12 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 			for(var i = 0; i < columns.length; i++) {
 				var opacity = (group == columns[i]) ? 1 : style.disableOpacity;
 
-				if(opacity == 1 || _.inArray(i, this.tooltipIndexes) != -1) {
-                    tooltips[i].attr({ opacity: 1 });
-				} else {
-                    tooltips[i].attr({ opacity: 0 });
+				if (tooltips) {			// bar 가 그려지지 않으면 tooltips 객체가 없을 수 있음.
+                    if(opacity == 1 || _.inArray(i, this.tooltipIndexes) != -1) {
+                        tooltips[i].attr({ opacity: 1 });
+                    } else {
+                        tooltips[i].attr({ opacity: 0 });
+                    }
 				}
 
                 columns[i].attr({ opacity: opacity });

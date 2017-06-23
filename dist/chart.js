@@ -9807,6 +9807,10 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 				"stroke-opacity" : style.borderOpacity
 			});
 
+			if (value == 0) {
+                r.attr({ display : 'none' });
+			}
+
 			if(value != 0) {
 				this.addEvent(r, dataIndex, targetIndex);
 			}
@@ -9819,13 +9823,16 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 				columns = this.barList,
 				tooltips = this.stackTooltips;
 
+
 			for(var i = 0; i < columns.length; i++) {
 				var opacity = (group == columns[i]) ? 1 : style.disableOpacity;
 
-				if(opacity == 1 || _.inArray(i, this.tooltipIndexes) != -1) {
-                    tooltips[i].attr({ opacity: 1 });
-				} else {
-                    tooltips[i].attr({ opacity: 0 });
+				if (tooltips) {			// bar 가 그려지지 않으면 tooltips 객체가 없을 수 있음.
+                    if(opacity == 1 || _.inArray(i, this.tooltipIndexes) != -1) {
+                        tooltips[i].attr({ opacity: 1 });
+                    } else {
+                        tooltips[i].attr({ opacity: 0 });
+                    }
 				}
 
                 columns[i].attr({ opacity: opacity });
@@ -10444,12 +10451,18 @@ jui.define("chart.brush.fullstackcolumn", [], function() {
 					var height = chart_height - axis.y.rate(list[j], sum),
 						r = this.getBarElement(i, j);
 
-					r.attr({
-						x: startX,
-						y: startY,
-						width: bar_width,
-						height: height
-					});
+					if (isNaN(startX) || isNaN(startY) || isNaN(height) ) {
+						// 정상적인 숫자가 아니면 element 를 설정하지 않음.
+					} else {
+						// 값의 범위가 정상일때 오류가 안나도록 함.
+                        r.attr({
+                            x: startX,
+                            y: startY,
+                            width: bar_width,
+                            height: height
+                        });
+					}
+
 
 					group.append(r);
 
@@ -10459,7 +10472,13 @@ jui.define("chart.brush.fullstackcolumn", [], function() {
 							x = startX + bar_width / 2,
 							y = startY + height / 2 + 8;
 
-						group.append(this.drawText(p, x, y));
+
+						if (isNaN(x) || isNaN(y)) {
+							// 정상적인 숫자가 아니면 객체를 추가하지 않는다.
+						} else {
+                            group.append(this.drawText(p, x, y));
+						}
+
 					}
 
 					// 액티브 엘리먼트 이벤트 설정
