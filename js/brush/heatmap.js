@@ -40,7 +40,7 @@ jui.define("chart.brush.heatmap", [ "util.base" ], function(_) {
 
 				var t = this.chart.text({
 					"text-anchor": "middle",
-					"font-color": this.chart.theme("heatmapFontColor"),
+					"fill": this.chart.theme("heatmapFontColor"),
 					"font-size": fs,
 					width: w,
 					height: h,

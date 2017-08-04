@@ -9807,6 +9807,7 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 				"stroke-opacity" : style.borderOpacity
 			});
 
+			// 데이타가 0이면 화면에 표시하지 않음.
 			if (value == 0) {
                 r.attr({ display : 'none' });
 			}
@@ -9822,7 +9823,6 @@ jui.define("chart.brush.stackbar", [ "util.base" ], function(_) {
 			var style = this.getBarStyle(),
 				columns = this.barList,
 				tooltips = this.stackTooltips;
-
 
 			for(var i = 0; i < columns.length; i++) {
 				var opacity = (group == columns[i]) ? 1 : style.disableOpacity;
@@ -15805,7 +15805,7 @@ jui.define("chart.brush.heatmap", [ "util.base" ], function(_) {
 
 				var t = this.chart.text({
 					"text-anchor": "middle",
-					"font-color": this.chart.theme("heatmapFontColor"),
+					"fill": this.chart.theme("heatmapFontColor"),
 					"font-size": fs,
 					width: w,
 					height: h,
