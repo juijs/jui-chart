@@ -4681,6 +4681,7 @@ jui.define("chart.pattern.jennifer", [], function() {
 });
 jui.define("chart.icon.jennifer", [], function() {
 	return {
+		"chevron-left" : "\ue90e",
 		"iframe" : "\ue9be",
 		"textbox" : "\ue9bf",
 		"arrow5" : "\ue905",
@@ -4697,7 +4698,6 @@ jui.define("chart.icon.jennifer", [], function() {
 		"export" : "\ue90b",
 		"back" : "\ue90c",
 		"report-link" : "\ue90d",
-		"chevron-leftSelection-(189)" : "\ue90e",
 		"chevron-right" : "\ue90f",
 		"dot" : "\ue910",
 		"list1" : "\ue911",
