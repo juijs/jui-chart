@@ -1,4 +1,3 @@
-// core.js가 로드되지 않았을 경우
 jui.redefine("core", [ "util.base", "util.dom", "manager", "collection" ],
     function(_, $, UIManager, UICollection) {
 
