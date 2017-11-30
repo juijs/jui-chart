@@ -140,4 +140,4 @@ jui.redefine("util.base64", [], function() {
     }
 
     return Base64;
-});
+}, null, true);

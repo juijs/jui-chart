@@ -512,4 +512,4 @@ jui.redefine("util.color", [ "util.base", "util.math" ], function(_, math) {
 	self.map.copper = function (count) {  return self.map(['#000000', '#3d2618', '#9d623e', '#ffa167', '#ffc77f'], count); }
 
 	return self;
-});
+}, null, true);

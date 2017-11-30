@@ -435,4 +435,4 @@ jui.redefine("util.math", [ "util.base" ], function(_) {
 	}
 
 	return self;
-});
+}, null, true);

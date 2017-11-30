@@ -115,4 +115,4 @@ jui.redefine("util.time", [ "util.base" ], function(_) {
 	}
 
 	return self;
-});
+}, null, true);

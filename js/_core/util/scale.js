@@ -679,4 +679,4 @@ jui.redefine("util.scale", [ "util.math", "util.time" ], function(math, _time) {
 	}
 
 	return self;
-});
+}, null, true);

@@ -1078,9 +1078,6 @@ if (typeof(window.jui) != "object") {
          * @singleton
          */
         window.jui = nodeGlobal.jui = {
-            // core.js가 로드되지 않았을 경우에 대한 구분자
-            onlyChart: true,
-
             /**
              * @method ready
              *
@@ -1234,7 +1231,8 @@ if (typeof(window.jui) != "object") {
              * @param {String} parent 상속받을 클래스
              */
             define: function (name, depends, callback, parent) {
-                if (!utility.typeCheck("string", name) || !utility.typeCheck("array", depends) || !utility.typeCheck("function", callback) || !utility.typeCheck(["string", "undefined"], parent)) {
+                if (!utility.typeCheck("string", name) || !utility.typeCheck("array", depends) ||
+                    !utility.typeCheck("function", callback) || !utility.typeCheck([ "string", "undefined", "null" ], parent)) {
                     throw new Error("JUI_CRITICAL_ERR: Invalid parameter type of the function");
                 }
 
@@ -1277,15 +1275,18 @@ if (typeof(window.jui) != "object") {
              * @param {Array} depends 'define'이나 'defineUI'로 정의된 클래스나 객체를 인자로 받을 수 있다.
              * @param {Function} callback UI 클래스를 해당 콜백 함수 내에서 클래스 형태로 구현하고 리턴해야 한다.
              * @param {String} parent 상속받을 클래스
+             * @param {Boolean} 이미 정의되어 있으면 무시하기
              */
-            redefine: function (name, depends, callback, parent) {
-                if (globalFunc[name] === true) {
+            redefine: function (name, depends, callback, parent, skip) {
+                if (!skip && globalFunc[name] === true) {
                     global[name] = null;
                     globalClass[name] = null;
                     globalFunc[name] = false;
                 }
 
-                this.define(name, depends, callback, parent);
+                if (!skip || (skip && globalFunc[name] !== true)) {
+                    this.define(name, depends, callback, parent);
+                }
             },
 
             /**

@@ -451,4 +451,4 @@ jui.redefine("util.svg",
     }
 
     return SVG;
-}, "util.svg.base3d");
+}, "util.svg.base3d", true);

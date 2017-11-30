@@ -65,4 +65,4 @@ jui.redefine("util.sort", [], function() {
     }
 
     return QuickSort;
-});
+}, null, true);

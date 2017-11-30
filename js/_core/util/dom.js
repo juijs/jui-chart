@@ -112,4 +112,4 @@ jui.redefine("util.dom", [ "util.base" ], function(_) {
             };
         }
     }
-});
+}, null, true);

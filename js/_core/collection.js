@@ -1,31 +1,29 @@
 // core.js가 로드되지 않았을 경우
-if(jui.onlyChart) {
-    jui.define("collection", [], function() {
+jui.redefine("collection", [], function() {
 
-        /**
-         * @class collection
-         * @alias UICollection
-         * @private
-         * @singleton
-         */
-        var UICollection = function (type, selector, options, list) {
-            this.type = type;
-            this.selector = selector;
-            this.options = options;
+    /**
+     * @class collection
+     * @alias UICollection
+     * @private
+     * @singleton
+     */
+    var UICollection = function (type, selector, options, list) {
+        this.type = type;
+        this.selector = selector;
+        this.options = options;
 
-            this.destroy = function () {
-                for (var i = 0; i < list.length; i++) {
-                    list[i].destroy();
-                }
-            }
-
+        this.destroy = function () {
             for (var i = 0; i < list.length; i++) {
-                this.push(list[i]);
+                list[i].destroy();
             }
         }
 
-        UICollection.prototype = Object.create(Array.prototype);
+        for (var i = 0; i < list.length; i++) {
+            this.push(list[i]);
+        }
+    }
 
-        return UICollection;
-    });
-}
+    UICollection.prototype = Object.create(Array.prototype);
+
+    return UICollection;
+}, null, true);

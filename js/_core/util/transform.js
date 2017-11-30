@@ -142,4 +142,4 @@ jui.redefine("util.transform", [ "util.math" ], function(math) {
     }
 
     return Transform;
-});
+}, null, true);

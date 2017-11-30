@@ -91,4 +91,4 @@ jui.redefine("util.keyparser", [], function() {
     }
 
     return KeyParser;
-});
+}, null, true);

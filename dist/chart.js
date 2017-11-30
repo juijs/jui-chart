@@ -1078,9 +1078,6 @@ if (typeof(window.jui) != "object") {
          * @singleton
          */
         window.jui = nodeGlobal.jui = {
-            // core.js가 로드되지 않았을 경우에 대한 구분자
-            onlyChart: true,
-
             /**
              * @method ready
              *
@@ -1234,7 +1231,8 @@ if (typeof(window.jui) != "object") {
              * @param {String} parent 상속받을 클래스
              */
             define: function (name, depends, callback, parent) {
-                if (!utility.typeCheck("string", name) || !utility.typeCheck("array", depends) || !utility.typeCheck("function", callback) || !utility.typeCheck(["string", "undefined"], parent)) {
+                if (!utility.typeCheck("string", name) || !utility.typeCheck("array", depends) ||
+                    !utility.typeCheck("function", callback) || !utility.typeCheck([ "string", "undefined", "null" ], parent)) {
                     throw new Error("JUI_CRITICAL_ERR: Invalid parameter type of the function");
                 }
 
@@ -1277,15 +1275,18 @@ if (typeof(window.jui) != "object") {
              * @param {Array} depends 'define'이나 'defineUI'로 정의된 클래스나 객체를 인자로 받을 수 있다.
              * @param {Function} callback UI 클래스를 해당 콜백 함수 내에서 클래스 형태로 구현하고 리턴해야 한다.
              * @param {String} parent 상속받을 클래스
+             * @param {Boolean} 이미 정의되어 있으면 무시하기
              */
-            redefine: function (name, depends, callback, parent) {
-                if (globalFunc[name] === true) {
+            redefine: function (name, depends, callback, parent, skip) {
+                if (!skip && globalFunc[name] === true) {
                     global[name] = null;
                     globalClass[name] = null;
                     globalFunc[name] = false;
                 }
 
-                this.define(name, depends, callback, parent);
+                if (!skip || (skip && globalFunc[name] !== true)) {
+                    this.define(name, depends, callback, parent);
+                }
             },
 
             /**
@@ -1502,7 +1503,7 @@ jui.redefine("util.dom", [ "util.base" ], function(_) {
             };
         }
     }
-});
+}, null, true);
 jui.redefine("util.sort", [], function() {
 
     /**
@@ -1570,7 +1571,7 @@ jui.redefine("util.sort", [], function() {
     }
 
     return QuickSort;
-});
+}, null, true);
 jui.redefine("util.keyparser", [], function() {
 
     /**
@@ -1664,7 +1665,7 @@ jui.redefine("util.keyparser", [], function() {
     }
 
     return KeyParser;
-});
+}, null, true);
 jui.redefine("util.base64", [], function() {
     /**
      * Private Static Classes
@@ -1807,7 +1808,7 @@ jui.redefine("util.base64", [], function() {
     }
 
     return Base64;
-});
+}, null, true);
 jui.redefine("util.math", [ "util.base" ], function(_) {
 
 	// 2x1 or 3x1 or ?x1 형태의 매트릭스 연산
@@ -2245,7 +2246,7 @@ jui.redefine("util.math", [ "util.base" ], function(_) {
 	}
 
 	return self;
-});
+}, null, true);
 
 jui.redefine("util.transform", [ "util.math" ], function(math) {
     var Transform = function(points) {
@@ -2391,7 +2392,7 @@ jui.redefine("util.transform", [ "util.math" ], function(math) {
     }
 
     return Transform;
-});
+}, null, true);
 jui.redefine("util.time", [ "util.base" ], function(_) {
 
 	/**
@@ -2509,7 +2510,7 @@ jui.redefine("util.time", [ "util.base" ], function(_) {
 	}
 
 	return self;
-});
+}, null, true);
 
 jui.redefine("util.color", [ "util.base", "util.math" ], function(_, math) {
 
@@ -3025,7 +3026,7 @@ jui.redefine("util.color", [ "util.base", "util.math" ], function(_, math) {
 	self.map.copper = function (count) {  return self.map(['#000000', '#3d2618', '#9d623e', '#ffa167', '#ffc77f'], count); }
 
 	return self;
-});
+}, null, true);
 jui.define("util.scale.linear", [ "util.math" ], function(math) {
 
     /**
@@ -5302,508 +5303,500 @@ jui.redefine("util.svg",
     }
 
     return SVG;
-}, "util.svg.base3d");
+}, "util.svg.base3d", true);
 
-// core.js가 로드되지 않았을 경우
-if(jui.onlyChart) {
-    jui.define("manager", ["util.base"], function (_) {
+jui.redefine("manager", [ "util.base" ], function (_) {
+
+    /**
+     * @class manager
+     * @alias UIManager
+     * @private
+     * @singleton
+     */
+    var UIManager = new function () {
+        var instances = [], classes = [];
+
 
         /**
-         * @class manager
-         * @alias UIManager
-         * @private
-         * @singleton
+         * @method add
+         * Adds a component object created
+         *
+         * @param {Object} ui UI instance
          */
-        var UIManager = new function () {
-            var instances = [], classes = [];
-
-
-            /**
-             * @method add
-             * Adds a component object created
-             *
-             * @param {Object} ui UI instance
-             */
-            this.add = function (uiIns) {
-                instances.push(uiIns);
-            }
-
-            /**
-             * @method emit
-             * Generates a custom event to an applicable component
-             *
-             * @param {String} key Selector or UI type
-             * @param {String} type Event type
-             * @param {Array} args Event arguments
-             */
-            this.emit = function (key, type, args) {
-                var targets = [];
-
-                for (var i = 0; i < instances.length; i++) {
-                    var uiSet = instances[i];
-
-                    if (key == uiSet.selector || key == uiSet.type) {
-                        targets.push(uiSet);
-                    }
-                }
-
-                for (var i = 0; i < targets.length; i++) {
-                    var uiSet = targets[i];
-
-                    for (var j = 0; j < uiSet.length; j++) {
-                        uiSet[j].emit(type, args);
-                    }
-                }
-            }
-
-            /**
-             * @method get
-             * Gets a component currently created
-             *
-             * @param {Integer/String} key
-             * @returns {Object/Array} UI instance
-             */
-            this.get = function (key) {
-                if (_.typeCheck("integer", key)) {
-                    return instances[key];
-                } else if (_.typeCheck("string", key)) {
-                    // 셀렉터 객체 검색
-                    for (var i = 0; i < instances.length; i++) {
-                        var uiSet = instances[i];
-
-                        if (key == uiSet.selector) {
-                            return (uiSet.length == 1) ? uiSet[0] : uiSet;
-                        }
-                    }
-
-                    // 모듈 객체 검색
-                    var result = [];
-                    for (var i = 0; i < instances.length; i++) {
-                        var uiSet = instances[i];
-
-                        if (key == uiSet.type) {
-                            result.push(uiSet);
-                        }
-                    }
-
-                    return result;
-                }
-            }
-
-            /**
-             * @method getAll
-             * Gets all components currently created
-             *
-             * @return {Array} UI instances
-             */
-            this.getAll = function () {
-                return instances;
-            }
-
-            /**
-             * @method remove
-             * Removes a component object in an applicable index from the list
-             *
-             * @param {Integer} index
-             * @return {Object} Removed instance
-             */
-            this.remove = function (index) {
-                if (_.typeCheck("integer", index)) { // UI 객체 인덱스
-                    return instances.splice(index, 1)[0];
-                }
-            }
-
-            /**
-             * @method shift
-             * Removes the last component object from the list
-             *
-             * @return {Object} Removed instance
-             */
-            this.shift = function () {
-                return instances.shift();
-            }
-
-            /**
-             * @method pop
-             * Removes the first component object from the list
-             *
-             * @return {Object} Removed instance
-             */
-            this.pop = function () {
-                return instances.pop();
-            }
-
-            /**
-             * @method size
-             * Gets the number of objects currently created
-             *
-             * @return {Number}
-             */
-            this.size = function () {
-                return instances.length;
-            }
-
-            /**
-             * @method debug
-             *
-             * @param {Object} uiObj UI instance
-             * @param {Number} i
-             * @param {Number} j
-             * @param {Function} callback
-             */
-            this.debug = function (uiObj, i, j, callback) {
-                if (!uiObj.__proto__) return;
-                var exFuncList = ["emit", "on", "addEvent", "addValid", "callBefore",
-                    "callAfter", "callDelay", "setTpl", "setVo", "setOption"];
-
-                for (var key in uiObj) {
-                    var func = uiObj[key];
-
-                    if (typeof(func) == "function" && _.inArray(key, exFuncList) == -1) {
-                        (function (funcName, funcObj, funcIndex, funcChildIndex) {
-                            uiObj.__proto__[funcName] = function () {
-                                var nStart = Date.now();
-                                var resultObj = funcObj.apply(this, arguments);
-                                var nEnd = Date.now();
-
-                                if (typeof(callback) == "function") {
-                                    callback({
-                                        type: jui.get(i).type,
-                                        name: funcName,
-                                        c_index: funcIndex,
-                                        u_index: funcChildIndex,
-                                        time: nEnd - nStart
-                                    }, arguments);
-                                } else {
-                                    if (!isNaN(funcIndex) && !isNaN(funcChildIndex)) {
-                                        console.log(
-                                            "TYPE(" + jui.get(i).type + "), " +
-                                            "NAME(" + funcName + "), " +
-                                            "INDEX(" + funcIndex + ":" + funcChildIndex + "), " +
-                                            "TIME(" + (nEnd - nStart) + "ms), " +
-                                            "ARGUMENTS..."
-                                        );
-                                    } else {
-                                        console.log(
-                                            "NAME(" + funcName + "), " +
-                                            "TIME(" + (nEnd - nStart) + "ms), " +
-                                            "ARGUMENTS..."
-                                        );
-                                    }
-
-                                    console.log(arguments);
-                                    console.log("");
-                                }
-
-
-                                return resultObj;
-                            }
-                        })(key, func, i, j);
-                    }
-                }
-            }
-
-            /**
-             * @method debugAll
-             * debugs all component objects currently existing
-             *
-             * @param {Function} callback
-             */
-            this.debugAll = function (callback) {
-                for (var i = 0; i < instances.length; i++) {
-                    var uiList = instances[i];
-
-                    for (var j = 0; j < uiList.length; j++) {
-                        this.debug(uiList[j], i, j, callback);
-                    }
-                }
-            }
-
-            /**
-             * @method addClass
-             * Adds a component class
-             *
-             * @param {Object} uiCls UI Class
-             */
-            this.addClass = function (uiCls) {
-                classes.push(uiCls);
-            }
-
-            /**
-             * @method getClass
-             * Gets a component class
-             *
-             * @param {String/Integer} key
-             * @return {Object}
-             */
-            this.getClass = function (key) {
-                if (_.typeCheck("integer", key)) {
-                    return classes[key];
-                } else if (_.typeCheck("string", key)) {
-                    for (var i = 0; i < classes.length; i++) {
-                        if (key == classes[i].type) {
-                            return classes[i];
-                        }
-                    }
-                }
-
-                return null;
-            }
-
-            /**
-             * @method getClassAll
-             * Gets all component classes
-             *
-             * @return {Array}
-             */
-            this.getClassAll = function () {
-                return classes;
-            }
-
-            /**
-             * @method create
-             * It is possible to create a component dynamically after the ready point
-             *
-             * @param {String} type UI type
-             * @param {String/DOMElement} selector
-             * @param {Object} options
-             * @return {Object}
-             */
-            this.create = function (type, selector, options) {
-                var cls = UIManager.getClass(type);
-
-                if (_.typeCheck("null", cls)) {
-                    throw new Error("JUI_CRITICAL_ERR: '" + type + "' does not exist");
-                }
-
-                return cls["class"](selector, options);
-            }
-        };
-
-        return UIManager;
-    });
-}
-// core.js가 로드되지 않았을 경우
-if(jui.onlyChart) {
-    jui.define("collection", [], function() {
+        this.add = function (uiIns) {
+            instances.push(uiIns);
+        }
 
         /**
-         * @class collection
-         * @alias UICollection
-         * @private
-         * @singleton
+         * @method emit
+         * Generates a custom event to an applicable component
+         *
+         * @param {String} key Selector or UI type
+         * @param {String} type Event type
+         * @param {Array} args Event arguments
          */
-        var UICollection = function (type, selector, options, list) {
-            this.type = type;
-            this.selector = selector;
-            this.options = options;
+        this.emit = function (key, type, args) {
+            var targets = [];
 
-            this.destroy = function () {
-                for (var i = 0; i < list.length; i++) {
-                    list[i].destroy();
+            for (var i = 0; i < instances.length; i++) {
+                var uiSet = instances[i];
+
+                if (key == uiSet.selector || key == uiSet.type) {
+                    targets.push(uiSet);
                 }
             }
 
-            for (var i = 0; i < list.length; i++) {
-                this.push(list[i]);
+            for (var i = 0; i < targets.length; i++) {
+                var uiSet = targets[i];
+
+                for (var j = 0; j < uiSet.length; j++) {
+                    uiSet[j].emit(type, args);
+                }
             }
         }
 
-        UICollection.prototype = Object.create(Array.prototype);
-
-        return UICollection;
-    });
-}
-
-// core.js가 로드되지 않았을 경우
-if(jui.onlyChart) {
-    jui.define("core", [ "util.base", "util.dom", "manager", "collection" ],
-        function(_, $, UIManager, UICollection) {
-
         /**
-         * @class core
-         * Core classes for all of the components
+         * @method get
+         * Gets a component currently created
          *
-         * @alias UICore
+         * @param {Integer/String} key
+         * @returns {Object/Array} UI instance
          */
-        var UICore = function() {
+        this.get = function (key) {
+            if (_.typeCheck("integer", key)) {
+                return instances[key];
+            } else if (_.typeCheck("string", key)) {
+                // 셀렉터 객체 검색
+                for (var i = 0; i < instances.length; i++) {
+                    var uiSet = instances[i];
 
-            /**
-             * @method emit
-             * Generates a custom event. The first parameter is the type of a custom event. A function defined as an option or on method is called
-             *
-             * @param {String} type Event type
-             * @param {Function} args Event Arguments
-             * @return {Mixed}
-             */
-            this.emit = function(type, args) {
-                if(!_.typeCheck("string", type)) return;
-                var result;
+                    if (key == uiSet.selector) {
+                        return (uiSet.length == 1) ? uiSet[0] : uiSet;
+                    }
+                }
 
-                for(var i = 0; i < this.event.length; i++) {
-                    var e = this.event[i];
+                // 모듈 객체 검색
+                var result = [];
+                for (var i = 0; i < instances.length; i++) {
+                    var uiSet = instances[i];
 
-                    if(e.type == type.toLowerCase()) {
-                        var arrArgs = _.typeCheck("array", args) ? args : [ args ];
-                        result = e.callback.apply(this, arrArgs);
+                    if (key == uiSet.type) {
+                        result.push(uiSet);
                     }
                 }
 
                 return result;
             }
-
-            /**
-             * @method on
-             * A callback function defined as an on method is run when an emit method is called
-             *
-             * @param {String} type Event type
-             * @param {Function} callback
-             */
-            this.on = function(type, callback) {
-                if(!_.typeCheck("string", type) || !_.typeCheck("function", callback)) return;
-                this.event.push({ type: type.toLowerCase(), callback: callback, unique: false  });
-            }
-
-            /**
-             * @method off
-             * Removes a custom event of an applicable type or callback handler
-             *
-             * @param {String} type Event type
-             */
-            this.off = function(type) {
-                var event = [];
-
-                for(var i = 0; i < this.event.length; i++) {
-                    var e = this.event[i];
-
-                    if ((_.typeCheck("function", type) && e.callback != type) ||
-                        (_.typeCheck("string", type) && e.type != type.toLowerCase())) {
-                        event.push(e);
-                    }
-                }
-
-                this.event = event;
-            }
-
-            /**
-             * @method addValid
-             * Check the parameter type of a UI method and generates an alarm when a wrong value is entered
-             *
-             * @param {String} name Method name
-             * @param {Array} params Parameters
-             */
-            this.addValid = function(name, params) {
-                if(!this.__proto__) return;
-                var ui = this.__proto__[name];
-
-                this.__proto__[name] = function() {
-                    var args = arguments;
-
-                    for(var i = 0; i < args.length; i++) {
-                        if(!_.typeCheck(params[i], args[i])) {
-                            throw new Error("JUI_CRITICAL_ERR: the " + i + "th parameter is not a " + params[i] + " (" + name + ")");
-                        }
-                    }
-
-                    return ui.apply(this, args);
-                }
-            }
-
-            /**
-             * @method setOption
-             * Dynamically defines the options of a UI
-             *
-             * @param {String} key
-             * @param {Mixed} value
-             */
-            this.setOption = function(key, value) {
-                if(_.typeCheck("object", key)) {
-                    for(var k in key) {
-                        this.options[k] = key[k];
-                    }
-                } else {
-                    this.options[key] = value;
-                }
-            }
-
-            /**
-             * @method destroy
-             * Removes all events set in a UI obejct and the DOM element
-             *
-             */
-            this.destroy = function() {
-                if(this.__proto__) {
-                    for (var key in this.__proto__) {
-                        delete this.__proto__[key];
-                    }
-                }
-            }
-        };
-
-        UICore.build = function(UI) {
-
-            return function(selector, options) {
-                var list = [],
-                    elemList = [];
-
-                if(_.typeCheck("string", selector)) {
-                    elemList = $.find(selector);
-                } else if(_.typeCheck("object", selector)) {
-                    elemList.push(selector);
-                } else {
-                    elemList.push(document.createElement("div"));
-                }
-
-                for(var i = 0, len = elemList.length; i < len; i++) {
-                    list[i] = jui.createUIObject(UI, selector, i, elemList[i], options);
-                }
-
-                // UIManager에 데이터 입력
-                UIManager.add(new UICollection(UI.type, selector, options, list));
-
-                // 객체가 없을 경우에는 null을 반환 (기존에는 빈 배열을 반환)
-                if(list.length == 0) {
-                    return null;
-                } else if(list.length == 1) {
-                    return list[0];
-                }
-
-                return list;
-            }
         }
 
-        UICore.init = function(UI) {
-            var uiObj = null;
-
-            if(typeof(UI) === "object") {
-                uiObj = UICore.build(UI);
-                UIManager.addClass({ type: UI.type, "class": uiObj });
-            }
-
-            return uiObj;
+        /**
+         * @method getAll
+         * Gets all components currently created
+         *
+         * @return {Array} UI instances
+         */
+        this.getAll = function () {
+            return instances;
         }
 
-        UICore.setup = function() {
-            return {
-                /**
-                 * @cfg {Object} [event={}]
-                 * Defines a DOM event to be used in a UI
-                 */
-                event: {}
+        /**
+         * @method remove
+         * Removes a component object in an applicable index from the list
+         *
+         * @param {Integer} index
+         * @return {Object} Removed instance
+         */
+        this.remove = function (index) {
+            if (_.typeCheck("integer", index)) { // UI 객체 인덱스
+                return instances.splice(index, 1)[0];
             }
         }
 
         /**
-         * @class jui
+         * @method shift
+         * Removes the last component object from the list
          *
-         * @extends core.UIManager
-         * @singleton
+         * @return {Object} Removed instance
          */
-        window.jui = (typeof(jui) == "object") ? _.extend(jui, UIManager, true) : UIManager;
+        this.shift = function () {
+            return instances.shift();
+        }
 
-        return UICore;
-    });
-}
+        /**
+         * @method pop
+         * Removes the first component object from the list
+         *
+         * @return {Object} Removed instance
+         */
+        this.pop = function () {
+            return instances.pop();
+        }
+
+        /**
+         * @method size
+         * Gets the number of objects currently created
+         *
+         * @return {Number}
+         */
+        this.size = function () {
+            return instances.length;
+        }
+
+        /**
+         * @method debug
+         *
+         * @param {Object} uiObj UI instance
+         * @param {Number} i
+         * @param {Number} j
+         * @param {Function} callback
+         */
+        this.debug = function (uiObj, i, j, callback) {
+            if (!uiObj.__proto__) return;
+            var exFuncList = ["emit", "on", "addEvent", "addValid", "callBefore",
+                "callAfter", "callDelay", "setTpl", "setVo", "setOption"];
+
+            for (var key in uiObj) {
+                var func = uiObj[key];
+
+                if (typeof(func) == "function" && _.inArray(key, exFuncList) == -1) {
+                    (function (funcName, funcObj, funcIndex, funcChildIndex) {
+                        uiObj.__proto__[funcName] = function () {
+                            var nStart = Date.now();
+                            var resultObj = funcObj.apply(this, arguments);
+                            var nEnd = Date.now();
+
+                            if (typeof(callback) == "function") {
+                                callback({
+                                    type: jui.get(i).type,
+                                    name: funcName,
+                                    c_index: funcIndex,
+                                    u_index: funcChildIndex,
+                                    time: nEnd - nStart
+                                }, arguments);
+                            } else {
+                                if (!isNaN(funcIndex) && !isNaN(funcChildIndex)) {
+                                    console.log(
+                                        "TYPE(" + jui.get(i).type + "), " +
+                                        "NAME(" + funcName + "), " +
+                                        "INDEX(" + funcIndex + ":" + funcChildIndex + "), " +
+                                        "TIME(" + (nEnd - nStart) + "ms), " +
+                                        "ARGUMENTS..."
+                                    );
+                                } else {
+                                    console.log(
+                                        "NAME(" + funcName + "), " +
+                                        "TIME(" + (nEnd - nStart) + "ms), " +
+                                        "ARGUMENTS..."
+                                    );
+                                }
+
+                                console.log(arguments);
+                                console.log("");
+                            }
+
+
+                            return resultObj;
+                        }
+                    })(key, func, i, j);
+                }
+            }
+        }
+
+        /**
+         * @method debugAll
+         * debugs all component objects currently existing
+         *
+         * @param {Function} callback
+         */
+        this.debugAll = function (callback) {
+            for (var i = 0; i < instances.length; i++) {
+                var uiList = instances[i];
+
+                for (var j = 0; j < uiList.length; j++) {
+                    this.debug(uiList[j], i, j, callback);
+                }
+            }
+        }
+
+        /**
+         * @method addClass
+         * Adds a component class
+         *
+         * @param {Object} uiCls UI Class
+         */
+        this.addClass = function (uiCls) {
+            classes.push(uiCls);
+        }
+
+        /**
+         * @method getClass
+         * Gets a component class
+         *
+         * @param {String/Integer} key
+         * @return {Object}
+         */
+        this.getClass = function (key) {
+            if (_.typeCheck("integer", key)) {
+                return classes[key];
+            } else if (_.typeCheck("string", key)) {
+                for (var i = 0; i < classes.length; i++) {
+                    if (key == classes[i].type) {
+                        return classes[i];
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * @method getClassAll
+         * Gets all component classes
+         *
+         * @return {Array}
+         */
+        this.getClassAll = function () {
+            return classes;
+        }
+
+        /**
+         * @method create
+         * It is possible to create a component dynamically after the ready point
+         *
+         * @param {String} type UI type
+         * @param {String/DOMElement} selector
+         * @param {Object} options
+         * @return {Object}
+         */
+        this.create = function (type, selector, options) {
+            var cls = UIManager.getClass(type);
+
+            if (_.typeCheck("null", cls)) {
+                throw new Error("JUI_CRITICAL_ERR: '" + type + "' does not exist");
+            }
+
+            return cls["class"](selector, options);
+        }
+    };
+
+    return UIManager;
+}, null, true);
+// core.js가 로드되지 않았을 경우
+jui.redefine("collection", [], function() {
+
+    /**
+     * @class collection
+     * @alias UICollection
+     * @private
+     * @singleton
+     */
+    var UICollection = function (type, selector, options, list) {
+        this.type = type;
+        this.selector = selector;
+        this.options = options;
+
+        this.destroy = function () {
+            for (var i = 0; i < list.length; i++) {
+                list[i].destroy();
+            }
+        }
+
+        for (var i = 0; i < list.length; i++) {
+            this.push(list[i]);
+        }
+    }
+
+    UICollection.prototype = Object.create(Array.prototype);
+
+    return UICollection;
+}, null, true);
+// core.js가 로드되지 않았을 경우
+jui.redefine("core", [ "util.base", "util.dom", "manager", "collection" ],
+    function(_, $, UIManager, UICollection) {
+
+    /**
+     * @class core
+     * Core classes for all of the components
+     *
+     * @alias UICore
+     */
+    var UICore = function() {
+
+        /**
+         * @method emit
+         * Generates a custom event. The first parameter is the type of a custom event. A function defined as an option or on method is called
+         *
+         * @param {String} type Event type
+         * @param {Function} args Event Arguments
+         * @return {Mixed}
+         */
+        this.emit = function(type, args) {
+            if(!_.typeCheck("string", type)) return;
+            var result;
+
+            for(var i = 0; i < this.event.length; i++) {
+                var e = this.event[i];
+
+                if(e.type == type.toLowerCase()) {
+                    var arrArgs = _.typeCheck("array", args) ? args : [ args ];
+                    result = e.callback.apply(this, arrArgs);
+                }
+            }
+
+            return result;
+        }
+
+        /**
+         * @method on
+         * A callback function defined as an on method is run when an emit method is called
+         *
+         * @param {String} type Event type
+         * @param {Function} callback
+         */
+        this.on = function(type, callback) {
+            if(!_.typeCheck("string", type) || !_.typeCheck("function", callback)) return;
+            this.event.push({ type: type.toLowerCase(), callback: callback, unique: false  });
+        }
+
+        /**
+         * @method off
+         * Removes a custom event of an applicable type or callback handler
+         *
+         * @param {String} type Event type
+         */
+        this.off = function(type) {
+            var event = [];
+
+            for(var i = 0; i < this.event.length; i++) {
+                var e = this.event[i];
+
+                if ((_.typeCheck("function", type) && e.callback != type) ||
+                    (_.typeCheck("string", type) && e.type != type.toLowerCase())) {
+                    event.push(e);
+                }
+            }
+
+            this.event = event;
+        }
+
+        /**
+         * @method addValid
+         * Check the parameter type of a UI method and generates an alarm when a wrong value is entered
+         *
+         * @param {String} name Method name
+         * @param {Array} params Parameters
+         */
+        this.addValid = function(name, params) {
+            if(!this.__proto__) return;
+            var ui = this.__proto__[name];
+
+            this.__proto__[name] = function() {
+                var args = arguments;
+
+                for(var i = 0; i < args.length; i++) {
+                    if(!_.typeCheck(params[i], args[i])) {
+                        throw new Error("JUI_CRITICAL_ERR: the " + i + "th parameter is not a " + params[i] + " (" + name + ")");
+                    }
+                }
+
+                return ui.apply(this, args);
+            }
+        }
+
+        /**
+         * @method setOption
+         * Dynamically defines the options of a UI
+         *
+         * @param {String} key
+         * @param {Mixed} value
+         */
+        this.setOption = function(key, value) {
+            if(_.typeCheck("object", key)) {
+                for(var k in key) {
+                    this.options[k] = key[k];
+                }
+            } else {
+                this.options[key] = value;
+            }
+        }
+
+        /**
+         * @method destroy
+         * Removes all events set in a UI obejct and the DOM element
+         *
+         */
+        this.destroy = function() {
+            if(this.__proto__) {
+                for (var key in this.__proto__) {
+                    delete this.__proto__[key];
+                }
+            }
+        }
+    };
+
+    UICore.build = function(UI) {
+
+        return function(selector, options) {
+            var list = [],
+                elemList = [];
+
+            if(_.typeCheck("string", selector)) {
+                elemList = $.find(selector);
+            } else if(_.typeCheck("object", selector)) {
+                elemList.push(selector);
+            } else {
+                elemList.push(document.createElement("div"));
+            }
+
+            for(var i = 0, len = elemList.length; i < len; i++) {
+                list[i] = jui.createUIObject(UI, selector, i, elemList[i], options);
+            }
+
+            // UIManager에 데이터 입력
+            UIManager.add(new UICollection(UI.type, selector, options, list));
+
+            // 객체가 없을 경우에는 null을 반환 (기존에는 빈 배열을 반환)
+            if(list.length == 0) {
+                return null;
+            } else if(list.length == 1) {
+                return list[0];
+            }
+
+            return list;
+        }
+    }
+
+    UICore.init = function(UI) {
+        var uiObj = null;
+
+        if(typeof(UI) === "object") {
+            uiObj = UICore.build(UI);
+            UIManager.addClass({ type: UI.type, "class": uiObj });
+        }
+
+        return uiObj;
+    }
+
+    UICore.setup = function() {
+        return {
+            /**
+             * @cfg {Object} [event={}]
+             * Defines a DOM event to be used in a UI
+             */
+            event: {}
+        }
+    }
+
+    /**
+     * @class jui
+     *
+     * @extends core.UIManager
+     * @singleton
+     */
+    window.jui = (typeof(jui) == "object") ? _.extend(jui, UIManager, true) : UIManager;
+
+    return UICore;
+}, null, true);
 jui.define("chart.vector", [], function() {
     var Vector = function(x, y, z) {
         this.x = x || 0;
