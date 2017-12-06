@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[JENNIFER UI Test] - Utility</title>
+<link rel="stylesheet" href="../../lib/qunit-1.14.0.css">
+
+<script src="../../lib/qunit-1.14.0.js"></script>
+<script src="../../dist/chart.js"></script>
+
+<script>
+
+jui.ready([ "util.dom" ], function($) {
+    QUnit.test("[유틸리티 함수] - find", function(assert) {
+        assert.ok($.find(".parent").length == 3, "엘리먼트 개수 확인 1");
+        assert.ok($.find("#child").length == 1, "엘리먼트 개수 확인 2");
+    });
+
+    QUnit.test("[유틸리티 함수] - remove", function(assert) {
+        $.remove("#child");
+        assert.ok($.find("#child").length == 0, "엘리먼트 삭제 확인");
+    });
+
+    QUnit.testDone(function() {
+        $.remove("#root");
+    });
+});
+</script>
+
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+
+<div id="root">
+    <div class="parent">Parent 1</div>
+    <div class="parent">Parent 2<div id="child">Child</div></div>
+    <div class="parent">Parent 3</div>
+</div>
+
+</body>
+</html>

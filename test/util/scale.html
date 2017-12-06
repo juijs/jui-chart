@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>[JENNIFER UI Test] - Utility</title>
+<link rel="stylesheet" href="../../lib/qunit-1.14.0.css">
+
+<script src="../../lib/qunit-1.14.0.js"></script>
+<script src="../../dist/chart.js"></script>
+
+<script>
+
+jui.ready([ "util.math", "util.time", "util.scale" ], function(math, time, scale) {
+    QUnit.testStart(function() {
+    });
+
+    QUnit.test("test", function(assert) {
+       assert.ok(1 == 1, "test");
+    });
+
+    /*/
+    QUnit.test( "scale.ordinal test", function(assert) {
+
+    	var domain = ['week', 'week2', 'week3', 'week4'];
+    	var range = [0, 1]
+    	
+    	var scale = scale.ordinal().domain(domain);
+
+    	scale.rangePoints(range);
+
+		assert.ok(scale.domain().length == domain.length, "Domain Count");
+		assert.ok(scale(domain[0]) == range[0], "first scale")
+		assert.ok(scale(domain[domain.length-1]) == 0.75, "last scale")
+		assert.ok(scale.rangeBand() == (range[1] - range[0])/domain.length, "band value check");
+		assert.deepEqual(scale.range(), [0, 0.25, 0.5, 0.75], "range values")
+		
+		scale.rangeBands(range);
+		
+		assert.ok(scale(domain[0]) == range[0], "first scale")		
+		assert.ok(scale(domain[domain.length-1]) == range[1], "last scale")		
+		assert.deepEqual(scale.range(), [0, 0.3333333333333333, 0.6666666666666666, 1], "range band values")
+    });
+    /**/
+    QUnit.test( "scale.linear test", function(assert) {
+
+    	var domain = [0, 100];
+    	var range = [0, 300];
+    	var s = scale.linear().domain(domain).range(range);
+    	
+    	assert.deepEqual(s.domain(), domain, "domain check");
+    	assert.deepEqual(s.range(), range, "range check");
+    	
+    	assert.equal(s(domain[0]), range[0], "first value");
+    	assert.equal(s(domain[1]), range[1], "last value");
+    	assert.equal(s.invert(range[1]), domain[1], "invert last value");
+    	
+    	assert.deepEqual(s.ticks(10), [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], "ticks");
+    	assert.deepEqual(s.ticks(10, true), [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], "ticks nice");
+    	
+    });
+
+		QUnit.test( "scale.ordinal test", function(assert) {
+
+			var domain = ['Q1', 'Q2', 'Q3', 'Q4'];
+			var range = [0, 300];
+			var s = scale.ordinal().domain(domain).rangePoints(range);
+
+			assert.deepEqual(s.domain(), ['Q1','Q2','Q3','Q4'], "domain check");
+			assert.deepEqual(s.range(), [37.5, 112.5, 187.5, 262.5], "range check");
+
+			assert.equal(s('Q1'), 37.5, "first value");
+			assert.equal(s('Q4'), 262.5, "last value");
+
+			assert.equal(s.invert(37.5), 0, "invert first value");
+			assert.equal(s.invert(262.5), 3, "invert first value");
+
+		});
+
+    QUnit.testDone(function() {
+    });
+});
+</script>
+
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+
+</body>
+</html>
