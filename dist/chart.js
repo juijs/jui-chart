@@ -6640,7 +6640,6 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
          * @param {Number} end
          */
         this.zoom = function(start, end) {
-            console.log(start, end);
             if(start == end) return;
 
             setZoom(start, end);
