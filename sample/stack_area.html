@@ -12,45 +12,65 @@
 <script id="script_code">
     jui.ready([ "chart.builder" ], function(chart) {
 
-        chart("#chart", {
-            width: 400,
-            height : 400,
-            theme : "jennifer",
+        c = chart("#chart", {
+            width: 800,
+            height: 400,
             axis : {
                 x : {
-                    type : "fullblock",  // default type is block
-                    domain : [ "week1", "week2", "week3", "week4" ],
+                    type : "dateblock",
+                    domain : [ new Date("2015/01/01"), new Date("2015/01/02") ],
+                    interval : 1000 * 60 * 60,
+                    format : "HH",
                     line : true
                 },
                 y : {
-                    type : 'range',
-                    domain : function(d) { return d.name + d.value + d.test; },
-                    unit : 4,
-                    step : 4
+                    type : "range",
+                    domain : [ 0, 150 ],
+                    step : 10,
+                    format : function(value) {
+                        return value + "%";
+                    }
                 },
                 data : [
-                    { name : 2, value : 5, test : 3 },
-                    { name : 9, value : 6, test : 5 },
-                    { name : 8, value : 7, test : 6 },
-                    { name : 7, value : 5, test : 4 }
+                    { sales : 60, test: 30 },
+                    { sales : 70, test: 30 },
+                    { sales : 45, test: 30 },
+                    { sales : 90, test: 30 },
+                    { sales : 95, test: 30 },
+                    { sales : 80, test: 30 },
+                    { sales : 60, test: 30 },
+                    { sales : 50, test: 30 },
+                    { sales : 10, test: 30 },
+                    { sales : 99, test: 30 },
+                    { sales : 85, test: 30 },
+                    { sales : 90, test: 30 }
                 ]
             },
-
             brush : [{
-                type : 'stackarea'
+                type : "stackarea",
+                opacity : function(d,i) {
+                    if(i > 5) return 0.2;
+                    return 0.8;
+                }
             }, {
-                type : "stackline"
-            }, {
-                type : "stackscatter",
-                symbol : "circle",
-                size: 8
+                type : "pin",
+                split : 6
             }],
             widget : [{
-                type : "legend",
-                filter : true,
-                brush : [ 0, 1, 2 ],
-                brushSync : true
-            }]
+                type : "title",
+                text : "Line Sample",
+                align: "start"
+            }, {
+                type : "tooltip",
+                orient : "right",
+                format : function(data, key) {
+                    return data[key]
+                },
+                brush : 1
+            }],
+            style : {
+                tooltipBorderColor : "#a9a9a9"
+            }
         });
 	})
 </script>

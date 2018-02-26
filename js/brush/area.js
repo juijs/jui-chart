@@ -18,6 +18,11 @@ jui.define("chart.brush.area", [ "util.base" ], function(_) {
                 for(var i = 0; i < children.length; i++) {
                     var p = children[i];
 
+                    // opacity 옵션이 콜백함수 일때, 상위 클래스 설정을 따름.
+                    if(_.typeCheck("function", this.brush.opacity)) {
+                        opacity = p.attr("stroke-opacity");
+                    }
+
                     if (path[k].length > 0) {
                         p.LineTo(p.attr("x2"), y);
                         p.LineTo(p.attr("x1"), y);

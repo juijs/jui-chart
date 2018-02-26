@@ -38,8 +38,8 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                 px = (this.brush.symbol == "curve") ? this.curvePoints(x) : null,
                 py = (this.brush.symbol == "curve") ? this.curvePoints(y) : null,
                 color = null,
+                opacity = null,
                 opts = {
-                    "stroke-opacity" : lineBorderOpacity,
                     "stroke-width" : lineBorderWidth,
                     "stroke-dasharray" : lineBorderDashArray,
                     fill : "transparent",
@@ -61,10 +61,12 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                     if(start == null || end == null || start == end)
                         continue;
 
-                    var newColor = this.color(i, tIndex);
+                    var newColor = this.color(i, tIndex),
+                        newOpacity = this.getOpacity(i);
 
-                    if(color != newColor) {
+                    if(color != newColor || opacity != newOpacity) {
                         p = this.svg.path(_.extend({
+                            "stroke-opacity": newOpacity,
                             stroke: newColor,
                             x1: x[start] // Start coordinates of area brush
                         }, opts));
@@ -77,6 +79,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                         g.append(p);
 
                         color = newColor;
+                        opacity = newOpacity;
                     } else {
                         p.attr({
                             x2: x[end] // End coordinates of area brush
@@ -119,6 +122,19 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
                     }
                 }
             }
+        }
+
+        this.getOpacity = function(rowIndex) {
+            var opacity = this.brush.opacity,
+                defOpacity = this.chart.theme("lineBorderOpacity");
+
+            if(_.typeCheck("function", opacity) && _.typeCheck("number", rowIndex)) {
+                return opacity.call(this.chart, this.getData(rowIndex), rowIndex);
+            } else if(_.typeCheck("number", opacity)) {
+                return opacity;
+            }
+
+            return defOpacity;
         }
 
         this.drawLine = function(path) {
@@ -167,7 +183,7 @@ jui.define("chart.brush.line", [ "util.base" ], function(_) {
             disableOpacity = this.chart.theme("lineDisableBorderOpacity");
             lineBorderWidth = this.chart.theme("lineBorderWidth");
             lineBorderDashArray = this.chart.theme("lineBorderDashArray");
-            lineBorderOpacity = (_.typeCheck("number", this.brush.opacity)) ? this.brush.opacity : this.chart.theme("lineBorderOpacity");
+            lineBorderOpacity = this.getOpacity(null);
         }
 
         this.draw = function() {
