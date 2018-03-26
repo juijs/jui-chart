@@ -205,6 +205,7 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
                 var value = data[target[i]],
                     endAngle = all * (value / max),
                     centerAngle = startAngle + (endAngle / 2) - 90,
+                    isOnlyOne = Math.abs(startAngle - endAngle) == 360,
                     radius = (this.brush.showText == "inside") ? this.brush.size + innerRadius + outerRadius : outerRadius,
                     donut = this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
                         stroke : this.color(i),
@@ -212,39 +213,42 @@ jui.define("chart.brush.donut", [ "util.base", "util.math", "util.color" ], func
                     }),
                     text = this.drawText(centerX, centerY, centerAngle, radius, this.getFormatText(target[i], value));
 
-                // 설정된 키 활성화
-                if (active == target[i] || _.inArray(target[i], active) != -1) {
-                    if(this.brush.showText == "inside") {
-                        this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, radius, true);
+                // TODO: 파이가 한개일 경우, 액티브 처리를 할 필요가 없다.
+                if(!isOnlyOne) {
+                    // 설정된 키 활성화
+                    if (active == target[i] || _.inArray(target[i], active) != -1) {
+                        if(this.brush.showText == "inside") {
+                            this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, radius, true);
+                        }
+
+                        this.setActiveEvent(donut, centerX, centerY, centerAngle);
+                        cache_active[centerAngle] = true;
                     }
 
-                    this.setActiveEvent(donut, centerX, centerY, centerAngle);
-                    cache_active[centerAngle] = true;
-                }
+                    // 활성화 이벤트 설정
+                    if (this.brush.activeEvent != null) {
+                        (function (p, t, cx, cy, ca, r) {
+                            p.on(self.brush.activeEvent, function (e) {
+                                if (!cache_active[ca]) {
+                                    if(self.brush.showText == "inside") {
+                                        self.setActiveTextEvent(t, cx, cy, ca, r, true);
+                                    }
 
-                // 활성화 이벤트 설정
-                if (this.brush.activeEvent != null) {
-                    (function (p, t, cx, cy, ca, r) {
-                        p.on(self.brush.activeEvent, function (e) {
-                            if (!cache_active[ca]) {
-                                if(self.brush.showText == "inside") {
-                                    self.setActiveTextEvent(t, cx, cy, ca, r, true);
+                                    self.setActiveEvent(p, cx, cy, ca);
+                                    cache_active[ca] = true;
+                                } else {
+                                    if(self.brush.showText == "inside") {
+                                        self.setActiveTextEvent(t, cx, cy, ca, r, false);
+                                    }
+
+                                    p.translate(cx, cy);
+                                    cache_active[ca] = false;
                                 }
+                            });
 
-                                self.setActiveEvent(p, cx, cy, ca);
-                                cache_active[ca] = true;
-                            } else {
-                                if(self.brush.showText == "inside") {
-                                    self.setActiveTextEvent(t, cx, cy, ca, r, false);
-                                }
-
-                                p.translate(cx, cy);
-                                cache_active[ca] = false;
-                            }
-                        });
-
-                        p.attr({ cursor: "pointer" });
-                    })(donut, text.get(0), centerX, centerY, centerAngle, radius);
+                            p.attr({ cursor: "pointer" });
+                        })(donut, text.get(0), centerX, centerY, centerAngle, radius);
+                    }
                 }
 
                 this.addEvent(donut, index, i);

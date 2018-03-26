@@ -247,42 +247,46 @@ jui.define("chart.brush.pie", [ "util.base", "util.math", "util.color" ], functi
                 var value = data[target[i]],
                     endAngle = all * (value / max),
                     centerAngle = startAngle + (endAngle / 2) - 90,
+                    isOnlyOne = Math.abs(startAngle - endAngle) == 360,
                     pie = this.drawPie(centerX, centerY, outerRadius, startAngle, endAngle, this.color(i)),
                     text = this.drawText(centerX, centerY, centerAngle, outerRadius, this.getFormatText(target[i], value, max));
 
-                // 설정된 키 활성화
-                if (active == target[i] || _.inArray(target[i], active) != -1) {
-                    if(this.brush.showText == "inside") {
-                        this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, outerRadius, true);
+                // TODO: 파이가 한개일 경우, 액티브 처리를 할 필요가 없다.
+                if(!isOnlyOne) {
+                    // 설정된 키 활성화
+                    if (active == target[i] || _.inArray(target[i], active) != -1) {
+                        if(this.brush.showText == "inside") {
+                            this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, outerRadius, true);
+                        }
+
+                        this.setActiveEvent(pie, centerX, centerY, centerAngle);
+                        cache_active[centerAngle] = true;
                     }
 
-                    this.setActiveEvent(pie, centerX, centerY, centerAngle);
-                    cache_active[centerAngle] = true;
-                }
+                    // 활성화 이벤트 설정
+                    if (this.brush.activeEvent != null) {
+                        (function(p, t, cx, cy, ca, r) {
+                            p.on(self.brush.activeEvent, function(e) {
+                                if(!cache_active[ca]) {
+                                    if(self.brush.showText == "inside") {
+                                        self.setActiveTextEvent(t, cx, cy, ca, r, true);
+                                    }
 
-                // 활성화 이벤트 설정
-                if (this.brush.activeEvent != null) {
-                    (function(p, t, cx, cy, ca, r) {
-                        p.on(self.brush.activeEvent, function(e) {
-                            if(!cache_active[ca]) {
-                                if(self.brush.showText == "inside") {
-                                    self.setActiveTextEvent(t, cx, cy, ca, r, true);
+                                    self.setActiveEvent(p, cx, cy, ca);
+                                    cache_active[ca] = true;
+                                } else {
+                                    if(self.brush.showText == "inside") {
+                                        self.setActiveTextEvent(t, cx, cy, ca, r, false);
+                                    }
+
+                                    p.translate(cx, cy);
+                                    cache_active[ca] = false;
                                 }
+                            });
 
-                                self.setActiveEvent(p, cx, cy, ca);
-                                cache_active[ca] = true;
-                            } else {
-                                if(self.brush.showText == "inside") {
-                                    self.setActiveTextEvent(t, cx, cy, ca, r, false);
-                                }
-
-                                p.translate(cx, cy);
-                                cache_active[ca] = false;
-                            }
-                        });
-
-                        p.attr({ cursor: "pointer" });
-                    })(pie, text.get(0), centerX, centerY, centerAngle, outerRadius);
+                            p.attr({ cursor: "pointer" });
+                        })(pie, text.get(0), centerX, centerY, centerAngle, outerRadius);
+                    }
                 }
 
                 self.addEvent(pie, index, i);
