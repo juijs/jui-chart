@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+
+    <script src="../../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+jui.ready(["chart.builder"], function(chart) {
+    window.c = chart("#chart", {
+        padding: 200,
+        width : 800,
+        height : 800,
+        axis : [{
+            x : {
+                type : "range",
+                domain : [ -50, 50 ],
+                step : 4,
+                line : true,
+                orient : "bottom"
+            },
+            y : {
+                type : "range",
+                domain : [ -50, 50 ],
+                step : 4,
+                line : true,
+                orient : "left"
+            },
+            z : {
+                type : "range",
+                domain : [ -50, 50 ],
+                step : 4,
+                line: true
+            },
+            depth: 400,
+            degree: {
+                x: 10,
+                y: 45,
+                z: 0
+            },
+            perspective: 0.9
+        }, {
+            x : {
+                hide : true
+            },
+            y : {
+                hide : true
+            },
+            z : {
+                hide : true
+            },
+            extend : 0
+        }],
+        brush : [],
+        widget : [],
+        style : {
+            gridXAxisBorderWidth: 1,
+            gridYAxisBorderWidth: 1,
+            gridZAxisBorderWidth: 1
+        },
+        canvas : true,
+        render : false
+    });
+
+    // window.c.addAxis({
+    //     x : {
+    //         type : "range",
+    //         domain : [ -50, 50 ],
+    //         step : 4,
+    //         line : true,
+    //         orient : "bottom"
+    //     },
+    //     y : {
+    //         type : "range",
+    //         domain : [ -50, 50 ],
+    //         step : 4,
+    //         line : true,
+    //         orient : "left"
+    //     },
+    //     z : {
+    //         type : "range",
+    //         domain : [ -50, 50 ],
+    //         step : 4,
+    //         line: true
+    //     },
+    //     depth: 400,
+    //     degree: {
+    //         x: 10,
+    //         y: 45,
+    //         z: 0
+    //     },
+    //     perspective: 0.9
+    // });
+    //
+    // window.c.addAxis({
+    //     x : {
+    //         hide : true
+    //     },
+    //     y : {
+    //         hide : true
+    //     },
+    //     z : {
+    //         hide : true
+    //     },
+    //     extend : 0
+    // });
+
+    window.c.addBrush({
+        type: "canvas.dot3d",
+        color: 0,
+        axis : 0
+    });
+
+    window.c.addBrush({
+        type: "canvas.dot3d",
+        color: 1,
+        axis : 1
+    });
+
+    window.c.addWidget({
+        type : "polygon.rotate3d"
+    });
+
+    window.c.axis(0).update([
+        [ 5, 5, 5 ],
+        [ 10, 10, 10 ],
+        [ 20, 20, 20 ]
+    ]);
+
+    window.c.axis(1).update([
+        [ -25, 0, 0 ]
+    ]);
+
+    window.c.render(true);
+})
+</script>
+
+
+</body>
+</html>

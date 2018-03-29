@@ -39,6 +39,7 @@ module.exports = function(grunt) {
         "js/axis.js",
         "js/map.js",
         "js/builder.js",
+        "js/plane.js",
 
         // chart.theme
         "js/theme/jennifer.js",
@@ -170,6 +171,7 @@ module.exports = function(grunt) {
         "js/brush/canvas/line.js",
         "js/brush/canvas/scatter3d.js",
         "js/brush/canvas/model3d.js",
+        "js/brush/canvas/dot3d.js",
 
         // chart.widget
         "js/widget/core.js",

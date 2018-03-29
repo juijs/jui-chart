@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+jui.ready([ "chart.plane" ], function(plane) {
+    var c = plane("#chart", {
+        dimension: "2d",
+        padding: 100
+    });
+
+    c.add([
+        [ 5, 5, 5 ],
+        [ 10, 10, 10 ],
+        [ 20, 20, 20 ]
+    ]);
+
+    c.add([
+        [ -50, -50, -50 ]
+    ]);
+
+    c.add([
+        [ 5, 56, 21 ]
+    ]);
+
+    c.end();
+});
+</script>
+
+
+</body>
+</html>

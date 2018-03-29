@@ -8395,6 +8395,120 @@ jui.defineUI("chart.builder", [ "util.base", "util.dom", "util.svg", "util.color
     return UI;
 }, "core");
 
+jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], function(builder, math, _) {
+    var UI = function() {
+        var chart = null,
+            axis = [],
+            brush = [],
+            widget = [];
+
+        var axisIndex = 0,
+            baseAxis = {},
+            etcAxis = {};
+
+        this.init = function() {
+            var opts = this.options,
+                defAxis = {
+                type : "range",
+                domain : [ opts.min, opts.max ],
+                step : opts.step,
+                line : opts.line
+            };
+
+            baseAxis.x = _.extend({}, defAxis);
+            baseAxis.y = _.extend({}, defAxis);
+            baseAxis.x.orient = "bottom";
+            baseAxis.y.orient = "left";
+            baseAxis.z = _.extend({}, defAxis);
+            baseAxis.depth = opts.size - (opts.padding * 2);
+            baseAxis.degree = opts.degree;
+            baseAxis.perspective = opts.perspective;
+
+            etcAxis.extend = 0;
+            etcAxis.x = { hide: true };
+            etcAxis.y = { hide: true };
+            etcAxis.z = { hide: true };
+
+            if(opts.dimension == "2d") {
+                baseAxis.perspective = 1;
+                baseAxis.degree.x = 0;
+                baseAxis.degree.y = 0;
+                baseAxis.degree.z = 0;
+                baseAxis.z.hideText = true;
+            }
+        }
+
+        this.add = function(data) {
+            axis.push(_.extend({}, (axisIndex == 0) ? baseAxis : etcAxis));
+            axis[axisIndex].data = data;
+
+            brush.push({
+                type: "canvas.dot3d",
+                color: axisIndex,
+                axis: axisIndex,
+                size: this.options.dot.r
+            });
+
+            axisIndex++;
+        }
+
+        this.end = function() {
+            var opts = this.options;
+
+            if(opts.dimension == "3d") {
+                widget.push({
+                    type: "polygon.rotate3d"
+                });
+            }
+
+            if(chart != null) {
+                chart.root.innerHTML = "";
+                chart = null;
+            }
+
+            chart = builder(this.root, {
+                padding: opts.padding,
+                width : opts.size,
+                height : opts.size,
+                axis : axis,
+                brush : brush,
+                widget : widget,
+                style : opts.style,
+                canvas : true
+            });
+
+            axis = [];
+            brush = [];
+            widget = [];
+            axisIndex = 0;
+        }
+    }
+
+    UI.setup = function() {
+        return {
+            dimension: "2d",
+            size: 500,
+            padding: 50,
+            min: -100,
+            max: 100,
+            step: 4,
+            line: true,
+            perspective: 0.9,
+            degree: {
+                x: 10,
+                y: 5,
+                z: 0
+            },
+            dot: {
+                r: 5
+            },
+            style: {}
+        }
+    }
+
+    return UI;
+}, "core");
+
 jui.define("chart.theme.jennifer", [], function() {
 
     /**
@@ -24863,6 +24977,58 @@ jui.define("chart.brush.canvas.model3d", [ "util.base", "util.math" ], function(
     }
 
     return CanvasModel3DBrush;
+}, "chart.brush.canvas.core");
+jui.define("chart.brush.canvas.dot3d", [ "util.base", "util.math", "chart.polygon.point" ],
+    function(_, MathUtil, PointPolygon) {
+
+    /**
+     * @class chart.brush.canvas.dot3d
+     * @extends chart.brush.canvas.core
+     */
+    var CanvasDot3DBrush = function () {
+        this.createDot = function(data) {
+            var color = this.color(this.brush.color),
+                r = this.brush.size / 2,
+                x = this.axis.x(data[0]),
+                y = this.axis.y(data[1]),
+                z = this.axis.z(data[2]);
+
+            this.addPolygon(new PointPolygon(x, y, z), function(p) {
+                var tx = p.vectors[0].x,
+                    ty = p.vectors[0].y,
+                    tr = r * MathUtil.scaleValue(z, 0, this.axis.depth, 1, p.perspective);
+
+                this.canvas.beginPath();
+                this.canvas.arc(tx, ty, tr, 0, 2 * Math.PI, false);
+                this.canvas.fillStyle = color;
+                this.canvas.fill();
+            });
+        }
+
+        this.draw = function() {
+            var datas = this.listData();
+
+            for(var i = 0; i < datas.length; i++) {
+                var data = datas[i];
+
+                // 2d 데이터일 경우, z값을 추가해준다.
+                if(data.length == 2) {
+                    data.push(0);
+                }
+
+                this.createDot(data);
+            }
+        }
+    }
+
+    CanvasDot3DBrush.setup = function() {
+        return {
+            size: 5,
+            color: 0
+        };
+    }
+
+    return CanvasDot3DBrush;
 }, "chart.brush.canvas.core");
 jui.define("chart.widget.core", [ "util.base" ], function(_) {
 
