@@ -120,6 +120,10 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
                 chart = null;
             }
 
+            if(axis.length == 0) {
+                axis.push(baseAxis);
+            }
+
             chart = builder(this.root, {
                 padding: opts.padding,
                 width : opts.size,
