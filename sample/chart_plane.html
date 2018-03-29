@@ -12,26 +12,26 @@
 <script id="script_code">
 jui.ready([ "chart.plane" ], function(plane) {
     var c = plane("#chart", {
-        dimension: "3d",
+        dimension: "2d",
         padding: 50,
-        step: 10
+        step: 10,
+        min: 0,
+        brush: {
+            type: "dot"
+        }
     });
 
-    c.add([
-        [ 5, 5, 5 ],
-        [ 10, 10, 10 ],
-        [ 20, 20, 20 ]
+    c.append([
+        [ 15, 30 ],
+        [ 30, 35 ],
+        [ 90, 80 ]
     ]);
 
-    c.add([
-        [ -50, -50, -50 ]
-    ]);
-
-    c.add([
+    c.append([
         [ 5, 56, 21 ]
-    ]);
+    ], "area");
 
-    c.end();
+    c.render();
 });
 </script>
 

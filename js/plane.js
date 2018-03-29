@@ -41,7 +41,10 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], funct
             }
         }
 
-        this.add = function(data) {
+        this.append = function(data, type) {
+            var opts = this.options.brush,
+                symbol = !type ? opts.type : type;
+
             axis.push(_.extend({}, (axisIndex == 0) ? baseAxis : etcAxis));
             axis[axisIndex].data = data;
 
@@ -49,13 +52,14 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], funct
                 type: "canvas.dot3d",
                 color: axisIndex,
                 axis: axisIndex,
-                size: this.options.dot.r
+                size: opts.r * 2,
+                symbol: symbol
             });
 
             axisIndex++;
         }
 
-        this.end = function() {
+        this.render = function() {
             var opts = this.options;
 
             if(opts.dimension == "3d") {
@@ -102,8 +106,9 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], funct
                 y: 5,
                 z: 0
             },
-            dot: {
-                r: 5
+            brush: {
+                r: 2,
+                type: "dot"
             },
             style: {}
         }

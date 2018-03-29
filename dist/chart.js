@@ -8438,7 +8438,10 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], funct
             }
         }
 
-        this.add = function(data) {
+        this.append = function(data, type) {
+            var opts = this.options.brush,
+                symbol = !type ? opts.type : type;
+
             axis.push(_.extend({}, (axisIndex == 0) ? baseAxis : etcAxis));
             axis[axisIndex].data = data;
 
@@ -8446,13 +8449,14 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], funct
                 type: "canvas.dot3d",
                 color: axisIndex,
                 axis: axisIndex,
-                size: this.options.dot.r
+                size: opts.r * 2,
+                symbol: symbol
             });
 
             axisIndex++;
         }
 
-        this.end = function() {
+        this.render = function() {
             var opts = this.options;
 
             if(opts.dimension == "3d") {
@@ -8499,8 +8503,9 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], funct
                 y: 5,
                 z: 0
             },
-            dot: {
-                r: 5
+            brush: {
+                r: 2,
+                type: "dot"
             },
             style: {}
         }
@@ -24978,35 +24983,121 @@ jui.define("chart.brush.canvas.model3d", [ "util.base", "util.math" ], function(
 
     return CanvasModel3DBrush;
 }, "chart.brush.canvas.core");
-jui.define("chart.brush.canvas.dot3d", [ "util.base", "util.math", "chart.polygon.point" ],
-    function(_, MathUtil, PointPolygon) {
+jui.define("chart.polygon.face", [], function() {
+    var FacePolygon = function(x1, y1, d1, x2, y2, d2, oy) {
+        this.vertices = [
+            new Float32Array([ x1, y1, d1, 1 ]),
+            new Float32Array([ x2, y2, d2, 1 ]),
+            new Float32Array([ x2, oy, d2, 1 ]),
+            new Float32Array([ x1, oy, d2, 1 ])
+        ];
+
+        this.vectors = [];
+    }
+
+    return FacePolygon;
+}, "chart.polygon.core");
+
+jui.define("chart.brush.canvas.dot3d",
+    [ "util.base", "util.math", "chart.polygon.point", "chart.polygon.line", "chart.polygon.face" ],
+    function(_, MathUtil, PointPolygon, LinePolygon, FacePolygon) {
 
     /**
      * @class chart.brush.canvas.dot3d
      * @extends chart.brush.canvas.core
      */
     var CanvasDot3DBrush = function () {
-        this.createDot = function(data) {
-            var color = this.color(this.brush.color),
-                r = this.brush.size / 2,
-                x = this.axis.x(data[0]),
+        this.createDot = function(color, r, data) {
+            var x = this.axis.x(data[0]),
                 y = this.axis.y(data[1]),
                 z = this.axis.z(data[2]);
 
-            this.addPolygon(new PointPolygon(x, y, z), function(p) {
+            this.addPolygon(new PointPolygon(x, y, z), function (p) {
                 var tx = p.vectors[0].x,
                     ty = p.vectors[0].y,
                     tr = r * MathUtil.scaleValue(z, 0, this.axis.depth, 1, p.perspective);
 
-                this.canvas.beginPath();
-                this.canvas.arc(tx, ty, tr, 0, 2 * Math.PI, false);
-                this.canvas.fillStyle = color;
-                this.canvas.fill();
+                this.drawDot(color, tx, ty, tr);
             });
         }
 
+        this.createLine = function(color, r, data, pdata) {
+            var x = this.axis.x(data[0]),
+                y = this.axis.y(data[1]),
+                z = this.axis.z(data[2]),
+                px = this.axis.x(pdata == null ? 0 : pdata[0]),
+                py = this.axis.y(pdata == null ? 0 : pdata[1]),
+                pz = this.axis.z(pdata == null ? 0 : pdata[2]);
+
+            this.addPolygon(new LinePolygon(px, py, pz, x, y, z), function (p) {
+                var x1 = p.vectors[0].x,
+                    y1 = p.vectors[0].y,
+                    x2 = p.vectors[1].x,
+                    y2 = p.vectors[1].y;
+
+                this.drawLine(color, x1, y1, x2, y2, r);
+            });
+        }
+
+        this.createArea = function(color, r, data, pdata) {
+            var oy = this.axis.y(0),
+                x = this.axis.x(data[0]),
+                y = this.axis.y(data[1]),
+                z = this.axis.z(data[2]),
+                px = this.axis.x(pdata == null ? 0 : pdata[0]),
+                py = this.axis.y(pdata == null ? 0 : pdata[1]),
+                pz = this.axis.z(pdata == null ? 0 : pdata[2]);
+
+            this.addPolygon(new FacePolygon(px, py, pz, x, y, z, oy), function (p) {
+                var x1 = p.vectors[0].x,
+                    y1 = p.vectors[0].y,
+                    x2 = p.vectors[1].x,
+                    y2 = p.vectors[1].y,
+                    x3 = p.vectors[2].x,
+                    y3 = p.vectors[2].y,
+                    x4 = p.vectors[3].x,
+                    y4 = p.vectors[3].y;
+
+                this.drawArea(color, x1, y1, x2, y2, x3, y3, x4, y4);
+            });
+        }
+
+        this.drawDot = function(color, tx, ty, tr) {
+            this.canvas.beginPath();
+            this.canvas.arc(tx, ty, tr, 0, 2 * Math.PI, false);
+            this.canvas.fillStyle = color;
+            this.canvas.fill();
+        }
+
+        this.drawLine = function(color, x1, y1, x2, y2, width) {
+            this.canvas.beginPath();
+            this.canvas.moveTo(x1, y1);
+            this.canvas.lineTo(x2, y2);
+            this.canvas.lineWidth = width;
+            this.canvas.strokeStyle = color;
+            this.canvas.stroke();
+            this.canvas.closePath();
+        }
+
+        this.drawArea = function(color, x1, y1, x2, y2, x3, y3, x4, y4) {
+            this.canvas.beginPath();
+            this.canvas.moveTo(x1, y1);
+            this.canvas.lineTo(x2, y2);
+            this.canvas.lineTo(x3, y3);
+            this.canvas.lineTo(x4, y4);
+            this.canvas.lineTo(x1, y1);
+            this.canvas.strokeStyle = color;
+            this.canvas.stroke();
+            this.canvas.fillStyle = color;
+            this.canvas.fill();
+            this.canvas.closePath();
+        }
+
         this.draw = function() {
-            var datas = this.listData();
+            var symbol = this.brush.symbol,
+                color = this.color(this.brush.color),
+                r = this.brush.size / 2,
+                datas = this.listData();
 
             for(var i = 0; i < datas.length; i++) {
                 var data = datas[i];
@@ -25016,15 +25107,22 @@ jui.define("chart.brush.canvas.dot3d", [ "util.base", "util.math", "chart.polygo
                     data.push(0);
                 }
 
-                this.createDot(data);
+                if(symbol == "line") {
+                    this.createLine(color, r, data, (i == 0) ? null : datas[i - 1]);
+                } else if(symbol == "area") {
+                    this.createArea(color, r, data, (i == 0) ? null : datas[i - 1]);
+                } else {
+                    this.createDot(color, r, data);
+                }
             }
         }
     }
 
     CanvasDot3DBrush.setup = function() {
         return {
-            size: 5,
-            color: 0
+            size: 4,
+            color: 0,
+            symbol: "dot" // or line, area
         };
     }
 
