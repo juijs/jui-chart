@@ -21,15 +21,27 @@ jui.ready([ "chart.plane" ], function(plane) {
         }
     });
 
-    c.append([
-        [ 15, 30 ],
-        [ 30, 35 ],
-        [ 90, 80 ]
-    ]);
+    c.insert([ 5, 56, 1 ]);
+    c.insert([ 20, 20, 1 ]);
+    c.commit({
+        type: "area"
+    });
+
+    // c.append({
+    //     data: [
+    //         [ 15, 30 ],
+    //         [ 30, 35 ],
+    //         [ 90, 80 ]
+    //     ],
+    //     type: "dot",
+    //     r: 2
+    // });
 
     c.append([
-        [ 5, 56, 21 ]
-    ], "area");
+        [ 15, 30, 1 ],
+        [ 30, 35, 1 ],
+        [ 90, 80, 1 ]
+    ]);
 
     c.render();
 });

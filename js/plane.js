@@ -1,4 +1,4 @@
-jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], function(builder, math, _) {
+jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, _) {
     var UI = function() {
         var chart = null,
             axis = [],
@@ -41,19 +41,66 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], funct
             }
         }
 
-        this.append = function(data, type) {
-            var opts = this.options.brush,
-                symbol = !type ? opts.type : type;
+        this.insert = function(data) {
+            if(!_.typeCheck("array", data)) return;
 
-            axis.push(_.extend({}, (axisIndex == 0) ? baseAxis : etcAxis));
-            axis[axisIndex].data = data;
+            if(!axis[axisIndex]) {
+                axis.push(_.extend({}, (axisIndex == 0) ? baseAxis : etcAxis));
+            }
+
+            if(!axis[axisIndex].data) {
+                axis[axisIndex].data = [];
+            }
+
+            axis[axisIndex].data.push(data);
+        }
+
+        this.commit = function(opts) {
+            var newOpts = {};
+
+            if(_.typeCheck("object", opts)) {
+                newOpts = opts;
+            }
+
+            newOpts = _.extend(newOpts, {
+                type: this.options.brush.type,
+                r: this.options.brush.r
+            }, true);
 
             brush.push({
                 type: "canvas.dot3d",
                 color: axisIndex,
                 axis: axisIndex,
-                size: opts.r * 2,
-                symbol: symbol
+                size: newOpts.r * 2,
+                symbol: newOpts.type
+            });
+
+            axisIndex++;
+        }
+
+        this.append = function(opts) {
+            var newOpts = {};
+
+            if(_.typeCheck("array", opts)) {
+                newOpts.data = opts;
+            } else if(_.typeCheck("array", opts.data)) {
+                newOpts = opts;
+            }
+
+            newOpts = _.extend(newOpts, {
+                type: this.options.brush.type,
+                r: this.options.brush.r
+            }, true);
+
+            axis.push(_.extend({}, (axisIndex == 0) ? baseAxis : etcAxis));
+            axis[axisIndex].data = newOpts.data;
+
+            brush.push({
+                type: "canvas.dot3d",
+                color: axisIndex,
+                axis: axisIndex,
+                size: newOpts.r * 2,
+                symbol: newOpts.type
             });
 
             axisIndex++;
@@ -107,10 +154,12 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.math", "util.base" ], funct
                 z: 0
             },
             brush: {
-                r: 2,
-                type: "dot"
+                type: "dot",
+                r: 2
             },
-            style: {}
+            style: {
+                gridFaceBackgroundOpacity: 0.1
+            }
         }
     }
 
