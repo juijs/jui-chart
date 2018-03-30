@@ -9,10 +9,6 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
             baseAxis = {},
             etcAxis = {};
 
-        function getDepth(opts) {
-            return opts.depth - (opts.padding * 2)
-        }
-
         this.init = function() {
             var opts = this.options,
                 defAxis = {
@@ -26,7 +22,7 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
             baseAxis.x.orient = "bottom";
             baseAxis.y.orient = "left";
             baseAxis.z = _.extend({ domain: opts.z }, defAxis);
-            baseAxis.depth = getDepth(opts);
+            baseAxis.depth = opts.depth - (opts.padding * 2);
             baseAxis.degree = { x: opts.dx, y: opts.dy, z: opts.dz };
             baseAxis.perspective = opts.perspective;
 
