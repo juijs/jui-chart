@@ -17,10 +17,16 @@ function f(x) {
 jui.ready([ "chart.plane" ], function(plane) {
     var c = plane("#chart", {
         dimension: "2d",
-        size: 600,
-        padding: 50,
+        size: {
+            width: 600,
+            height: 600
+        },
         min: 0,
-        max: 1.6,
+        max: {
+            x: 1.6,
+            y: 1
+        },
+        padding: 50,
         step: 10,
         brush: {
             type: "dot",
@@ -40,7 +46,7 @@ jui.ready([ "chart.plane" ], function(plane) {
     // n(등분)이 무한대에 가까울수록 정확도가 높다.
     var a = 0.2,
         b = 1.4,
-        n = 10,
+        n = 50,
         dx = (b - a) / n,
         sum = 0;
 

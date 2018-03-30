@@ -8406,21 +8406,67 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
             baseAxis = {},
             etcAxis = {};
 
+        function getSize(size) {
+            if(_.typeCheck("number", size)) {
+                return {
+                    width: size,
+                    height: size
+                }
+            } else if(_.typeCheck("object", size)) {
+                if(!size.width) size.width = size.height;
+                if(!size.height) size.height = size.width;
+
+                return size;
+            }
+        }
+
+        function getMin(min) {
+            if(_.typeCheck("number", min)) {
+                return {
+                    x: min,
+                    y: min,
+                    z: min
+                }
+            } else if(_.typeCheck("object", min)) {
+                if(!min.z) min.z = (min.x + min.y) / 2;
+                return min;
+            }
+        }
+
+        function getMax(max) {
+            if(_.typeCheck("number", max)) {
+                return {
+                    x: max,
+                    y: max,
+                    z: max
+                }
+            } else if(_.typeCheck("object", max)) {
+                if(!max.z) max.z = (max.x + max.y) / 2;
+                return max;
+            }
+        }
+
+        function getDepth(opts) {
+            var size = getSize(opts.size);
+            return ((size.width + size.height) / 2) - (opts.padding * 2)
+        }
+
         this.init = function() {
             var opts = this.options,
+                min = getMin(opts.min),
+                max = getMax(opts.max),
                 defAxis = {
-                type : "range",
-                domain : [ opts.min, opts.max ],
-                step : opts.step,
-                line : opts.line
-            };
+                    type : "range",
+                    step : opts.step,
+                    line : opts.line
+                };
 
-            baseAxis.x = _.extend({}, defAxis);
-            baseAxis.y = _.extend({}, defAxis);
+            baseAxis.x = _.extend({ domain: [ min.x, max.x ] }, defAxis);
+            baseAxis.y = _.extend({ domain: [ min.y, max.y ] }, defAxis);
             baseAxis.x.orient = "bottom";
             baseAxis.y.orient = "left";
-            baseAxis.z = _.extend({}, defAxis);
-            baseAxis.depth = opts.size - (opts.padding * 2);
+            baseAxis.z = _.extend({ domain: [ min.z, max.z ] }, defAxis);
+            baseAxis.depth = getDepth(opts);
             baseAxis.degree = opts.degree;
             baseAxis.perspective = opts.perspective;
 
@@ -8504,7 +8550,8 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
         }
 
         this.render = function() {
-            var opts = this.options;
+            var opts = this.options,
+                size = getSize(opts.size);
 
             if(opts.dimension == "3d") {
                 widget.push({
@@ -8523,8 +8570,8 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
 
             chart = builder(this.root, {
                 padding: opts.padding,
-                width : opts.size,
-                height : opts.size,
+                width : size.width,
+                height : size.height,
                 axis : axis,
                 brush : brush,
                 widget : widget,
