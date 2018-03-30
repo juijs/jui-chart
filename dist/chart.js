@@ -8407,7 +8407,7 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
             etcAxis = {};
 
         function getDepth(opts) {
-            return ((opts.width + opts.height) / 2) - (opts.padding * 2)
+            return opts.depth - (opts.padding * 2)
         }
 
         this.init = function() {
@@ -8529,6 +8529,7 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
             dimension: "2d",
             width: 500,
             height: 500,
+            depth: 500,
             padding: 50,
             x: [ -100, 100 ],
             y: [ -100, 100 ],
