@@ -17,21 +17,14 @@ function f(x) {
 jui.ready([ "chart.plane" ], function(plane) {
     var c = plane("#chart", {
         dimension: "2d",
-        size: {
-            width: 600,
-            height: 600
-        },
-        min: 0,
-        max: {
-            x: 1.6,
-            y: 1
-        },
+        width: 600,
+        height: 600,
+        x: [ 0, 1.6 ],
+        y: [ 0, 1 ],
         padding: 50,
         step: 10,
-        brush: {
-            type: "dot",
-            r: 0.5
-        }
+        symbol: "dot",
+        r: 0.5
     });
 
     var r = Math.PI / 360;
@@ -57,9 +50,7 @@ jui.ready([ "chart.plane" ], function(plane) {
 
         sum += dx*y;
     }
-    c.commit({
-        type: "area"
-    });
+    c.commit("area");
 
     c.render();
     console.log("sum : " + sum);
