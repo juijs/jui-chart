@@ -41,7 +41,7 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
             }
         }
 
-        this.insert = function(data) {
+        this.push = function(data) {
             if(!_.typeCheck("array", data)) return;
 
             if(!axis[axisIndex]) {

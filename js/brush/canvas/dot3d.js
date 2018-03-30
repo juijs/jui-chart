@@ -40,9 +40,9 @@ jui.define("chart.brush.canvas.dot3d",
             var x = this.axis.x(data[0]),
                 y = this.axis.y(data[1]),
                 z = this.axis.z(data[2]),
-                px = this.axis.x(pdata == null ? 0 : pdata[0]),
-                py = this.axis.y(pdata == null ? 0 : pdata[1]),
-                pz = this.axis.z(pdata == null ? 0 : pdata[2]);
+                px = this.axis.x(pdata == null ? data[0] : pdata[0]),
+                py = this.axis.y(pdata == null ? data[1] : pdata[1]),
+                pz = this.axis.z(pdata == null ? data[2] : pdata[2]);
 
             this.addPolygon(new LinePolygon(px, py, pz, x, y, z), function (p) {
                 var x1 = p.vectors[0].x,
@@ -59,9 +59,9 @@ jui.define("chart.brush.canvas.dot3d",
                 x = this.axis.x(data[0]),
                 y = this.axis.y(data[1]),
                 z = this.axis.z(data[2]),
-                px = this.axis.x(pdata == null ? 0 : pdata[0]),
-                py = this.axis.y(pdata == null ? 0 : pdata[1]),
-                pz = this.axis.z(pdata == null ? 0 : pdata[2]);
+                px = this.axis.x(pdata == null ? data[0] : pdata[0]),
+                py = this.axis.y(pdata == null ? data[1] : pdata[1]),
+                pz = this.axis.z(pdata == null ? data[2] : pdata[2]);
 
             this.addPolygon(new FacePolygon(px, py, pz, x, y, z, oy), function (p) {
                 var x1 = p.vectors[0].x,

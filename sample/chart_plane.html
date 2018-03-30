@@ -10,40 +10,53 @@
 <div id="chart"></div>
 
 <script id="script_code">
+function f(x) {
+    return Math.sin(x);
+}
+
 jui.ready([ "chart.plane" ], function(plane) {
     var c = plane("#chart", {
         dimension: "2d",
+        size: 600,
         padding: 50,
-        step: 10,
         min: 0,
+        max: 1.6,
+        step: 10,
         brush: {
-            type: "dot"
+            type: "dot",
+            r: 0.5
         }
     });
 
-    // c.insert([ 5, 56, 1 ]);
-    // c.insert([ 20, 20, 1 ]);
-    // c.commit({
-    //     type: "area"
-    // });
+    var r = Math.PI / 360;
 
-    // c.append({
-    //     data: [
-    //         [ 15, 30 ],
-    //         [ 30, 35 ],
-    //         [ 90, 80 ]
-    //     ],
-    //     type: "dot",
-    //     r: 2
-    // });
+    // sin 곡선 그리기
+    for(var x = r; x < Math.PI; x+=r) {
+        c.push([ x, f(x) ]);
+    }
+    c.commit();
 
-    // c.append([
-    //     [ 15, 30, 1 ],
-    //     [ 30, 35, 1 ],
-    //     [ 90, 80, 1 ]
-    // ]);
+    // 0.8~2.4 x값 범위의 넓이 구하기 (적분)
+    // n(등분)이 무한대에 가까울수록 정확도가 높다.
+    var a = 0.2,
+        b = 1.4,
+        n = 10,
+        dx = (b - a) / n,
+        sum = 0;
+
+    for(var x = a; x < b; x += dx) {
+        var y = f(x);
+        c.push([ x, y ]);
+        c.push([ x + dx, y ]);
+
+        sum += dx*y;
+    }
+    c.commit({
+        type: "area"
+    });
 
     c.render();
+    console.log("sum : " + sum);
 });
 </script>
 
