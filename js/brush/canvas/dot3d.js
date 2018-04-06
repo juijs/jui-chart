@@ -22,6 +22,8 @@ jui.define("chart.brush.canvas.dot3d",
      * @extends chart.brush.canvas.core
      */
     var CanvasDot3DBrush = function () {
+        var firstCacheData = null;
+
         this.createDot = function(color, r, data) {
             var x = this.axis.x(data[0]),
                 y = this.axis.y(data[1]),
@@ -36,7 +38,7 @@ jui.define("chart.brush.canvas.dot3d",
             });
         }
 
-        this.createLine = function(color, r, data, pdata) {
+        this.createLine = function(color, r, data, pdata, isLast) {
             var x = this.axis.x(data[0]),
                 y = this.axis.y(data[1]),
                 z = this.axis.z(data[2]),
@@ -50,7 +52,7 @@ jui.define("chart.brush.canvas.dot3d",
                     x2 = p.vectors[1].x,
                     y2 = p.vectors[1].y;
 
-                this.drawLine(color, x1, y1, x2, y2, r);
+                this.drawLine(color, x1, y1, x2, y2, r, isLast);
             });
         }
 
@@ -84,14 +86,29 @@ jui.define("chart.brush.canvas.dot3d",
             this.canvas.fill();
         }
 
-        this.drawLine = function(color, x1, y1, x2, y2, width) {
+        this.drawLine = function(color, x1, y1, x2, y2, width, isLast) {
+            var isFill = this.brush.symbol == "poly";
+
+            if(isFill && firstCacheData == null) {
+                firstCacheData = arguments;
+            }
+
             this.canvas.beginPath();
             this.canvas.moveTo(x1, y1);
             this.canvas.lineTo(x2, y2);
             this.canvas.lineWidth = width;
             this.canvas.strokeStyle = color;
             this.canvas.stroke();
-            this.canvas.closePath();
+
+            if(isLast) {
+                if(isFill && firstCacheData != null) {
+                    this.canvas.lineTo(firstCacheData[1], firstCacheData[2]);
+                    this.canvas.fillStyle = firstCacheData[0];
+                    this.canvas.fill();
+                }
+
+                this.canvas.closePath();
+            }
         }
 
         this.drawArea = function(color, x1, y1, x2, y2, x3, y3, x4, y4) {
@@ -122,8 +139,8 @@ jui.define("chart.brush.canvas.dot3d",
                     data.push(0);
                 }
 
-                if(symbol == "line") {
-                    this.createLine(color, r, data, (i == 0) ? null : datas[i - 1]);
+                if(symbol == "line" || symbol == "poly") {
+                    this.createLine(color, r, data, (i == 0) ? null : datas[i - 1], (i == data.length-1));
                 } else if(symbol == "area") {
                     this.createArea(color, r, data, (i == 0) ? null : datas[i - 1]);
                 } else {
@@ -137,7 +154,7 @@ jui.define("chart.brush.canvas.dot3d",
         return {
             size: 4,
             color: 0,
-            symbol: "dot" // or line, area
+            symbol: "dot" // or line, area, poly
         };
     }
 

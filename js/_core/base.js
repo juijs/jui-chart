@@ -200,6 +200,25 @@ if (typeof(window.jui) != "object") {
             },
 
             /**
+             * @method template
+             * parsing template string
+             * @param html
+             * @param obj
+             */
+            template: function (html, obj) {
+                var tpl = jui.include("util.template");
+
+                var opts = {
+                    evaluate: /<\!([\s\S]+?)\!>/g,
+                    interpolate: /<\!=([\s\S]+?)\!>/g,
+                    escape: /<\!-([\s\S]+?)\!>/g
+                };
+
+                if (!obj) return tpl(html, null, opts);
+                else return tpl(html, obj, opts);
+            },
+
+            /**
              * @method resize
              * add event in window resize event
              * @param {Function} callback

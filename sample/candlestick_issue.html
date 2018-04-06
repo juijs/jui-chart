@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>Before</title>
+
+<link rel="stylesheet" href="../lib/ui.css" />
+<link rel="stylesheet" href="../lib/ui-classic.css" />
+<script src="../lib/jquery-1.8.0.min.js"></script>
+<script src="../dist/chart.js"></script>
+
+<script>
+    var chart = jui.include("chart.builder"),
+        time = jui.include("util.time");
+
+    var tpl_tooltip =
+        '<div id="chart_tooltip" class="popover popover-top test">' +
+        '<div class="body">' +
+        '<div class="message"><b>Time</b>: <!= data.date !></div>' +
+        '<div class="message"><b>l</b>: <!= data.l !></div>' +
+        '<div class="message"><b>h</b>: <!= data.h !></div>' +
+        '<div class="message"><b>o</b>: <!= data.o !></div>' +
+        '<div class="message"><b>c</b>: <!= data.c !></div>' +
+        '</div>' +
+        '</div>';
+
+    var data = [
+        { date: new Date(1994,2,1), l: 24.00, h: 25.00, o: 25.00, c: 24.875 },
+        { date: new Date(1994,2,2), l: 23.625, h: 25.125, o: 24.00, c: 24.875 },
+        { date: new Date(1994,2,3), l: 26.25, h: 28.25, o: 26.75, c: 27.00 },
+        { date: new Date(1994,2,4), l: 26.50, h: 27.875, o: 26.875, c: 27.25 },
+        { date: new Date(1994,2,7), l: 26.375, h: 27.50, o: 27.375, c: 26.75 },
+        { date: new Date(1994,2,8), l: 25.75, h: 26.875, o: 26.75, c: 26.00 },
+        { date: new Date(1994,2,8), l: 25.75, h: 26.875, o: 26.75, c: 26.00 },
+        { date: new Date(1994,2,8), l: 25.75, h: 26.875, o: 26.75, c: 26.00 },
+        { date: new Date(1994,2,31), l: 24.75, h: 27.00, o: 26.50, c: 25.25 },
+        { date: new Date(1994,2,2), l: 23.625, h: 25.125, o: 24.00, c: 24.875 },
+        { date: new Date(1994,2,3), l: 26.25, h: 28.25, o: 26.75, c: 27.00 },
+        { date: new Date(1994,2,4), l: 26.50, h: 27.875, o: 26.875, c: 27.25 },
+        { date: new Date(1994,2,7), l: 26.375, h: 27.50, o: 27.375, c: 26.75 },
+        { date: new Date(1994,2,8), l: 25.75, h: 26.875, o: 26.75, c: 26.00 },
+        { date: new Date(1994,2,8), l: 25.75, h: 26.875, o: 26.75, c: 26.00 },
+        { date: new Date(1994,2,8), l: 25.75, h: 26.875, o: 26.75, c: 26.00 },
+    ];
+
+    jui.ready([], function() {
+        chart("#result", {
+            height : 300,
+            axis : {
+                x : {
+                    type : "block",  // default type is block
+                    domain : "date",
+                    format: function(d) {
+                        return time.format(d, "MM-dd");
+                    },
+                    line: true
+                },
+                y : {
+                    type : "range",
+                    domain: [ 20, 30 ],
+                    step: 5,
+                    line : true
+                },
+                data : data,
+                buffer : 10,
+                keymap : {
+                    low : "l",
+                    high : "h",
+                    open : "o",
+                    close : "c"
+                }
+            },
+            brush : {
+                type : "candlestick"
+            },
+            widget : [{
+                type : "scroll"
+            }],
+            tpl : {
+                tooltip : tpl_tooltip
+            },
+            event : {
+                mouseover : function(obj, e) {
+                    var $tooltip = $(this.tpl.tooltip({ data: obj.data }));
+                    $("body").append($tooltip);
+                    $tooltip.css({ "z-index": 10000, left: e.pageX - $tooltip.width() / 2, top: e.pageY - $tooltip.height()-10 });
+                },
+                mouseout : function(obj, e) {
+                    $(".test").remove();
+                }
+            }
+        });
+    });
+
+</script>
+</head>
+<body class="jui">
+    <div id="result"></div>
+    <br/>
+    <div id="chart2"></div>
+</body>
+</html>

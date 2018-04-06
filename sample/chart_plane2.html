@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+
+    <script src="../dist/chart.js"></script>
+</head>
+<body >
+
+<div id="chart"></div>
+
+<script id="script_code">
+function f(x) {
+    return Math.sin(x);
+}
+
+jui.ready([ "chart.plane" ], function(plane) {
+    var c = plane("#chart", {
+        dimension: "3d",
+        width: 600,
+        height: 600,
+        x: [ -5, 5 ],
+        y: [ -5, 5 ],
+        z: [ -5, 5 ],
+        padding: 100,
+        step: 10,
+        symbol: "dot",
+        r: 1
+    });
+
+    c.push([1, 1, 1]);
+    c.push([2, 2, 3]);
+    c.push([-1, 3, 0]);
+    c.commit("poly");
+    c.render();
+});
+</script>
+
+
+</body>
+</html>

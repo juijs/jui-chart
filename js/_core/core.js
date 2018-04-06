@@ -167,6 +167,12 @@ jui.redefine("core", [ "util.base", "util.dom", "manager", "collection" ],
     UICore.setup = function() {
         return {
             /**
+             * @cfg {Object} [tpl={}]
+             * Defines a template markup to be used in a UI
+             */
+            tpl: {},
+
+            /**
              * @cfg {Object} [event={}]
              * Defines a DOM event to be used in a UI
              */

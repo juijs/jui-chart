@@ -200,6 +200,25 @@ if (typeof(window.jui) != "object") {
             },
 
             /**
+             * @method template
+             * parsing template string
+             * @param html
+             * @param obj
+             */
+            template: function (html, obj) {
+                var tpl = jui.include("util.template");
+
+                var opts = {
+                    evaluate: /<\!([\s\S]+?)\!>/g,
+                    interpolate: /<\!=([\s\S]+?)\!>/g,
+                    escape: /<\!-([\s\S]+?)\!>/g
+                };
+
+                if (!obj) return tpl(html, null, opts);
+                else return tpl(html, obj, opts);
+            },
+
+            /**
              * @method resize
              * add event in window resize event
              * @param {Function} callback
@@ -3027,6 +3046,107 @@ jui.redefine("util.color", [ "util.base", "util.math" ], function(_, math) {
 
 	return self;
 }, null, true);
+jui.define("util.template", [], function() {
+    var template = function (text, data, settings) {
+        var _ = {},
+            breaker = {};
+
+        var ArrayProto = Array.prototype,
+            slice = ArrayProto.slice,
+            nativeForEach = ArrayProto.forEach;
+
+        var escapes = {
+            '\\': '\\',
+            "'": "'",
+            'r': '\r',
+            'n': '\n',
+            't': '\t',
+            'u2028': '\u2028',
+            'u2029': '\u2029'
+        };
+
+        for (var p in escapes)
+            escapes[escapes[p]] = p;
+
+        var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g,
+            unescaper = /\\(\\|'|r|n|t|u2028|u2029)/g,
+            noMatch = /.^/;
+
+        var unescape = function (code) {
+            return code.replace(unescaper, function (match, escape) {
+                return escapes[escape];
+            });
+        };
+
+        var each = _.each = _.forEach = function (obj, iterator, context) {
+            if (obj == null)
+                return;
+            if (nativeForEach && obj.forEach === nativeForEach) {
+                obj.forEach(iterator, context);
+            } else if (obj.length === +obj.length) {
+                for (var i = 0, l = obj.length; i < l; i++) {
+                    if (i in obj && iterator.call(context, obj[i], i, obj) === breaker)
+                        return;
+                }
+            } else {
+                for (var key in obj) {
+                    if (_.has(obj, key)) {
+                        if (iterator.call(context, obj[key], key, obj) === breaker)
+                            return;
+                    }
+                }
+            }
+        };
+
+        _.has = function (obj, key) {
+            return hasOwnProperty.call(obj, key);
+        };
+
+        _.defaults = function (obj) {
+            each(slice.call(arguments, 1), function (source) {
+                for (var prop in source) {
+                    if (obj[prop] == null)
+                        obj[prop] = source[prop];
+                }
+            });
+            return obj;
+        };
+
+        _.template = function (text, data, settings) {
+            settings = _.defaults(settings || {});
+
+            var source = "__p+='" + text.replace(escaper, function (match) {
+                    return '\\' + escapes[match];
+                }).replace(settings.escape || noMatch, function (match, code) {
+                    return "'+\n_.escape(" + unescape(code) + ")+\n'";
+                }).replace(settings.interpolate || noMatch, function (match, code) {
+                    return "'+\n(" + unescape(code) + ")+\n'";
+                }).replace(settings.evaluate || noMatch, function (match, code) {
+                    return "';\n" + unescape(code) + "\n;__p+='";
+                }) + "';\n";
+
+            if (!settings.variable)
+                source = 'with(obj||{}){\n' + source + '}\n';
+
+            source = "var __p='';" + "var print=function(){__p+=Array.prototype.join.call(arguments, '')};\n" + source + "return __p;\n";
+
+            var render = new Function(settings.variable || 'obj', '_', source);
+            if (data)
+                return render(data, _);
+            var template = function (data) {
+                return render.call(this, data, _);
+            };
+
+            template.source = 'function(' + (settings.variable || 'obj') + '){\n' + source + '}';
+
+            return template;
+        };
+
+        return _.template(text, data, settings);
+    }
+
+    return template;
+});
 jui.define("util.scale.linear", [ "util.math" ], function(math) {
 
     /**
@@ -5777,6 +5897,12 @@ jui.redefine("core", [ "util.base", "util.dom", "manager", "collection" ],
 
     UICore.setup = function() {
         return {
+            /**
+             * @cfg {Object} [tpl={}]
+             * Defines a template markup to be used in a UI
+             */
+            tpl: {},
+
             /**
              * @cfg {Object} [event={}]
              * Defines a DOM event to be used in a UI
@@ -25037,6 +25163,8 @@ jui.define("chart.brush.canvas.dot3d",
      * @extends chart.brush.canvas.core
      */
     var CanvasDot3DBrush = function () {
+        var firstCacheData = null;
+
         this.createDot = function(color, r, data) {
             var x = this.axis.x(data[0]),
                 y = this.axis.y(data[1]),
@@ -25051,7 +25179,7 @@ jui.define("chart.brush.canvas.dot3d",
             });
         }
 
-        this.createLine = function(color, r, data, pdata) {
+        this.createLine = function(color, r, data, pdata, isLast) {
             var x = this.axis.x(data[0]),
                 y = this.axis.y(data[1]),
                 z = this.axis.z(data[2]),
@@ -25065,7 +25193,7 @@ jui.define("chart.brush.canvas.dot3d",
                     x2 = p.vectors[1].x,
                     y2 = p.vectors[1].y;
 
-                this.drawLine(color, x1, y1, x2, y2, r);
+                this.drawLine(color, x1, y1, x2, y2, r, isLast);
             });
         }
 
@@ -25099,14 +25227,29 @@ jui.define("chart.brush.canvas.dot3d",
             this.canvas.fill();
         }
 
-        this.drawLine = function(color, x1, y1, x2, y2, width) {
+        this.drawLine = function(color, x1, y1, x2, y2, width, isLast) {
+            var isFill = this.brush.symbol == "poly";
+
+            if(isFill && firstCacheData == null) {
+                firstCacheData = arguments;
+            }
+
             this.canvas.beginPath();
             this.canvas.moveTo(x1, y1);
             this.canvas.lineTo(x2, y2);
             this.canvas.lineWidth = width;
             this.canvas.strokeStyle = color;
             this.canvas.stroke();
-            this.canvas.closePath();
+
+            if(isLast) {
+                if(isFill && firstCacheData != null) {
+                    this.canvas.lineTo(firstCacheData[1], firstCacheData[2]);
+                    this.canvas.fillStyle = firstCacheData[0];
+                    this.canvas.fill();
+                }
+
+                this.canvas.closePath();
+            }
         }
 
         this.drawArea = function(color, x1, y1, x2, y2, x3, y3, x4, y4) {
@@ -25137,8 +25280,8 @@ jui.define("chart.brush.canvas.dot3d",
                     data.push(0);
                 }
 
-                if(symbol == "line") {
-                    this.createLine(color, r, data, (i == 0) ? null : datas[i - 1]);
+                if(symbol == "line" || symbol == "poly") {
+                    this.createLine(color, r, data, (i == 0) ? null : datas[i - 1], (i == data.length-1));
                 } else if(symbol == "area") {
                     this.createArea(color, r, data, (i == 0) ? null : datas[i - 1]);
                 } else {
@@ -25152,7 +25295,7 @@ jui.define("chart.brush.canvas.dot3d",
         return {
             size: 4,
             color: 0,
-            symbol: "dot" // or line, area
+            symbol: "dot" // or line, area, poly
         };
     }
 

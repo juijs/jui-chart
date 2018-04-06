@@ -15,6 +15,7 @@ module.exports = function(grunt) {
         "js/_core/util/transform.js",
         "js/_core/util/time.js",
         "js/_core/util/color.js",
+        "js/_core/util/template.js",
         "js/_core/util/scale/linear.js",
         "js/_core/util/scale/circle.js",
         "js/_core/util/scale/log.js",
