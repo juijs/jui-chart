@@ -173,6 +173,7 @@ module.exports = function(grunt) {
         "js/brush/canvas/scatter3d.js",
         "js/brush/canvas/model3d.js",
         "js/brush/canvas/dot3d.js",
+        "js/brush/canvas/imagefilter.js",
 
         // chart.widget
         "js/widget/core.js",

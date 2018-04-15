@@ -141,6 +141,42 @@ jui.redefine("util.math", [ "util.base" ], function(_) {
 		return te;
 	}
 
+    function getConvMatrixPadding(size) {
+        return Math.floor(size / 2);
+    }
+
+    function getConvMatrixValues(matrix, padding, rowIndex, colIndex) {
+        var values = [];
+
+        for(var i = -padding; i <= padding; i++) {
+            for(var j = -padding; j <= padding; j++) {
+                var row = matrix[rowIndex + i];
+
+                if(row == undefined) {
+                    values.push(0);
+                } else {
+                    if(row[colIndex + j] == undefined) {
+                        values.push(0);
+                    } else {
+                        values.push(row[colIndex + j]);
+                    }
+                }
+            }
+        }
+
+        return values;
+    }
+
+    function dotConvMatrix(m1, m2) {
+        var sum = 0;
+
+        for(var i = 0; i < m1.length; i++) {
+            sum += (m1[i] * m2[i]);
+        }
+
+        return sum;
+    }
+
 	/**
 	 * @class util.math
 	 *
@@ -414,6 +450,22 @@ jui.redefine("util.math", [ "util.base" ], function(_) {
 		inverseMatrix3d: function(a) {
 			return inverseMatrix3d(a);
 		},
+
+		convMatrix: function(input, kernel) {
+            var padding = getConvMatrixPadding(kernel.length),
+                kernel = getConvMatrixValues(kernel, padding, padding, padding).reverse(),
+                result = [];
+
+            for(var i = 0; i < input.length; i++) {
+                result[i] = [];
+
+                for(var j = 0; j < input[i].length; j++) {
+                    result[i][j] = dotConvMatrix(kernel, getConvMatrixValues(input, padding, i, j));
+                }
+            }
+
+            return result;
+        },
 
 		scaleValue: function(value, minValue, maxValue, minScale, maxScale) {
 			// 최소/최대 값이 같을 경우 처리

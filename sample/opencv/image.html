@@ -10,162 +10,6 @@
 <div id="chart"></div>
 
 <script id="script_code">
-jui.define("chart.brush.canvas.image", [ "util.math" ], function(_) {
-
-    var ImageBrush = function () {
-        // padding to size
-        this.getMatrixSize = function(padding) {
-            return padding + padding + 1;
-        }
-
-        // size to padding
-        this.getMatrixPadding = function(size) {
-            return Math.floor(size / 2);
-        }
-
-        this.getMatrixValues = function(matrix, padding, rowIndex, colIndex) {
-            var values = [];
-
-            for(var i = -padding; i <= padding; i++) {
-                for(var j = -padding; j <= padding; j++) {
-                    var row = matrix[rowIndex + i];
-
-                    if(row == undefined) {
-                        values.push(0);
-                    } else {
-                        if(row[colIndex + j] == undefined) {
-                            values.push(0);
-                        } else {
-                            values.push(row[colIndex + j]);
-                        }
-                    }
-                }
-            }
-
-            return values;
-        }
-
-        this.dotMatrix = function(m1, m2) {
-            var sum = 0;
-
-            for(var i = 0; i < m1.length; i++) {
-                sum += (m1[i] * m2[i]);
-            }
-
-            return sum;
-        }
-
-        this.calculateConv = function(input, kernel) {
-            var padding = this.getMatrixPadding(kernel.length),
-                kernel = this.getMatrixValues(kernel, padding, padding, padding).reverse(),
-                result = [];
-
-            for(var i = 0; i < input.length; i++) {
-                result[i] = [];
-
-                for(var j = 0; j < input[i].length; j++) {
-                    result[i][j] = this.dotMatrix(kernel, this.getMatrixValues(input, padding, i, j));
-                }
-            }
-
-            return result;
-        }
-
-        this.imageDataToRGBA = function(data, width) {
-            var rowIndex = 0,
-                colIndex = 0,
-                r = [],
-                g = [],
-                b = [],
-                a = [];
-
-            for(var i = 0; i < data.length; i += 4) {
-                if(colIndex == width) {
-                    colIndex = 0;
-                    rowIndex++;
-                }
-
-                if(!r[rowIndex]) r[rowIndex] = [];
-                if(!g[rowIndex]) g[rowIndex] = [];
-                if(!b[rowIndex]) b[rowIndex] = [];
-                if(!a[rowIndex]) a[rowIndex] = [];
-
-                r[rowIndex].push(data[i]);
-                g[rowIndex].push(data[i + 1]);
-                b[rowIndex].push(data[i + 2]);
-                a[rowIndex].push(data[i + 3]);
-
-                colIndex++;
-            }
-
-            return {
-                r: r,
-                g: g,
-                b: b,
-                a: a
-            }
-        }
-
-        this.updateImage = function(rgba, width, height) {
-            var image = this.canvas.createImageData(width, height),
-                index = 0;
-
-            for(var i = 0; i < height; i++) {
-                for(var j = 0; j < width; j++) {
-                    var r = rgba.r[i][j],
-                        g = rgba.g[i][j],
-                        b = rgba.b[i][j],
-                        a = rgba.a[i][j];
-
-                    image.data[index] = (r < 0) ? 0 : r;
-                    index++;
-                    image.data[index] = (g < 0) ? 0 : g;
-                    index++;
-                    image.data[index] = (b < 0) ? 0 : b;
-                    index++;
-                    image.data[index] = a;
-                    index++;
-                }
-            }
-
-            this.canvas.putImageData(image, 0, 0);
-        }
-
-        this.processImage = function(kernel) {
-            var width = this.axis.area("width"),
-                height = this.axis.area("height"),
-                image = this.canvas.getImageData(0, 0, width, height),
-                obj = this.imageDataToRGBA(image.data, width);
-
-            this.updateImage({
-                r: this.calculateConv(obj.r, kernel),
-                g: this.calculateConv(obj.g, kernel),
-                b: this.calculateConv(obj.b, kernel),
-                a: obj.a
-            }, width, height);
-        }
-
-        this.draw = function() {
-            this.eachData(function(img, i) {
-                this.canvas.drawImage(img, 0, 0);
-                this.processImage(this.brush.kernel);
-            });
-        }
-    }
-
-    ImageBrush.setup = function() {
-        return {
-            kernel: [
-                [ 0, 0, 0 ],
-                [ 0, 1, 0 ],
-                [ 0, 0, 0 ]
-            ]
-        };
-    }
-
-    return ImageBrush;
-}, "chart.brush.canvas.core");
-
 jui.ready([ "chart.builder" ], function(chart) {
     var kernels = {
         "box.blur": [
@@ -214,19 +58,45 @@ jui.ready([ "chart.builder" ], function(chart) {
             [ -2, -1, 0 ],
             [ -1, 1, 1 ],
             [ 0, 1, 2 ]
+        ],
+        "origin": [
+            [ 0, 0, 0 ],
+            [ 0, 1, 0 ],
+            [ 0, 0, 0 ]
         ]
     }
 
     var c = chart("#chart", {
+        width: 600,
+        height: 227,
         padding: 0,
         axis : [{
             c: {
                 type: "panel"
+            },
+            area: {
+                x: 0,
+                y: 0
+            }
+        }, {
+            c: {
+                type: "panel"
+            },
+            area: {
+                x: 300,
+                y: 0
             }
         }],
         brush : [{
-            type: "canvas.image",
-            kernel: kernels["emboss"]
+            type: "canvas.imagefilter",
+            kernel: kernels["origin"],
+            grayScale: true,
+            axis: 0
+        }, {
+            type: "canvas.imagefilter",
+            kernel: kernels["emboss"],
+            grayScale: true,
+            axis: 1
         }],
         canvas : true,
         render : false
@@ -234,12 +104,10 @@ jui.ready([ "chart.builder" ], function(chart) {
 
     var img = new Image();
     img.src = 'image.png';
-
     img.onload = function() {
-        c.setSize(img.width, img.height);
-        c.axis(0).update([ img ]);
+        c.axis(0).update(img);
+        c.axis(1).update(img);
         c.render();
-
         img.style.display = 'none';
     };
 })

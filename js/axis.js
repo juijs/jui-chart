@@ -504,7 +504,7 @@ jui.define("chart.axis", [ "util.base" ], function(_) {
          * @param {Array} data
          */
         this.update = function(data) {
-            this.origin = data;
+            this.origin = _.typeCheck("array", data) ? data : [ data ];
             this.page = 1;
             this.start = 0;
             this.end = 0;
