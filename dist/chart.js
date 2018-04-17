@@ -8685,16 +8685,29 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
                 axis : axis,
                 brush : brush,
                 widget : widget,
+                canvas : true,
+                render : false,
                 style : {
                     gridFaceBackgroundOpacity: 0.1
-                },
-                canvas : true
+                }
             });
+
+            if(_.typeCheck("array", opts.colors)) {
+                var colors = [];
+
+                for(var i = 0; i < opts.colors.length; i++) {
+                    colors.push(chart.color(opts.colors[i]));
+                }
+
+                chart.setTheme({ colors: colors });
+            }
 
             axis = [];
             brush = [];
             widget = [];
             axisIndex = 0;
+
+            chart.render();
         }
     }
 
@@ -8715,7 +8728,8 @@ jui.defineUI("chart.plane", [ "chart.builder", "util.base" ], function(builder, 
             perspective: 0.9,
             dx: 10,
             dy: 5,
-            dz: 0
+            dz: 0,
+            colors: null
         }
     }
 
