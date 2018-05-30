@@ -3,7 +3,6 @@
 #### Loading resources
 JUI charts are now available without loading the jQuery.
 ```html
-<script src="lib/core.min.js"></script>
 <script src="dist/chart.min.js"></script>
 ```
 
