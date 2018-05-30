@@ -1,6 +1,6 @@
 {
-  "name": "jui-chart",
-  "version": "2.0.6",
+  "name": "juijs-chart",
+  "version": "2.1.0",
   "description": "SVG-based JUI chart that can be used in the browser and Node.js. Support many types of charts. (Dashboard, Map, Topology, Full 3D)",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -65,7 +65,7 @@
       "dist/chart.min.js"
     ],
     "shim": {
-      "exports": "jui-chart"
+      "exports": "juijs-chart"
     }
   },
   "dependencies": {

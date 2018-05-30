@@ -1,6 +1,6 @@
 {
-  "name": "jui-chart",
-  "version": "2.0.6",
+  "name": "juijs-chart",
+  "version": "2.1.0",
   "main": [
     "dist/chart.min.js"
   ],

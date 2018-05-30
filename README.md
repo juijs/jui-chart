@@ -9,9 +9,9 @@ JUI charts are now available without loading the jQuery.
 
 #### Installing in command
 ```
-npm install jui-chart
-bower install jui-chart
-jamjs install jui-chart
+npm install juijs-chart
+bower install juijs-chart
+jamjs install juijs-chart
 ```
 
 #### To build the project
