@@ -37,9 +37,7 @@ npm install jui-chart
 
 #### Example
 ```js
-require("../../dist/node");
-
-var fs = require("fs");
+import jui from 'juijs-core';
 
 // create jui chart 
 var chart = jui.create("chart.builder", null, {
@@ -73,9 +71,6 @@ var chart = jui.create("chart.builder", null, {
         target : [ "sales", "profit" ]
     }
 });
-
-// save file as xml  
-fs.writeFileSync("test.svg", chart.svg.toXML());
 ```
 
 ## Documentation
