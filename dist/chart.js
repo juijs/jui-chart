@@ -3098,7 +3098,7 @@ jui.redefine("util.color", [ "util.base", "util.math" ], function(_, math) {
 
 	return self;
 }, null, true);
-jui.define("util.template", [], function() {
+jui.redefine("util.template", [], function() {
     var template = function (text, data, settings) {
         var _ = {},
             breaker = {};

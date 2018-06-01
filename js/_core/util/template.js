@@ -1,4 +1,4 @@
-jui.define("util.template", [], function() {
+jui.redefine("util.template", [], function() {
     var template = function (text, data, settings) {
         var _ = {},
             breaker = {};
