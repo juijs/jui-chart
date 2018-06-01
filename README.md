@@ -37,7 +37,7 @@ npm install jui-chart
 
 #### Example
 ```js
-import jui from 'juijs-core';
+import jui from 'juijs-chart';
 
 // create jui chart 
 var chart = jui.create("chart.builder", null, {
