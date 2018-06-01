@@ -1,6 +1,7 @@
-// core.js가 로드되지 않았을 경우
-if (typeof(window.jui) != "object") {
-    (function (window, nodeGlobal) {
+var isModuleSupported = (typeof module == 'object' && module.exports);
+
+if (typeof(window.jui) != "object" || isModuleSupported) {
+    (function (window) {
         var global = {
                 jquery: (typeof(jQuery) != "undefined") ? jQuery : null
             },
@@ -179,7 +180,7 @@ if (typeof(window.jui) != "object") {
              * @return {QuickSort}
              */
             sort: function (array) {
-                var QuickSort = jui.include("util.sort");
+                var QuickSort = juiObj.include("util.sort");
                 return new QuickSort(array);
             },
 
@@ -206,7 +207,7 @@ if (typeof(window.jui) != "object") {
              * @param obj
              */
             template: function (html, obj) {
-                var tpl = jui.include("util.template");
+                var tpl = juiObj.include("util.template");
 
                 var opts = {
                     evaluate: /<\!([\s\S]+?)\!>/g,
@@ -251,7 +252,7 @@ if (typeof(window.jui) != "object") {
              * @return {IndexParser}
              */
             index: function () {
-                var KeyParser = jui.include("util.keyparser");
+                var KeyParser = juiObj.include("util.keyparser");
                 return new KeyParser();
             },
 
@@ -373,7 +374,7 @@ if (typeof(window.jui) != "object") {
              * @return {String} 변환된 data uri 링크
              */
             svgToBase64: function (xml) {
-                var Base64 = jui.include("util.base64");
+                var Base64 = juiObj.include("util.base64");
                 return "data:image/svg+xml;base64," + Base64.encode(xml);
             },
 
@@ -492,7 +493,7 @@ if (typeof(window.jui) != "object") {
              * @return {String}
              */
             btoa: function (input) {
-                var Base64 = jui.include("util.base64");
+                var Base64 = juiObj.include("util.base64");
                 return Base64.encode(input);
             },
             /**
@@ -503,7 +504,7 @@ if (typeof(window.jui) != "object") {
              * @return {String}
              */
             atob: function (input) {
-                var Base64 = jui.include("util.base64");
+                var Base64 = juiObj.include("util.base64");
                 return Base64.decode(input);
             },
 
@@ -1096,7 +1097,7 @@ if (typeof(window.jui) != "object") {
          *
          * @singleton
          */
-        window.jui = nodeGlobal.jui = {
+        var juiObj = {
             /**
              * @method ready
              *
@@ -1191,7 +1192,7 @@ if (typeof(window.jui) != "object") {
                 var mainObj = new UI["class"]();
 
                 // Check Options
-                var opts = jui.defineOptions(UI["class"], options || {});
+                var opts = juiObj.defineOptions(UI["class"], options || {});
 
                 // Public Properties
                 mainObj.init.prototype = mainObj;
@@ -1401,9 +1402,11 @@ if (typeof(window.jui) != "object") {
         };
 
 
-        if (typeof module == 'object' && module.exports) {
-            module.exports = window.jui || global.jui;
+        if (isModuleSupported) {
+            module.exports = juiObj;
+        } else {
+            window.jui = juiObj;
         }
 
-    })(window, (typeof(global) !== "undefined") ? global : window);
+    })(window);
 }
