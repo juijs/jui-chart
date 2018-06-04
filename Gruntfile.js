@@ -1,38 +1,28 @@
 var css = require("css"),
     fs = require("fs"),
-    datauri = require("datauri");
+    datauri = require("datauri")
 
 module.exports = function(grunt) {
 
     var chart_src = [
-        // core
-        "js/_core/base.js",
-        "js/_core/util/dom.js",
-        "js/_core/util/sort.js",
-        "js/_core/util/keyparser.js",
-        "js/_core/util/base64.js",
-        "js/_core/util/math.js",
-        "js/_core/util/transform.js",
-        "js/_core/util/time.js",
-        "js/_core/util/color.js",
-        "js/_core/util/template.js",
-        "js/_core/util/scale/linear.js",
-        "js/_core/util/scale/circle.js",
-        "js/_core/util/scale/log.js",
-        "js/_core/util/scale/ordinal.js",
-        "js/_core/util/scale/time.js",
-        "js/_core/util/svg/element.js",
-        "js/_core/util/svg/element.transform.js",
-        "js/_core/util/svg/element.path.js",
-        "js/_core/util/svg/element.path.rect.js",
-        "js/_core/util/svg/element.path.symbol.js",
-        "js/_core/util/svg/element.poly.js",
-        "js/_core/util/svg/base.js",
-        "js/_core/util/svg/base3d.js",
-        "js/_core/util/svg.js",
-        "js/_core/manager.js",
-        "js/_core/collection.js",
-        "js/_core/core.js",
+        // util
+        "js/util/time.js",
+        "js/util/transform.js",
+        "js/util/svg/element.js",
+        "js/util/svg/element.transform.js",
+        "js/util/svg/element.path.js",
+        "js/util/svg/element.path.rect.js",
+        "js/util/svg/element.path.symbol.js",
+        "js/util/svg/element.poly.js",
+        "js/util/svg/base.js",
+        "js/util/svg/base3d.js",
+        "js/util/svg.js",
+        "js/util/scale/linear.js",
+        "js/util/scale/circle.js",
+        "js/util/scale/log.js",
+        "js/util/scale/ordinal.js",
+        "js/util/scale/time.js",
+        "js/util/scale.js",
 
         // chart (core)
         "js/vector.js",
@@ -220,11 +210,14 @@ module.exports = function(grunt) {
             all: [ "test/*.html", "test/*/*.html" ]
         },
         concat : {
-            // jui chart
-            dist : {
-                src : chart_src,
+            basic: {
+                src : [ "node_modules/juijs-core/dist/core.js" ].concat(chart_src),
                 dest : "dist/chart.js"
-            }
+            },
+            module: {
+                src : chart_src,
+                dest : "dist/chart.mod.js"
+            },
         },
         uglify: {
             dist : {
@@ -317,7 +310,7 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks("grunt-contrib-watch");
-    grunt.registerTask("js", [ "concat", "uglify" ]);
+    grunt.registerTask("js", [ "concat:basic", "concat:module", "uglify" ]);
     grunt.registerTask("test", [ "qunit" ]);
     grunt.registerTask("make", [ "curl-dir", "icon", "pattern" ]);
     grunt.registerTask("default", [ "js", "test" ]);

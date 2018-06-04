@@ -1,11 +1,11 @@
 {
   "name": "juijs-chart",
-  "version": "2.1.0-rc.5",
+  "version": "2.1.0-rc.6",
   "description": "SVG-based JUI chart that can be used in the browser and Node.js. Support many types of charts. (Dashboard, Map, Topology, Full 3D)",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "main": "dist/chart.min.js",
+  "main": "dist/chart.mod.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/juijs/jui-chart.git"
@@ -28,18 +28,6 @@
   "bugs": {
     "url": "https://github.com/juijs/jui-chart/issues"
   },
-  "devDependencies": {
-    "css": "~2.2.1",
-    "datauri": "~0.8.0",
-    "grunt": "~0.4.5",
-    "grunt-contrib-concat": "~0.5.1",
-    "grunt-contrib-copy": "~0.8.2",
-    "grunt-contrib-qunit": "~0.7.0",
-    "grunt-contrib-uglify": "~0.11.0",
-    "grunt-contrib-watch": "~0.6.1",
-    "grunt-curl": "~2.2.0",
-    "load-grunt-tasks": "~3.4.0"
-  },
   "categories": [
     "Frameworks",
     "UI"
@@ -60,15 +48,19 @@
       "email": "yoha@jennifersoft.com"
     }
   ],
-  "jam": {
-    "main": [
-      "dist/chart.min.js"
-    ],
-    "shim": {
-      "exports": "juijs-chart"
-    }
-  },
   "dependencies": {
-    "jsdom": "~7.2.2"
+    "juijs-core": "~2.1.0"
+  },
+  "devDependencies": {
+    "css": "~2.2.1",
+    "datauri": "~0.8.0",
+    "grunt": "~0.4.5",
+    "grunt-contrib-concat": "~0.5.1",
+    "grunt-contrib-copy": "~0.8.2",
+    "grunt-contrib-qunit": "~0.7.0",
+    "grunt-contrib-uglify": "~0.11.0",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-curl": "~2.2.0",
+    "load-grunt-tasks": "~3.4.0"
   }
 }
