@@ -5,6 +5,9 @@ var css = require("css"),
 module.exports = function(grunt) {
 
     var chart_src = [
+        // base
+        "js/base.js",
+
         // util
         "js/util/time.js",
         "js/util/transform.js",
