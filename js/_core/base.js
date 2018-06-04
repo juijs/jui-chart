@@ -1398,13 +1398,20 @@
         }
     };
 
+    var isLoadedJUI = (typeof window.jui == "object");
+
     // Nodejs 환경일 때, 모듈에 추가하기
     if(typeof module == "object" && module.exports) {
-        module.exports = juiObj;
+        if(isLoadedJUI) {
+            module.exports = window.jui;
+            juiObj = null;
+        } else {
+            module.exports = juiObj;
+        }
     }
 
     // juijs-core가 로드되지 않았을 경우
-    if(typeof window.jui != "object") {
+    if(!isLoadedJUI) {
         window.jui = juiObj;
     }
 })(window);
