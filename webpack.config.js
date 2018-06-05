@@ -57,7 +57,7 @@ const config_prod = {
     entry: path.resolve(__dirname, 'conf/webpack.js'),
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'chart.npm.js'
+        filename: 'chart.js'
     },
     module: {
         rules: [{
