@@ -3,7 +3,7 @@
 #### Loading resources
 JUI charts are now available without loading the jQuery.
 ```html
-<script src="dist/chart.min.js"></script>
+<script src="dist/chart.js"></script>
 ```
 
 #### Installing in command
@@ -23,7 +23,6 @@ grunt test  // Unit Tests
 After the build output is shown below.
 ```
 dist/chart.js
-dist/chart.min.js
 ```
 
 ## Using in NodeJS
@@ -37,7 +36,7 @@ npm install jui-chart
 
 #### Example
 ```js
-import jui from 'juijs-chart';
+import jui from 'juijs';
 
 // create jui chart 
 var chart = jui.create("chart.builder", null, {

@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 
     var chart_src = [
         // base
-        "js/base.js",
+        "conf/grunt.js",
 
         // util
         "js/util/time.js",
@@ -217,9 +217,9 @@ module.exports = function(grunt) {
                 src : [ "node_modules/juijs-core/dist/core.js" ].concat(chart_src),
                 dest : "dist/chart.js"
             },
-            module: {
+            npm: {
                 src : chart_src,
-                dest : "dist/chart.mod.js"
+                dest : "dist/chart.npm.js"
             },
         },
         uglify: {
@@ -313,7 +313,7 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks("grunt-contrib-watch");
-    grunt.registerTask("js", [ "concat:basic", "concat:module", "uglify" ]);
+    grunt.registerTask("js", [ "concat:basic", "concat:npm" ]);
     grunt.registerTask("test", [ "qunit" ]);
     grunt.registerTask("make", [ "curl-dir", "icon", "pattern" ]);
     grunt.registerTask("default", [ "js", "test" ]);
