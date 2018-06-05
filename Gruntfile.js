@@ -313,8 +313,7 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks("grunt-contrib-watch");
-    // grunt.registerTask("js", [ "concat:basic", "concat:npm", "uglify" ]);
-    grunt.registerTask("js", [ "concat:npm" ]);
+    grunt.registerTask("js", [ "concat:basic" ]);
     grunt.registerTask("test", [ "qunit" ]);
     grunt.registerTask("make", [ "curl-dir", "icon", "pattern" ]);
     grunt.registerTask("default", [ "js", "test" ]);
