@@ -23,7 +23,7 @@ dist/chart.js
 ```
 
 
-### Example
+#### Usage
 ```js
 import jui from 'juijs';
 
