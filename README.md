@@ -9,32 +9,21 @@ JUI charts are now available without loading the jQuery.
 #### Installing in command
 ```
 npm install juijs-chart
-bower install juijs-chart
-jamjs install juijs-chart
 ```
 
 #### To build the project
-Build using a grunt in JUI Library
+Build using a webpack
 ```
-grunt       // Build all processes
-grunt js    // Merge and Minifiy JavaScript files
-grunt test  // Unit Tests
+npm start       // Running the Development Environment
+npm run dist    // Merge and Minifiy JavaScript files
 ```
 After the build output is shown below.
 ```
 dist/chart.js
 ```
 
-## Using in NodeJS
-You can use the JUI chart in server as well as client.
-Get started right now in NodeJS.
 
-#### Install
-```
-npm install jui-chart
-```
-
-#### Example
+### Example
 ```js
 import jui from 'juijs';
 
@@ -85,7 +74,7 @@ Created by Alvin and Jayden, Yoha
 
 MIT License 
 
-Copyright (C) 2016 (```JenniferSoft Inc.```)
+Copyright (C) 2018 (```JenniferSoft Inc.```)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
