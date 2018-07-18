@@ -24,27 +24,26 @@ dist/chart.js
 
 
 ### Usage
+```html
+<div id="app"></div>
+```
 ```js
 import jui from 'juijs';
 
-// create jui chart 
-var chart = jui.create("chart.builder", null, {
+var chart = jui.create("chart.builder", "#app", {
     width : 800,
-    height : 800,
+    height : 600,
     axis : {
         x : {
             type : "block",
-            domain : "quarter",
-            line : true
+            domain : "quarter"
         },
         y : {
             type : "range",
             domain : function(d) {
                 return Math.max(d.sales, d.profit);
             },
-            step : 20,
-            line : true,
-            orient : "right"
+            step : 20
         },
         data : [
             { quarter : "1Q", sales : 50, profit : 35 },
