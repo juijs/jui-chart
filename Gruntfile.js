@@ -35,19 +35,6 @@ module.exports = function(grunt) {
         "js/builder.js",
         "js/plane.js",
 
-        // chart.theme
-        "js/theme/jennifer.js",
-        "js/theme/gradient.js", // jennifer gradient style
-        "js/theme/dark.js",
-        "js/theme/pastel.js",
-        "js/theme/pattern.js",
-
-        // chart.pattern
-        "js/pattern/jennifer.js",
-
-        // chart.icon
-        "js/icon/jennifer.js",
-
         // chart.polygon
         "js/polygon/core.js",
         "js/polygon/grid.js",
@@ -75,125 +62,27 @@ module.exports = function(grunt) {
 
         // chart.brush
         "js/brush/core.js",
-        "js/brush/imagebar.js",
-        "js/brush/imagecolumn.js",
-        "js/brush/patternbar.js",
-        "js/brush/patterncolumn.js",
-        "js/brush/bar.js",
-        "js/brush/column.js", // extends bar
-        "js/brush/bar3d.js",
-        "js/brush/column3d.js",
-        "js/brush/cylinder3d.js",
-        "js/brush/clusterbar3d.js",
-        "js/brush/clustercolumn3d.js",
-        "js/brush/clustercylinder3d.js",
-        "js/brush/circle.js",
-        "js/brush/stackbar.js", // extends bar
-        "js/brush/stackcolumn.js", // extends stackbar
-        "js/brush/stackbar3d.js",
-        "js/brush/stackcolumn3d.js",
-        "js/brush/stackcylinder3d.js",
-        "js/brush/fullstackbar.js", // extends stackbar
-        "js/brush/fullstackcolumn.js", // extends fullstackbar
-        "js/brush/fullstackbar3d.js",
-        "js/brush/fullstackcolumn3d.js",
-        "js/brush/fullstackcylinder3d.js",
-        "js/brush/bubble.js",
-        "js/brush/bubble3d.js", // extends bubble
-        "js/brush/candlestick.js",
-        "js/brush/ohlc.js",
-        "js/brush/equalizer.js",
-        "js/brush/equalizerbar.js",
-        "js/brush/equalizercolumn.js",
-        "js/brush/line.js",
-        "js/brush/path.js",
-        "js/brush/pie.js",
-        "js/brush/donut.js", // extends pie"
-        "js/brush/doubledonut.js",
-        "js/brush/scatter.js",
-        "js/brush/scatterpath.js",
-        "js/brush/bargauge.js",
-        "js/brush/circlegauge.js",
-        "js/brush/fillgauge.js",
-        "js/brush/area.js", // extends line
-        "js/brush/stackline.js", // extends line
-        "js/brush/stackarea.js", // extends area
-        "js/brush/stackscatter.js", // extends scatter
-        "js/brush/gauge.js", // extends donut
-        "js/brush/fullgauge.js", // extends donut
-        "js/brush/stackgauge.js", // extends donut
-        "js/brush/waterfall.js",
-        "js/brush/splitline.js",
-        "js/brush/splitarea.js",
-        "js/brush/rangecolumn.js",
-        "js/brush/rangebar.js",
-        "js/brush/topologynode.js",
-        "js/brush/focus.js", // brush supporter
-        "js/brush/pin.js",  // brush supporter
-        "js/brush/timeline.js",  // brush supporter
-        "js/brush/hudbar.js",
-        "js/brush/hudcolumn.js",
-        "js/brush/heatmap.js",
-        "js/brush/pyramid.js",
-        "js/brush/rangearea.js",
-        "js/brush/heatmapscatter.js",
-        "js/brush/treemap.js",
-        "js/brush/arcequalizer.js",
-        "js/brush/arcgauge.js",
-        "js/brush/flame.js",
-        "js/brush/selectbox.js",
 
         // map brush
         "js/brush/map/core.js",
-        "js/brush/map/selector.js",
-        "js/brush/map/note.js",
-        "js/brush/map/bubble.js",
-        "js/brush/map/comparebubble.js",
-        "js/brush/map/flightroute.js",
-        "js/brush/map/marker.js",
-        "js/brush/map/weather.js",
 
         // polygon brush (full 3d)
         "js/brush/polygon/core.js",
-        "js/brush/polygon/scatter3d.js",
-        "js/brush/polygon/column3d.js",
-        "js/brush/polygon/line3d.js",
 
         // canvas brush
         "js/brush/canvas/core.js",
-        "js/brush/canvas/scatter.js",
-        "js/brush/canvas/line.js",
-        "js/brush/canvas/scatter3d.js",
-        "js/brush/canvas/model3d.js",
-        "js/brush/canvas/dot3d.js",
-        "js/brush/canvas/imagefilter.js",
 
         // chart.widget
         "js/widget/core.js",
-        "js/widget/tooltip.js",
-        "js/widget/title.js",
-        "js/widget/legend.js",
-        "js/widget/zoom.js",
-        "js/widget/zoomscroll.js",
-        "js/widget/scroll.js", // horizontal scroll
-        "js/widget/vscroll.js", // vertical scroll
-        "js/widget/cross.js",
-        "js/widget/topologyctrl.js",
-        "js/widget/dragselect.js",
 
         // map widget
         "js/widget/map/core.js",
-        "js/widget/map/control.js",
-        "js/widget/map/tooltip.js",
-        "js/widget/map/minimap.js",
 
         // polygon widget (full 3d)
         "js/widget/polygon/core.js",
-        "js/widget/polygon/rotate3d.js",
 
         // canvas widget
         "js/widget/canvas/core.js",
-        "js/widget/canvas/dragselect.js"
     ];
 
     grunt.initConfig({
@@ -313,7 +202,7 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks("grunt-contrib-watch");
-    grunt.registerTask("js", [ "concat:basic" ]);
+    grunt.registerTask("js", [ "concat:basic", "uglify" ]);
     grunt.registerTask("test", [ "qunit" ]);
     grunt.registerTask("make", [ "curl-dir", "icon", "pattern" ]);
     grunt.registerTask("default", [ "js", "test" ]);
