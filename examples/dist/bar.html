@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Title</title>
+<script src="../../dist/vendors.js"></script>
+<script src="../../dist/chart.js"></script>
+<script>
+    jui.ready([ "chart.builder" ], function(builder) {
+        builder("#chart", {
+            width: 600,
+            height : 600,
+            theme : "jennifer",
+            axis : {
+                x : {
+                    type : "block",
+                    domain : "quarter",
+                    line : true
+                },
+                y : {
+                    type : "range",
+                    domain : function(d) { return [d.sales, d.profit ]; },
+                    step : 3,
+                    line : true,
+                    orient : "right"
+                },
+                data : [
+                    { quarter : "1Q", sales : 1, profit : 3 },
+                    { quarter : "2Q", sales : 3, profit : 2 },
+                    { quarter : "3Q", sales : 10, profit : 1 },
+                    { quarter : "4Q", sales : 0.49, profit : 4}
+                ]
+            },
+            brush : [{
+                type : "column",
+                target : [ "sales", "profit" ]
+            }]
+        });
+    });
+</script>
+</head>
+<body>
+    <div id="chart"></div>
+</body>
+</html>
