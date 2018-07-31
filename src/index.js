@@ -4,7 +4,7 @@ jui.use = function() {
     let modules = [];
 
     if(arguments.length == 1 && typeof(arguments[0]) == "object") {
-        modules = arguments[0];
+        modules = [ arguments[0] ];
     } else {
         modules = arguments;
     }
