@@ -2,6 +2,8 @@ export default {
     name: "chart.widget.title",
     extend: "chart.widget.core",
     component: function() {
+        var TOP_PADDING = 25, PADDING = 20;
+
         var TitleWidget = function(chart, axis, widget) {
             var x = 0, y = 0, anchor = "middle";
 
