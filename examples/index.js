@@ -1,38 +1,118 @@
 import jui from '../src/index.js'
-import BarBrush from '../src/brush/bar.js'
-import ColumnBrush from '../src/brush/column.js'
-import { GradientTheme } from '../src/theme/all-in-one.js'
+import TimeLineBrush from '../src/brush/timeline.js'
+import TooltipWidget from '../src/widget/tooltip.js'
 
-jui.use([ BarBrush, ColumnBrush, GradientTheme ]);
+jui.use([ TimeLineBrush, TooltipWidget ]);
+
+var data = [
+    { key: "http://google.co.kr/", stime: 0, etime: 612, kind: "dns" },
+    { key: "http://google.co.kr/", stime: 612, etime: 613, kind: "connect" },
+    { key: "http://google.co.kr/", stime: 613, etime: 630, kind: "wait" },
+    { key: "http://www.google.co.kr/", stime: 630, etime: 640, kind: "dns" },
+    { key: "http://www.google.co.kr/", stime: 640, etime: 641, kind: "connect" },
+    { key: "http://www.google.co.kr/", stime: 641, etime: 660, kind: "wait" },
+    { key: "https://www.google.co.kr/?gws_rd=ssl", stime: 660, etime: 706, kind: "ssl" },
+    { key: "https://www.google.co.kr/?gws_rd=ssl", stime: 706, etime: 753, kind: "connect" },
+    { key: "https://www.google.co.kr/?gws_rd=ssl", stime: 753, etime: 810, kind: "wait" },
+    { key: "https://www.google.co.kr/?gws_rd=ssl", stime: 810, etime: 813, kind: "receive" },
+    { key: "nav_logo242.png", stime: 813, etime: 829, kind: "wait" },
+    { key: "googlelogo_color_272x92dp.png", stime: 829, etime: 845, kind: "wait" },
+    { key: "i1_1967ca6a.png", stime: 845, etime: 856, kind: "ssl" },
+    { key: "i1_1967ca6a.png", stime: 856, etime: 869, kind: "connect" },
+    { key: "i1_1967ca6a.png", stime: 869, etime: 871, kind: "wait" },
+    { key: "rs=ACT90oHKONBv_Rd-Dj71NZEExnlU9sHrEg", stime: 871, etime: 874, kind: "wait" },
+    { key: "rs=ACT90oHKONBv_Rd-Dj71NZEExnlU9sHrEg", stime: 874, etime: 878, kind: "receive" },
+    { key: "tia.png", stime: 878, etime: 884, kind: "ssl" },
+    { key: "tia.png", stime: 884, etime: 891, kind: "connect" },
+    { key: "tia.png", stime: 891, etime: 893, kind: "wait" },
+    { key: "gen_204?v=3&s=webhp&atyp=csi&ei=nWSbV…", stime: 893, etime: 907, kind: "wait" },
+    { key: "rs=AA2YrTvRfEtOu2PtNylQ762iZH-GV07GLw", stime: 907, etime: 909, kind: "wait" },
+    { key: "rs=AA2YrTvRfEtOu2PtNylQ762iZH-GV07GLw", stime: 909, etime: 911, kind: "receive" },
+    { key: "cb=gapi.loaded_0", stime: 911, etime: 957, kind: "ssl" },
+    { key: "cb=gapi.loaded_0", stime: 957, etime: 1004, kind: "connect" },
+    { key: "cb=gapi.loaded_0", stime: 1004, etime: 1061, kind: "wait" },
+    { key: "cb=gapi.loaded_0", stime: 1061, etime: 1064, kind: "receive" }
+];
 
 jui.ready([ "chart.builder" ], function(builder) {
+
     builder("#chart", {
-        width: 600,
-        height : 600,
-        theme : "gradient",
+        width: 1000,
+        height : 350,
+        padding : 0,
+        theme : "jennifer",
         axis : {
+            area : {
+                width : "60%",
+                height : "60%",
+                x : "20%",
+                y : "20%"
+            },
+            padding : {
+                left : 300
+            },
             x : {
-                type : "block",
-                domain : "quarter",
-                line : true
+                type : "range",
+                domain : "etime",
+                step : 10,
+                hide : true,
+                format : function(d, i) {
+                    return Math.floor(d);
+                }
             },
             y : {
-                type : "range",
-                domain : function(d) { return [d.sales, d.profit ]; },
-                step : 3,
-                line : true,
-                orient : "right"
+                domain : getDataToDomain(),
+                hide : true,
+                format : function(d, i) {
+                    return "> " + d;
+                }
             },
-            data : [
-                { quarter : "1Q", sales : 1, profit : 3 },
-                { quarter : "2Q", sales : 3, profit : 2 },
-                { quarter : "3Q", sales : 10, profit : 1 },
-                { quarter : "4Q", sales : 0.49, profit : 4}
-            ]
+            data : data
         },
         brush : [{
-            type : "column",
-            target : [ "sales", "profit" ]
-        }]
+            type : "timeline",
+            barSize : function(d, i) {
+                if(d.kind == "dns" || d.kind == "ssl") return 4;
+                return 7;
+            },
+            lineWidth : 0,
+            colors : function(d) {
+                if(d.kind == "dns") return "#f699c1";
+                else if(d.kind == "ssl") return "#9871b5";
+                else if(d.kind == "connect") return "#34c2d0";
+                else if(d.kind == "send") return "#f4b355";
+                else if(d.kind == "wait") return "#fde448";
+                else if(d.kind == "receive") return "#8ac730";
+            },
+            target : [ "kind" ],
+            hideTitle : false
+        }],
+        widget : [{
+            type : "tooltip",
+            format : function(data, key) {
+                return {
+                    key: data[key],
+                    value: (data.etime - data.stime) + "ms"
+                }
+            }
+        }],
+        event : {
+            click : function(d) {
+                console.log(d);
+            }
+        }
     });
 });
+
+function getDataToDomain() {
+    var cache = {},
+        domain = [ "URL" ];
+    for(var i = 0; i < data.length; i++) {
+        var key = data[i].key;
+        if(!cache[key]) {
+            cache[key] = true;
+            domain.push(key);
+        }
+    }
+    return domain;
+}

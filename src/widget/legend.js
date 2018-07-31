@@ -7,7 +7,6 @@ export default {
         var _ = jui.include("util.base");
         var WIDTH = 17, HEIGHT = 13, PADDING = 5, RADIUS = 5.5, RATIO = 1.2, POINT = 2;
 
-
         var LegendWidget = function(chart, axis, widget) {
             var columns = [];
             var colorIndex = {};

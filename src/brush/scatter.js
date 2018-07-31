@@ -37,7 +37,8 @@ export default {
             this.createScatter = function(pos, dataIndex, targetIndex, symbol) {
                 var self = this,
                     elem = null,
-                    w = h = this.brush.size;
+                    w = this.brush.size,
+                    h = this.brush.size;
 
                 var color = this.color(dataIndex, targetIndex),
                     borderColor = this.chart.theme("scatterBorderColor"),
