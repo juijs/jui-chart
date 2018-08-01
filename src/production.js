@@ -54,3 +54,5 @@ jui.use([
     TooltipWidget,
     Rotate3dWidget
 ]);
+
+window.jui = window.JUI = jui;
