@@ -1,8 +1,9 @@
-import jui from '../src/index.js'
+import jui from '../src/main.js'
 import TimeLineBrush from '../src/brush/timeline.js'
 import TooltipWidget from '../src/widget/tooltip.js'
+import GradientTheme from '../src/theme/gradient.js'
 
-jui.use([ TimeLineBrush, TooltipWidget ]);
+jui.use([ TimeLineBrush, TooltipWidget, GradientTheme ]);
 
 var data = [
     { key: "http://google.co.kr/", stime: 0, etime: 612, kind: "dns" },
@@ -37,10 +38,10 @@ var data = [
 jui.ready([ "chart.builder" ], function(builder) {
 
     builder("#chart", {
+        theme: "gradient",
         width: 1000,
         height : 350,
         padding : 0,
-        theme : "jennifer",
         axis : {
             area : {
                 width : "60%",

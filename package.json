@@ -1,6 +1,6 @@
 {
   "name": "juijs-chart",
-  "version": "2.1.5-es6",
+  "version": "2.1.6-es6",
   "sideEffects": false,
   "description": "SVG-based JUI chart that can be used in the browser and Node.js. Support many types of charts. (Dashboard, Map, Topology, Full 3D)",
   "scripts": {
@@ -8,11 +8,11 @@
     "dev": "webpack-dev-server --env dev",
     "prod": "webpack --env prod"
   },
-  "main": "src/index.js",
+  "main": "src/main.js",
   "files": [
     "dist",
     "examples",
-    "img",
+    "images",
     "src",
     "test",
     "package.json",
