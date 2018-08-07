@@ -6,7 +6,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 module.exports = {
     mode: 'development',
     entry: {
-        vendors: [ 'juijs', 'juijs-graph' ],
+        vendors: [ 'juijs-graph' ],
         chart: path.resolve(__dirname, 'bundles', 'index.js')
     },
     output: {

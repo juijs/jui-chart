@@ -10,7 +10,7 @@
         builder("#chart", {
             width: 600,
             height : 600,
-            theme : "jennifer",
+            theme : "classic",
             axis : {
                 x : {
                     type : "block",
@@ -34,6 +34,10 @@
             brush : [{
                 type : "column",
                 target : [ "sales", "profit" ]
+            }],
+            widget : [{
+                type: "title",
+                text: "hihi"
             }]
         });
     });
