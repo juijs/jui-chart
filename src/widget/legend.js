@@ -1,4 +1,4 @@
-import jui from "juijs-graph";
+import jui from '../main.js';
 
 export default {
     name: "chart.widget.legend",
