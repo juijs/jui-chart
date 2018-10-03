@@ -3,6 +3,7 @@ import ClassicIcon from '../src/icon/classic.js'
 import ClassicPattern from '../src/pattern/classic.js'
 import GradientTheme from '../src/theme/gradient.js'
 import PatternTheme from '../src/theme/pattern.js'
+import TopologyTableWidget from '../src/grid/topologytable.js'
 import BarBrush from '../src/brush/bar.js'
 import StackBarBrush from '../src/brush/stackbar.js'
 import FullStackBarBrush from '../src/brush/fullstackbar.js'
@@ -40,6 +41,7 @@ jui.use([
     ClassicPattern,
     GradientTheme,
     PatternTheme,
+    TopologyTableWidget,
     BarBrush,
     StackBarBrush,
     FullStackBarBrush,
