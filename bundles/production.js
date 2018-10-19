@@ -27,8 +27,13 @@ import TopologyNodeBrush from '../src/brush/topologynode.js'
 import FocusBrush from '../src/brush/focus.js'
 import PinBrush from '../src/brush/pin.js'
 import SelectBoxBrush from '../src/brush/selectbox.js'
+import Equalizer from '../src/brush/equalizer.js'
+import EqualizerBar from '../src/brush/equalizerbar.js'
+import EqualizerColumn from '../src/brush/equalizercolumn.js'
 import Column3dBrush from '../src/brush/polygon/column3d.js'
 import Line3dBrush from '../src/brush/polygon/line3d.js'
+import CanvasDot3dBrush from '../src/brush/canvas/dot3d.js'
+import CanvasEqualizerColumnBrush from '../src/brush/canvas/equalizercolumn.js'
 import CrossWidget from '../src/widget/cross.js'
 import LegendWidget from '../src/widget/legend.js'
 import TitleWidget from '../src/widget/title.js'
@@ -65,8 +70,13 @@ jui.use([
     FocusBrush,
     PinBrush,
     SelectBoxBrush,
+    Equalizer,
+    EqualizerBar,
+    EqualizerColumn,
     Column3dBrush,
     Line3dBrush,
+    CanvasDot3dBrush,
+    CanvasEqualizerColumnBrush,
     CrossWidget,
     LegendWidget,
     TitleWidget,
