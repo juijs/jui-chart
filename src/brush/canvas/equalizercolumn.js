@@ -98,7 +98,15 @@ export default {
                         value = yValue;
                     }
 
-                    this.chart.setCache(`equalizer_${i}`, stackList.length == 0 ? null : stackList[stackList.length - 1]);
+                    if(stackList.length > 0) {
+                        this.chart.setCache(`equalizer_${i}`, stackList.length == 0 ? null : stackList[stackList.length - 1]);
+                        this.chart.setCache(`raycast_area_${i}`, {
+                            x1: stackList[0].x,
+                            x2: stackList[0].x + stackList[0].width,
+                            y2: this.axis.y(this.axis.y.min()),
+                            y1: stackList[stackList.length - 1].y
+                        });
+                    }
                 });
 
                 this.drawAnimation();

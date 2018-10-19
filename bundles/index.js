@@ -2,8 +2,9 @@ import jui from '../src/main.js'
 import CanvasEqualizerColumnBrush from '../src/brush/canvas/equalizercolumn.js'
 import TitleWidget from '../src/widget/title.js'
 import LegendWidget from '../src/widget/legend.js'
+import RaycastWidget from '../src/widget/raycast.js'
 
-jui.use([ CanvasEqualizerColumnBrush, TitleWidget, LegendWidget ]);
+jui.use([ CanvasEqualizerColumnBrush, TitleWidget, LegendWidget, RaycastWidget ]);
 
 jui.ready([ "chart.realtime" ], function(realtime) {
     var c = realtime("#chart", {
@@ -40,8 +41,15 @@ jui.ready([ "chart.realtime" ], function(realtime) {
                     else if(key == "warning") return "Warning";
                     else return "Critical";
                 }
+            }, {
+                type : "raycast"
             }
         ],
+        event : {
+            "raycast.click": function(obj, e) {
+                console.log(obj.data);
+            }
+        },
         interval : 100
     });
 

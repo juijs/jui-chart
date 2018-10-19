@@ -39,6 +39,8 @@ import LegendWidget from '../src/widget/legend.js'
 import TitleWidget from '../src/widget/title.js'
 import TooltipWidget from '../src/widget/tooltip.js'
 import TopologyCtrlWidget from '../src/widget/topologyctrl.js'
+import DragSelectWidget from '../src/widget/dragselect.js'
+import RayCastWidget from '../src/widget/raycast.js'
 import Rotate3dWidget from '../src/widget/polygon/rotate3d.js'
 
 jui.use([
@@ -82,6 +84,8 @@ jui.use([
     TitleWidget,
     TooltipWidget,
     TopologyCtrlWidget,
+    DragSelectWidget,
+    RayCastWidget,
     Rotate3dWidget
 ]);
 
