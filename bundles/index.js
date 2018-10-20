@@ -6,8 +6,8 @@ import RaycastWidget from '../src/widget/raycast.js'
 
 jui.use([ CanvasEqualizerColumnBrush, TitleWidget, LegendWidget, RaycastWidget ]);
 
-jui.ready([ "chart.realtime" ], function(realtime) {
-    var c = realtime("#chart", {
+jui.ready([ "chart.animation" ], function(animation) {
+    var c = animation("#chart", {
         width: 500,
         height: 300,
         axis: [{
