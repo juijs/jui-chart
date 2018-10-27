@@ -1,81 +1,48 @@
 import jui from '../src/main.js'
-import CanvasEqualizerColumnBrush from '../src/brush/canvas/equalizercolumn.js'
+import CanvasActiveBubbleBrush from '../src/brush/canvas/activebubble.js'
 import TitleWidget from '../src/widget/title.js'
-import LegendWidget from '../src/widget/legend.js'
-import RaycastWidget from '../src/widget/raycast.js'
 
-jui.use([ CanvasEqualizerColumnBrush, TitleWidget, LegendWidget, RaycastWidget ]);
+jui.use([ CanvasActiveBubbleBrush, TitleWidget ]);
 
 jui.ready([ "chart.animation" ], function(animation) {
     var c = animation("#chart", {
-        width: 500,
-        height: 300,
-        axis: [{
-            x : {
-                domain : [ "1 year ago", "1 month ago", "Yesterday", "Today" ],
-                line : true
-            },
-            y : {
-                type : "range",
-                domain : [ 0, 30 ],
-                // domain : function(d) {
-                //     return Math.max(d.normal, d.warning, d.fatal);
-                // },
-                step : 5,
-                line : false
-            }
-        }],
-        brush : [{
-            type : "canvas.equalizercolumn",
-            target : [ "normal", "warning", "fatal" ],
-            unit : 10
-        }],
-        widget : [
-            {
-                type : "title",
-                text : "Equalizer Sample"
-            }, {
-                type : "legend",
-                format : function(key) {
-                    if(key == "normal") return "Default";
-                    else if(key == "warning") return "Warning";
-                    else return "Critical";
-                }
-            }, {
-                type : "raycast"
-            }
-        ],
-        event : {
-            "raycast.click": function(obj, e) {
-                console.log(obj.data);
-            }
+        width: 1000,
+        height: 70,
+        padding: 0,
+        interval: 0,
+        axis: {
+            data: [
+                { startTime: Date.now(), duration: 5000 },
+                { startTime: Date.now() + 1000, duration: 3000 },
+                { startTime: Date.now(), duration: 4000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 },
+                { startTime: Date.now() + 2000, duration: 2000 }
+            ]
         },
-        interval : 100
-    });
-
-    c.run(function(runningTime) {
-        if(runningTime > 10000) {
-            c.update([
-                { normal : 7, warning : 7, fatal : 7 },
-                { normal : 10, warning : 8, fatal : 5 },
-                { normal : 6, warning : 4, fatal : 10 },
-                { normal : 5, warning : 5, fatal : 7 }
-            ]);
-        } else {
-            c.update([
-                { normal : 5, warning : 5, fatal : 5 },
-                { normal : 10, warning : 8, fatal : 5 },
-                { normal : 6, warning : 4, fatal : 10 },
-                { normal : 5, warning : 5, fatal : 7 }
-            ]);
+        brush: {
+            type: "canvas.activebubble",
+            colors: function(data) {
+                if (data.duration <= 3000) {
+                    return '#497eff';
+                } else if (data.duration <= 7000) {
+                    return '#ffdd26';
+                } else {
+                    return '#ff4f55';
+                }
+            }
         }
     });
 
-    // c.update([
-    //         { normal : 5, warning : 5, fatal : 5 },
-    //         { normal : 10, warning : 8, fatal : 5 },
-    //         { normal : 6, warning : 4, fatal : 10 },
-    //         { normal : 5, warning : 5, fatal : 7 }
-    // ]);
-    // c.render();
+    c.run();
 });

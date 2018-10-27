@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.rawgit.com/juijs/jui-core/es6/dist/jui-core.js"></script>
+    <script src="../dist/jui-chart.js"></script>
+    <script>
+        jui.ready([ "chart.animation" ], function(animation) {
+            var c = animation("#chart", {
+                width: 1000,
+                height: 70,
+                padding: {
+                    top: 5,
+                    bottom: 0,
+                    left: 0,
+                    right: 0
+                },
+                interval: 0,
+                axis: {
+                    data: [
+                        { startTime: Date.now(), duration: 5000 },
+                        { startTime: Date.now() + 1000, duration: 3000 },
+                        { startTime: Date.now(), duration: 4000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 },
+                        { startTime: Date.now() + 2000, duration: 2000 }
+                    ]
+                },
+                brush: {
+                    type: "canvas.activebubble",
+                    opacity: 0.7,
+                    colors: function(data) {
+                        if (data.duration <= 3000) {
+                            return '#497eff';
+                        } else if (data.duration <= 7000) {
+                            return '#ffdd26';
+                        } else {
+                            return '#ff4f55';
+                        }
+                    }
+                },
+                widget: {
+                    type: 'title',
+                    text: 'Active Bubble',
+                    align: 'start'
+                },
+                style: {
+                    titleFontSize: 20,
+                    titleFontWeight: 'bold'
+                }
+            });
+
+            c.run();
+        });
+    </script>
+</head>
+<body>
+<div id="chart"></div>
+</body>
+</html>
