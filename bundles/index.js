@@ -1,37 +1,26 @@
 import jui from '../src/main.js'
-import CanvasActiveBubbleBrush from '../src/brush/canvas/activebubble.js'
-import TitleWidget from '../src/widget/title.js'
+import ClassicTheme from '../src/theme/classic.js'
+import CanvasBubbleCloudBrush from '../src/brush/canvas/bubblecloud.js'
+import CanvasPickerWidget from '../src/widget/canvas/picker.js'
 
-jui.use([ CanvasActiveBubbleBrush, TitleWidget ]);
+jui.use([ ClassicTheme, CanvasBubbleCloudBrush, CanvasPickerWidget ]);
 
 jui.ready([ "chart.animation" ], function(animation) {
-    var c = animation("#chart", {
-        width: 1000,
-        height: 70,
+    window.c = animation("#chart", {
+        width: 500,
+        height: 500,
         padding: 0,
         interval: 0,
         axis: {
             data: [
-                { startTime: Date.now(), duration: 5000 },
-                { startTime: Date.now() + 1000, duration: 3000 },
-                { startTime: Date.now(), duration: 4000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 }
+                { title: "/app1.jsp", capacity: 100, duration: 1000 },
+                { title: "/app2.jsp", capacity: 50, duration: 1000 },
+                { title: "/app3.jsp", capacity: 200, duration: 4000 },
+                { title: "/app4.jsp", capacity: 100, duration: 10000 }
             ]
         },
         brush: {
-            type: "canvas.activebubble",
+            type: "canvas.bubblecloud",
             colors: function(data) {
                 if (data.duration <= 3000) {
                     return '#497eff';
@@ -40,6 +29,14 @@ jui.ready([ "chart.animation" ], function(animation) {
                 } else {
                     return '#ff4f55';
                 }
+            }
+        },
+        widget: {
+            type: "canvas.picker"
+        },
+        event: {
+            'picker.dblclick': function(obj, e) {
+                console.log(obj.data);
             }
         }
     });

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.rawgit.com/juijs/jui-core/es6/dist/jui-core.js"></script>
+    <script src="../dist/jui-chart.js"></script>
+    <script>
+        jui.ready([ "chart.animation" ], function(animation) {
+            var c = animation("#chart", {
+                width: 500,
+                height: 500,
+                padding: 0,
+                interval: 0,
+                axis: {
+                    data: [
+                        { title: "/app1.jsp", capacity: 100, duration: 1000 },
+                        { title: "/app2.jsp", capacity: 50, duration: 1000 },
+                        { title: "/app3.jsp", capacity: 200, duration: 4000 },
+                        { title: "/app4.jsp", capacity: 100, duration: 10000 }
+                    ]
+                },
+                brush: {
+                    type: "canvas.bubblecloud",
+                    colors: function(data) {
+                        if (data.duration <= 3000) {
+                            return '#497eff';
+                        } else if (data.duration <= 7000) {
+                            return '#ffdd26';
+                        } else {
+                            return '#ff4f55';
+                        }
+                    }
+                },
+                widget: {
+                    type: "canvas.picker"
+                },
+                event: {
+                    'picker.dblclick': function(obj, e) {
+                        console.log(obj.data);
+                    }
+                }
+            });
+
+            c.run();
+        });
+    </script>
+</head>
+<body>
+<div id="chart"></div>
+</body>
+</html>

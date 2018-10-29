@@ -361,7 +361,12 @@ export default {
             polygonScatterRadialOpacity: 0.7,
             polygonScatterBackgroundOpacity: 0.8,
             polygonLineBackgroundOpacity: 0.6,
-            polygonLineBorderOpacity: 0.7
+            polygonLineBorderOpacity: 0.7,
+
+            // Animation Brushes
+            bubbleCloudFontColor: "#fff",
+            bubbleCloudFontSize: 11,
+            bubbleCloudFontWeight: "bold"
         }
     }
 }

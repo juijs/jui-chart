@@ -15,8 +15,6 @@ export default {
                     if(e.chartX >= area.x1 && e.chartX <= area.x2 && e.chartY >= area.y1 && e.chartY <= area.y2) {
                         this.chart.emit(eventType, [{
                             brush: brush,
-                            dataIndex: blockValue,
-                            dataKey: null,
                             data: datas[blockValue]
                         }, e]);
                     }

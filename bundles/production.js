@@ -1,6 +1,8 @@
 import jui from '../src/main.js'
 import ClassicIcon from '../src/icon/classic.js'
 import ClassicPattern from '../src/pattern/classic.js'
+import ClassicTheme from '../src/theme/classic.js'
+import DarkTheme from '../src/theme/dark.js'
 import GradientTheme from '../src/theme/gradient.js'
 import PatternTheme from '../src/theme/pattern.js'
 import TopologyTableWidget from '../src/grid/topologytable.js'
@@ -35,6 +37,7 @@ import Line3dBrush from '../src/brush/polygon/line3d.js'
 import CanvasDot3dBrush from '../src/brush/canvas/dot3d.js'
 import CanvasEqualizerColumnBrush from '../src/brush/canvas/equalizercolumn.js'
 import CanvasActiveBubbleBrush from '../src/brush/canvas/activebubble.js'
+import CanvasBubbleCloudBrush from '../src/brush/canvas/bubblecloud.js'
 import CrossWidget from '../src/widget/cross.js'
 import LegendWidget from '../src/widget/legend.js'
 import TitleWidget from '../src/widget/title.js'
@@ -42,11 +45,14 @@ import TooltipWidget from '../src/widget/tooltip.js'
 import TopologyCtrlWidget from '../src/widget/topologyctrl.js'
 import DragSelectWidget from '../src/widget/dragselect.js'
 import RayCastWidget from '../src/widget/raycast.js'
+import PickerWidget from '../src/widget/canvas/picker.js'
 import Rotate3dWidget from '../src/widget/polygon/rotate3d.js'
 
 jui.use([
     ClassicIcon,
     ClassicPattern,
+    ClassicTheme,
+    DarkTheme,
     GradientTheme,
     PatternTheme,
     TopologyTableWidget,
@@ -81,6 +87,7 @@ jui.use([
     CanvasDot3dBrush,
     CanvasEqualizerColumnBrush,
     CanvasActiveBubbleBrush,
+    CanvasBubbleCloudBrush,
     CrossWidget,
     LegendWidget,
     TitleWidget,
@@ -88,6 +95,7 @@ jui.use([
     TopologyCtrlWidget,
     DragSelectWidget,
     RayCastWidget,
+    PickerWidget,
     Rotate3dWidget
 ]);
 
