@@ -1,6 +1,6 @@
 import JUI from '../../../main.js';
-import CanvasBase from "base";
-import KineticObject from "./kinetic";
+import CanvasBase from 'juijs-graph/src/util/canvas/base.js';
+import KineticObject from './kinetic';
 
 JUI.use(CanvasBase, KineticObject);
 
