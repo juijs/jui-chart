@@ -67,14 +67,10 @@ jui.ready([ "chart.animation" ], function(animation) {
     c.run();
 });
 
-// setInterval(function() {
-//     let activeBubble = c.builder.getCache('active_bubble');
-//     let data = [];
-//
-//     for(let i = 0; i < rnd(0, 10); i++) {
-//         data.push({ startTime: Date.now(), duration: rnd(1000, 10000) });
-//     }
-//
-//     c.update(data);
-//     activeBubble.isArrange = false;
-// }, 1000);
+setInterval(function() {
+    let data = [];
+    for(let i = 0; i < rnd(0, 10); i++) {
+        data.push({ startTime: Date.now(), duration: rnd(1000, 10000) });
+    }
+    c.update(data);
+}, 5000);

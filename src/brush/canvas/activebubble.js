@@ -159,9 +159,19 @@ export default {
             }
 
             this.drawBefore = function() {
+                const activeBubbleCount = this.chart.getCache('active_bubble_count', 0);
+                const dataCount = this.axis.data.length;
+
                 if(this.chart.getCache('active_bubble') == null) {
                     this.chart.setCache( 'active_bubble', new ActiveBubble(
                         this.canvas, this.axis.area('width'), this.axis.area('height'), this.brush.gravity) )
+                }
+
+                if(activeBubbleCount != dataCount) {
+                    const activeBubble = this.chart.getCache('active_bubble');
+                    activeBubble.isArrange = false;
+
+                    this.chart.setCache('active_bubble_count', dataCount);
                 }
             }
 
