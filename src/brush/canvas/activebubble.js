@@ -11,6 +11,7 @@ class ActiveBubble {
 
         this.gravity = gravity;
         this.data = []; // MortalBubble
+        this.isArrange = false;
     }
 
     preCheck() {
@@ -44,7 +45,6 @@ class ActiveBubble {
         }
 
         for (let i = 0; i < this.data.length; i++) {
-            // collapse testing
             for (let j = 0; j < this.data.length; j++) {
                 if (i == j) continue;
                 const me = this.data[i];
@@ -55,6 +55,10 @@ class ActiveBubble {
                     collisions.push([me, other]);
                 }
             }
+        }
+
+        if(collisions.length == 0) {
+            this.isArrange = true;
         }
 
         for (let i = 0; i < collisions.length - 1; i++) {
@@ -70,7 +74,7 @@ class ActiveBubble {
             }
         }
 
-        for(let i = 0; i < collisions.length; i++) {
+        for (let i = 0; i < collisions.length; i++) {
             if (dups.indexOf(i) != -1) continue;
 
             const collision = collisions[i];
@@ -110,6 +114,14 @@ class ActiveBubble {
                 me.veloc = [me.veloc[0] * 0.7, me.veloc[1] * 0.99];
                 me.force([-otherForce[0], -otherForce[1]]);
             } else {
+                if(this.isArrange) {
+                    me.veloc = [
+                        other.pos[0] > me.pos[0] ? -1 : 1,
+                        other.pos[1] > me.pos[1] ? -1 : 1
+                    ];
+                    me.force([-meForce[0], -meForce[1]]);
+                }
+
                 other.veloc = [other.veloc[0] * 0.7, other.veloc[1] * 0.99];
                 other.force([-meForce[0], -meForce[1]]);
             }
@@ -119,8 +131,8 @@ class ActiveBubble {
         for (let i = 0; i < this.data.length; i++) {
             const me = this.data[i];
 
-            if (me.pos[0] > this.contextWidth - 100) {
-                me.pos[0] = this.contextWidth - 100;
+            if (me.pos[0] > this.contextWidth) {
+                me.pos[0] = this.contextWidth;
             }
             if (me.pos[1] > this.contextHeight) {
                 me.pos[1] = this.contextHeight;
