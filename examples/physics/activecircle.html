@@ -21,17 +21,29 @@
                 this.acceleration = [ 0, 0 ];   // 가속도
                 this.mass = 10;                 // 질량
                 this.friction = 0.1;            // 마찰
+                this.runtime = 0;               // 운동시간
 
-                this.move = function(fps, tpf) {
+                this.move = function(scale, fps, tpf) {
                     if(tpf == 1) return;
 
                     const pre_position = [ this.position[0], this.position[1] ];
-                    // this.velocity[0] += this.acceleration[0] * tpf;
-                    // this.velocity[1] += this.acceleration[1] * tpf;
-                    this.position[0] += this.velocity[0] * tpf;
-                    this.position[1] += this.velocity[1] * tpf;
 
-                    console.log(`프레임 사이의 평균 속도 : ${(this.position[0]-pre_position[0]) / tpf}M/s`);
+                    // 운동시간 누적
+                    this.runtime += 1 * tpf;
+
+                    // 가속도 적용
+                    if(this.acceleration[0] != 0)
+                        this.position[0] = scale.x(this.acceleration[0] * Math.pow(this.runtime, 2));
+                    if(this.acceleration[1] != 0)
+                        this.position[1] = scale.y(this.acceleration[1] * Math.pow(this.runtime, 2));
+
+                    // 평균속도 적용
+                    // const distX = this.velocity[0] * tpf;
+                    // const distY = this.velocity[1] * tpf;
+                    // this.position[0] += (distX == 0) ? 0 : scale.x(distX);
+                    // this.position[1] += (distY == 0) ? 0 : scale.y(distY);
+
+                    console.log(`런타임: ${this.runtime}, 프레임 사이의 평균 속도: ${(this.position[0]-pre_position[0]) / tpf}M/s`);
                 }
 
                 this.stop = function() {
@@ -77,7 +89,7 @@
                         if(circle.position[0] > maxX) {
                             circle.stop();
                         } else {
-                            circle.move(fps, tpf);
+                            circle.move(this.axis, fps, tpf);
                         }
 
                         circle.draw(this.canvas);
@@ -118,8 +130,8 @@
                         line : false
                     },
                     data: [
-                        { x: 0, y: 50, vx: 100, vy: 0 }
-                        // { x: 0, y: 50, ax: 10, ay: 0 }
+                        // { x: 0, y: 50, vx: 100, vy: 0 }
+                        { x: 0, y: 50, ax: 10, ay: 0 }
                     ]
                 }],
                 brush: [{
@@ -127,9 +139,7 @@
                 }]
             });
 
-            c.run(function(runningTime) {
-                // console.log(runningTime);
-            });
+            c.run();
         });
     </script>
 </head>
