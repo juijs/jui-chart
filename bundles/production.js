@@ -38,6 +38,7 @@ import CanvasDot3dBrush from '../src/brush/canvas/dot3d.js'
 import CanvasEqualizerColumnBrush from '../src/brush/canvas/equalizercolumn.js'
 import CanvasActiveBubbleBrush from '../src/brush/canvas/activebubble.js'
 import CanvasBubbleCloudBrush from '../src/brush/canvas/bubblecloud.js'
+import CanvasActiveCircleBrush from '../src/brush/canvas/activecircle.js'
 import CrossWidget from '../src/widget/cross.js'
 import LegendWidget from '../src/widget/legend.js'
 import TitleWidget from '../src/widget/title.js'
@@ -88,6 +89,7 @@ jui.use([
     CanvasEqualizerColumnBrush,
     CanvasActiveBubbleBrush,
     CanvasBubbleCloudBrush,
+    CanvasActiveCircleBrush,
     CrossWidget,
     LegendWidget,
     TitleWidget,

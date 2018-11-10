@@ -1,76 +1,75 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
-import CanvasActiveBubbleBrush from '../src/brush/canvas/activebubble.js'
-import TitleWidget from '../src/widget/title.js'
+import CanvasActiveCircleBrush from '../src/brush/canvas/activecircle.js'
 
-jui.use([ ClassicTheme, CanvasActiveBubbleBrush, TitleWidget ]);
-
-function rnd(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
+jui.use([ ClassicTheme, CanvasActiveCircleBrush ]);
 
 jui.ready([ "chart.animation" ], function(animation) {
-    window.c = animation("#chart", {
-        width: 500,
-        height: 70,
+    var c = animation("#chart", {
+        width: 250,
+        height: 600,
         padding: {
-            top: 5,
-            bottom: 0,
-            left: 0,
-            right: 0
+            left: 70,
+            right: 30,
+            top: 30,
+            bottom: 30
         },
-        interval: 0,
-        axis: {
-            data: [
-                { startTime: Date.now(), duration: 5000 },
-                { startTime: Date.now() + 1000, duration: 3000 },
-                { startTime: Date.now(), duration: 4000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 10000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 },
-                { startTime: Date.now() + 2000, duration: 2000 }
-            ]
-        },
-        brush: {
-            type: "canvas.activebubble",
-            opacity: 0.7,
-            colors: function(data) {
-                if (data.duration <= 3000) {
-                    return '#497eff';
-                } else if (data.duration <= 4000) {
-                    return '#ffdd26';
-                } else {
-                    return '#ff4f55';
+        axis: [{
+            x : {
+                type : "range",
+                domain : [ 0, 100 ],
+                step : 2,
+                line : false
+            },
+            y : {
+                type : "range",
+                domain : [ 0, 1000 ],
+                step : 10,
+                line : false,
+                format : function(d) {
+                    return d + "M";
                 }
-            }
-        },
-        widget: {
-            type: 'title',
-            text: 'Active Bubble',
-            align: 'start'
-        },
-        style: {
-            titleFontSize: 20,
-            titleFontWeight: 'bold'
-        }
+            },
+            data: [
+                // { x: 50, y: 900, vx: -10, vy: 0 }
+                // { x: 50, y: 900, vx: 0, vy: -100 }
+                { x: 50, y: 900, ax: 0, ay: -9.8 }
+            ]
+        }],
+        brush: [{
+            type: "canvas.activecircle"
+        }]
     });
+
+    // var c = animation("#chart", {
+    //     width: 1000,
+    //     height: 200,
+    //     padding: 30,
+    //     axis: [{
+    //         x : {
+    //             type : "range",
+    //             domain : [ 0, 1000 ],
+    //             step : 10,
+    //             line : false,
+    //             format : function(d) {
+    //                 return d + "M";
+    //             }
+    //         },
+    //         y : {
+    //             type : "range",
+    //             domain : [ 0, 100 ],
+    //             step : 2,
+    //             line : false
+    //         },
+    //         data: [
+    //             // { x: 0, y: 50, vx: 100, vy: 0 }
+    //             { x: 0, y: 50, ax: 10, ay: 0 }
+    //         ]
+    //     }],
+    //     brush: [{
+    //         type: "canvas.activecircle"
+    //     }]
+    // });
 
     c.run();
 });
-
-setInterval(function() {
-    let data = [];
-    for(let i = 0; i < rnd(0, 10); i++) {
-        data.push({ startTime: Date.now(), duration: rnd(1000, 10000) });
-    }
-    c.update(data);
-}, 5000);
