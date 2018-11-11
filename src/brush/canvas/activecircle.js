@@ -7,12 +7,15 @@ export default {
         const CanvasUtil = jui.include("util.canvas.base");
         const ColorUtil = jui.include("util.color");
 
-        const Circle = function(data, color) {
+        const Circle = function(context, scale, color, xValue, yValue) {
             this.radius = 1;                // 반지름
             this.position = [ 0, 0 ];       // 위치
             this.velocity = [ 0, 0 ];       // 속도
             this.acceleration = [ 0, 0 ];   // 가속도
-            this.mass = 10;                 // 질량
+
+            this.gravity = -9.8;            // 중력
+            this.mass = 1;                  // 질량
+            this.weight = 1;                // 무게
             this.friction = 0.1;            // 마찰
             this.runtime = 0;               // 운동시간
 
@@ -21,29 +24,67 @@ export default {
                 return `rgba(${rgb.r},${rgb.g},${rgb.b},${opacity})`;
             }
 
-            this.calcAcceleration = function(scale, fps, tpf) {
-                if(this.acceleration[0] != 0) {
-                    this.position[0] = scale.x(data.x + this.acceleration[0] * Math.pow(this.runtime, 2));
-                }
-                if(this.acceleration[1] != 0) {
-                    this.position[1] = scale.y(data.y + this.acceleration[1] * Math.pow(this.runtime, 2));
-                }
+            this.checkForMotion = function(angle, fric_coeff) {
+                const weight = this.massToWeight(this.mass, this.gravity);
+
+                // 경사면에서 물체에 작용하는 수직항력을 계산
+                const normal = weight * Math.cos(angle * Math.PI / 180);
+
+                // 경사면에 평행하게 물체에 작용하는 힘을 계산
+                const perpForce = weight * Math.sin(angle * Math.PI / 180);
+
+                // 물체가 정지해 있도록 하는 마찰력을 계산
+                const stat_friction = fric_coeff * normal;
+
+                console.log(`무게: ${weight}, 수직항력: ${-normal}, 힘: ${perpForce}, 정지마찰력: ${stat_friction}`);
+                return perpForce > stat_friction;
             }
 
-            this.calcVelocity = function(scale, fps, tpf) {
-                const distX = this.velocity[0] * tpf;
-                const distY = this.velocity[1] * tpf;
+            this.calcAcceleration = function(angle, fric_coeff) {
+                const weight = this.massToWeight(this.mass, this.acceleration[1])
 
-                if(distY > 0) { // 아래서 위로
-                    this.position[0] += (distX == 0) ? 0 : scale.x(distX);
-                    this.position[1] -= (distY == 0) ? 0 : scale.y(scale.y.max() - distY);
-                } else { // 위에서 아래로
-                    this.position[0] -= (distX == 0) ? 0 : scale.x(-distX);
-                    this.position[1] += (distY == 0) ? 0 : scale.y(scale.y.max() + distY);
-                }
+                // 경사면에서 물체에 작용하는 수직항력을 계산
+                const normal = weight * Math.cos(angle * Math.PI / 180);
+
+                // 경사면에 평행하게 물체에 작용하는 힘을 계산
+                const perpForce = weight * Math.sin(angle * Math.PI / 180);
+
+                // 물체가 정지해 있도록 하는 마찰력을 계산
+                const kin_friction = fric_coeff * normal;
+
+                // 물체에 작용하는 힘의 합을 계산
+                const total_force = perpForce - kin_friction;
+
+                return total_force / this.mass;
             }
 
-            this.move = function(scale, fps, tpf) {
+            this.poundToWeight = function(pound) {
+                return pound * (1 / 0.2248);
+            }
+
+            this.weightToPound = function(weight) {
+                return weight * (0.2248 / 1);
+            }
+
+            this.massToWeight = function(mass) {
+                return mass * this.gravity;
+            }
+
+            this.weightToMass = function(weight) {
+                return weight / this.gravity;
+            }
+
+            this.updateAcceleration = function() {
+                const vx = this.velocity[0] * this.runtime;
+                const vy = this.velocity[1] * this.runtime;
+                const ax = this.acceleration[0] * Math.pow(this.runtime, 2);
+                const ay = this.acceleration[1] * Math.pow(this.runtime, 2);
+
+                this.position[0] = scale.x(xValue + vx + ax);
+                this.position[1] = scale.y(yValue + vy + ay);
+            }
+
+            this.move = function(fps, tpf) {
                 if(tpf == 1) return;
 
                 const pre_position = [ this.position[0], this.position[1] ];
@@ -51,13 +92,10 @@ export default {
                 // 운동시간 누적
                 this.runtime += 1 * tpf;
 
-                // 1. 가속도 적용
-                this.calcAcceleration(scale, fps, tpf);
+                // 평균속도+가속도 적용
+                this.updateAcceleration();
 
-                // 2. 평균속도 적용
-                this.calcVelocity(scale, fps, tpf);
-
-                console.log(`런타임: ${this.runtime}, 프레임 사이의 평균 속도: ${(this.position[0]-pre_position[0]) / tpf}M/s`);
+                console.log(`런타임: ${this.runtime}, 프레임 사이의 평균 속도: ${(this.position[1]-pre_position[1]) / tpf}M/s`);
             }
 
             this.stop = function() {
@@ -65,7 +103,7 @@ export default {
                 this.acceleration = [ 0, 0 ];
             }
 
-            this.draw = function(context) {
+            this.draw = function() {
                 const util = new CanvasUtil(context);
 
                 context.shadowColor = hexToRgba(color, 0.3);
@@ -79,15 +117,30 @@ export default {
         }
 
         const CanvasActiveCircleBrush = function() {
+            this.checkWallCollision = function(circle) {
+                const minX = this.axis.x(this.axis.x.min());
+                const maxX = this.axis.x(this.axis.x.max());
+                const minY = this.axis.y(this.axis.y.min());
+                const maxY = this.axis.y(this.axis.y.max());
+
+                if(circle.position[0] - circle.radius < minX ||
+                    circle.position[0] + circle.radius > maxX ||
+                    circle.position[1] - circle.radius < maxY ||
+                    circle.position[1] + circle.radius > minY) {
+                    return true;
+                }
+
+                return false;
+            }
+
             this.draw = function() {
                 const fps = this.chart.getCache("fps", 1);
                 const tpf = this.chart.getCache("tpf", 1);
                 const circles = this.chart.getCache("active_circle", []);
-                const maxX = this.axis.x(this.axis.x.max());
 
                 if(circles.length == 0) {
                     this.eachData(function (data, i) {
-                        const circle = new Circle(data, this.color(i));
+                        const circle = new Circle(this.canvas, this.axis, this.color(i), data.x, data.y);
                         circle.radius = data.radius || this.brush.radius;
                         circle.position = [ this.axis.x(data.x), this.axis.y(data.y) ];
                         circle.velocity = [ data.vx || 0, data.vy || 0 ];
@@ -99,14 +152,12 @@ export default {
                 for(let i = 0; i < circles.length; i++) {
                     const circle = circles[i];
 
-                    // 차트 범위를 벗어났을 때에 대한 처리
-                    if(circle.position[0] > maxX) {
-                        circle.stop();
-                    } else {
-                        circle.move(this.axis, fps, tpf);
-                    }
+                    // if(circle.checkForMotion(30, 1)) {
+                    //     circle.acceleration[1] = circle.calcAcceleration(90, 1);
+                        circle.move(fps, tpf);
+                    // }
 
-                    circle.draw(this.canvas);
+                    circle.draw();
                 }
 
                 this.chart.setCache("active_circle", circles);

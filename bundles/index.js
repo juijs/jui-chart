@@ -33,7 +33,8 @@ jui.ready([ "chart.animation" ], function(animation) {
             data: [
                 // { x: 50, y: 900, vx: -10, vy: 0 }
                 // { x: 50, y: 900, vx: 0, vy: -100 }
-                { x: 50, y: 900, ax: 0, ay: -9.8 }
+                { x: 50, y: 1000, vy: -100, ay: -9.8 }
+                // { x: 80, y: 50, ax: -9.8, ay: 0 }
             ]
         }],
         brush: [{
