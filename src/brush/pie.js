@@ -13,20 +13,48 @@ export default {
             var preAngle = 0, preRate = 0, preOpacity = 1;
             var g, cache_active = {};
 
-            this.setActiveEvent = function(pie, centerX, centerY, centerAngle) {
-                var dist = this.chart.theme("pieActiveDistance"),
-                    tx = Math.cos(math.radian(centerAngle)) * dist,
-                    ty = Math.sin(math.radian(centerAngle)) * dist;
+            this.setActiveEvent = function(items, useOpacity) {
+                var isDisableAll = true,
+                    disabledOpacity = this.chart.theme("barDisableBackgroundOpacity") || 0.5;
 
-                pie.translate(centerX + tx, centerY + ty);
+                for(var key in items) {
+                    var data = items[key];
+
+                    if(data.active) {
+                        isDisableAll = false;
+                        break;
+                    }
+                }
+
+                for(var key in items) {
+                    var data = items[key];
+
+                    if(data.active) {
+                        let dist = this.chart.theme("pieActiveDistance"),
+                            tx = Math.cos(math.radian(data.centerAngle)) * dist,
+                            ty = Math.sin(math.radian(data.centerAngle)) * dist;
+
+                        data.pie.translate(data.centerX + tx, data.centerY + ty);
+                    } else {
+                        data.pie.translate(data.centerX, data.centerY);
+                    }
+
+                    if(useOpacity) {
+                        data.pie.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
+                        data.text.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
+                    }
+                }
             }
 
-            this.setActiveTextEvent = function(pie, centerX, centerY, centerAngle, outerRadius, isActive) {
-                var dist = (isActive) ? this.chart.theme("pieActiveDistance") : 0,
-                    cx = centerX + (Math.cos(math.radian(centerAngle)) * ((outerRadius + dist) / 2)),
-                    cy = centerY + (Math.sin(math.radian(centerAngle)) * ((outerRadius + dist) / 2));
+            this.setActiveTextEvent = function(items) {
+                for(var key in items) {
+                    var data = items[key],
+                        dist = (data.active) ? this.chart.theme("pieActiveDistance") : 0,
+                        cx = data.centerX + (Math.cos(math.radian(data.centerAngle)) * ((data.outerRadius + dist) / 2)),
+                        cy = data.centerY + (Math.sin(math.radian(data.centerAngle)) * ((data.outerRadius + dist) / 2));
 
-                pie.translate(cx, cy);
+                    data.text.get(0).translate(cx, cy);
+                }
             }
 
             this.getFormatText = function(target, value, max) {
@@ -255,37 +283,49 @@ export default {
                         pie = this.drawPie(centerX, centerY, outerRadius, startAngle, endAngle, this.color(i)),
                         text = this.drawText(centerX, centerY, centerAngle, outerRadius, this.getFormatText(target[i], value, max));
 
+                    // 파이 액티브상태 캐싱하는 객체
+                    cache_active[centerAngle] = {
+                        active: false,
+                        pie: pie,
+                        text: text,
+                        centerX: centerX,
+                        centerY: centerY,
+                        centerAngle: centerAngle,
+                        outerRadius: outerRadius
+                    };
+
                     // TODO: 파이가 한개일 경우, 액티브 처리를 할 필요가 없다.
                     if(!isOnlyOne) {
                         // 설정된 키 활성화
                         if (active == target[i] || _.inArray(target[i], active) != -1) {
-                            if(this.brush.showText == "inside") {
-                                this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, outerRadius, true);
-                            }
-
-                            this.setActiveEvent(pie, centerX, centerY, centerAngle);
-                            cache_active[centerAngle] = true;
+                            cache_active[centerAngle].active = true;
+                        } else {
+                            cache_active[centerAngle].active = false;
                         }
+
+                        // 파이 및 텍스트 액티브 상태 처리
+                        if(this.brush.showText == "inside") {
+                            this.setActiveTextEvent(cache_active);
+                        }
+
+                        // 파이 및 텍스트 액티브 상태 처리
+                        this.setActiveEvent(cache_active, true);
 
                         // 활성화 이벤트 설정
                         if (this.brush.activeEvent != null) {
                             (function(p, t, cx, cy, ca, r) {
                                 p.on(self.brush.activeEvent, function(e) {
-                                    if(!cache_active[ca]) {
-                                        if(self.brush.showText == "inside") {
-                                            self.setActiveTextEvent(t, cx, cy, ca, r, true);
-                                        }
-
-                                        self.setActiveEvent(p, cx, cy, ca);
-                                        cache_active[ca] = true;
+                                    if(!cache_active[ca].active) {
+                                        cache_active[ca].active = true;
                                     } else {
-                                        if(self.brush.showText == "inside") {
-                                            self.setActiveTextEvent(t, cx, cy, ca, r, false);
-                                        }
-
-                                        p.translate(cx, cy);
-                                        cache_active[ca] = false;
+                                        cache_active[ca].active = false;
                                     }
+
+                                    if(self.brush.showText == "inside") {
+                                        self.setActiveTextEvent(cache_active);
+                                    }
+
+                                    self.setActiveEvent(cache_active, true);
                                 });
 
                                 p.attr({ cursor: "pointer" });

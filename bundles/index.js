@@ -1,76 +1,58 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
-import CanvasActiveCircleBrush from '../src/brush/canvas/activecircle.js'
+import PieBrush from '../src/brush/pie.js'
+import DonutBrush from '../src/brush/donut.js'
+import TitleWidget from '../src/widget/title.js'
+import TooltipWidget from '../src/widget/tooltip.js'
+import LegendWidget from '../src/widget/legend.js'
 
-jui.use([ ClassicTheme, CanvasActiveCircleBrush ]);
+jui.use([ ClassicTheme, PieBrush, DonutBrush, TitleWidget, TooltipWidget, LegendWidget ]);
 
-jui.ready([ "chart.animation" ], function(animation) {
-    var c = animation("#chart", {
-        width: 250,
+jui.ready([ "chart.builder" ], function(chart) {
+    var names = {
+        ie: "IE",
+        ff: "Fire Fox",
+        chrome: "Chrome",
+        safari: "Safari",
+        other: "Others"
+    };
+
+    chart("#chart", {
+        width: 600,
         height: 600,
-        padding: {
-            left: 70,
-            right: 30,
-            top: 30,
-            bottom: 30
-        },
-        axis: [{
-            x : {
-                type : "range",
-                domain : [ 0, 100 ],
-                step : 2,
-                line : false
-            },
-            y : {
-                type : "range",
-                domain : [ 0, 1000 ],
-                step : 10,
-                line : false,
-                format : function(d) {
-                    return d + "M";
-                }
-            },
-            data: [
-                // { x: 50, y: 900, vx: -10, vy: 0 }
-                // { x: 50, y: 900, vx: 0, vy: -100 }
-                { x: 50, y: 1000, vy: -100, ay: -9.8 }
-                // { x: 80, y: 50, ax: -9.8, ay: 0 }
+        padding : 100,
+        axis : {
+            data : [
+                { ie : 70, ff : 11, chrome : 9, safari : 6, other : 4 }
             ]
-        }],
-        brush: [{
-            type: "canvas.activecircle"
+        },
+        brush : {
+            type : "donut",
+            showText : "outside",
+            active : "ie",
+            activeEvent : "click",
+            format : function(k, v) {
+                return names[k] + ": " + v;
+            }
+        },
+        widget : [{
+            type : "title",
+            text : "Pie Sample"
+        }, {
+            type : "tooltip",
+            orient : "left",
+            format : function(data, k) {
+                return {
+                    key: names[k],
+                    value: data[k]
+                }
+            }
+        }, {
+            type : "legend",
+            format : function(k) {
+                return names[k];
+            }
         }]
     });
 
-    // var c = animation("#chart", {
-    //     width: 1000,
-    //     height: 200,
-    //     padding: 30,
-    //     axis: [{
-    //         x : {
-    //             type : "range",
-    //             domain : [ 0, 1000 ],
-    //             step : 10,
-    //             line : false,
-    //             format : function(d) {
-    //                 return d + "M";
-    //             }
-    //         },
-    //         y : {
-    //             type : "range",
-    //             domain : [ 0, 100 ],
-    //             step : 2,
-    //             line : false
-    //         },
-    //         data: [
-    //             // { x: 0, y: 50, vx: 100, vy: 0 }
-    //             { x: 0, y: 50, ax: 10, ay: 0 }
-    //         ]
-    //     }],
-    //     brush: [{
-    //         type: "canvas.activecircle"
-    //     }]
-    // });
-
-    c.run();
 });

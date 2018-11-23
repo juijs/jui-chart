@@ -216,37 +216,49 @@ export default {
                         }),
                         text = this.drawText(centerX, centerY, centerAngle, radius, this.getFormatText(target[i], value));
 
+                    // 파이 액티브상태 캐싱하는 객체
+                    cache_active[centerAngle] = {
+                        active: false,
+                        pie: donut,
+                        text: text,
+                        centerX: centerX,
+                        centerY: centerY,
+                        centerAngle: centerAngle,
+                        outerRadius: radius
+                    };
+
                     // TODO: 파이가 한개일 경우, 액티브 처리를 할 필요가 없다.
                     if(!isOnlyOne) {
                         // 설정된 키 활성화
                         if (active == target[i] || _.inArray(target[i], active) != -1) {
-                            if(this.brush.showText == "inside") {
-                                this.setActiveTextEvent(text.get(0), centerX, centerY, centerAngle, radius, true);
-                            }
-
-                            this.setActiveEvent(donut, centerX, centerY, centerAngle);
-                            cache_active[centerAngle] = true;
+                            cache_active[centerAngle].active = true;
+                        } else {
+                            cache_active[centerAngle].active = false;
                         }
+
+                        // 파이 및 텍스트 액티브 상태 처리
+                        if(this.brush.showText == "inside") {
+                            this.setActiveTextEvent(cache_active);
+                        }
+
+                        // 파이 및 텍스트 액티브 상태 처리
+                        this.setActiveEvent(cache_active, false);
 
                         // 활성화 이벤트 설정
                         if (this.brush.activeEvent != null) {
                             (function (p, t, cx, cy, ca, r) {
                                 p.on(self.brush.activeEvent, function (e) {
-                                    if (!cache_active[ca]) {
-                                        if(self.brush.showText == "inside") {
-                                            self.setActiveTextEvent(t, cx, cy, ca, r, true);
-                                        }
-
-                                        self.setActiveEvent(p, cx, cy, ca);
-                                        cache_active[ca] = true;
+                                    if (!cache_active[ca].active) {
+                                        cache_active[ca].active = true;
                                     } else {
-                                        if(self.brush.showText == "inside") {
-                                            self.setActiveTextEvent(t, cx, cy, ca, r, false);
-                                        }
-
-                                        p.translate(cx, cy);
-                                        cache_active[ca] = false;
+                                        cache_active[ca].active = false;
                                     }
+
+                                    if(self.brush.showText == "inside") {
+                                        self.setActiveTextEvent(cache_active);
+                                    }
+
+                                    self.setActiveEvent(cache_active, false);
                                 });
 
                                 p.attr({ cursor: "pointer" });

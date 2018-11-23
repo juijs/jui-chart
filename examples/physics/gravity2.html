@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.rawgit.com/juijs/jui-core/es6/dist/jui-core.js"></script>
+    <script src="../../dist/jui-chart.js"></script>
+</head>
+<body>
+<div id="chart"></div>
+<script>
+    jui.ready([ "chart.animation" ], function(animation) {
+        var c = animation("#chart", {
+            width: 250,
+            height: 600,
+            padding: {
+                left: 70,
+                right: 30,
+                top: 30,
+                bottom: 30
+            },
+            axis: [{
+                x : {
+                    type : "range",
+                    domain : [ 0, 100 ],
+                    step : 2,
+                    line : false
+                },
+                y : {
+                    type : "range",
+                    domain : [ 0, 1000 ],
+                    step : 10,
+                    line : false,
+                    format : function(d) {
+                        return d + "M";
+                    }
+                },
+                data: [
+                    // { x: 50, y: 900, vx: -10, vy: 0 }
+                    // { x: 50, y: 900, vx: 0, vy: -100 }
+                    { x: 50, y: 1000, vy: -100, ay: -9.8 }
+                    // { x: 80, y: 50, ax: -9.8, ay: 0 }
+                ]
+            }],
+            brush: [{
+                type: "canvas.activecircle"
+            }]
+        });
+
+        // var c = animation("#chart", {
+        //     width: 1000,
+        //     height: 200,
+        //     padding: 30,
+        //     axis: [{
+        //         x : {
+        //             type : "range",
+        //             domain : [ 0, 1000 ],
+        //             step : 10,
+        //             line : false,
+        //             format : function(d) {
+        //                 return d + "M";
+        //             }
+        //         },
+        //         y : {
+        //             type : "range",
+        //             domain : [ 0, 100 ],
+        //             step : 2,
+        //             line : false
+        //         },
+        //         data: [
+        //             // { x: 0, y: 50, vx: 100, vy: 0 }
+        //             { x: 0, y: 50, ax: 10, ay: 0 }
+        //         ]
+        //     }],
+        //     brush: [{
+        //         type: "canvas.activecircle"
+        //     }]
+        // });
+
+        c.run();
+    });
+</script>
+</body>
+</html>
