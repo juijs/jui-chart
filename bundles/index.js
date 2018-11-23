@@ -27,7 +27,7 @@ jui.ready([ "chart.builder" ], function(chart) {
             ]
         },
         brush : {
-            type : "donut",
+            type : "pie",
             showText : "outside",
             active : "ie",
             activeEvent : "click",

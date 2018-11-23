@@ -15,7 +15,7 @@ export default {
 
             this.setActiveEvent = function(items, useOpacity) {
                 var isDisableAll = true,
-                    disabledOpacity = this.chart.theme("barDisableBackgroundOpacity") || 0.5;
+                    disabledOpacity = this.chart.theme("pieDisableBackgroundOpacity") || 0.5;
 
                 for(var key in items) {
                     var data = items[key];

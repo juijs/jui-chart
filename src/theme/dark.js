@@ -113,6 +113,7 @@ export default {
             pieTotalValueFontSize : 36,
             pieTotalValueFontColor : "#dcdcdc",
             pieTotalValueFontWeight : "bold",
+            pieDisableBackgroundOpacity: 0.5,
             areaBackgroundOpacity : 0.5,
             areaSplitBackgroundColor : "#ebebeb",
             bubbleBackgroundOpacity : 0.5,
