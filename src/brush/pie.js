@@ -40,8 +40,13 @@ export default {
                     }
 
                     if(useOpacity) {
-                        data.pie.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
-                        data.text.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
+                        if(data.pie.children.length > 0) {
+                            data.pie.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
+                        }
+
+                        if(data.text.children.length > 0) {
+                            data.text.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
+                        }
                     }
                 }
             }
@@ -53,7 +58,9 @@ export default {
                         cx = data.centerX + (Math.cos(math.radian(data.centerAngle)) * ((data.outerRadius + dist) / 2)),
                         cy = data.centerY + (Math.sin(math.radian(data.centerAngle)) * ((data.outerRadius + dist) / 2));
 
-                    data.text.get(0).translate(cx, cy);
+                    if(data.text.children.length > 0) {
+                        data.text.get(0).translate(cx, cy);
+                    }
                 }
             }
 
