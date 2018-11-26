@@ -11,9 +11,6 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js'
     },
-    externals: {
-        'juijs': 'jui'
-    },
     optimization: {
         minimizer: [
             new UglifyJsPlugin()
