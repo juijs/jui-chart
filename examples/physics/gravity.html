@@ -5,7 +5,7 @@
     <title>Title</title>
     <script src="../../dist/jui-chart.js"></script>
     <script>
-        jui.redefine("chart.brush.canvas.activecircle",
+        graph.redefine("chart.brush.canvas.activecircle",
             ["util.canvas.base", "util.color" ], function(CanvasUtil, ColorUtil) {
 
             function hexToRgba(color, opacity) {
@@ -107,7 +107,7 @@
             return CanvasActiveCircleBrush;
         }, "chart.brush.canvas.core");
 
-        jui.ready([ "chart.animation" ], function(animation) {
+        graph.ready([ "chart.animation" ], function(animation) {
             var c = animation("#chart", {
                 width: 250,
                 height: 1000,

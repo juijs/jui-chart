@@ -101,4 +101,6 @@ jui.use([
     Rotate3dWidget
 ]);
 
-window.jui = window.JUI = jui;
+if(typeof(window) == "object") {
+    window.graph = jui;
+}
