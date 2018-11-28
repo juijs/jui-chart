@@ -65,7 +65,7 @@
     }
   ],
   "dependencies": {
-    "juijs-graph": "0.5.10-es6"
+    "juijs-graph": "0.5.11-es6"
   },
   "devDependencies": {
     "babel": "^6.23.0",
