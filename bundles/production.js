@@ -45,6 +45,7 @@ import TitleWidget from '../src/widget/title.js'
 import TooltipWidget from '../src/widget/tooltip.js'
 import TopologyCtrlWidget from '../src/widget/topologyctrl.js'
 import DragSelectWidget from '../src/widget/dragselect.js'
+import VScrollWidget from '../src/widget/vscroll.js'
 import RayCastWidget from '../src/widget/raycast.js'
 import PickerWidget from '../src/widget/canvas/picker.js'
 import Rotate3dWidget from '../src/widget/polygon/rotate3d.js'
@@ -96,6 +97,7 @@ jui.use([
     TooltipWidget,
     TopologyCtrlWidget,
     DragSelectWidget,
+    VScrollWidget,
     RayCastWidget,
     PickerWidget,
     Rotate3dWidget

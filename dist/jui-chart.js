@@ -658,21 +658,25 @@ var _dragselect = __webpack_require__(52);
 
 var _dragselect2 = _interopRequireDefault(_dragselect);
 
-var _raycast = __webpack_require__(53);
+var _vscroll = __webpack_require__(53);
+
+var _vscroll2 = _interopRequireDefault(_vscroll);
+
+var _raycast = __webpack_require__(54);
 
 var _raycast2 = _interopRequireDefault(_raycast);
 
-var _picker = __webpack_require__(54);
+var _picker = __webpack_require__(55);
 
 var _picker2 = _interopRequireDefault(_picker);
 
-var _rotate3d = __webpack_require__(55);
+var _rotate3d = __webpack_require__(56);
 
 var _rotate3d2 = _interopRequireDefault(_rotate3d);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _raycast2.default, _picker2.default, _rotate3d2.default]);
+_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _raycast2.default, _picker2.default, _rotate3d2.default]);
 
 if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) == "object") {
     window.graph = _main2.default;
@@ -4974,10 +4978,7 @@ var JUISvgBase3d = {
                     tr = r * rate,
                     l = Math.cos(radian) * depth / 2,
                     d = Math.sin(radian) * depth / 2,
-
-
-                // key = _.createId("cylinder3d");
-                key = "cylinder3d";
+                    key = _.createId("cylinder3d");
 
                 var g = self.group({}, function () {
                     self.ellipse({
@@ -7268,7 +7269,7 @@ var axis = {
                 }
 
                 // _clipId = _.createId("clip-id-");
-                _clipId = "axis-clip-id";
+                _clipId = "axis-clip-id-" + jui$1.size();
 
                 _clipPath = chart.svg.clipPath({
                     id: _clipId
@@ -7289,7 +7290,7 @@ var axis = {
                 }
 
                 // _clipRectId = _.createId("clip-rect-id-");
-                _clipRectId = "axis-clip-rect-id";
+                _clipRectId = "axis-clip-rect-id-" + jui$1.size();
 
                 _clipRect = chart.svg.clipPath({
                     id: _clipRectId
@@ -8523,7 +8524,7 @@ var JUIBuilder = {
                 }
 
                 // var id = _.createId("gradient");
-                var id = "gradient";
+                var id = "gradient-" + jui$1.size();
                 obj.attr.id = id;
 
                 var g = SVGUtil.createObject(obj);
@@ -8578,7 +8579,7 @@ var JUIBuilder = {
                     return "url(#" + obj + ")";
                 } else {
                     // obj.attr.id = obj.attr.id || _.createId('pattern-');
-                    obj.attr.id = obj.attr.id || "pattern";
+                    obj.attr.id = obj.attr.id || "pattern-" + jui$1.size();
 
                     if (_hash[obj.attr.id]) {
                         return "url(#" + obj.attr.id + ")";
@@ -23949,6 +23950,142 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.default = {
+    name: "chart.widget.vscroll",
+    extend: "chart.widget.core",
+    component: function component() {
+        var VScrollWidget = function VScrollWidget(chart, axis, widget) {
+            var self = this;
+            var thumbHeight = 0,
+                thumbTop = 0,
+                bufferCount = 0,
+                dataLength = 0,
+                totalHeight = 0,
+                piece = 0,
+                rate = 0;
+
+            function setScrollEvent(thumb) {
+                var isMove = false,
+                    mouseStart = 0,
+                    thumbStart = 0,
+                    axies = chart.axis();
+
+                self.on("bg.mousedown", mousedown);
+                self.on("chart.mousedown", mousedown);
+                self.on("bg.mousemove", mousemove);
+                self.on("bg.mouseup", mouseup);
+                self.on("chart.mousemove", mousemove);
+                self.on("chart.mouseup", mouseup);
+
+                function mousedown(e) {
+                    if (isMove && thumb.element != e.target) return;
+
+                    isMove = true;
+                    mouseStart = e.bgY;
+                    thumbStart = thumbTop;
+                }
+
+                function mousemove(e) {
+                    if (!isMove) return;
+
+                    var gap = thumbStart + e.bgY - mouseStart;
+
+                    if (gap < 0) {
+                        gap = 0;
+                    } else {
+                        if (gap + thumbHeight > chart.area("height")) {
+                            gap = chart.area("height") - thumbHeight;
+                        }
+                    }
+
+                    thumb.translate(1, gap);
+                    thumbTop = gap;
+
+                    var startgap = gap * rate,
+                        start = startgap == 0 ? 0 : Math.floor(startgap / piece);
+
+                    if (gap + thumbHeight == chart.area("height")) {
+                        start += 1;
+                    }
+
+                    for (var i = 0; i < axies.length; i++) {
+                        axies[i].zoom(start, start + bufferCount);
+                    }
+
+                    // 차트 렌더링이 활성화되지 않았을 경우
+                    if (!chart.isRender()) {
+                        chart.render();
+                    }
+                }
+
+                function mouseup(e) {
+                    if (!isMove) return;
+
+                    isMove = false;
+                    mouseStart = 0;
+                    thumbStart = 0;
+                }
+            }
+
+            this.drawBefore = function () {
+                dataLength = axis.origin.length;
+                bufferCount = axis.buffer;
+                piece = chart.area("height") / bufferCount;
+                totalHeight = piece * (dataLength || 1);
+                rate = totalHeight / chart.area("height");
+                thumbHeight = chart.area("height") * (bufferCount / (dataLength || 1)) + 2;
+            };
+
+            this.draw = function () {
+                var bgSize = chart.theme("scrollBackgroundSize"),
+                    bgX = widget.orient == "right" ? chart.area("x2") : chart.area("x") - bgSize;
+
+                if (dataLength == 0) {
+                    return chart.svg.group();
+                }
+
+                return chart.svg.group({}, function () {
+                    chart.svg.rect({
+                        width: bgSize,
+                        height: chart.area("height"),
+                        fill: chart.theme("scrollBackgroundColor")
+                    });
+
+                    var thumb = chart.svg.rect({
+                        width: bgSize - 2,
+                        height: thumbHeight,
+                        fill: chart.theme("scrollThumbBackgroundColor"),
+                        stroke: chart.theme("scrollThumbBorderColor"),
+                        cursor: "pointer",
+                        "stroke-width": 1
+                    }).translate(1, thumbTop);
+
+                    // 차트 스크롤 이벤트
+                    setScrollEvent(thumb);
+                }).translate(bgX, chart.area("y"));
+            };
+        };
+
+        VScrollWidget.setup = function () {
+            return {
+                orient: "left"
+            };
+        };
+
+        return VScrollWidget;
+    }
+};
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
 var _main = __webpack_require__(0);
 
@@ -24024,7 +24161,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24105,7 +24242,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
