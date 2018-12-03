@@ -1,5 +1,3 @@
-import jui from '../main.js';
-
 export default {
     name: "chart.brush.focus",
     extend: "chart.brush.core",

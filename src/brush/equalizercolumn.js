@@ -1,3 +1,8 @@
+import jui from '../main.js';
+import StackColumnBrush from './stackcolumn';
+
+jui.use(StackColumnBrush);
+
 export default {
     name: "chart.brush.equalizercolumn",
     extend: "chart.brush.stackcolumn",

@@ -1,4 +1,7 @@
 import jui from '../main.js';
+import LineBrush from './line';
+
+jui.use(LineBrush);
 
 export default {
     name: "chart.brush.area",

@@ -1,58 +1,52 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
-import PieBrush from '../src/brush/pie.js'
-import DonutBrush from '../src/brush/donut.js'
+import StackColumnBrush from '../src/brush/stackcolumn.js'
 import TitleWidget from '../src/widget/title.js'
 import TooltipWidget from '../src/widget/tooltip.js'
 import LegendWidget from '../src/widget/legend.js'
 
-jui.use([ ClassicTheme, PieBrush, DonutBrush, TitleWidget, TooltipWidget, LegendWidget ]);
+jui.use([ ClassicTheme, StackColumnBrush, TitleWidget, TooltipWidget, LegendWidget ]);
 
 jui.ready([ "chart.builder" ], function(chart) {
-    var names = {
-        ie: "IE",
-        ff: "Fire Fox",
-        chrome: "Chrome",
-        safari: "Safari",
-        other: "Others"
-    };
+    var data = [
+        { quarter : "1Q", samsung : 50, lg : 35, sony: 10 },
+        { quarter : "2Q", samsung : 20, lg : 30, sony: 5 },
+        { quarter : "3Q", samsung : 20, lg : 5, sony: 10 },
+        { quarter : "4Q", samsung : 30, lg : 25, sony: 15 }
+    ];
 
     chart("#chart", {
-        width: 600,
-        height: 600,
-        padding : 100,
+        width: 500,
+        height: 300,
         axis : {
-            data : [
-                { ie : 70, ff : 11, chrome : 9, safari : 6, other : 4 }
-            ]
+            y : {
+                type : "range",
+                domain : function(data) {
+                    return data.samsung + data.lg + data.sony;
+                },
+                line : true,
+                orient: "top"
+            },
+            x : {
+                type : "block",
+                domain : "quarter",
+                line : true
+            },
+            data : data
         },
         brush : {
-            type : "pie",
-            showText : "outside",
-            active : "ie",
+            type : "stackcolumn",
             activeEvent : "click",
-            format : function(k, v) {
-                return names[k] + ": " + v;
-            }
+            target : [ "samsung", "lg", "sony" ]
         },
         widget : [{
             type : "title",
-            text : "Pie Sample"
-        }, {
-            type : "tooltip",
-            orient : "left",
-            format : function(data, k) {
-                return {
-                    key: names[k],
-                    value: data[k]
-                }
-            }
+            text : "Bar Sample",
+            orient : "bottom",
+            align : "end"
         }, {
             type : "legend",
-            format : function(k) {
-                return names[k];
-            }
+            filter : true
         }]
     });
-
 });

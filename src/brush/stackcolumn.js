@@ -1,4 +1,7 @@
 import jui from '../main.js';
+import StackBarBrush from './stackbar.js'
+
+jui.use(StackBarBrush);
 
 export default {
     name: "chart.brush.stackcolumn",

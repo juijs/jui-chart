@@ -1,3 +1,8 @@
+import jui from '../main.js';
+import StackBarBrush from './stackbar';
+
+jui.use(StackBarBrush);
+
 export default {
     name: "chart.brush.equalizerbar",
     extend: "chart.brush.stackbar",

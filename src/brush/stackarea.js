@@ -1,4 +1,7 @@
 import jui from '../main.js';
+import AreaBrush from './area.js'
+
+jui.use(AreaBrush);
 
 export default {
     name: "chart.brush.stackarea",

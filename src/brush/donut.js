@@ -1,4 +1,7 @@
 import jui from '../main.js';
+import DonutBrush from './pie';
+
+jui.use(DonutBrush);
 
 export default {
     name: "chart.brush.donut",

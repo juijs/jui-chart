@@ -1,3 +1,8 @@
+import jui from '../main.js';
+import FullStackBarBrush from './fullstackbar';
+
+jui.use(FullStackBarBrush);
+
 export default {
     name: "chart.brush.fullstackcolumn",
     extend: "chart.brush.fullstackbar",

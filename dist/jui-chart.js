@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -95,7 +95,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _juijsGraph = __webpack_require__(4);
+var _juijsGraph = __webpack_require__(11);
 
 var _juijsGraph2 = _interopRequireDefault(_juijsGraph);
 
@@ -105,6 +105,1619 @@ exports.default = _juijsGraph2.default;
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _bar = __webpack_require__(2);
+
+var _bar2 = _interopRequireDefault(_bar);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_bar2.default);
+
+exports.default = {
+    name: "chart.brush.stackbar",
+    extend: "chart.brush.bar",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var StackBarBrush = function StackBarBrush(chart, axis, brush) {
+            var g, height, bar_height;
+
+            this.addBarElement = function (elem) {
+                if (this.barList == null) {
+                    this.barList = [];
+                }
+
+                this.barList.push(elem);
+            };
+
+            this.getBarElement = function (dataIndex, targetIndex) {
+                var style = this.getBarStyle(),
+                    color = this.color(targetIndex),
+                    value = this.getData(dataIndex)[this.brush.target[targetIndex]];
+
+                var r = this.chart.svg.rect({
+                    fill: color,
+                    stroke: style.borderColor,
+                    "stroke-width": style.borderWidth,
+                    "stroke-opacity": style.borderOpacity
+                });
+
+                // 데이타가 0이면 화면에 표시하지 않음.
+                if (value == 0) {
+                    r.attr({ display: 'none' });
+                }
+
+                if (value != 0) {
+                    this.addEvent(r, dataIndex, targetIndex);
+                }
+
+                return r;
+            };
+
+            this.setActiveEffect = function (group) {
+                var style = this.getBarStyle(),
+                    columns = this.barList,
+                    tooltips = this.stackTooltips;
+
+                for (var i = 0; i < columns.length; i++) {
+                    var opacity = group == columns[i] ? 1 : style.disableOpacity;
+
+                    if (tooltips) {
+                        // bar 가 그려지지 않으면 tooltips 객체가 없을 수 있음.
+                        if (opacity == 1 || _.inArray(i, this.tooltipIndexes) != -1) {
+                            tooltips[i].attr({ opacity: 1 });
+                        } else {
+                            tooltips[i].attr({ opacity: 0 });
+                        }
+                    }
+
+                    columns[i].attr({ opacity: opacity });
+                }
+            };
+
+            this.setActiveEffectOption = function () {
+                var active = this.brush.active;
+
+                if (this.barList && this.barList[active]) {
+                    this.setActiveEffect(this.barList[active]);
+                }
+            };
+
+            this.setActiveEvent = function (group) {
+                var self = this;
+
+                group.on(self.brush.activeEvent, function (e) {
+                    self.setActiveEffect(group);
+                });
+            };
+
+            this.setActiveEventOption = function (group) {
+                if (this.brush.activeEvent != null) {
+                    this.setActiveEvent(group);
+                    group.attr({ cursor: "pointer" });
+                }
+            };
+
+            this.getTargetSize = function () {
+                var height = this.axis.y.rangeBand();
+
+                if (this.brush.size > 0) {
+                    return this.brush.size;
+                } else {
+                    var size = height - this.brush.outerPadding * 2;
+                    return size < this.brush.minSize ? this.brush.minSize : size;
+                }
+            };
+
+            this.setActiveTooltips = function (minIndex, maxIndex) {
+                var type = this.brush.display,
+                    activeIndex = type == "min" ? minIndex : maxIndex;
+
+                for (var i = 0; i < this.stackTooltips.length; i++) {
+                    if (i == activeIndex || type == "all") {
+                        this.stackTooltips[i].css({
+                            opacity: 1
+                        });
+
+                        this.tooltipIndexes.push(i);
+                    }
+                }
+            };
+
+            this.drawStackTooltip = function (group, index, value, x, y, pos) {
+                var fontSize = this.chart.theme("tooltipPointFontSize"),
+                    orient = "middle",
+                    dx = 0,
+                    dy = 0;
+
+                if (pos == "left") {
+                    orient = "start";
+                    dx = 3;
+                    dy = fontSize / 3;
+                } else if (pos == "right") {
+                    orient = "end";
+                    dx = -3;
+                    dy = fontSize / 3;
+                } else if (pos == "top") {
+                    dy = -(fontSize / 3);
+                } else {
+                    dy = fontSize;
+                }
+
+                var tooltip = this.chart.text({
+                    fill: this.chart.theme("tooltipPointFontColor"),
+                    "font-size": fontSize,
+                    "font-weight": this.chart.theme("tooltipPointFontWeight"),
+                    "text-anchor": orient,
+                    dx: dx,
+                    dy: dy,
+                    opacity: 0
+                }).text(this.format(value)).translate(x, y);
+
+                this.stackTooltips[index] = tooltip;
+                group.append(tooltip);
+            };
+
+            this.drawStackEdge = function (g) {
+                var borderWidth = this.chart.theme("barStackEdgeBorderWidth");
+
+                for (var i = 1; i < this.edgeData.length; i++) {
+                    var pre = this.edgeData[i - 1],
+                        now = this.edgeData[i];
+
+                    for (var j = 0; j < this.brush.target.length; j++) {
+                        if (now[j].width > 0 && now[j].height > 0) {
+                            g.append(this.svg.line({
+                                x1: pre[j].x + pre[j].width - pre[j].ex,
+                                x2: now[j].x + now[j].dx - now[j].ex,
+                                y1: pre[j].y + pre[j].height - pre[j].ey,
+                                y2: now[j].y + now[j].dy,
+                                stroke: now[j].color,
+                                "stroke-width": borderWidth
+                            }));
+                        }
+                    }
+                }
+            };
+
+            this.drawBefore = function () {
+                g = chart.svg.group();
+                height = axis.y.rangeBand();
+                bar_height = this.getTargetSize();
+
+                this.stackTooltips = [];
+                this.tooltipIndexes = [];
+                this.edgeData = [];
+            };
+
+            this.draw = function () {
+                var maxIndex = null,
+                    maxValue = 0,
+                    minIndex = null,
+                    minValue = this.axis.x.max(),
+                    isReverse = this.axis.get("x").reverse;
+
+                this.eachData(function (data, i) {
+                    var group = chart.svg.group();
+
+                    var offsetY = this.offset("y", i),
+                        startY = offsetY - bar_height / 2,
+                        startX = axis.x(0),
+                        value = 0,
+                        sumValue = 0;
+
+                    for (var j = 0; j < brush.target.length; j++) {
+                        var xValue = data[brush.target[j]] + value,
+                            endX = axis.x(xValue),
+                            opts = {
+                            x: startX < endX ? startX : endX,
+                            y: startY,
+                            width: Math.abs(startX - endX),
+                            height: bar_height
+                        },
+                            r = this.getBarElement(i, j).attr(opts);
+
+                        if (!this.edgeData[i]) {
+                            this.edgeData[i] = {};
+                        }
+
+                        this.edgeData[i][j] = _.extend({
+                            color: this.color(j),
+                            dx: opts.width,
+                            dy: 0,
+                            ex: isReverse ? opts.width : 0,
+                            ey: 0
+                        }, opts);
+
+                        startX = endX;
+                        value = xValue;
+                        sumValue += data[brush.target[j]];
+
+                        group.append(r);
+                    }
+
+                    // min & max 인덱스 가져오기
+                    if (sumValue > maxValue) {
+                        maxValue = sumValue;
+                        maxIndex = i;
+                    }
+                    if (sumValue < minValue) {
+                        minValue = sumValue;
+                        minIndex = i;
+                    }
+
+                    this.drawStackTooltip(group, i, sumValue, startX, offsetY, isReverse ? "right" : "left");
+                    this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
+                    this.addBarElement(group);
+                    g.append(group);
+                });
+
+                // 스탭 연결선 그리기
+                if (this.brush.edge) {
+                    this.drawStackEdge(g);
+                }
+
+                // 최소/최대/전체 값 표시하기
+                if (this.brush.display != null) {
+                    this.setActiveTooltips(minIndex, maxIndex);
+                }
+
+                // 액티브 엘리먼트 설정
+                this.setActiveEffectOption();
+
+                return g;
+            };
+        };
+
+        StackBarBrush.setup = function () {
+            return {
+                /** @cfg {Number} [outerPadding=15] Determines the outer margin of a stack bar. */
+                outerPadding: 15,
+                /** @cfg {Boolean} [edge=false] */
+                edge: false
+            };
+        };
+
+        return StackBarBrush;
+    }
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+    name: "chart.brush.bar",
+    extend: "chart.brush.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var BarBrush = function BarBrush() {
+            var g;
+            var zeroX, height, half_height, bar_height;
+
+            this.getBarStyle = function () {
+                return {
+                    borderColor: this.chart.theme("barBorderColor"),
+                    borderWidth: this.chart.theme("barBorderWidth"),
+                    borderOpacity: this.chart.theme("barBorderOpacity"),
+                    borderRadius: this.chart.theme("barBorderRadius"),
+                    disableOpacity: this.chart.theme("barDisableBackgroundOpacity"),
+                    circleColor: this.chart.theme("barPointBorderColor")
+                };
+            };
+
+            this.getBarElement = function (dataIndex, targetIndex, info) {
+                var style = this.getBarStyle(),
+                    color = this.color(dataIndex, targetIndex),
+                    value = this.getData(dataIndex)[this.brush.target[targetIndex]];
+
+                var r = this.chart.svg.pathRect({
+                    width: info.width,
+                    height: info.height,
+                    fill: color,
+                    stroke: style.borderColor,
+                    "stroke-width": style.borderWidth,
+                    "stroke-opacity": style.borderOpacity
+                });
+
+                if (value != 0) {
+                    this.addEvent(r, dataIndex, targetIndex);
+                }
+
+                if (this.barList == null) {
+                    this.barList = [];
+                }
+
+                this.barList.push(_.extend({
+                    element: r,
+                    color: color
+                }, info));
+
+                return r;
+            };
+
+            this.setActiveEffect = function (r) {
+                var style = this.getBarStyle(),
+                    cols = this.barList;
+
+                for (var i = 0; i < cols.length; i++) {
+                    var opacity = cols[i] == r ? 1 : style.disableOpacity;
+                    cols[i].element.attr({ opacity: opacity });
+
+                    if (cols[i].minmax) {
+                        cols[i].minmax.style(cols[i].color, style.circleColor, opacity);
+                    }
+                }
+            };
+
+            this.drawBefore = function () {
+                var op = this.brush.outerPadding,
+                    ip = this.brush.innerPadding,
+                    len = this.brush.target.length;
+
+                g = this.chart.svg.group();
+                zeroX = this.axis.x(0);
+                height = this.axis.y.rangeBand();
+
+                if (this.brush.size > 0) {
+                    bar_height = this.brush.size;
+                    half_height = bar_height * len + (len - 1) * ip;
+                } else {
+                    half_height = height - op * 2;
+                    bar_height = (half_height - (len - 1) * ip) / len;
+                    bar_height = bar_height < 0 ? 0 : bar_height;
+                }
+            };
+
+            this.drawETC = function (group) {
+                if (!_.typeCheck("array", this.barList)) return;
+
+                var self = this,
+                    style = this.getBarStyle();
+
+                // 액티브 툴팁 생성
+                this.active = this.drawTooltip();
+                group.append(this.active.tooltip);
+
+                for (var i = 0; i < this.barList.length; i++) {
+                    var r = this.barList[i],
+                        d = this.brush.display;
+
+                    // Max & Min 툴팁 생성
+                    if (d == "max" && r.max || d == "min" && r.min || d == "all") {
+                        r.minmax = this.drawTooltip(r.color, style.circleColor, 1);
+                        r.minmax.control(r.position, r.tooltipX, r.tooltipY, this.format(r.value));
+                        group.append(r.minmax.tooltip);
+                    }
+
+                    // 컬럼 및 기본 브러쉬 이벤트 설정
+                    if (r.value != 0 && this.brush.activeEvent != null) {
+                        (function (bar) {
+                            self.active.style(bar.color, style.circleColor, 1);
+
+                            bar.element.on(self.brush.activeEvent, function (e) {
+                                self.active.style(bar.color, style.circleColor, 1);
+                                self.active.control(bar.position, bar.tooltipX, bar.tooltipY, self.format(bar.value));
+                                self.setActiveEffect(bar);
+                            });
+
+                            bar.element.attr({ cursor: "pointer" });
+                        })(r);
+                    }
+                }
+
+                // 액티브 툴팁 위치 설정
+                var r = this.barList[this.brush.active];
+                if (r != null) {
+                    this.active.style(r.color, style.circleColor, 1);
+                    this.active.control(r.position, r.tooltipX, r.tooltipY, this.format(r.value));
+                    this.setActiveEffect(r);
+                }
+            };
+
+            this.draw = function () {
+                var points = this.getXY(),
+                    style = this.getBarStyle();
+
+                this.eachData(function (data, i) {
+                    var startY = this.offset("y", i) - half_height / 2;
+
+                    for (var j = 0; j < this.brush.target.length; j++) {
+                        var value = data[this.brush.target[j]],
+                            tooltipX = this.axis.x(value),
+                            tooltipY = startY + bar_height / 2,
+                            position = tooltipX >= zeroX ? "right" : "left";
+
+                        // 최소 크기 설정
+                        if (Math.abs(zeroX - tooltipX) < this.brush.minSize) {
+                            tooltipX = position == "right" ? tooltipX + this.brush.minSize : tooltipX - this.brush.minSize;
+                        }
+
+                        var width = Math.abs(zeroX - tooltipX),
+                            radius = width < style.borderRadius || bar_height < style.borderRadius ? 0 : style.borderRadius,
+                            r = this.getBarElement(i, j, {
+                            width: width,
+                            height: bar_height,
+                            value: value,
+                            tooltipX: tooltipX,
+                            tooltipY: tooltipY,
+                            position: position,
+                            max: points[j].max[i],
+                            min: points[j].min[i]
+                        });
+
+                        if (tooltipX >= zeroX) {
+                            r.round(width, bar_height, 0, radius, radius, 0);
+                            r.translate(zeroX, startY);
+                        } else {
+                            r.round(width, bar_height, radius, 0, 0, radius);
+                            r.translate(zeroX - width, startY);
+                        }
+
+                        // 그룹에 컬럼 엘리먼트 추가
+                        g.append(r);
+
+                        // 다음 컬럼 좌표 설정
+                        startY += bar_height + this.brush.innerPadding;
+                    }
+                });
+
+                this.drawETC(g);
+
+                return g;
+            };
+
+            this.drawAnimate = function (root) {
+                var svg = this.chart.svg,
+                    type = this.brush.animate;
+
+                root.append(svg.animate({
+                    attributeName: "opacity",
+                    from: "0",
+                    to: "1",
+                    begin: "0s",
+                    dur: "1.4s",
+                    repeatCount: "1",
+                    fill: "freeze"
+                }));
+
+                root.each(function (i, elem) {
+                    if (elem.is("util.svg.element.path")) {
+                        var xy = elem.data("translate").split(","),
+                            x = parseInt(xy[0]),
+                            y = parseInt(xy[1]),
+                            w = parseInt(elem.attr("width")),
+                            start = type == "right" ? x + w : x - w;
+
+                        elem.append(svg.animateTransform({
+                            attributeName: "transform",
+                            type: "translate",
+                            from: start + " " + y,
+                            to: x + " " + y,
+                            begin: "0s",
+                            dur: "0.7s",
+                            repeatCount: "1",
+                            fill: "freeze"
+                        }));
+                    }
+                });
+            };
+        };
+
+        BarBrush.setup = function () {
+            return {
+                /** @cfg {Number} [size=0] Set a fixed size of the bar. */
+                size: 0,
+                /** @cfg {Number} [minSize=0] Sets the minimum size as it is not possible to draw a bar when the value is 0. */
+                minSize: 0,
+                /** @cfg {Number} [outerPadding=2] Determines the outer margin of a bar.  */
+                outerPadding: 2,
+                /** @cfg {Number} [innerPadding=1] Determines the inner margin of a bar. */
+                innerPadding: 1,
+                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
+                active: null,
+                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
+                activeEvent: null,
+                /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
+                display: null,
+                /** @cfg {Function} [format=null] Sets the format of the value that is displayed on the tool tip. */
+                format: null
+            };
+        };
+
+        return BarBrush;
+    }
+};
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _stackbar = __webpack_require__(1);
+
+var _stackbar2 = _interopRequireDefault(_stackbar);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_stackbar2.default);
+
+exports.default = {
+    name: "chart.brush.fullstackbar",
+    extend: "chart.brush.stackbar",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var FullStackBarBrush = function FullStackBarBrush(chart, axis, brush) {
+            var g, zeroX, height, bar_height;
+
+            this.drawBefore = function () {
+                g = chart.svg.group();
+                zeroX = axis.x(0);
+                height = axis.y.rangeBand();
+                bar_height = this.getTargetSize();
+            };
+
+            this.drawText = function (percent, x, y) {
+                var text = this.chart.text({
+                    "font-size": this.chart.theme("barFontSize"),
+                    fill: this.chart.theme("barFontColor"),
+                    x: x,
+                    y: y,
+                    "text-anchor": "middle"
+                }, percent + "%");
+
+                return text;
+            };
+
+            this.draw = function () {
+                this.eachData(function (data, i) {
+                    var group = chart.svg.group();
+
+                    var startY = this.offset("y", i) - bar_height / 2,
+                        sum = 0,
+                        list = [];
+
+                    for (var j = 0; j < brush.target.length; j++) {
+                        var width = data[brush.target[j]];
+
+                        sum += width;
+                        list.push(width);
+                    }
+
+                    var startX = 0,
+                        max = axis.x.max();
+
+                    for (var j = list.length - 1; j >= 0; j--) {
+                        var width = axis.x.rate(list[j], sum),
+                            r = this.getBarElement(i, j);
+
+                        r.attr({
+                            x: startX,
+                            y: startY,
+                            width: width,
+                            height: bar_height
+                        });
+
+                        group.append(r);
+
+                        // 퍼센트 노출 옵션 설정
+                        if (brush.showText) {
+                            var p = Math.round(list[j] / sum * max),
+                                x = startX + width / 2,
+                                y = startY + bar_height / 2 + 5;
+
+                            group.append(this.drawText(p, x, y));
+                        }
+
+                        // 액티브 엘리먼트 이벤트 설정
+                        this.setActiveEventOption(group);
+
+                        startX += width;
+                    }
+
+                    this.addBarElement(group);
+                    g.append(group);
+                });
+
+                // 액티브 엘리먼트 설정
+                this.setActiveEffectOption();
+
+                return g;
+            };
+        };
+
+        FullStackBarBrush.setup = function () {
+            return {
+                /** @cfg {Number} [outerPadding=15] */
+                outerPadding: 15,
+                /** @cfg {Boolean} [showText=false] Configures settings to let the percent text of a full stack bar revealed. */
+                showText: false
+            };
+        };
+
+        return FullStackBarBrush;
+    }
+};
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _stackbar = __webpack_require__(1);
+
+var _stackbar2 = _interopRequireDefault(_stackbar);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_stackbar2.default);
+
+exports.default = {
+    name: "chart.brush.stackcolumn",
+    extend: "chart.brush.stackbar",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var StackColumnBrush = function StackColumnBrush(chart, axis, brush) {
+            var g, zeroY, bar_width;
+
+            this.getTargetSize = function () {
+                var width = this.axis.x.rangeBand();
+
+                if (this.brush.size > 0) {
+                    return this.brush.size;
+                } else {
+                    var size = width - this.brush.outerPadding * 2;
+                    return size < this.brush.minSize ? this.brush.minSize : size;
+                }
+            };
+
+            this.drawBefore = function () {
+                g = chart.svg.group();
+                zeroY = axis.y(0);
+                bar_width = this.getTargetSize();
+
+                this.stackTooltips = [];
+                this.tooltipIndexes = [];
+                this.edgeData = [];
+            };
+
+            this.draw = function () {
+                var maxIndex = null,
+                    maxValue = 0,
+                    minIndex = null,
+                    minValue = this.axis.y.max(),
+                    isReverse = this.axis.get("y").reverse;
+
+                this.eachData(function (data, i) {
+                    var group = chart.svg.group();
+
+                    var offsetX = this.offset("x", i),
+                        startX = offsetX - bar_width / 2,
+                        startY = axis.y(0),
+                        value = 0,
+                        sumValue = 0;
+
+                    for (var j = 0; j < brush.target.length; j++) {
+                        var yValue = data[brush.target[j]] + value,
+                            endY = axis.y(yValue),
+                            opts = {
+                            x: startX,
+                            y: startY > endY ? endY : startY,
+                            width: bar_width,
+                            height: Math.abs(startY - endY)
+                        },
+                            r = this.getBarElement(i, j).attr(opts);
+
+                        if (!this.edgeData[i]) {
+                            this.edgeData[i] = {};
+                        }
+
+                        this.edgeData[i][j] = _.extend({
+                            color: this.color(j),
+                            dx: 0,
+                            dy: isReverse ? opts.height : 0,
+                            ex: 0,
+                            ey: isReverse ? 0 : opts.height
+                        }, opts);
+
+                        startY = endY;
+                        value = yValue;
+                        sumValue += data[brush.target[j]];
+
+                        group.append(r);
+                    }
+
+                    // min & max 인덱스 가져오기
+                    if (sumValue > maxValue) {
+                        maxValue = sumValue;
+                        maxIndex = i;
+                    }
+                    if (sumValue < minValue) {
+                        minValue = sumValue;
+                        minIndex = i;
+                    }
+
+                    this.drawStackTooltip(group, i, sumValue, offsetX, startY, isReverse ? "bottom" : "top");
+                    this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
+                    this.addBarElement(group);
+
+                    g.append(group);
+                });
+
+                // 스탭 연결선 그리기
+                if (this.brush.edge) {
+                    this.drawStackEdge(g);
+                }
+
+                // 최소/최대/전체 값 표시하기
+                if (this.brush.display != null) {
+                    this.setActiveTooltips(minIndex, maxIndex);
+                }
+
+                // 액티브 엘리먼트 설정
+                this.setActiveEffectOption();
+
+                return g;
+            };
+        };
+
+        return StackColumnBrush;
+    }
+};
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+    name: "chart.brush.line",
+    extend: "chart.brush.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var LineBrush = function LineBrush() {
+            var g;
+            var circleColor, disableOpacity, lineBorderWidth, lineBorderDashArray, lineBorderOpacity;
+
+            this.setActiveEffect = function (elem) {
+                var lines = this.lineList;
+
+                for (var i = 0; i < lines.length; i++) {
+                    var opacity = elem == lines[i].element ? lineBorderOpacity : disableOpacity,
+                        color = lines[i].element.get(0).attr("stroke");
+
+                    if (lines[i].tooltip != null) {
+                        lines[i].tooltip.style(color, circleColor, opacity);
+                    }
+
+                    lines[i].element.attr({ opacity: opacity });
+                }
+            };
+
+            this.addLineElement = function (elem) {
+                if (!this.lineList) {
+                    this.lineList = [];
+                }
+
+                this.lineList.push(elem);
+            };
+
+            this.createLine = function (pos, tIndex) {
+                var x = pos.x,
+                    y = pos.y,
+                    v = pos.value,
+                    px = this.brush.symbol == "curve" ? this.curvePoints(x) : null,
+                    py = this.brush.symbol == "curve" ? this.curvePoints(y) : null,
+                    color = null,
+                    opacity = null,
+                    opts = {
+                    "stroke-width": lineBorderWidth,
+                    "stroke-dasharray": lineBorderDashArray,
+                    fill: "transparent",
+                    "cursor": this.brush.activeEvent != null ? "pointer" : "normal"
+                };
+
+                var g = this.svg.group(),
+                    p = null;
+
+                if (pos.length > 0) {
+                    var start = null,
+                        end = null;
+
+                    for (var i = 0; i < x.length - 1; i++) {
+                        if (!_.typeCheck(["undefined", "null"], v[i])) start = i;
+                        if (!_.typeCheck(["undefined", "null"], v[i + 1])) end = i + 1;
+
+                        if (start == null || end == null || start == end) continue;
+
+                        var newColor = this.color(i, tIndex),
+                            newOpacity = this.getOpacity(i);
+
+                        if (color != newColor || opacity != newOpacity) {
+                            p = this.svg.path(_.extend({
+                                "stroke-opacity": newOpacity,
+                                stroke: newColor,
+                                x1: x[start] // Start coordinates of area brush
+                            }, opts));
+
+                            p.css({
+                                "pointer-events": "stroke"
+                            });
+
+                            p.MoveTo(x[start], y[start]);
+                            g.append(p);
+
+                            color = newColor;
+                            opacity = newOpacity;
+                        } else {
+                            p.attr({
+                                x2: x[end] // End coordinates of area brush
+                            });
+                        }
+
+                        if (this.brush.symbol == "curve") {
+                            p.CurveTo(px.p1[start], py.p1[start], px.p2[start], py.p2[start], x[end], y[end]);
+                        } else {
+                            if (this.brush.symbol == "step") {
+                                var sx = x[start] + (x[end] - x[start]) / 2;
+
+                                p.LineTo(sx, y[start]);
+                                p.LineTo(sx, y[end]);
+                            }
+
+                            p.LineTo(x[end], y[end]);
+                        }
+                    }
+                }
+
+                return g;
+            };
+
+            this.createTooltip = function (g, pos, index) {
+                var display = this.brush.display;
+
+                for (var i = 0; i < pos.x.length; i++) {
+                    if (display == "max" && pos.max[i] || display == "min" && pos.min[i] || display == "all") {
+                        var orient = display == "max" && pos.max[i] ? "top" : "bottom",
+                            tooltip = this.lineList[index].tooltip;
+
+                        // 최소/최대 값은 무조건 한개만 보여야 함.
+                        if (display == "all" || tooltip == null) {
+                            var minmax = this.drawTooltip(this.color(index), circleColor, lineBorderOpacity);
+                            minmax.control(orient, +pos.x[i], +pos.y[i], this.format(pos.value[i]));
+
+                            g.append(minmax.tooltip);
+                            this.lineList[index].tooltip = minmax;
+                        }
+                    }
+                }
+            };
+
+            this.getOpacity = function (rowIndex) {
+                var opacity = this.brush.opacity,
+                    defOpacity = this.chart.theme("lineBorderOpacity");
+
+                if (_.typeCheck("function", opacity) && _.typeCheck("number", rowIndex)) {
+                    return opacity.call(this.chart, this.getData(rowIndex), rowIndex);
+                } else if (_.typeCheck("number", opacity)) {
+                    return opacity;
+                }
+
+                return defOpacity;
+            };
+
+            this.drawLine = function (path) {
+                var self = this;
+
+                for (var k = 0; k < path.length; k++) {
+                    var p = this.createLine(path[k], k);
+
+                    this.addEvent(p, null, k);
+                    g.append(p);
+
+                    // 컬럼 상태 설정
+                    this.addLineElement({
+                        element: p,
+                        tooltip: null
+                    });
+
+                    // Max & Min 툴팁 추가
+                    if (this.brush.display != null) {
+                        this.createTooltip(g, path[k], k);
+                    }
+
+                    // 액티브 이벤트 설정
+                    if (this.brush.activeEvent != null) {
+                        (function (elem) {
+                            elem.on(self.brush.activeEvent, function (e) {
+                                self.setActiveEffect(elem);
+                            });
+                        })(p);
+                    }
+                }
+
+                // 액티브 라인 설정
+                for (var k = 0; k < path.length; k++) {
+                    if (this.brush.active == this.brush.target[k]) {
+                        this.setActiveEffect(this.lineList[k].element);
+                    }
+                }
+
+                return g;
+            };
+
+            this.drawBefore = function () {
+                g = this.chart.svg.group();
+                circleColor = this.chart.theme("linePointBorderColor");
+                disableOpacity = this.chart.theme("lineDisableBorderOpacity");
+                lineBorderWidth = this.chart.theme("lineBorderWidth");
+                lineBorderDashArray = this.chart.theme("lineBorderDashArray");
+                lineBorderOpacity = this.getOpacity(null);
+            };
+
+            this.draw = function () {
+                return this.drawLine(this.getXY());
+            };
+
+            this.drawAnimate = function (root) {
+                var svg = this.chart.svg;
+
+                root.each(function (i, elem) {
+                    if (elem.is("util.svg.element.path")) {
+                        var dash = elem.attributes["stroke-dasharray"],
+                            len = elem.length();
+
+                        if (dash == "none") {
+                            elem.attr({
+                                "stroke-dasharray": len
+                            });
+
+                            elem.append(svg.animate({
+                                attributeName: "stroke-dashoffset",
+                                from: len,
+                                to: "0",
+                                begin: "0s",
+                                dur: "1s",
+                                repeatCount: "1"
+                            }));
+                        } else {
+                            elem.append(svg.animate({
+                                attributeName: "opacity",
+                                from: "0",
+                                to: "1",
+                                begin: "0s",
+                                dur: "1.5s",
+                                repeatCount: "1",
+                                fill: "freeze"
+                            }));
+                        }
+                    }
+                });
+            };
+        };
+
+        LineBrush.setup = function () {
+            return {
+                /** @cfg {"normal"/"curve"/"step"} [symbol="normal"] Sets the shape of a line (normal, curve, step). */
+                symbol: "normal", // normal, curve, step
+                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
+                active: null,
+                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
+                activeEvent: null,
+                /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
+                display: null,
+                /** @cfg {Number} [opacity=null]  Stroke opacity.  */
+                opacity: null
+            };
+        };
+
+        return LineBrush;
+    }
+};
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _line = __webpack_require__(5);
+
+var _line2 = _interopRequireDefault(_line);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_line2.default);
+
+exports.default = {
+    name: "chart.brush.area",
+    extend: "chart.brush.line",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var AreaBrush = function AreaBrush() {
+            this.drawArea = function (path) {
+                var g = this.chart.svg.group(),
+                    y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min()),
+                    opacity = _.typeCheck("number", this.brush.opacity) ? this.brush.opacity : this.chart.theme("areaBackgroundOpacity");
+
+                for (var k = 0; k < path.length; k++) {
+                    var children = this.createLine(path[k], k).children;
+
+                    for (var i = 0; i < children.length; i++) {
+                        var p = children[i];
+
+                        // opacity 옵션이 콜백함수 일때, 상위 클래스 설정을 따름.
+                        if (_.typeCheck("function", this.brush.opacity)) {
+                            opacity = p.attr("stroke-opacity");
+                        }
+
+                        if (path[k].length > 0) {
+                            p.LineTo(p.attr("x2"), y);
+                            p.LineTo(p.attr("x1"), y);
+                            p.ClosePath();
+                        }
+
+                        p.attr({
+                            fill: p.attr("stroke"),
+                            "fill-opacity": opacity,
+                            "stroke-width": 0
+                        });
+
+                        g.prepend(p);
+                    }
+
+                    if (this.brush.line) {
+                        g.prepend(this.createLine(path[k], k));
+                    }
+
+                    this.addEvent(g, null, k);
+                }
+
+                return g;
+            };
+
+            this.draw = function () {
+                return this.drawArea(this.getXY());
+            };
+
+            this.drawAnimate = function (root) {
+                root.append(this.chart.svg.animate({
+                    attributeName: "opacity",
+                    from: "0",
+                    to: "1",
+                    begin: "0s",
+                    dur: "1.5s",
+                    repeatCount: "1",
+                    fill: "freeze"
+                }));
+            };
+        };
+
+        AreaBrush.setup = function () {
+            return {
+                /** @cfg {"normal"/"curve"/"step"} [symbol="normal"] Sets the shape of a line (normal, curve, step). */
+                symbol: "normal", // normal, curve, step
+                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
+                active: null,
+                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
+                activeEvent: null,
+                /** @cfg {"max"/"min"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
+                display: null,
+                /** @cfg {Boolean} [startZero=true]  The end of the area is zero point. */
+                startZero: true,
+                /** @cfg {Boolean} [line=true]  Visible line */
+                line: true
+            };
+        };
+
+        return AreaBrush;
+    }
+};
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+    name: "chart.brush.pie",
+    extend: "chart.brush.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+        var math = _main2.default.include("util.math");
+        var ColorUtil = _main2.default.include("util.color");
+
+        var PieBrush = function PieBrush() {
+            var self = this,
+                textY = 3;
+            var preAngle = 0,
+                preRate = 0,
+                preOpacity = 1;
+            var g,
+                cache_active = {};
+
+            this.setActiveEvent = function (items, useOpacity) {
+                var isDisableAll = true,
+                    disabledOpacity = this.chart.theme("pieDisableBackgroundOpacity") || 0.5;
+
+                for (var key in items) {
+                    var data = items[key];
+
+                    if (data.active) {
+                        isDisableAll = false;
+                        break;
+                    }
+                }
+
+                for (var key in items) {
+                    var data = items[key];
+
+                    if (data.active) {
+                        var dist = this.chart.theme("pieActiveDistance"),
+                            tx = Math.cos(math.radian(data.centerAngle)) * dist,
+                            ty = Math.sin(math.radian(data.centerAngle)) * dist;
+
+                        data.pie.translate(data.centerX + tx, data.centerY + ty);
+                    } else {
+                        data.pie.translate(data.centerX, data.centerY);
+                    }
+
+                    if (useOpacity) {
+                        if (data.pie.children.length > 0) {
+                            data.pie.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
+                        }
+
+                        if (data.text.children.length > 0) {
+                            data.text.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
+                        }
+                    }
+                }
+            };
+
+            this.setActiveTextEvent = function (items) {
+                for (var key in items) {
+                    var data = items[key],
+                        dist = data.active ? this.chart.theme("pieActiveDistance") : 0,
+                        cx = data.centerX + Math.cos(math.radian(data.centerAngle)) * ((data.outerRadius + dist) / 2),
+                        cy = data.centerY + Math.sin(math.radian(data.centerAngle)) * ((data.outerRadius + dist) / 2);
+
+                    if (data.text.children.length > 0) {
+                        data.text.get(0).translate(cx, cy);
+                    }
+                }
+            };
+
+            this.getFormatText = function (target, value, max) {
+                var key = target;
+
+                if (typeof this.brush.format == "function") {
+                    return this.format(key, value, max);
+                } else {
+                    if (!value) {
+                        return key;
+                    }
+
+                    return key + ": " + this.format(value);
+                }
+            };
+
+            this.drawPie = function (centerX, centerY, outerRadius, startAngle, endAngle, color) {
+                var pie = this.chart.svg.group();
+
+                if (endAngle == 360) {
+                    // if pie is full size, draw a circle as pie brush
+                    var circle = this.chart.svg.circle({
+                        cx: centerX,
+                        cy: centerY,
+                        r: outerRadius,
+                        fill: color,
+                        stroke: this.chart.theme("pieBorderColor") || color,
+                        "stroke-width": this.chart.theme("pieBorderWidth")
+                    });
+
+                    pie.append(circle);
+
+                    return pie;
+                }
+
+                var path = this.chart.svg.path({
+                    fill: color,
+                    stroke: this.chart.theme("pieBorderColor") || color,
+                    "stroke-width": this.chart.theme("pieBorderWidth")
+                });
+
+                // 바깥 지름 부터 그림
+                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
+                    startX = obj.x,
+                    startY = obj.y;
+
+                // 시작 하는 위치로 옮김
+                path.MoveTo(startX, startY);
+
+                // outer arc 에 대한 지점 설정
+                obj = math.rotate(startX, startY, math.radian(endAngle));
+
+                pie.translate(centerX, centerY);
+
+                // arc 그림
+                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 1, obj.x, obj.y).LineTo(0, 0).ClosePath();
+
+                pie.append(path);
+                pie.order = 1;
+
+                return pie;
+            };
+
+            this.drawPie3d = function (centerX, centerY, outerRadius, startAngle, endAngle, color) {
+                var pie = this.chart.svg.group(),
+                    path = this.chart.svg.path({
+                    fill: color,
+                    stroke: this.chart.theme("pieBorderColor") || color,
+                    "stroke-width": this.chart.theme("pieBorderWidth")
+                });
+
+                // 바깥 지름 부터 그림
+                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
+                    startX = obj.x,
+                    startY = obj.y;
+
+                // 시작 하는 위치로 옮김
+                path.MoveTo(startX, startY);
+
+                // outer arc 에 대한 지점 설정
+                obj = math.rotate(startX, startY, math.radian(endAngle));
+
+                pie.translate(centerX, centerY);
+
+                // arc 그림
+                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 1, obj.x, obj.y);
+
+                var y = obj.y + 10,
+                    x = obj.x + 5,
+                    targetX = startX + 5,
+                    targetY = startY + 10;
+
+                path.LineTo(x, y);
+                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 0, targetX, targetY);
+                path.ClosePath();
+
+                pie.append(path);
+                pie.order = 1;
+
+                return pie;
+            };
+
+            this.drawText = function (centerX, centerY, centerAngle, outerRadius, text) {
+                var g = this.svg.group({
+                    visibility: !this.brush.showText ? "hidden" : "visible"
+                }),
+                    isLeft = centerAngle + 90 > 180 ? true : false;
+
+                if (text === "" || !text) {
+                    return g;
+                }
+
+                if (this.brush.showText == "inside") {
+                    var cx = centerX + Math.cos(math.radian(centerAngle)) * (outerRadius / 2),
+                        cy = centerY + Math.sin(math.radian(centerAngle)) * (outerRadius / 2);
+
+                    var text = this.chart.text({
+                        "font-size": this.chart.theme("pieInnerFontSize"),
+                        fill: this.chart.theme("pieInnerFontColor"),
+                        "text-anchor": "middle",
+                        y: textY
+                    }, text);
+
+                    text.translate(cx, cy);
+
+                    g.append(text);
+                    g.order = 2;
+                } else {
+                    // TODO: 각도가 좁을 때, 텍스트와 라인을 보정하는 코드 개선 필요
+
+                    var rate = this.chart.theme("pieOuterLineRate"),
+                        diffAngle = Math.abs(centerAngle - preAngle);
+
+                    if (diffAngle < 2) {
+                        if (preRate == 0) {
+                            preRate = rate;
+                        }
+
+                        var tick = rate * 0.05;
+                        preRate -= tick;
+                        preOpacity -= 0.25;
+                    } else {
+                        preRate = rate;
+                        preOpacity = 1;
+                    }
+
+                    if (preRate > 1.2) {
+                        var dist = this.chart.theme("pieOuterLineSize"),
+                            r = outerRadius * preRate,
+                            cx = centerX + Math.cos(math.radian(centerAngle)) * outerRadius,
+                            cy = centerY + Math.sin(math.radian(centerAngle)) * outerRadius,
+                            tx = centerX + Math.cos(math.radian(centerAngle)) * r,
+                            ty = centerY + Math.sin(math.radian(centerAngle)) * r,
+                            ex = isLeft ? tx - dist : tx + dist;
+
+                        var path = this.svg.path({
+                            fill: "transparent",
+                            stroke: this.chart.theme("pieOuterLineColor"),
+                            "stroke-width": this.chart.theme("pieOuterLineWidth"),
+                            "stroke-opacity": preOpacity
+                        });
+
+                        path.MoveTo(cx, cy).LineTo(tx, ty).LineTo(ex, ty);
+
+                        var text = this.chart.text({
+                            "font-size": this.chart.theme("pieOuterFontSize"),
+                            "fill": this.chart.theme("pieOuterFontColor"),
+                            "fill-opacity": preOpacity,
+                            "text-anchor": isLeft ? "end" : "start",
+                            y: textY
+                        }, text);
+
+                        text.translate(ex + (isLeft ? -3 : 3), ty);
+
+                        g.append(text);
+                        g.append(path);
+                        g.order = 0;
+
+                        preAngle = centerAngle;
+                    }
+                }
+
+                return g;
+            };
+
+            this.drawUnit = function (index, data, g) {
+                var props = this.getProperty(index),
+                    centerX = props.centerX,
+                    centerY = props.centerY,
+                    outerRadius = props.outerRadius;
+
+                var target = this.brush.target,
+                    active = this.brush.active,
+                    all = 360,
+                    startAngle = 0,
+                    max = 0;
+
+                for (var i = 0; i < target.length; i++) {
+                    max += data[target[i]];
+                }
+
+                for (var i = 0; i < target.length; i++) {
+                    if (data[target[i]] == 0) continue;
+
+                    var value = data[target[i]],
+                        endAngle = all * (value / max);
+
+                    if (this.brush['3d']) {
+                        var pie3d = this.drawPie3d(centerX, centerY, outerRadius, startAngle, endAngle, ColorUtil.darken(this.color(i), 0.5));
+                        g.append(pie3d);
+                    }
+
+                    startAngle += endAngle;
+                }
+
+                startAngle = 0;
+
+                for (var i = 0; i < target.length; i++) {
+                    var value = data[target[i]],
+                        endAngle = all * (value / max),
+                        centerAngle = startAngle + endAngle / 2 - 90,
+                        isOnlyOne = Math.abs(startAngle - endAngle) == 360,
+                        pie = this.drawPie(centerX, centerY, outerRadius, startAngle, endAngle, this.color(i)),
+                        text = this.drawText(centerX, centerY, centerAngle, outerRadius, this.getFormatText(target[i], value, max));
+
+                    // 파이 액티브상태 캐싱하는 객체
+                    cache_active[centerAngle] = {
+                        active: false,
+                        pie: pie,
+                        text: text,
+                        centerX: centerX,
+                        centerY: centerY,
+                        centerAngle: centerAngle,
+                        outerRadius: outerRadius
+                    };
+
+                    // TODO: 파이가 한개일 경우, 액티브 처리를 할 필요가 없다.
+                    if (!isOnlyOne) {
+                        // 설정된 키 활성화
+                        if (active == target[i] || _.inArray(target[i], active) != -1) {
+                            cache_active[centerAngle].active = true;
+                        } else {
+                            cache_active[centerAngle].active = false;
+                        }
+
+                        // 파이 및 텍스트 액티브 상태 처리
+                        if (this.brush.showText == "inside") {
+                            this.setActiveTextEvent(cache_active);
+                        }
+
+                        // 파이 및 텍스트 액티브 상태 처리
+                        this.setActiveEvent(cache_active, true);
+
+                        // 활성화 이벤트 설정
+                        if (this.brush.activeEvent != null) {
+                            (function (p, t, cx, cy, ca, r) {
+                                p.on(self.brush.activeEvent, function (e) {
+                                    if (!cache_active[ca].active) {
+                                        cache_active[ca].active = true;
+                                    } else {
+                                        cache_active[ca].active = false;
+                                    }
+
+                                    if (self.brush.showText == "inside") {
+                                        self.setActiveTextEvent(cache_active);
+                                    }
+
+                                    self.setActiveEvent(cache_active, true);
+                                });
+
+                                p.attr({ cursor: "pointer" });
+                            })(pie, text.get(0), centerX, centerY, centerAngle, outerRadius);
+                        }
+                    }
+
+                    self.addEvent(pie, index, i);
+                    g.append(pie);
+                    g.append(text);
+
+                    startAngle += endAngle;
+                }
+            };
+
+            this.drawNoData = function (g) {
+                var props = this.getProperty(0);
+
+                g.append(this.drawPie(props.centerX, props.centerY, props.outerRadius, 0, 360, this.chart.theme("pieNoDataBackgroundColor")));
+            };
+
+            this.drawBefore = function () {
+                g = this.chart.svg.group();
+            };
+
+            this.draw = function () {
+                if (this.listData().length == 0) {
+                    this.drawNoData(g);
+                } else {
+                    this.eachData(function (data, i) {
+                        this.drawUnit(i, data, g);
+                    });
+                }
+
+                return g;
+            };
+
+            this.getProperty = function (index) {
+                var obj = this.axis.c(index);
+
+                var width = obj.width,
+                    height = obj.height,
+                    x = obj.x,
+                    y = obj.y,
+                    min = width;
+
+                if (height < min) {
+                    min = height;
+                }
+
+                return {
+                    centerX: width / 2 + x,
+                    centerY: height / 2 + y,
+                    outerRadius: min / 2
+                };
+            };
+        };
+
+        PieBrush.setup = function () {
+            return {
+                /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
+                clip: false,
+                /** @cfg {String} [showText=null] Set the text appear. (outside or inside)  */
+                showText: null,
+                /** @cfg {Function} [format=null] Returns a value from the format callback function of a defined option. */
+                format: null,
+                /** @cfg {Boolean} [3d=false] check 3d support */
+                "3d": false,
+                /** @cfg {String|Array} [active=null] Activates the pie of an applicable property's name. */
+                active: null,
+                /** @cfg {String} [activeEvent=null]  Activates the pie in question when a configured event occurs (click, mouseover, etc). */
+                activeEvent: null
+            };
+        };
+
+        return PieBrush;
+    }
+};
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -381,7 +1994,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 2 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -462,7 +2075,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 3 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -474,91 +2087,91 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _classic = __webpack_require__(5);
+var _classic = __webpack_require__(12);
 
 var _classic2 = _interopRequireDefault(_classic);
 
-var _classic3 = __webpack_require__(6);
+var _classic3 = __webpack_require__(13);
 
 var _classic4 = _interopRequireDefault(_classic3);
 
-var _classic5 = __webpack_require__(7);
+var _classic5 = __webpack_require__(14);
 
 var _classic6 = _interopRequireDefault(_classic5);
 
-var _dark = __webpack_require__(8);
+var _dark = __webpack_require__(15);
 
 var _dark2 = _interopRequireDefault(_dark);
 
-var _gradient = __webpack_require__(9);
+var _gradient = __webpack_require__(16);
 
 var _gradient2 = _interopRequireDefault(_gradient);
 
-var _pattern = __webpack_require__(10);
+var _pattern = __webpack_require__(17);
 
 var _pattern2 = _interopRequireDefault(_pattern);
 
-var _topologytable = __webpack_require__(11);
+var _topologytable = __webpack_require__(18);
 
 var _topologytable2 = _interopRequireDefault(_topologytable);
 
-var _bar = __webpack_require__(12);
+var _bar = __webpack_require__(2);
 
 var _bar2 = _interopRequireDefault(_bar);
 
-var _stackbar = __webpack_require__(13);
+var _stackbar = __webpack_require__(1);
 
 var _stackbar2 = _interopRequireDefault(_stackbar);
 
-var _fullstackbar = __webpack_require__(14);
+var _fullstackbar = __webpack_require__(3);
 
 var _fullstackbar2 = _interopRequireDefault(_fullstackbar);
 
-var _rangebar = __webpack_require__(15);
+var _rangebar = __webpack_require__(19);
 
 var _rangebar2 = _interopRequireDefault(_rangebar);
 
-var _column = __webpack_require__(16);
+var _column = __webpack_require__(20);
 
 var _column2 = _interopRequireDefault(_column);
 
-var _stackcolumn = __webpack_require__(17);
+var _stackcolumn = __webpack_require__(4);
 
 var _stackcolumn2 = _interopRequireDefault(_stackcolumn);
 
-var _fullstackcolumn = __webpack_require__(18);
+var _fullstackcolumn = __webpack_require__(21);
 
 var _fullstackcolumn2 = _interopRequireDefault(_fullstackcolumn);
 
-var _rangecolumn = __webpack_require__(19);
+var _rangecolumn = __webpack_require__(22);
 
 var _rangecolumn2 = _interopRequireDefault(_rangecolumn);
 
-var _line = __webpack_require__(20);
+var _line = __webpack_require__(5);
 
 var _line2 = _interopRequireDefault(_line);
 
-var _area = __webpack_require__(21);
+var _area = __webpack_require__(6);
 
 var _area2 = _interopRequireDefault(_area);
 
-var _stackarea = __webpack_require__(22);
+var _stackarea = __webpack_require__(23);
 
 var _stackarea2 = _interopRequireDefault(_stackarea);
 
-var _rangearea = __webpack_require__(23);
+var _rangearea = __webpack_require__(24);
 
 var _rangearea2 = _interopRequireDefault(_rangearea);
 
-var _scatter = __webpack_require__(24);
+var _scatter = __webpack_require__(25);
 
 var _scatter2 = _interopRequireDefault(_scatter);
 
-var _bubble = __webpack_require__(25);
+var _bubble = __webpack_require__(26);
 
 var _bubble2 = _interopRequireDefault(_bubble);
 
-var _pie = __webpack_require__(26);
+var _pie = __webpack_require__(7);
 
 var _pie2 = _interopRequireDefault(_pie);
 
@@ -683,7 +2296,7 @@ if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) == "object")
 }
 
 /***/ }),
-/* 4 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13505,7 +15118,7 @@ _$1.extend(jui$1, manager$1, true);
 exports.default = jui$1;
 
 /***/ }),
-/* 5 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13716,7 +15329,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 6 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13939,7 +15552,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 7 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14310,7 +15923,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 8 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14683,7 +16296,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 9 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15050,7 +16663,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 10 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15418,7 +17031,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 11 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15628,669 +17241,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-    name: "chart.brush.bar",
-    extend: "chart.brush.core",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-
-        var BarBrush = function BarBrush() {
-            var g;
-            var zeroX, height, half_height, bar_height;
-
-            this.getBarStyle = function () {
-                return {
-                    borderColor: this.chart.theme("barBorderColor"),
-                    borderWidth: this.chart.theme("barBorderWidth"),
-                    borderOpacity: this.chart.theme("barBorderOpacity"),
-                    borderRadius: this.chart.theme("barBorderRadius"),
-                    disableOpacity: this.chart.theme("barDisableBackgroundOpacity"),
-                    circleColor: this.chart.theme("barPointBorderColor")
-                };
-            };
-
-            this.getBarElement = function (dataIndex, targetIndex, info) {
-                var style = this.getBarStyle(),
-                    color = this.color(dataIndex, targetIndex),
-                    value = this.getData(dataIndex)[this.brush.target[targetIndex]];
-
-                var r = this.chart.svg.pathRect({
-                    width: info.width,
-                    height: info.height,
-                    fill: color,
-                    stroke: style.borderColor,
-                    "stroke-width": style.borderWidth,
-                    "stroke-opacity": style.borderOpacity
-                });
-
-                if (value != 0) {
-                    this.addEvent(r, dataIndex, targetIndex);
-                }
-
-                if (this.barList == null) {
-                    this.barList = [];
-                }
-
-                this.barList.push(_.extend({
-                    element: r,
-                    color: color
-                }, info));
-
-                return r;
-            };
-
-            this.setActiveEffect = function (r) {
-                var style = this.getBarStyle(),
-                    cols = this.barList;
-
-                for (var i = 0; i < cols.length; i++) {
-                    var opacity = cols[i] == r ? 1 : style.disableOpacity;
-                    cols[i].element.attr({ opacity: opacity });
-
-                    if (cols[i].minmax) {
-                        cols[i].minmax.style(cols[i].color, style.circleColor, opacity);
-                    }
-                }
-            };
-
-            this.drawBefore = function () {
-                var op = this.brush.outerPadding,
-                    ip = this.brush.innerPadding,
-                    len = this.brush.target.length;
-
-                g = this.chart.svg.group();
-                zeroX = this.axis.x(0);
-                height = this.axis.y.rangeBand();
-
-                if (this.brush.size > 0) {
-                    bar_height = this.brush.size;
-                    half_height = bar_height * len + (len - 1) * ip;
-                } else {
-                    half_height = height - op * 2;
-                    bar_height = (half_height - (len - 1) * ip) / len;
-                    bar_height = bar_height < 0 ? 0 : bar_height;
-                }
-            };
-
-            this.drawETC = function (group) {
-                if (!_.typeCheck("array", this.barList)) return;
-
-                var self = this,
-                    style = this.getBarStyle();
-
-                // 액티브 툴팁 생성
-                this.active = this.drawTooltip();
-                group.append(this.active.tooltip);
-
-                for (var i = 0; i < this.barList.length; i++) {
-                    var r = this.barList[i],
-                        d = this.brush.display;
-
-                    // Max & Min 툴팁 생성
-                    if (d == "max" && r.max || d == "min" && r.min || d == "all") {
-                        r.minmax = this.drawTooltip(r.color, style.circleColor, 1);
-                        r.minmax.control(r.position, r.tooltipX, r.tooltipY, this.format(r.value));
-                        group.append(r.minmax.tooltip);
-                    }
-
-                    // 컬럼 및 기본 브러쉬 이벤트 설정
-                    if (r.value != 0 && this.brush.activeEvent != null) {
-                        (function (bar) {
-                            self.active.style(bar.color, style.circleColor, 1);
-
-                            bar.element.on(self.brush.activeEvent, function (e) {
-                                self.active.style(bar.color, style.circleColor, 1);
-                                self.active.control(bar.position, bar.tooltipX, bar.tooltipY, self.format(bar.value));
-                                self.setActiveEffect(bar);
-                            });
-
-                            bar.element.attr({ cursor: "pointer" });
-                        })(r);
-                    }
-                }
-
-                // 액티브 툴팁 위치 설정
-                var r = this.barList[this.brush.active];
-                if (r != null) {
-                    this.active.style(r.color, style.circleColor, 1);
-                    this.active.control(r.position, r.tooltipX, r.tooltipY, this.format(r.value));
-                    this.setActiveEffect(r);
-                }
-            };
-
-            this.draw = function () {
-                var points = this.getXY(),
-                    style = this.getBarStyle();
-
-                this.eachData(function (data, i) {
-                    var startY = this.offset("y", i) - half_height / 2;
-
-                    for (var j = 0; j < this.brush.target.length; j++) {
-                        var value = data[this.brush.target[j]],
-                            tooltipX = this.axis.x(value),
-                            tooltipY = startY + bar_height / 2,
-                            position = tooltipX >= zeroX ? "right" : "left";
-
-                        // 최소 크기 설정
-                        if (Math.abs(zeroX - tooltipX) < this.brush.minSize) {
-                            tooltipX = position == "right" ? tooltipX + this.brush.minSize : tooltipX - this.brush.minSize;
-                        }
-
-                        var width = Math.abs(zeroX - tooltipX),
-                            radius = width < style.borderRadius || bar_height < style.borderRadius ? 0 : style.borderRadius,
-                            r = this.getBarElement(i, j, {
-                            width: width,
-                            height: bar_height,
-                            value: value,
-                            tooltipX: tooltipX,
-                            tooltipY: tooltipY,
-                            position: position,
-                            max: points[j].max[i],
-                            min: points[j].min[i]
-                        });
-
-                        if (tooltipX >= zeroX) {
-                            r.round(width, bar_height, 0, radius, radius, 0);
-                            r.translate(zeroX, startY);
-                        } else {
-                            r.round(width, bar_height, radius, 0, 0, radius);
-                            r.translate(zeroX - width, startY);
-                        }
-
-                        // 그룹에 컬럼 엘리먼트 추가
-                        g.append(r);
-
-                        // 다음 컬럼 좌표 설정
-                        startY += bar_height + this.brush.innerPadding;
-                    }
-                });
-
-                this.drawETC(g);
-
-                return g;
-            };
-
-            this.drawAnimate = function (root) {
-                var svg = this.chart.svg,
-                    type = this.brush.animate;
-
-                root.append(svg.animate({
-                    attributeName: "opacity",
-                    from: "0",
-                    to: "1",
-                    begin: "0s",
-                    dur: "1.4s",
-                    repeatCount: "1",
-                    fill: "freeze"
-                }));
-
-                root.each(function (i, elem) {
-                    if (elem.is("util.svg.element.path")) {
-                        var xy = elem.data("translate").split(","),
-                            x = parseInt(xy[0]),
-                            y = parseInt(xy[1]),
-                            w = parseInt(elem.attr("width")),
-                            start = type == "right" ? x + w : x - w;
-
-                        elem.append(svg.animateTransform({
-                            attributeName: "transform",
-                            type: "translate",
-                            from: start + " " + y,
-                            to: x + " " + y,
-                            begin: "0s",
-                            dur: "0.7s",
-                            repeatCount: "1",
-                            fill: "freeze"
-                        }));
-                    }
-                });
-            };
-        };
-
-        BarBrush.setup = function () {
-            return {
-                /** @cfg {Number} [size=0] Set a fixed size of the bar. */
-                size: 0,
-                /** @cfg {Number} [minSize=0] Sets the minimum size as it is not possible to draw a bar when the value is 0. */
-                minSize: 0,
-                /** @cfg {Number} [outerPadding=2] Determines the outer margin of a bar.  */
-                outerPadding: 2,
-                /** @cfg {Number} [innerPadding=1] Determines the inner margin of a bar. */
-                innerPadding: 1,
-                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
-                active: null,
-                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
-                activeEvent: null,
-                /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
-                display: null,
-                /** @cfg {Function} [format=null] Sets the format of the value that is displayed on the tool tip. */
-                format: null
-            };
-        };
-
-        return BarBrush;
-    }
-};
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-    name: "chart.brush.stackbar",
-    extend: "chart.brush.bar",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-
-        var StackBarBrush = function StackBarBrush(chart, axis, brush) {
-            var g, height, bar_height;
-
-            this.addBarElement = function (elem) {
-                if (this.barList == null) {
-                    this.barList = [];
-                }
-
-                this.barList.push(elem);
-            };
-
-            this.getBarElement = function (dataIndex, targetIndex) {
-                var style = this.getBarStyle(),
-                    color = this.color(targetIndex),
-                    value = this.getData(dataIndex)[this.brush.target[targetIndex]];
-
-                var r = this.chart.svg.rect({
-                    fill: color,
-                    stroke: style.borderColor,
-                    "stroke-width": style.borderWidth,
-                    "stroke-opacity": style.borderOpacity
-                });
-
-                // 데이타가 0이면 화면에 표시하지 않음.
-                if (value == 0) {
-                    r.attr({ display: 'none' });
-                }
-
-                if (value != 0) {
-                    this.addEvent(r, dataIndex, targetIndex);
-                }
-
-                return r;
-            };
-
-            this.setActiveEffect = function (group) {
-                var style = this.getBarStyle(),
-                    columns = this.barList,
-                    tooltips = this.stackTooltips;
-
-                for (var i = 0; i < columns.length; i++) {
-                    var opacity = group == columns[i] ? 1 : style.disableOpacity;
-
-                    if (tooltips) {
-                        // bar 가 그려지지 않으면 tooltips 객체가 없을 수 있음.
-                        if (opacity == 1 || _.inArray(i, this.tooltipIndexes) != -1) {
-                            tooltips[i].attr({ opacity: 1 });
-                        } else {
-                            tooltips[i].attr({ opacity: 0 });
-                        }
-                    }
-
-                    columns[i].attr({ opacity: opacity });
-                }
-            };
-
-            this.setActiveEffectOption = function () {
-                var active = this.brush.active;
-
-                if (this.barList && this.barList[active]) {
-                    this.setActiveEffect(this.barList[active]);
-                }
-            };
-
-            this.setActiveEvent = function (group) {
-                var self = this;
-
-                group.on(self.brush.activeEvent, function (e) {
-                    self.setActiveEffect(group);
-                });
-            };
-
-            this.setActiveEventOption = function (group) {
-                if (this.brush.activeEvent != null) {
-                    this.setActiveEvent(group);
-                    group.attr({ cursor: "pointer" });
-                }
-            };
-
-            this.getTargetSize = function () {
-                var height = this.axis.y.rangeBand();
-
-                if (this.brush.size > 0) {
-                    return this.brush.size;
-                } else {
-                    var size = height - this.brush.outerPadding * 2;
-                    return size < this.brush.minSize ? this.brush.minSize : size;
-                }
-            };
-
-            this.setActiveTooltips = function (minIndex, maxIndex) {
-                var type = this.brush.display,
-                    activeIndex = type == "min" ? minIndex : maxIndex;
-
-                for (var i = 0; i < this.stackTooltips.length; i++) {
-                    if (i == activeIndex || type == "all") {
-                        this.stackTooltips[i].css({
-                            opacity: 1
-                        });
-
-                        this.tooltipIndexes.push(i);
-                    }
-                }
-            };
-
-            this.drawStackTooltip = function (group, index, value, x, y, pos) {
-                var fontSize = this.chart.theme("tooltipPointFontSize"),
-                    orient = "middle",
-                    dx = 0,
-                    dy = 0;
-
-                if (pos == "left") {
-                    orient = "start";
-                    dx = 3;
-                    dy = fontSize / 3;
-                } else if (pos == "right") {
-                    orient = "end";
-                    dx = -3;
-                    dy = fontSize / 3;
-                } else if (pos == "top") {
-                    dy = -(fontSize / 3);
-                } else {
-                    dy = fontSize;
-                }
-
-                var tooltip = this.chart.text({
-                    fill: this.chart.theme("tooltipPointFontColor"),
-                    "font-size": fontSize,
-                    "font-weight": this.chart.theme("tooltipPointFontWeight"),
-                    "text-anchor": orient,
-                    dx: dx,
-                    dy: dy,
-                    opacity: 0
-                }).text(this.format(value)).translate(x, y);
-
-                this.stackTooltips[index] = tooltip;
-                group.append(tooltip);
-            };
-
-            this.drawStackEdge = function (g) {
-                var borderWidth = this.chart.theme("barStackEdgeBorderWidth");
-
-                for (var i = 1; i < this.edgeData.length; i++) {
-                    var pre = this.edgeData[i - 1],
-                        now = this.edgeData[i];
-
-                    for (var j = 0; j < this.brush.target.length; j++) {
-                        if (now[j].width > 0 && now[j].height > 0) {
-                            g.append(this.svg.line({
-                                x1: pre[j].x + pre[j].width - pre[j].ex,
-                                x2: now[j].x + now[j].dx - now[j].ex,
-                                y1: pre[j].y + pre[j].height - pre[j].ey,
-                                y2: now[j].y + now[j].dy,
-                                stroke: now[j].color,
-                                "stroke-width": borderWidth
-                            }));
-                        }
-                    }
-                }
-            };
-
-            this.drawBefore = function () {
-                g = chart.svg.group();
-                height = axis.y.rangeBand();
-                bar_height = this.getTargetSize();
-
-                this.stackTooltips = [];
-                this.tooltipIndexes = [];
-                this.edgeData = [];
-            };
-
-            this.draw = function () {
-                var maxIndex = null,
-                    maxValue = 0,
-                    minIndex = null,
-                    minValue = this.axis.x.max(),
-                    isReverse = this.axis.get("x").reverse;
-
-                this.eachData(function (data, i) {
-                    var group = chart.svg.group();
-
-                    var offsetY = this.offset("y", i),
-                        startY = offsetY - bar_height / 2,
-                        startX = axis.x(0),
-                        value = 0,
-                        sumValue = 0;
-
-                    for (var j = 0; j < brush.target.length; j++) {
-                        var xValue = data[brush.target[j]] + value,
-                            endX = axis.x(xValue),
-                            opts = {
-                            x: startX < endX ? startX : endX,
-                            y: startY,
-                            width: Math.abs(startX - endX),
-                            height: bar_height
-                        },
-                            r = this.getBarElement(i, j).attr(opts);
-
-                        if (!this.edgeData[i]) {
-                            this.edgeData[i] = {};
-                        }
-
-                        this.edgeData[i][j] = _.extend({
-                            color: this.color(j),
-                            dx: opts.width,
-                            dy: 0,
-                            ex: isReverse ? opts.width : 0,
-                            ey: 0
-                        }, opts);
-
-                        startX = endX;
-                        value = xValue;
-                        sumValue += data[brush.target[j]];
-
-                        group.append(r);
-                    }
-
-                    // min & max 인덱스 가져오기
-                    if (sumValue > maxValue) {
-                        maxValue = sumValue;
-                        maxIndex = i;
-                    }
-                    if (sumValue < minValue) {
-                        minValue = sumValue;
-                        minIndex = i;
-                    }
-
-                    this.drawStackTooltip(group, i, sumValue, startX, offsetY, isReverse ? "right" : "left");
-                    this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
-                    this.addBarElement(group);
-                    g.append(group);
-                });
-
-                // 스탭 연결선 그리기
-                if (this.brush.edge) {
-                    this.drawStackEdge(g);
-                }
-
-                // 최소/최대/전체 값 표시하기
-                if (this.brush.display != null) {
-                    this.setActiveTooltips(minIndex, maxIndex);
-                }
-
-                // 액티브 엘리먼트 설정
-                this.setActiveEffectOption();
-
-                return g;
-            };
-        };
-
-        StackBarBrush.setup = function () {
-            return {
-                /** @cfg {Number} [outerPadding=15] Determines the outer margin of a stack bar. */
-                outerPadding: 15,
-                /** @cfg {Boolean} [edge=false] */
-                edge: false
-            };
-        };
-
-        return StackBarBrush;
-    }
-};
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-    name: "chart.brush.fullstackbar",
-    extend: "chart.brush.stackbar",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-
-        var FullStackBarBrush = function FullStackBarBrush(chart, axis, brush) {
-            var g, zeroX, height, bar_height;
-
-            this.drawBefore = function () {
-                g = chart.svg.group();
-                zeroX = axis.x(0);
-                height = axis.y.rangeBand();
-                bar_height = this.getTargetSize();
-            };
-
-            this.drawText = function (percent, x, y) {
-                var text = this.chart.text({
-                    "font-size": this.chart.theme("barFontSize"),
-                    fill: this.chart.theme("barFontColor"),
-                    x: x,
-                    y: y,
-                    "text-anchor": "middle"
-                }, percent + "%");
-
-                return text;
-            };
-
-            this.draw = function () {
-                this.eachData(function (data, i) {
-                    var group = chart.svg.group();
-
-                    var startY = this.offset("y", i) - bar_height / 2,
-                        sum = 0,
-                        list = [];
-
-                    for (var j = 0; j < brush.target.length; j++) {
-                        var width = data[brush.target[j]];
-
-                        sum += width;
-                        list.push(width);
-                    }
-
-                    var startX = 0,
-                        max = axis.x.max();
-
-                    for (var j = list.length - 1; j >= 0; j--) {
-                        var width = axis.x.rate(list[j], sum),
-                            r = this.getBarElement(i, j);
-
-                        r.attr({
-                            x: startX,
-                            y: startY,
-                            width: width,
-                            height: bar_height
-                        });
-
-                        group.append(r);
-
-                        // 퍼센트 노출 옵션 설정
-                        if (brush.showText) {
-                            var p = Math.round(list[j] / sum * max),
-                                x = startX + width / 2,
-                                y = startY + bar_height / 2 + 5;
-
-                            group.append(this.drawText(p, x, y));
-                        }
-
-                        // 액티브 엘리먼트 이벤트 설정
-                        this.setActiveEventOption(group);
-
-                        startX += width;
-                    }
-
-                    this.addBarElement(group);
-                    g.append(group);
-                });
-
-                // 액티브 엘리먼트 설정
-                this.setActiveEffectOption();
-
-                return g;
-            };
-        };
-
-        FullStackBarBrush.setup = function () {
-            return {
-                /** @cfg {Number} [outerPadding=15] */
-                outerPadding: 15,
-                /** @cfg {Boolean} [showText=false] Configures settings to let the percent text of a full stack bar revealed. */
-                showText: false
-            };
-        };
-
-        return FullStackBarBrush;
-    }
-};
-
-/***/ }),
-/* 15 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16371,7 +17322,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 16 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16380,6 +17331,19 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _bar = __webpack_require__(2);
+
+var _bar2 = _interopRequireDefault(_bar);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_bar2.default);
+
 exports.default = {
     name: "chart.brush.column",
     extend: "chart.brush.bar",
@@ -16501,7 +17465,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 17 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16515,132 +17479,14 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
+var _fullstackbar = __webpack_require__(3);
+
+var _fullstackbar2 = _interopRequireDefault(_fullstackbar);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = {
-    name: "chart.brush.stackcolumn",
-    extend: "chart.brush.stackbar",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
+_main2.default.use(_fullstackbar2.default);
 
-        var StackColumnBrush = function StackColumnBrush(chart, axis, brush) {
-            var g, zeroY, bar_width;
-
-            this.getTargetSize = function () {
-                var width = this.axis.x.rangeBand();
-
-                if (this.brush.size > 0) {
-                    return this.brush.size;
-                } else {
-                    var size = width - this.brush.outerPadding * 2;
-                    return size < this.brush.minSize ? this.brush.minSize : size;
-                }
-            };
-
-            this.drawBefore = function () {
-                g = chart.svg.group();
-                zeroY = axis.y(0);
-                bar_width = this.getTargetSize();
-
-                this.stackTooltips = [];
-                this.tooltipIndexes = [];
-                this.edgeData = [];
-            };
-
-            this.draw = function () {
-                var maxIndex = null,
-                    maxValue = 0,
-                    minIndex = null,
-                    minValue = this.axis.y.max(),
-                    isReverse = this.axis.get("y").reverse;
-
-                this.eachData(function (data, i) {
-                    var group = chart.svg.group();
-
-                    var offsetX = this.offset("x", i),
-                        startX = offsetX - bar_width / 2,
-                        startY = axis.y(0),
-                        value = 0,
-                        sumValue = 0;
-
-                    for (var j = 0; j < brush.target.length; j++) {
-                        var yValue = data[brush.target[j]] + value,
-                            endY = axis.y(yValue),
-                            opts = {
-                            x: startX,
-                            y: startY > endY ? endY : startY,
-                            width: bar_width,
-                            height: Math.abs(startY - endY)
-                        },
-                            r = this.getBarElement(i, j).attr(opts);
-
-                        if (!this.edgeData[i]) {
-                            this.edgeData[i] = {};
-                        }
-
-                        this.edgeData[i][j] = _.extend({
-                            color: this.color(j),
-                            dx: 0,
-                            dy: isReverse ? opts.height : 0,
-                            ex: 0,
-                            ey: isReverse ? 0 : opts.height
-                        }, opts);
-
-                        startY = endY;
-                        value = yValue;
-                        sumValue += data[brush.target[j]];
-
-                        group.append(r);
-                    }
-
-                    // min & max 인덱스 가져오기
-                    if (sumValue > maxValue) {
-                        maxValue = sumValue;
-                        maxIndex = i;
-                    }
-                    if (sumValue < minValue) {
-                        minValue = sumValue;
-                        minIndex = i;
-                    }
-
-                    this.drawStackTooltip(group, i, sumValue, offsetX, startY, isReverse ? "bottom" : "top");
-                    this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
-                    this.addBarElement(group);
-
-                    g.append(group);
-                });
-
-                // 스탭 연결선 그리기
-                if (this.brush.edge) {
-                    this.drawStackEdge(g);
-                }
-
-                // 최소/최대/전체 값 표시하기
-                if (this.brush.display != null) {
-                    this.setActiveTooltips(minIndex, maxIndex);
-                }
-
-                // 액티브 엘리먼트 설정
-                this.setActiveEffectOption();
-
-                return g;
-            };
-        };
-
-        return StackColumnBrush;
-    }
-};
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
 exports.default = {
     name: "chart.brush.fullstackcolumn",
     extend: "chart.brush.fullstackbar",
@@ -16740,7 +17586,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 19 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16818,7 +17664,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 20 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16832,373 +17678,13 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _area = __webpack_require__(6);
 
-exports.default = {
-    name: "chart.brush.line",
-    extend: "chart.brush.core",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-
-        var LineBrush = function LineBrush() {
-            var g;
-            var circleColor, disableOpacity, lineBorderWidth, lineBorderDashArray, lineBorderOpacity;
-
-            this.setActiveEffect = function (elem) {
-                var lines = this.lineList;
-
-                for (var i = 0; i < lines.length; i++) {
-                    var opacity = elem == lines[i].element ? lineBorderOpacity : disableOpacity,
-                        color = lines[i].element.get(0).attr("stroke");
-
-                    if (lines[i].tooltip != null) {
-                        lines[i].tooltip.style(color, circleColor, opacity);
-                    }
-
-                    lines[i].element.attr({ opacity: opacity });
-                }
-            };
-
-            this.addLineElement = function (elem) {
-                if (!this.lineList) {
-                    this.lineList = [];
-                }
-
-                this.lineList.push(elem);
-            };
-
-            this.createLine = function (pos, tIndex) {
-                var x = pos.x,
-                    y = pos.y,
-                    v = pos.value,
-                    px = this.brush.symbol == "curve" ? this.curvePoints(x) : null,
-                    py = this.brush.symbol == "curve" ? this.curvePoints(y) : null,
-                    color = null,
-                    opacity = null,
-                    opts = {
-                    "stroke-width": lineBorderWidth,
-                    "stroke-dasharray": lineBorderDashArray,
-                    fill: "transparent",
-                    "cursor": this.brush.activeEvent != null ? "pointer" : "normal"
-                };
-
-                var g = this.svg.group(),
-                    p = null;
-
-                if (pos.length > 0) {
-                    var start = null,
-                        end = null;
-
-                    for (var i = 0; i < x.length - 1; i++) {
-                        if (!_.typeCheck(["undefined", "null"], v[i])) start = i;
-                        if (!_.typeCheck(["undefined", "null"], v[i + 1])) end = i + 1;
-
-                        if (start == null || end == null || start == end) continue;
-
-                        var newColor = this.color(i, tIndex),
-                            newOpacity = this.getOpacity(i);
-
-                        if (color != newColor || opacity != newOpacity) {
-                            p = this.svg.path(_.extend({
-                                "stroke-opacity": newOpacity,
-                                stroke: newColor,
-                                x1: x[start] // Start coordinates of area brush
-                            }, opts));
-
-                            p.css({
-                                "pointer-events": "stroke"
-                            });
-
-                            p.MoveTo(x[start], y[start]);
-                            g.append(p);
-
-                            color = newColor;
-                            opacity = newOpacity;
-                        } else {
-                            p.attr({
-                                x2: x[end] // End coordinates of area brush
-                            });
-                        }
-
-                        if (this.brush.symbol == "curve") {
-                            p.CurveTo(px.p1[start], py.p1[start], px.p2[start], py.p2[start], x[end], y[end]);
-                        } else {
-                            if (this.brush.symbol == "step") {
-                                var sx = x[start] + (x[end] - x[start]) / 2;
-
-                                p.LineTo(sx, y[start]);
-                                p.LineTo(sx, y[end]);
-                            }
-
-                            p.LineTo(x[end], y[end]);
-                        }
-                    }
-                }
-
-                return g;
-            };
-
-            this.createTooltip = function (g, pos, index) {
-                var display = this.brush.display;
-
-                for (var i = 0; i < pos.x.length; i++) {
-                    if (display == "max" && pos.max[i] || display == "min" && pos.min[i] || display == "all") {
-                        var orient = display == "max" && pos.max[i] ? "top" : "bottom",
-                            tooltip = this.lineList[index].tooltip;
-
-                        // 최소/최대 값은 무조건 한개만 보여야 함.
-                        if (display == "all" || tooltip == null) {
-                            var minmax = this.drawTooltip(this.color(index), circleColor, lineBorderOpacity);
-                            minmax.control(orient, +pos.x[i], +pos.y[i], this.format(pos.value[i]));
-
-                            g.append(minmax.tooltip);
-                            this.lineList[index].tooltip = minmax;
-                        }
-                    }
-                }
-            };
-
-            this.getOpacity = function (rowIndex) {
-                var opacity = this.brush.opacity,
-                    defOpacity = this.chart.theme("lineBorderOpacity");
-
-                if (_.typeCheck("function", opacity) && _.typeCheck("number", rowIndex)) {
-                    return opacity.call(this.chart, this.getData(rowIndex), rowIndex);
-                } else if (_.typeCheck("number", opacity)) {
-                    return opacity;
-                }
-
-                return defOpacity;
-            };
-
-            this.drawLine = function (path) {
-                var self = this;
-
-                for (var k = 0; k < path.length; k++) {
-                    var p = this.createLine(path[k], k);
-
-                    this.addEvent(p, null, k);
-                    g.append(p);
-
-                    // 컬럼 상태 설정
-                    this.addLineElement({
-                        element: p,
-                        tooltip: null
-                    });
-
-                    // Max & Min 툴팁 추가
-                    if (this.brush.display != null) {
-                        this.createTooltip(g, path[k], k);
-                    }
-
-                    // 액티브 이벤트 설정
-                    if (this.brush.activeEvent != null) {
-                        (function (elem) {
-                            elem.on(self.brush.activeEvent, function (e) {
-                                self.setActiveEffect(elem);
-                            });
-                        })(p);
-                    }
-                }
-
-                // 액티브 라인 설정
-                for (var k = 0; k < path.length; k++) {
-                    if (this.brush.active == this.brush.target[k]) {
-                        this.setActiveEffect(this.lineList[k].element);
-                    }
-                }
-
-                return g;
-            };
-
-            this.drawBefore = function () {
-                g = this.chart.svg.group();
-                circleColor = this.chart.theme("linePointBorderColor");
-                disableOpacity = this.chart.theme("lineDisableBorderOpacity");
-                lineBorderWidth = this.chart.theme("lineBorderWidth");
-                lineBorderDashArray = this.chart.theme("lineBorderDashArray");
-                lineBorderOpacity = this.getOpacity(null);
-            };
-
-            this.draw = function () {
-                return this.drawLine(this.getXY());
-            };
-
-            this.drawAnimate = function (root) {
-                var svg = this.chart.svg;
-
-                root.each(function (i, elem) {
-                    if (elem.is("util.svg.element.path")) {
-                        var dash = elem.attributes["stroke-dasharray"],
-                            len = elem.length();
-
-                        if (dash == "none") {
-                            elem.attr({
-                                "stroke-dasharray": len
-                            });
-
-                            elem.append(svg.animate({
-                                attributeName: "stroke-dashoffset",
-                                from: len,
-                                to: "0",
-                                begin: "0s",
-                                dur: "1s",
-                                repeatCount: "1"
-                            }));
-                        } else {
-                            elem.append(svg.animate({
-                                attributeName: "opacity",
-                                from: "0",
-                                to: "1",
-                                begin: "0s",
-                                dur: "1.5s",
-                                repeatCount: "1",
-                                fill: "freeze"
-                            }));
-                        }
-                    }
-                });
-            };
-        };
-
-        LineBrush.setup = function () {
-            return {
-                /** @cfg {"normal"/"curve"/"step"} [symbol="normal"] Sets the shape of a line (normal, curve, step). */
-                symbol: "normal", // normal, curve, step
-                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
-                active: null,
-                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
-                activeEvent: null,
-                /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
-                display: null,
-                /** @cfg {Number} [opacity=null]  Stroke opacity.  */
-                opacity: null
-            };
-        };
-
-        return LineBrush;
-    }
-};
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
+var _area2 = _interopRequireDefault(_area);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = {
-    name: "chart.brush.area",
-    extend: "chart.brush.line",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-
-        var AreaBrush = function AreaBrush() {
-            this.drawArea = function (path) {
-                var g = this.chart.svg.group(),
-                    y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min()),
-                    opacity = _.typeCheck("number", this.brush.opacity) ? this.brush.opacity : this.chart.theme("areaBackgroundOpacity");
-
-                for (var k = 0; k < path.length; k++) {
-                    var children = this.createLine(path[k], k).children;
-
-                    for (var i = 0; i < children.length; i++) {
-                        var p = children[i];
-
-                        // opacity 옵션이 콜백함수 일때, 상위 클래스 설정을 따름.
-                        if (_.typeCheck("function", this.brush.opacity)) {
-                            opacity = p.attr("stroke-opacity");
-                        }
-
-                        if (path[k].length > 0) {
-                            p.LineTo(p.attr("x2"), y);
-                            p.LineTo(p.attr("x1"), y);
-                            p.ClosePath();
-                        }
-
-                        p.attr({
-                            fill: p.attr("stroke"),
-                            "fill-opacity": opacity,
-                            "stroke-width": 0
-                        });
-
-                        g.prepend(p);
-                    }
-
-                    if (this.brush.line) {
-                        g.prepend(this.createLine(path[k], k));
-                    }
-
-                    this.addEvent(g, null, k);
-                }
-
-                return g;
-            };
-
-            this.draw = function () {
-                return this.drawArea(this.getXY());
-            };
-
-            this.drawAnimate = function (root) {
-                root.append(this.chart.svg.animate({
-                    attributeName: "opacity",
-                    from: "0",
-                    to: "1",
-                    begin: "0s",
-                    dur: "1.5s",
-                    repeatCount: "1",
-                    fill: "freeze"
-                }));
-            };
-        };
-
-        AreaBrush.setup = function () {
-            return {
-                /** @cfg {"normal"/"curve"/"step"} [symbol="normal"] Sets the shape of a line (normal, curve, step). */
-                symbol: "normal", // normal, curve, step
-                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
-                active: null,
-                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
-                activeEvent: null,
-                /** @cfg {"max"/"min"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
-                display: null,
-                /** @cfg {Boolean} [startZero=true]  The end of the area is zero point. */
-                startZero: true,
-                /** @cfg {Boolean} [line=true]  Visible line */
-                line: true
-            };
-        };
-
-        return AreaBrush;
-    }
-};
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+_main2.default.use(_area2.default);
 
 exports.default = {
     name: "chart.brush.stackarea",
@@ -17215,7 +17701,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17275,7 +17761,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17587,7 +18073,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17783,436 +18269,6 @@ exports.default = {
 };
 
 /***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-    name: "chart.brush.pie",
-    extend: "chart.brush.core",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-        var math = _main2.default.include("util.math");
-        var ColorUtil = _main2.default.include("util.color");
-
-        var PieBrush = function PieBrush() {
-            var self = this,
-                textY = 3;
-            var preAngle = 0,
-                preRate = 0,
-                preOpacity = 1;
-            var g,
-                cache_active = {};
-
-            this.setActiveEvent = function (items, useOpacity) {
-                var isDisableAll = true,
-                    disabledOpacity = this.chart.theme("pieDisableBackgroundOpacity") || 0.5;
-
-                for (var key in items) {
-                    var data = items[key];
-
-                    if (data.active) {
-                        isDisableAll = false;
-                        break;
-                    }
-                }
-
-                for (var key in items) {
-                    var data = items[key];
-
-                    if (data.active) {
-                        var dist = this.chart.theme("pieActiveDistance"),
-                            tx = Math.cos(math.radian(data.centerAngle)) * dist,
-                            ty = Math.sin(math.radian(data.centerAngle)) * dist;
-
-                        data.pie.translate(data.centerX + tx, data.centerY + ty);
-                    } else {
-                        data.pie.translate(data.centerX, data.centerY);
-                    }
-
-                    if (useOpacity) {
-                        if (data.pie.children.length > 0) {
-                            data.pie.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
-                        }
-
-                        if (data.text.children.length > 0) {
-                            data.text.get(0).attr({ "opacity": isDisableAll || data.active ? 1 : disabledOpacity });
-                        }
-                    }
-                }
-            };
-
-            this.setActiveTextEvent = function (items) {
-                for (var key in items) {
-                    var data = items[key],
-                        dist = data.active ? this.chart.theme("pieActiveDistance") : 0,
-                        cx = data.centerX + Math.cos(math.radian(data.centerAngle)) * ((data.outerRadius + dist) / 2),
-                        cy = data.centerY + Math.sin(math.radian(data.centerAngle)) * ((data.outerRadius + dist) / 2);
-
-                    if (data.text.children.length > 0) {
-                        data.text.get(0).translate(cx, cy);
-                    }
-                }
-            };
-
-            this.getFormatText = function (target, value, max) {
-                var key = target;
-
-                if (typeof this.brush.format == "function") {
-                    return this.format(key, value, max);
-                } else {
-                    if (!value) {
-                        return key;
-                    }
-
-                    return key + ": " + this.format(value);
-                }
-            };
-
-            this.drawPie = function (centerX, centerY, outerRadius, startAngle, endAngle, color) {
-                var pie = this.chart.svg.group();
-
-                if (endAngle == 360) {
-                    // if pie is full size, draw a circle as pie brush
-                    var circle = this.chart.svg.circle({
-                        cx: centerX,
-                        cy: centerY,
-                        r: outerRadius,
-                        fill: color,
-                        stroke: this.chart.theme("pieBorderColor") || color,
-                        "stroke-width": this.chart.theme("pieBorderWidth")
-                    });
-
-                    pie.append(circle);
-
-                    return pie;
-                }
-
-                var path = this.chart.svg.path({
-                    fill: color,
-                    stroke: this.chart.theme("pieBorderColor") || color,
-                    "stroke-width": this.chart.theme("pieBorderWidth")
-                });
-
-                // 바깥 지름 부터 그림
-                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
-                    startX = obj.x,
-                    startY = obj.y;
-
-                // 시작 하는 위치로 옮김
-                path.MoveTo(startX, startY);
-
-                // outer arc 에 대한 지점 설정
-                obj = math.rotate(startX, startY, math.radian(endAngle));
-
-                pie.translate(centerX, centerY);
-
-                // arc 그림
-                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 1, obj.x, obj.y).LineTo(0, 0).ClosePath();
-
-                pie.append(path);
-                pie.order = 1;
-
-                return pie;
-            };
-
-            this.drawPie3d = function (centerX, centerY, outerRadius, startAngle, endAngle, color) {
-                var pie = this.chart.svg.group(),
-                    path = this.chart.svg.path({
-                    fill: color,
-                    stroke: this.chart.theme("pieBorderColor") || color,
-                    "stroke-width": this.chart.theme("pieBorderWidth")
-                });
-
-                // 바깥 지름 부터 그림
-                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
-                    startX = obj.x,
-                    startY = obj.y;
-
-                // 시작 하는 위치로 옮김
-                path.MoveTo(startX, startY);
-
-                // outer arc 에 대한 지점 설정
-                obj = math.rotate(startX, startY, math.radian(endAngle));
-
-                pie.translate(centerX, centerY);
-
-                // arc 그림
-                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 1, obj.x, obj.y);
-
-                var y = obj.y + 10,
-                    x = obj.x + 5,
-                    targetX = startX + 5,
-                    targetY = startY + 10;
-
-                path.LineTo(x, y);
-                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 0, targetX, targetY);
-                path.ClosePath();
-
-                pie.append(path);
-                pie.order = 1;
-
-                return pie;
-            };
-
-            this.drawText = function (centerX, centerY, centerAngle, outerRadius, text) {
-                var g = this.svg.group({
-                    visibility: !this.brush.showText ? "hidden" : "visible"
-                }),
-                    isLeft = centerAngle + 90 > 180 ? true : false;
-
-                if (text === "" || !text) {
-                    return g;
-                }
-
-                if (this.brush.showText == "inside") {
-                    var cx = centerX + Math.cos(math.radian(centerAngle)) * (outerRadius / 2),
-                        cy = centerY + Math.sin(math.radian(centerAngle)) * (outerRadius / 2);
-
-                    var text = this.chart.text({
-                        "font-size": this.chart.theme("pieInnerFontSize"),
-                        fill: this.chart.theme("pieInnerFontColor"),
-                        "text-anchor": "middle",
-                        y: textY
-                    }, text);
-
-                    text.translate(cx, cy);
-
-                    g.append(text);
-                    g.order = 2;
-                } else {
-                    // TODO: 각도가 좁을 때, 텍스트와 라인을 보정하는 코드 개선 필요
-
-                    var rate = this.chart.theme("pieOuterLineRate"),
-                        diffAngle = Math.abs(centerAngle - preAngle);
-
-                    if (diffAngle < 2) {
-                        if (preRate == 0) {
-                            preRate = rate;
-                        }
-
-                        var tick = rate * 0.05;
-                        preRate -= tick;
-                        preOpacity -= 0.25;
-                    } else {
-                        preRate = rate;
-                        preOpacity = 1;
-                    }
-
-                    if (preRate > 1.2) {
-                        var dist = this.chart.theme("pieOuterLineSize"),
-                            r = outerRadius * preRate,
-                            cx = centerX + Math.cos(math.radian(centerAngle)) * outerRadius,
-                            cy = centerY + Math.sin(math.radian(centerAngle)) * outerRadius,
-                            tx = centerX + Math.cos(math.radian(centerAngle)) * r,
-                            ty = centerY + Math.sin(math.radian(centerAngle)) * r,
-                            ex = isLeft ? tx - dist : tx + dist;
-
-                        var path = this.svg.path({
-                            fill: "transparent",
-                            stroke: this.chart.theme("pieOuterLineColor"),
-                            "stroke-width": this.chart.theme("pieOuterLineWidth"),
-                            "stroke-opacity": preOpacity
-                        });
-
-                        path.MoveTo(cx, cy).LineTo(tx, ty).LineTo(ex, ty);
-
-                        var text = this.chart.text({
-                            "font-size": this.chart.theme("pieOuterFontSize"),
-                            "fill": this.chart.theme("pieOuterFontColor"),
-                            "fill-opacity": preOpacity,
-                            "text-anchor": isLeft ? "end" : "start",
-                            y: textY
-                        }, text);
-
-                        text.translate(ex + (isLeft ? -3 : 3), ty);
-
-                        g.append(text);
-                        g.append(path);
-                        g.order = 0;
-
-                        preAngle = centerAngle;
-                    }
-                }
-
-                return g;
-            };
-
-            this.drawUnit = function (index, data, g) {
-                var props = this.getProperty(index),
-                    centerX = props.centerX,
-                    centerY = props.centerY,
-                    outerRadius = props.outerRadius;
-
-                var target = this.brush.target,
-                    active = this.brush.active,
-                    all = 360,
-                    startAngle = 0,
-                    max = 0;
-
-                for (var i = 0; i < target.length; i++) {
-                    max += data[target[i]];
-                }
-
-                for (var i = 0; i < target.length; i++) {
-                    if (data[target[i]] == 0) continue;
-
-                    var value = data[target[i]],
-                        endAngle = all * (value / max);
-
-                    if (this.brush['3d']) {
-                        var pie3d = this.drawPie3d(centerX, centerY, outerRadius, startAngle, endAngle, ColorUtil.darken(this.color(i), 0.5));
-                        g.append(pie3d);
-                    }
-
-                    startAngle += endAngle;
-                }
-
-                startAngle = 0;
-
-                for (var i = 0; i < target.length; i++) {
-                    var value = data[target[i]],
-                        endAngle = all * (value / max),
-                        centerAngle = startAngle + endAngle / 2 - 90,
-                        isOnlyOne = Math.abs(startAngle - endAngle) == 360,
-                        pie = this.drawPie(centerX, centerY, outerRadius, startAngle, endAngle, this.color(i)),
-                        text = this.drawText(centerX, centerY, centerAngle, outerRadius, this.getFormatText(target[i], value, max));
-
-                    // 파이 액티브상태 캐싱하는 객체
-                    cache_active[centerAngle] = {
-                        active: false,
-                        pie: pie,
-                        text: text,
-                        centerX: centerX,
-                        centerY: centerY,
-                        centerAngle: centerAngle,
-                        outerRadius: outerRadius
-                    };
-
-                    // TODO: 파이가 한개일 경우, 액티브 처리를 할 필요가 없다.
-                    if (!isOnlyOne) {
-                        // 설정된 키 활성화
-                        if (active == target[i] || _.inArray(target[i], active) != -1) {
-                            cache_active[centerAngle].active = true;
-                        } else {
-                            cache_active[centerAngle].active = false;
-                        }
-
-                        // 파이 및 텍스트 액티브 상태 처리
-                        if (this.brush.showText == "inside") {
-                            this.setActiveTextEvent(cache_active);
-                        }
-
-                        // 파이 및 텍스트 액티브 상태 처리
-                        this.setActiveEvent(cache_active, true);
-
-                        // 활성화 이벤트 설정
-                        if (this.brush.activeEvent != null) {
-                            (function (p, t, cx, cy, ca, r) {
-                                p.on(self.brush.activeEvent, function (e) {
-                                    if (!cache_active[ca].active) {
-                                        cache_active[ca].active = true;
-                                    } else {
-                                        cache_active[ca].active = false;
-                                    }
-
-                                    if (self.brush.showText == "inside") {
-                                        self.setActiveTextEvent(cache_active);
-                                    }
-
-                                    self.setActiveEvent(cache_active, true);
-                                });
-
-                                p.attr({ cursor: "pointer" });
-                            })(pie, text.get(0), centerX, centerY, centerAngle, outerRadius);
-                        }
-                    }
-
-                    self.addEvent(pie, index, i);
-                    g.append(pie);
-                    g.append(text);
-
-                    startAngle += endAngle;
-                }
-            };
-
-            this.drawNoData = function (g) {
-                var props = this.getProperty(0);
-
-                g.append(this.drawPie(props.centerX, props.centerY, props.outerRadius, 0, 360, this.chart.theme("pieNoDataBackgroundColor")));
-            };
-
-            this.drawBefore = function () {
-                g = this.chart.svg.group();
-            };
-
-            this.draw = function () {
-                if (this.listData().length == 0) {
-                    this.drawNoData(g);
-                } else {
-                    this.eachData(function (data, i) {
-                        this.drawUnit(i, data, g);
-                    });
-                }
-
-                return g;
-            };
-
-            this.getProperty = function (index) {
-                var obj = this.axis.c(index);
-
-                var width = obj.width,
-                    height = obj.height,
-                    x = obj.x,
-                    y = obj.y,
-                    min = width;
-
-                if (height < min) {
-                    min = height;
-                }
-
-                return {
-                    centerX: width / 2 + x,
-                    centerY: height / 2 + y,
-                    outerRadius: min / 2
-                };
-            };
-        };
-
-        PieBrush.setup = function () {
-            return {
-                /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
-                clip: false,
-                /** @cfg {String} [showText=null] Set the text appear. (outside or inside)  */
-                showText: null,
-                /** @cfg {Function} [format=null] Returns a value from the format callback function of a defined option. */
-                format: null,
-                /** @cfg {Boolean} [3d=false] check 3d support */
-                "3d": false,
-                /** @cfg {String|Array} [active=null] Activates the pie of an applicable property's name. */
-                active: null,
-                /** @cfg {String} [activeEvent=null]  Activates the pie in question when a configured event occurs (click, mouseover, etc). */
-                activeEvent: null
-            };
-        };
-
-        return PieBrush;
-    }
-};
-
-/***/ }),
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -18227,7 +18283,13 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
+var _pie = __webpack_require__(7);
+
+var _pie2 = _interopRequireDefault(_pie);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_pie2.default);
 
 exports.default = {
     name: "chart.brush.donut",
@@ -20613,13 +20675,6 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 exports.default = {
     name: "chart.brush.focus",
     extend: "chart.brush.core",
@@ -21005,6 +21060,19 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _stackbar = __webpack_require__(1);
+
+var _stackbar2 = _interopRequireDefault(_stackbar);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_stackbar2.default);
+
 exports.default = {
     name: "chart.brush.equalizerbar",
     extend: "chart.brush.stackbar",
@@ -21089,6 +21157,19 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _stackcolumn = __webpack_require__(4);
+
+var _stackcolumn2 = _interopRequireDefault(_stackcolumn);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_stackcolumn2.default);
+
 exports.default = {
     name: "chart.brush.equalizercolumn",
     extend: "chart.brush.stackcolumn",
@@ -21980,11 +22061,11 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _base = __webpack_require__(1);
+var _base = __webpack_require__(8);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _kinetic = __webpack_require__(2);
+var _kinetic = __webpack_require__(9);
 
 var _kinetic2 = _interopRequireDefault(_kinetic);
 
@@ -22294,11 +22375,11 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _base = __webpack_require__(1);
+var _base = __webpack_require__(8);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _kinetic = __webpack_require__(2);
+var _kinetic = __webpack_require__(9);
 
 var _kinetic2 = _interopRequireDefault(_kinetic);
 

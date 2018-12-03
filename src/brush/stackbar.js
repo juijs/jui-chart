@@ -1,4 +1,7 @@
 import jui from '../main.js';
+import BarBrush from './bar.js'
+
+jui.use(BarBrush);
 
 export default {
     name: "chart.brush.stackbar",
