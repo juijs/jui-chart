@@ -45,7 +45,7 @@ var c = chart("#chart", {
             type : "block",  // default type is block
             domain : "date",
             format: function(d) {
-                return "";
+                return time.format(d, "MM-dd");
             },
             line: true
         },
@@ -67,18 +67,7 @@ var c = chart("#chart", {
     }],
     widget : [{
         type : "zoom"
-    }, {
-        type : "zoomscroll",
-        key : "l",
-        format : function(d, i) {
-            return time.format(d, "MM-dd");
-        },
-        dy : 5
     }],
-    style : {
-        gridXAxisBorderWidth: 0,
-        gridYAxisBorderWidth: 1
-    },
     render : false
 });
 
