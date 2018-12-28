@@ -5571,6 +5571,150 @@ var CanvasUtil = {
     }
 };
 
+var pixelRatio = function () {
+    var canvas = document.createElement('canvas'),
+        context = canvas.getContext('2d'),
+        backingStore = context.backingStorePixelRatio || context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
+
+    return (window.devicePixelRatio || 1) / backingStore;
+}();
+
+function polyfillForCanvasRenderingContext2D(prototype) {
+    var forEach = function forEach(obj, func) {
+        for (var p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                func(obj[p], p);
+            }
+        }
+    },
+        ratioArgs = {
+        'fillRect': 'all',
+        'clearRect': 'all',
+        'strokeRect': 'all',
+        'moveTo': 'all',
+        'lineTo': 'all',
+        'arc': [0, 1, 2],
+        'arcTo': 'all',
+        'bezierCurveTo': 'all',
+        'isPointinPath': 'all',
+        'isPointinStroke': 'all',
+        'quadraticCurveTo': 'all',
+        'rect': 'all',
+        'translate': 'all',
+        'createRadialGradient': 'all',
+        'createLinearGradient': 'all'
+    };
+
+    if (pixelRatio === 1) return;
+
+    forEach(ratioArgs, function (value, key) {
+        prototype[key] = function (_super) {
+            return function () {
+                var i = void 0,
+                    len = void 0,
+                    args = Array.prototype.slice.call(arguments);
+
+                if (value === 'all') {
+                    args = args.map(function (a) {
+                        return a * pixelRatio;
+                    });
+                } else if (Array.isArray(value)) {
+                    for (i = 0, len = value.length; i < len; i++) {
+                        args[value[i]] *= pixelRatio;
+                    }
+                }
+
+                return _super.apply(this, args);
+            };
+        }(prototype[key]);
+    });
+
+    // Stroke lineWidth adjustment
+    prototype.stroke = function (_super) {
+        return function () {
+            this.lineWidth *= pixelRatio;
+            _super.apply(this, arguments);
+            this.lineWidth /= pixelRatio;
+        };
+    }(prototype.stroke);
+
+    // Text
+    //
+    prototype.fillText = function (_super) {
+        return function () {
+            var args = Array.prototype.slice.call(arguments);
+
+            args[1] *= pixelRatio; // x
+            args[2] *= pixelRatio; // y
+
+            this.font = this.font.replace(/(\d+)(px|em|rem|pt)/g, function (w, m, u) {
+                return m * pixelRatio + u;
+            });
+
+            _super.apply(this, args);
+
+            this.font = this.font.replace(/(\d+)(px|em|rem|pt)/g, function (w, m, u) {
+                return m / pixelRatio + u;
+            });
+        };
+    }(prototype.fillText);
+
+    prototype.strokeText = function (_super) {
+        return function () {
+            var args = Array.prototype.slice.call(arguments);
+
+            args[1] *= pixelRatio; // x
+            args[2] *= pixelRatio; // y
+
+            this.font = this.font.replace(/(\d+)(px|em|rem|pt)/g, function (w, m, u) {
+                return m * pixelRatio + u;
+            });
+
+            _super.apply(this, args);
+
+            this.font = this.font.replace(/(\d+)(px|em|rem|pt)/g, function (w, m, u) {
+                return m / pixelRatio + u;
+            });
+        };
+    }(prototype.strokeText);
+}
+
+function polyfillForHTMLCanvasElement(prototype) {
+    prototype.getContext = function (_super) {
+        return function (type) {
+            var context = _super.call(this, type);
+
+            if (type === '2d') {
+                if (pixelRatio > 1) {
+                    this.style.height = this.height + 'px';
+                    this.style.width = this.width + 'px';
+                    this.width *= pixelRatio;
+                    this.height *= pixelRatio;
+                }
+            }
+
+            return context;
+        };
+    }(prototype.getContext);
+}
+
+var CanvasHidpiUtil = {
+    name: "util.canvas.hidpi",
+    extend: null,
+    component: function component() {
+        return {
+            polyfills: function polyfills() {
+                polyfillForCanvasRenderingContext2D(CanvasRenderingContext2D.prototype);
+                polyfillForHTMLCanvasElement(HTMLCanvasElement.prototype);
+            },
+            apply: function apply(context) {
+                polyfillForCanvasRenderingContext2D(context);
+            },
+            pixelRatio: pixelRatio
+        };
+    }
+};
+
 var JUISvgElement = {
     name: "util.svg.element",
     extend: null,
@@ -9868,6 +10012,7 @@ var JUIBuilder = {
         var SVGUtil = jui$1.include("util.svg");
         var ColorUtil = jui$1.include("util.color");
         var Axis = jui$1.include("chart.axis");
+        var HidpiUtil = jui$1.include("util.canvas.hidpi");
 
         _.resize(function () {
             var call_list = jui$1.get("chart.builder");
@@ -10376,19 +10521,22 @@ var JUIBuilder = {
 
             function initCanvasElement(self) {
                 var size = getCanvasRealSize(self);
+                var ratio = HidpiUtil.pixelRatio;
 
-                for (var key in _canvas) {
+                var _loop = function _loop(key) {
                     var elem = document.createElement("CANVAS");
-
-                    elem.setAttribute("width", size.width);
-                    elem.setAttribute("height", size.height);
+                    elem.width = size.width * ratio;
+                    elem.height = size.height * ratio;
                     elem.style.position = "absolute";
                     elem.style.left = "0px";
                     elem.style.top = "0px";
+                    elem.style.width = size.width + "px";
+                    elem.style.height = size.height + "px";
 
                     // Context 설정하기
                     if (elem.getContext) {
                         _canvas[key] = elem.getContext("2d");
+                        HidpiUtil.apply(_canvas[key]);
 
                         if (key != "buffer") {
                             self.root.appendChild(elem);
@@ -10408,15 +10556,20 @@ var JUIBuilder = {
                             return this;
                         };
                     }
+                };
+
+                for (var key in _canvas) {
+                    _loop(key);
                 }
             }
 
             function resetCanvasElement(self, type) {
-                var size = getCanvasRealSize(self),
+                var ratio = HidpiUtil.pixelRatio,
+                    size = getCanvasRealSize(self),
                     context = _canvas[type];
 
                 context.restore();
-                context.clearRect(0, 0, size.width, size.height);
+                context.clearRect(0, 0, size.width * ratio, size.height * ratio);
                 context.save();
 
                 if (type == "main") {
@@ -10850,12 +11003,15 @@ var JUIBuilder = {
 
                 // Resize canvas
                 if (_options.canvas) {
-                    var list = $.find(this.root, "CANVAS"),
+                    var ratio = HidpiUtil.pixelRatio,
+                        list = $.find(this.root, "CANVAS"),
                         size = getCanvasRealSize(this);
 
                     for (var i = 0; i < list.length; i++) {
-                        list[i].setAttribute("width", size.width);
-                        list[i].setAttribute("height", size.height);
+                        list[i].width = size.width * ratio;
+                        list[i].height = size.height * ratio;
+                        list[i].style.width = size.width + "px";
+                        list[i].style.height = size.height + "px";
                     }
                 }
 
@@ -15120,7 +15276,7 @@ var CanvasCoreWidget = {
     }
 };
 
-jui$1.use([dom, math, color, collection, manager, UICore, time, transform, CanvasUtil, JUISvgElement, JUISvgTransformElement, JUISvgPathElement, JUISvgPathRectElement, JUISvgPathSymbolElement, JUISvgPolyElement, JUISvgBase, JUISvgBase3d, svg, LinearScaleUtil, CircleScaleUtil, LogScaleUtil, OrdinalScaleUtil, TimeScaleUtil, scale, vector, draw, axis, Map, JUIBuilder, Plane, Animation, core, grid$1, line, point, CubePolygon, draw2d, draw3d, CoreGrid, BlockGrid, DateGrid, DateBlockGrid, FullBlockGrid, RadarGrid, RangeGrid, LogGrid, RuleGrid, PanelGrid, TableGrid, OverlapGrid, Grid3dGrid, CoreBrush, MapCoreBrush, PolygonCoreBrush, CanvasCoreBrush, CoreWidget, MapCoreWidget, PolygonCoreWidget, CanvasCoreWidget]);
+jui$1.use([dom, math, color, collection, manager, UICore, time, transform, CanvasUtil, CanvasHidpiUtil, JUISvgElement, JUISvgTransformElement, JUISvgPathElement, JUISvgPathRectElement, JUISvgPathSymbolElement, JUISvgPolyElement, JUISvgBase, JUISvgBase3d, svg, LinearScaleUtil, CircleScaleUtil, LogScaleUtil, OrdinalScaleUtil, TimeScaleUtil, scale, vector, draw, axis, Map, JUIBuilder, Plane, Animation, core, grid$1, line, point, CubePolygon, draw2d, draw3d, CoreGrid, BlockGrid, DateGrid, DateBlockGrid, FullBlockGrid, RadarGrid, RangeGrid, LogGrid, RuleGrid, PanelGrid, TableGrid, OverlapGrid, Grid3dGrid, CoreBrush, MapCoreBrush, PolygonCoreBrush, CanvasCoreBrush, CoreWidget, MapCoreWidget, PolygonCoreWidget, CanvasCoreWidget]);
 
 var _$1 = jui$1.include("util.base"),
     manager$1 = jui$1.include("manager");
