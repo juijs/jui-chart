@@ -17,12 +17,12 @@ npm install juijs-chart
 The difference with the existing method is that you need to add the module directly using the 'use' function.
 
 ```js
-import jui from 'juijs-chart'
+import graph from 'juijs-chart'
 import BarBrush from 'juijs-chart/src/brush/bar.js'
 import ColumnBrush from 'juijs-chart/src/brush/column.js'
 import TitleWidget from 'juijs-chart/src/widget/title.js'
 
-jui.use(BarBrush, ColumnBrush, TitleWidget);
+graph.use(BarBrush, ColumnBrush, TitleWidget);
 ```
 
 ## Usage
