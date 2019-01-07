@@ -34,7 +34,7 @@ jui.use(BarBrush, ColumnBrush, TitleWidget);
 The UI component creation code is the same as the existing one.
 
 ```js
-jui.ready([ "chart.builder" ], function(builder) {
+graph.ready([ "chart.builder" ], function(builder) {
     var obj = builder("#chart", {
         width: 600,
         height : 600,
