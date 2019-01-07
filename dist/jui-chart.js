@@ -2187,121 +2187,125 @@ var _heatmap = __webpack_require__(29);
 
 var _heatmap2 = _interopRequireDefault(_heatmap);
 
-var _timeline = __webpack_require__(30);
+var _heatmapscatter = __webpack_require__(30);
+
+var _heatmapscatter2 = _interopRequireDefault(_heatmapscatter);
+
+var _timeline = __webpack_require__(31);
 
 var _timeline2 = _interopRequireDefault(_timeline);
 
-var _topologynode = __webpack_require__(31);
+var _topologynode = __webpack_require__(32);
 
 var _topologynode2 = _interopRequireDefault(_topologynode);
 
-var _focus = __webpack_require__(32);
+var _focus = __webpack_require__(33);
 
 var _focus2 = _interopRequireDefault(_focus);
 
-var _pin = __webpack_require__(33);
+var _pin = __webpack_require__(34);
 
 var _pin2 = _interopRequireDefault(_pin);
 
-var _selectbox = __webpack_require__(34);
+var _selectbox = __webpack_require__(35);
 
 var _selectbox2 = _interopRequireDefault(_selectbox);
 
-var _equalizer = __webpack_require__(35);
+var _equalizer = __webpack_require__(36);
 
 var _equalizer2 = _interopRequireDefault(_equalizer);
 
-var _equalizerbar = __webpack_require__(36);
+var _equalizerbar = __webpack_require__(37);
 
 var _equalizerbar2 = _interopRequireDefault(_equalizerbar);
 
-var _equalizercolumn = __webpack_require__(37);
+var _equalizercolumn = __webpack_require__(38);
 
 var _equalizercolumn2 = _interopRequireDefault(_equalizercolumn);
 
-var _candlestick = __webpack_require__(38);
+var _candlestick = __webpack_require__(39);
 
 var _candlestick2 = _interopRequireDefault(_candlestick);
 
-var _column3d = __webpack_require__(39);
+var _column3d = __webpack_require__(40);
 
 var _column3d2 = _interopRequireDefault(_column3d);
 
-var _line3d = __webpack_require__(40);
+var _line3d = __webpack_require__(41);
 
 var _line3d2 = _interopRequireDefault(_line3d);
 
-var _dot3d = __webpack_require__(41);
+var _dot3d = __webpack_require__(42);
 
 var _dot3d2 = _interopRequireDefault(_dot3d);
 
-var _equalizercolumn3 = __webpack_require__(42);
+var _equalizercolumn3 = __webpack_require__(43);
 
 var _equalizercolumn4 = _interopRequireDefault(_equalizercolumn3);
 
-var _activebubble = __webpack_require__(43);
+var _activebubble = __webpack_require__(44);
 
 var _activebubble2 = _interopRequireDefault(_activebubble);
 
-var _bubblecloud = __webpack_require__(45);
+var _bubblecloud = __webpack_require__(46);
 
 var _bubblecloud2 = _interopRequireDefault(_bubblecloud);
 
-var _activecircle = __webpack_require__(47);
+var _activecircle = __webpack_require__(48);
 
 var _activecircle2 = _interopRequireDefault(_activecircle);
 
-var _cross = __webpack_require__(48);
+var _cross = __webpack_require__(49);
 
 var _cross2 = _interopRequireDefault(_cross);
 
-var _legend = __webpack_require__(49);
+var _legend = __webpack_require__(50);
 
 var _legend2 = _interopRequireDefault(_legend);
 
-var _title = __webpack_require__(50);
+var _title = __webpack_require__(51);
 
 var _title2 = _interopRequireDefault(_title);
 
-var _tooltip = __webpack_require__(51);
+var _tooltip = __webpack_require__(52);
 
 var _tooltip2 = _interopRequireDefault(_tooltip);
 
-var _topologyctrl = __webpack_require__(52);
+var _topologyctrl = __webpack_require__(53);
 
 var _topologyctrl2 = _interopRequireDefault(_topologyctrl);
 
-var _dragselect = __webpack_require__(53);
+var _dragselect = __webpack_require__(54);
 
 var _dragselect2 = _interopRequireDefault(_dragselect);
 
-var _vscroll = __webpack_require__(54);
+var _vscroll = __webpack_require__(55);
 
 var _vscroll2 = _interopRequireDefault(_vscroll);
 
-var _zoom = __webpack_require__(55);
+var _zoom = __webpack_require__(56);
 
 var _zoom2 = _interopRequireDefault(_zoom);
 
-var _zoomscroll = __webpack_require__(56);
+var _zoomscroll = __webpack_require__(57);
 
 var _zoomscroll2 = _interopRequireDefault(_zoomscroll);
 
-var _raycast = __webpack_require__(57);
+var _raycast = __webpack_require__(58);
 
 var _raycast2 = _interopRequireDefault(_raycast);
 
-var _picker = __webpack_require__(58);
+var _picker = __webpack_require__(59);
 
 var _picker2 = _interopRequireDefault(_picker);
 
-var _rotate3d = __webpack_require__(59);
+var _rotate3d = __webpack_require__(60);
 
 var _rotate3d2 = _interopRequireDefault(_rotate3d);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _zoom2.default, _zoomscroll2.default, _raycast2.default, _picker2.default, _rotate3d2.default]);
+_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _zoom2.default, _zoomscroll2.default, _raycast2.default, _picker2.default, _rotate3d2.default]);
 
 if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) == "object") {
     window.graph = _main2.default;
@@ -19713,6 +19717,176 @@ var _main2 = _interopRequireDefault(_main);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
+    name: "chart.brush.heatmapscatter",
+    extend: "chart.brush.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var HeatmapScatterBrush = function HeatmapScatterBrush() {
+            var g = null,
+                map = [];
+            var yValue, yDist, ySize, xValue, xDist, xSize;
+
+            function getTableData(self, xValue, yValue) {
+                var xIndex = ((xValue - self.axis.x.min()) / self.brush.xInterval).toFixed(0),
+                    yIndex = ((yValue - self.axis.y.min()) / self.brush.yInterval).toFixed(0);
+
+                if (xIndex >= xDist) xIndex = xDist - 1;
+                if (yIndex >= yDist) yIndex = yDist - 1;
+                if (xIndex < 0) xIndex = 0;
+                if (yIndex < 0) yIndex = 0;
+
+                return {
+                    map: map[yIndex][xIndex],
+                    rowIndex: yIndex,
+                    columnIndex: xIndex
+                };
+            }
+
+            this.createScatter = function (pos, dataIndex, targetIndex) {
+                var result = null,
+                    tableInfo = getTableData(this, this.axis.x.invert(pos.x), this.axis.y.invert(pos.y)),
+                    tableObj = tableInfo.map,
+                    color = this.color(dataIndex, targetIndex);
+
+                try {
+                    // 테이블 셀에 데이터 추가하기
+                    tableObj.color = color;
+                    tableObj.data.push(this.axis.data[dataIndex]);
+
+                    // 테이블 셀 그리기
+                    if (tableObj.element == null) {
+                        tableObj.element = this.chart.svg.rect({
+                            width: xSize,
+                            height: ySize,
+                            x: tableObj.x,
+                            y: tableObj.y,
+                            fill: color,
+                            stroke: this.chart.theme("heatmapscatterBorderColor"),
+                            "stroke-width": this.chart.theme("heatmapscatterBorderWidth")
+                        });
+                    } else {
+                        tableObj.draw = true;
+                    }
+
+                    result = {
+                        data: tableObj.data,
+                        element: tableObj.element,
+                        draw: tableObj.draw,
+                        rowIndex: tableInfo.rowIndex,
+                        columnIndex: tableInfo.columnIndex
+                    };
+                } catch (e) {
+                    result = null;
+                }
+
+                return result;
+            };
+
+            this.drawScatter = function (g) {
+                var data = this.axis.data,
+                    target = this.brush.target;
+
+                for (var i = 0; i < data.length; i++) {
+                    var xValue = this.axis.x(i);
+
+                    for (var j = 0; j < target.length; j++) {
+                        var yValue = this.axis.y(data[i][target[j]]);
+
+                        var obj = this.createScatter({
+                            x: xValue,
+                            y: yValue
+                        }, i, j);
+
+                        if (obj != null && obj.draw == false) {
+                            this.addEvent(obj.element, i, j);
+                            g.append(obj.element);
+                        }
+                    }
+                }
+            };
+
+            this.draw = function () {
+                g = this.chart.svg.group();
+
+                var yMin = this.axis.y.min(),
+                    xMin = this.axis.x.min();
+
+                // 히트맵 생성
+                for (var i = 0; i < yDist; i++) {
+                    if (!map[i]) {
+                        map[i] = [];
+                    }
+
+                    var yVal = yMin + yValue / yDist * i,
+                        yPos = this.axis.y(this.axis.y.type == "date" ? new Date(yVal) : yVal);
+
+                    for (var j = 0; j < xDist; j++) {
+                        var xVal = xMin + xValue / xDist * j,
+                            xPos = this.axis.x(this.axis.x.type == "date" ? new Date(xVal) : xVal);
+
+                        map[i][j] = {
+                            data: [],
+                            element: null,
+                            draw: false,
+                            color: null,
+                            x: xPos,
+                            y: yPos - ySize,
+                            xValue: xVal,
+                            yValue: yVal
+                        };
+                    }
+                }
+
+                this.drawScatter(g);
+
+                return g;
+            };
+
+            this.drawBefore = function () {
+                yValue = this.axis.y.max() - this.axis.y.min();
+                yDist = yValue / this.brush.yInterval;
+                ySize = this.axis.area("height") / yDist;
+
+                xValue = this.axis.x.max() - this.axis.x.min();
+                xDist = xValue / this.brush.xInterval;
+                xSize = this.axis.area("width") / xDist;
+            };
+        };
+
+        HeatmapScatterBrush.setup = function () {
+            return {
+                //activeEvent: null,
+                xInterval: 0,
+                yInterval: 0,
+
+                /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
+                clip: false
+            };
+        };
+
+        return HeatmapScatterBrush;
+    }
+};
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
     name: "chart.brush.timeline",
     extend: "chart.brush.core",
     component: function component() {
@@ -20104,7 +20278,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20830,7 +21004,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20942,7 +21116,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21024,7 +21198,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21117,7 +21291,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21215,7 +21389,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21312,7 +21486,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21409,7 +21583,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21506,7 +21680,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21612,7 +21786,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21706,7 +21880,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21884,7 +22058,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22093,7 +22267,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22109,7 +22283,7 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _mortalbubble = __webpack_require__(44);
+var _mortalbubble = __webpack_require__(45);
 
 var _mortalbubble2 = _interopRequireDefault(_mortalbubble);
 
@@ -22308,7 +22482,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22395,7 +22569,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22411,7 +22585,7 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _bubble2 = __webpack_require__(46);
+var _bubble2 = __webpack_require__(47);
 
 var _bubble3 = _interopRequireDefault(_bubble2);
 
@@ -22622,7 +22796,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22691,7 +22865,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22879,7 +23053,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23063,7 +23237,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23404,7 +23578,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23525,7 +23699,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23709,6 +23883,7 @@ exports.default = {
                     // 툴팁 엘리먼트 가져오기
                     var tooltip = tooltips[obj.brush.index],
                         line = tooltip.get(0),
+                        target = tooltip.get(1),
                         rect = tooltip.get(1).get(0),
                         text = tooltip.get(1).get(1).translate(0, orient != "bottom" ? lineHeight : lineHeight + ANCHOR),
                         borderColor = chart.theme("tooltipBorderColor") || getColorByKey(obj),
@@ -23723,6 +23898,7 @@ exports.default = {
                         elem.get(1).attr({ x: size.onlyValue ? size.width / 2 : size.width - PADDING });
                     });
                     tooltip.attr({ visibility: "visible" });
+                    target.translate(xy.x, xy.y);
 
                     isActive = true;
                 });
@@ -23832,7 +24008,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24044,7 +24220,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24287,7 +24463,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24423,7 +24599,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24684,7 +24860,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24999,7 +25175,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25083,7 +25259,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25164,7 +25340,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

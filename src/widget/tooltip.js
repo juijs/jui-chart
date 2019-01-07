@@ -166,6 +166,7 @@ export default {
                     // 툴팁 엘리먼트 가져오기
                     var tooltip = tooltips[obj.brush.index],
                         line = tooltip.get(0),
+                        target = tooltip.get(1),
                         rect = tooltip.get(1).get(0),
                         text = tooltip.get(1).get(1).translate(0, (orient != "bottom") ? lineHeight : lineHeight + ANCHOR),
                         borderColor = chart.theme("tooltipBorderColor") || getColorByKey(obj),
@@ -180,6 +181,7 @@ export default {
                         elem.get(1).attr({ x: (size.onlyValue) ? size.width / 2 : size.width - PADDING });
                     });
                     tooltip.attr({ visibility: "visible" });
+                    target.translate(xy.x, xy.y);
 
                     isActive = true;
                 });

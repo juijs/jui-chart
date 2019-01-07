@@ -24,6 +24,7 @@ import PieBrush from '../src/brush/pie.js'
 import DonutBrush from '../src/brush/donut.js'
 import TreeMapBrush from '../src/brush/treemap.js'
 import HeatMapBrush from '../src/brush/heatmap.js'
+import HeatMapScatterBrush from '../src/brush/heatmapscatter.js'
 import TimeLineBrush from '../src/brush/timeline.js'
 import TopologyNodeBrush from '../src/brush/topologynode.js'
 import FocusBrush from '../src/brush/focus.js'
@@ -79,6 +80,7 @@ jui.use([
     DonutBrush,
     TreeMapBrush,
     HeatMapBrush,
+    HeatMapScatterBrush,
     TimeLineBrush,
     TopologyNodeBrush,
     FocusBrush,
