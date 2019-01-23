@@ -24988,10 +24988,14 @@ exports.default = {
                     if (_.typeCheck("function", interval)) {
                         interval = interval.apply(self.chart, [stime, etime]);
                     }
+
                     // format 콜백 옵션 설정
                     if (_.typeCheck("function", format)) {
                         format = format.apply(self.chart, [stime, etime]);
                     }
+
+                    // 이전 x축 도메인 값 캐싱하기
+                    self.chart.setCache("prevDomain_" + axisIndex, axis.get("x").domain);
 
                     axis.updateGrid("x", {
                         domain: [stime, etime],
@@ -25087,17 +25091,20 @@ exports.default = {
 
             this.rollbackZoom = function (axisList) {
                 for (var i = 0; i < axisList.length; i++) {
-                    var axis = this.chart.axis(axisList[i]),
+                    var axisIndex = axisList[i],
+                        axis = this.chart.axis(axisIndex),
                         xtype = axis.get("x").type,
-                        domain = axis.get("x").domain,
                         interval = axis.get("x").interval,
                         format = axis.get("x").format;
 
                     if (xtype == "block") {
                         axis.screen(1);
                     } else if (xtype == "date") {
+                        // 이전 x축 도메인 값 가져오기
+                        var prevDomain = this.chart.getCache("prevDomain_" + axisIndex);
+
                         axis.updateGrid("x", {
-                            domain: domain,
+                            domain: prevDomain,
                             interval: interval,
                             format: format
                         });
