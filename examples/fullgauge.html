@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+
+    <script src="../dist/jui-chart.js"></script>
+</head>
+<body>
+<div id="chart"></div>
+
+<script>
+graph.ready([ "chart.builder", "util.base" ], function(builder, _) {
+    builder("#chart", {
+        width: 500,
+        height: 500,
+        axis : [{
+            c : {
+                type : "panel",
+            },
+            data : [{
+                title : "Overall Visits",
+                value : 140,
+                max : 200,
+                min : 0
+            }]
+        }],
+        brush : [{
+            type : "fullgauge",
+            symbol : "round",
+            startAngle : 270,
+            size : 20,
+            titleY : 30,
+            showText : true,
+            format : function(value) {
+                return value + "k";
+            }
+        }],
+        style : {
+            gaugeFontSize : 30
+        }
+    });
+});
+</script>
+
+
+</body>
+</html>

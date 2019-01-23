@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 11);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -95,7 +95,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _juijsGraph = __webpack_require__(11);
+var _juijsGraph = __webpack_require__(12);
 
 var _juijsGraph2 = _interopRequireDefault(_juijsGraph);
 
@@ -1726,6 +1726,377 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _pie = __webpack_require__(7);
+
+var _pie2 = _interopRequireDefault(_pie);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_pie2.default);
+
+exports.default = {
+    name: "chart.brush.donut",
+    extend: "chart.brush.pie",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+        var math = _main2.default.include("util.math");
+        var ColorUtil = _main2.default.include("util.color");
+
+        var DonutBrush = function DonutBrush() {
+            var self = this,
+                cache_active = {};
+
+            this.drawDonut = function (centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
+                attr['stroke-width'] = outerRadius - innerRadius;
+
+                if (endAngle >= 360) {
+                    // bugfix : if angle is 360 , donut cang't show
+                    endAngle = 359.9999;
+                }
+
+                var g = this.chart.svg.group(),
+                    path = this.chart.svg.path(attr),
+                    dist = Math.abs(outerRadius - innerRadius);
+
+                // 바깥 지름 부터 그림
+                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
+                    startX = obj.x,
+                    startY = obj.y;
+
+                // 시작 하는 위치로 옮김
+                path.MoveTo(startX, startY);
+
+                // outer arc 에 대한 지점 설정
+                obj = math.rotate(startX, startY, math.radian(endAngle));
+
+                // 중심점 이동
+                g.translate(centerX, centerY);
+
+                // outer arc 그림
+                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 1, obj.x, obj.y);
+
+                // 마우스 이벤트 빈공간 제외
+                path.css({
+                    "pointer-events": "stroke"
+                });
+
+                g.append(path);
+                g.order = 1;
+
+                return g;
+            };
+
+            this.drawDonut3d = function (centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
+                var g = this.chart.svg.group(),
+                    path = this.chart.svg.path(attr),
+                    dist = Math.abs(outerRadius - innerRadius);
+
+                outerRadius += dist / 2;
+                innerRadius = outerRadius - dist;
+
+                // 바깥 지름 부터 그림
+                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
+                    startX = obj.x,
+                    startY = obj.y;
+
+                var innerObj = math.rotate(0, -innerRadius, math.radian(startAngle)),
+                    innerStartX = innerObj.x,
+                    innerStartY = innerObj.y;
+
+                // 시작 하는 위치로 옮김
+                path.MoveTo(startX, startY);
+
+                // outer arc 에 대한 지점 설정
+                obj = math.rotate(startX, startY, math.radian(endAngle));
+                innerObj = math.rotate(innerStartX, innerStartY, math.radian(endAngle));
+
+                // 중심점 이동
+                g.translate(centerX, centerY);
+
+                // outer arc 그림
+                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 1, obj.x, obj.y);
+
+                var y = obj.y + 10,
+                    x = obj.x + 5,
+                    innerY = innerObj.y + 10,
+                    innerX = innerObj.x + 5,
+                    targetX = startX + 5,
+                    targetY = startY + 10,
+                    innerTargetX = innerStartX + 5,
+                    innerTargetY = innerStartY + 10;
+
+                path.LineTo(x, y);
+                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 0, targetX, targetY);
+                path.ClosePath();
+                g.append(path);
+
+                // 안쪽 면 그리기
+                var innerPath = this.chart.svg.path(attr);
+
+                // 시작 하는 위치로 옮김
+                innerPath.MoveTo(innerStartX, innerStartY);
+                innerPath.Arc(innerRadius, innerRadius, 0, endAngle > 180 ? 1 : 0, 1, innerObj.x, innerObj.y);
+                innerPath.LineTo(innerX, innerY);
+                innerPath.Arc(innerRadius, innerRadius, 0, endAngle > 180 ? 1 : 0, 0, innerTargetX, innerTargetY);
+                innerPath.ClosePath();
+
+                g.append(innerPath);
+                g.order = 1;
+
+                return g;
+            };
+
+            this.drawDonut3dBlock = function (centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
+                var g = this.chart.svg.group(),
+                    path = this.chart.svg.path(attr),
+                    dist = Math.abs(outerRadius - innerRadius);
+
+                outerRadius += dist / 2;
+                innerRadius = outerRadius - dist;
+
+                // 바깥 지름 부터 그림
+                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
+                    startX = obj.x,
+                    startY = obj.y;
+
+                var innerObj = math.rotate(0, -innerRadius, math.radian(startAngle)),
+                    innerStartX = innerObj.x,
+                    innerStartY = innerObj.y;
+
+                // 시작 하는 위치로 옮김
+                path.MoveTo(startX, startY);
+
+                // outer arc 에 대한 지점 설정
+                obj = math.rotate(startX, startY, math.radian(endAngle));
+                innerObj = math.rotate(innerStartX, innerStartY, math.radian(endAngle));
+
+                // 중심점 이동
+                g.translate(centerX, centerY);
+
+                var y = obj.y + 10,
+                    x = obj.x + 5,
+                    innerY = innerObj.y + 10,
+                    innerX = innerObj.x + 5;
+
+                // 왼쪽면 그리기
+                var rect = this.chart.svg.path(attr);
+                rect.MoveTo(obj.x, obj.y).LineTo(x, y).LineTo(innerX, innerY).LineTo(innerObj.x, innerObj.y).ClosePath();
+
+                g.append(rect);
+                g.order = 1;
+
+                return g;
+            };
+
+            this.drawUnit = function (index, data, g) {
+                var props = this.getProperty(index),
+                    centerX = props.centerX,
+                    centerY = props.centerY,
+                    innerRadius = props.innerRadius,
+                    outerRadius = props.outerRadius;
+
+                var target = this.brush.target,
+                    active = this.brush.active,
+                    all = 360,
+                    startAngle = 0,
+                    max = 0,
+                    totalValue = 0;
+
+                for (var i = 0; i < target.length; i++) {
+                    max += data[target[i]];
+                }
+
+                if (this.brush['3d']) {
+                    // 화면 블럭 그리기
+                    for (var i = 0; i < target.length; i++) {
+                        var value = data[target[i]],
+                            endAngle = all * (value / max),
+                            donut3d = this.drawDonut3dBlock(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
+                            fill: ColorUtil.darken(this.color(i), 0.5)
+                        }, i == target.length - 1);
+                        g.append(donut3d);
+
+                        startAngle += endAngle;
+                    }
+
+                    startAngle = 0;
+                    for (var i = 0; i < target.length; i++) {
+                        var value = data[target[i]],
+                            endAngle = all * (value / max),
+                            donut3d = this.drawDonut3d(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
+                            fill: ColorUtil.darken(this.color(i), 0.5)
+                        }, i == target.length - 1);
+                        g.append(donut3d);
+
+                        startAngle += endAngle;
+                    }
+                }
+
+                startAngle = 0;
+
+                for (var i = 0; i < target.length; i++) {
+                    if (data[target[i]] == 0) continue;
+
+                    var value = data[target[i]],
+                        endAngle = all * (value / max),
+                        centerAngle = startAngle + endAngle / 2 - 90,
+                        isOnlyOne = Math.abs(startAngle - endAngle) == 360,
+                        radius = this.brush.showText == "inside" ? this.brush.size + innerRadius + outerRadius : outerRadius,
+                        donut = this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
+                        stroke: this.color(i),
+                        fill: 'transparent'
+                    }),
+                        text = this.drawText(centerX, centerY, centerAngle, radius, this.getFormatText(target[i], value));
+
+                    // 파이 액티브상태 캐싱하는 객체
+                    cache_active[centerAngle] = {
+                        active: false,
+                        pie: donut,
+                        text: text,
+                        centerX: centerX,
+                        centerY: centerY,
+                        centerAngle: centerAngle,
+                        outerRadius: radius
+                    };
+
+                    // TODO: 파이가 한개일 경우, 액티브 처리를 할 필요가 없다.
+                    if (!isOnlyOne) {
+                        // 설정된 키 활성화
+                        if (active == target[i] || _.inArray(target[i], active) != -1) {
+                            cache_active[centerAngle].active = true;
+                        } else {
+                            cache_active[centerAngle].active = false;
+                        }
+
+                        // 파이 및 텍스트 액티브 상태 처리
+                        if (this.brush.showText == "inside") {
+                            this.setActiveTextEvent(cache_active);
+                        }
+
+                        // 파이 및 텍스트 액티브 상태 처리
+                        this.setActiveEvent(cache_active, false);
+
+                        // 활성화 이벤트 설정
+                        if (this.brush.activeEvent != null) {
+                            (function (p, t, cx, cy, ca, r) {
+                                p.on(self.brush.activeEvent, function (e) {
+                                    if (!cache_active[ca].active) {
+                                        cache_active[ca].active = true;
+                                    } else {
+                                        cache_active[ca].active = false;
+                                    }
+
+                                    if (self.brush.showText == "inside") {
+                                        self.setActiveTextEvent(cache_active);
+                                    }
+
+                                    self.setActiveEvent(cache_active, false);
+                                });
+
+                                p.attr({ cursor: "pointer" });
+                            })(donut, text.get(0), centerX, centerY, centerAngle, radius);
+                        }
+                    }
+
+                    this.addEvent(donut, index, i);
+                    g.append(donut);
+                    g.append(text);
+
+                    startAngle += endAngle;
+                    totalValue += value;
+                }
+
+                // Show total value
+                if (this.brush.showValue) {
+                    this.drawTotalValue(g, centerX, centerY, totalValue);
+                }
+            };
+
+            this.drawNoData = function (g) {
+                var props = this.getProperty(0);
+
+                g.append(this.drawDonut(props.centerX, props.centerY, props.innerRadius, props.outerRadius, 0, 360, {
+                    stroke: this.chart.theme("pieNoDataBackgroundColor"),
+                    fill: "transparent"
+                }));
+
+                // Show total value
+                if (this.brush.showValue) {
+                    this.drawTotalValue(g, props.centerX, props.centerY, 0);
+                }
+            };
+
+            this.drawTotalValue = function (g, centerX, centerY, value) {
+                var size = this.chart.theme("pieTotalValueFontSize");
+
+                var text = this.chart.text({
+                    "font-size": size,
+                    "font-weight": this.chart.theme("pieTotalValueFontWeight"),
+                    fill: this.chart.theme("pieTotalValueFontColor"),
+                    "text-anchor": "middle",
+                    dy: size / 3
+                }, this.format(value));
+
+                text.translate(centerX, centerY);
+                g.append(text);
+            };
+
+            this.getProperty = function (index) {
+                var obj = this.axis.c(index);
+
+                var width = obj.width,
+                    height = obj.height,
+                    x = obj.x,
+                    y = obj.y,
+                    min = width;
+
+                if (height < min) {
+                    min = height;
+                }
+
+                if (this.brush.size >= min / 2) {
+                    this.brush.size = min / 4;
+                }
+
+                var outerRadius = min / 2 - this.brush.size / 2;
+
+                return {
+                    centerX: width / 2 + x,
+                    centerY: height / 2 + y,
+                    outerRadius: outerRadius,
+                    innerRadius: outerRadius - this.brush.size
+                };
+            };
+        };
+
+        DonutBrush.setup = function () {
+            return {
+                /** @cfg {Number} [size=50] donut stroke width  */
+                size: 50,
+                /** @cfg {Boolean} [showValue=false] donut stroke width  */
+                showValue: false
+            };
+        };
+
+        return DonutBrush;
+    }
+};
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 exports.default = {
     name: "util.canvas.base",
     extend: null,
@@ -1994,7 +2365,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2075,7 +2446,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2087,31 +2458,31 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _classic = __webpack_require__(12);
+var _classic = __webpack_require__(13);
 
 var _classic2 = _interopRequireDefault(_classic);
 
-var _classic3 = __webpack_require__(13);
+var _classic3 = __webpack_require__(14);
 
 var _classic4 = _interopRequireDefault(_classic3);
 
-var _classic5 = __webpack_require__(14);
+var _classic5 = __webpack_require__(15);
 
 var _classic6 = _interopRequireDefault(_classic5);
 
-var _dark = __webpack_require__(15);
+var _dark = __webpack_require__(16);
 
 var _dark2 = _interopRequireDefault(_dark);
 
-var _gradient = __webpack_require__(16);
+var _gradient = __webpack_require__(17);
 
 var _gradient2 = _interopRequireDefault(_gradient);
 
-var _pattern = __webpack_require__(17);
+var _pattern = __webpack_require__(18);
 
 var _pattern2 = _interopRequireDefault(_pattern);
 
-var _topologytable = __webpack_require__(18);
+var _topologytable = __webpack_require__(19);
 
 var _topologytable2 = _interopRequireDefault(_topologytable);
 
@@ -2127,11 +2498,11 @@ var _fullstackbar = __webpack_require__(4);
 
 var _fullstackbar2 = _interopRequireDefault(_fullstackbar);
 
-var _rangebar = __webpack_require__(19);
+var _rangebar = __webpack_require__(20);
 
 var _rangebar2 = _interopRequireDefault(_rangebar);
 
-var _column = __webpack_require__(20);
+var _column = __webpack_require__(21);
 
 var _column2 = _interopRequireDefault(_column);
 
@@ -2139,11 +2510,11 @@ var _stackcolumn = __webpack_require__(5);
 
 var _stackcolumn2 = _interopRequireDefault(_stackcolumn);
 
-var _fullstackcolumn = __webpack_require__(21);
+var _fullstackcolumn = __webpack_require__(22);
 
 var _fullstackcolumn2 = _interopRequireDefault(_fullstackcolumn);
 
-var _rangecolumn = __webpack_require__(22);
+var _rangecolumn = __webpack_require__(23);
 
 var _rangecolumn2 = _interopRequireDefault(_rangecolumn);
 
@@ -2155,19 +2526,19 @@ var _area = __webpack_require__(3);
 
 var _area2 = _interopRequireDefault(_area);
 
-var _stackarea = __webpack_require__(23);
+var _stackarea = __webpack_require__(24);
 
 var _stackarea2 = _interopRequireDefault(_stackarea);
 
-var _rangearea = __webpack_require__(24);
+var _rangearea = __webpack_require__(25);
 
 var _rangearea2 = _interopRequireDefault(_rangearea);
 
-var _scatter = __webpack_require__(25);
+var _scatter = __webpack_require__(26);
 
 var _scatter2 = _interopRequireDefault(_scatter);
 
-var _bubble = __webpack_require__(26);
+var _bubble = __webpack_require__(27);
 
 var _bubble2 = _interopRequireDefault(_bubble);
 
@@ -2175,7 +2546,7 @@ var _pie = __webpack_require__(7);
 
 var _pie2 = _interopRequireDefault(_pie);
 
-var _donut = __webpack_require__(27);
+var _donut = __webpack_require__(8);
 
 var _donut2 = _interopRequireDefault(_donut);
 
@@ -2255,64 +2626,72 @@ var _activecircle = __webpack_require__(48);
 
 var _activecircle2 = _interopRequireDefault(_activecircle);
 
-var _cross = __webpack_require__(49);
+var _fullgauge = __webpack_require__(49);
+
+var _fullgauge2 = _interopRequireDefault(_fullgauge);
+
+var _bargauge = __webpack_require__(50);
+
+var _bargauge2 = _interopRequireDefault(_bargauge);
+
+var _cross = __webpack_require__(51);
 
 var _cross2 = _interopRequireDefault(_cross);
 
-var _legend = __webpack_require__(50);
+var _legend = __webpack_require__(52);
 
 var _legend2 = _interopRequireDefault(_legend);
 
-var _title = __webpack_require__(51);
+var _title = __webpack_require__(53);
 
 var _title2 = _interopRequireDefault(_title);
 
-var _tooltip = __webpack_require__(52);
+var _tooltip = __webpack_require__(54);
 
 var _tooltip2 = _interopRequireDefault(_tooltip);
 
-var _topologyctrl = __webpack_require__(53);
+var _topologyctrl = __webpack_require__(55);
 
 var _topologyctrl2 = _interopRequireDefault(_topologyctrl);
 
-var _dragselect = __webpack_require__(54);
+var _dragselect = __webpack_require__(56);
 
 var _dragselect2 = _interopRequireDefault(_dragselect);
 
-var _vscroll = __webpack_require__(55);
+var _vscroll = __webpack_require__(57);
 
 var _vscroll2 = _interopRequireDefault(_vscroll);
 
-var _zoom = __webpack_require__(56);
+var _zoom = __webpack_require__(58);
 
 var _zoom2 = _interopRequireDefault(_zoom);
 
-var _zoomscroll = __webpack_require__(57);
+var _zoomscroll = __webpack_require__(59);
 
 var _zoomscroll2 = _interopRequireDefault(_zoomscroll);
 
-var _raycast = __webpack_require__(58);
+var _raycast = __webpack_require__(60);
 
 var _raycast2 = _interopRequireDefault(_raycast);
 
-var _picker = __webpack_require__(59);
+var _picker = __webpack_require__(61);
 
 var _picker2 = _interopRequireDefault(_picker);
 
-var _rotate3d = __webpack_require__(60);
+var _rotate3d = __webpack_require__(62);
 
 var _rotate3d2 = _interopRequireDefault(_rotate3d);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _zoom2.default, _zoomscroll2.default, _raycast2.default, _picker2.default, _rotate3d2.default]);
+_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _fullgauge2.default, _bargauge2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _zoom2.default, _zoomscroll2.default, _raycast2.default, _picker2.default, _rotate3d2.default]);
 
 if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) == "object") {
     window.graph = _main2.default;
 }
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15290,7 +15669,7 @@ _$1.extend(jui$1, manager$1, true);
 exports.default = jui$1;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15501,7 +15880,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15724,7 +16103,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16094,7 +16473,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16466,7 +16845,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16832,7 +17211,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17199,7 +17578,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17409,7 +17788,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17490,7 +17869,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17633,7 +18012,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17754,7 +18133,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17832,7 +18211,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17869,7 +18248,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17929,7 +18308,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18241,7 +18620,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18433,377 +18812,6 @@ exports.default = {
         };
 
         return BubbleBrush;
-    }
-};
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-var _pie = __webpack_require__(7);
-
-var _pie2 = _interopRequireDefault(_pie);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-_main2.default.use(_pie2.default);
-
-exports.default = {
-    name: "chart.brush.donut",
-    extend: "chart.brush.pie",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-        var math = _main2.default.include("util.math");
-        var ColorUtil = _main2.default.include("util.color");
-
-        var DonutBrush = function DonutBrush() {
-            var self = this,
-                cache_active = {};
-
-            this.drawDonut = function (centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
-                attr['stroke-width'] = outerRadius - innerRadius;
-
-                if (endAngle >= 360) {
-                    // bugfix : if angle is 360 , donut cang't show
-                    endAngle = 359.9999;
-                }
-
-                var g = this.chart.svg.group(),
-                    path = this.chart.svg.path(attr),
-                    dist = Math.abs(outerRadius - innerRadius);
-
-                // 바깥 지름 부터 그림
-                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
-                    startX = obj.x,
-                    startY = obj.y;
-
-                // 시작 하는 위치로 옮김
-                path.MoveTo(startX, startY);
-
-                // outer arc 에 대한 지점 설정
-                obj = math.rotate(startX, startY, math.radian(endAngle));
-
-                // 중심점 이동
-                g.translate(centerX, centerY);
-
-                // outer arc 그림
-                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 1, obj.x, obj.y);
-
-                // 마우스 이벤트 빈공간 제외
-                path.css({
-                    "pointer-events": "stroke"
-                });
-
-                g.append(path);
-                g.order = 1;
-
-                return g;
-            };
-
-            this.drawDonut3d = function (centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
-                var g = this.chart.svg.group(),
-                    path = this.chart.svg.path(attr),
-                    dist = Math.abs(outerRadius - innerRadius);
-
-                outerRadius += dist / 2;
-                innerRadius = outerRadius - dist;
-
-                // 바깥 지름 부터 그림
-                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
-                    startX = obj.x,
-                    startY = obj.y;
-
-                var innerObj = math.rotate(0, -innerRadius, math.radian(startAngle)),
-                    innerStartX = innerObj.x,
-                    innerStartY = innerObj.y;
-
-                // 시작 하는 위치로 옮김
-                path.MoveTo(startX, startY);
-
-                // outer arc 에 대한 지점 설정
-                obj = math.rotate(startX, startY, math.radian(endAngle));
-                innerObj = math.rotate(innerStartX, innerStartY, math.radian(endAngle));
-
-                // 중심점 이동
-                g.translate(centerX, centerY);
-
-                // outer arc 그림
-                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 1, obj.x, obj.y);
-
-                var y = obj.y + 10,
-                    x = obj.x + 5,
-                    innerY = innerObj.y + 10,
-                    innerX = innerObj.x + 5,
-                    targetX = startX + 5,
-                    targetY = startY + 10,
-                    innerTargetX = innerStartX + 5,
-                    innerTargetY = innerStartY + 10;
-
-                path.LineTo(x, y);
-                path.Arc(outerRadius, outerRadius, 0, endAngle > 180 ? 1 : 0, 0, targetX, targetY);
-                path.ClosePath();
-                g.append(path);
-
-                // 안쪽 면 그리기
-                var innerPath = this.chart.svg.path(attr);
-
-                // 시작 하는 위치로 옮김
-                innerPath.MoveTo(innerStartX, innerStartY);
-                innerPath.Arc(innerRadius, innerRadius, 0, endAngle > 180 ? 1 : 0, 1, innerObj.x, innerObj.y);
-                innerPath.LineTo(innerX, innerY);
-                innerPath.Arc(innerRadius, innerRadius, 0, endAngle > 180 ? 1 : 0, 0, innerTargetX, innerTargetY);
-                innerPath.ClosePath();
-
-                g.append(innerPath);
-                g.order = 1;
-
-                return g;
-            };
-
-            this.drawDonut3dBlock = function (centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, attr) {
-                var g = this.chart.svg.group(),
-                    path = this.chart.svg.path(attr),
-                    dist = Math.abs(outerRadius - innerRadius);
-
-                outerRadius += dist / 2;
-                innerRadius = outerRadius - dist;
-
-                // 바깥 지름 부터 그림
-                var obj = math.rotate(0, -outerRadius, math.radian(startAngle)),
-                    startX = obj.x,
-                    startY = obj.y;
-
-                var innerObj = math.rotate(0, -innerRadius, math.radian(startAngle)),
-                    innerStartX = innerObj.x,
-                    innerStartY = innerObj.y;
-
-                // 시작 하는 위치로 옮김
-                path.MoveTo(startX, startY);
-
-                // outer arc 에 대한 지점 설정
-                obj = math.rotate(startX, startY, math.radian(endAngle));
-                innerObj = math.rotate(innerStartX, innerStartY, math.radian(endAngle));
-
-                // 중심점 이동
-                g.translate(centerX, centerY);
-
-                var y = obj.y + 10,
-                    x = obj.x + 5,
-                    innerY = innerObj.y + 10,
-                    innerX = innerObj.x + 5;
-
-                // 왼쪽면 그리기
-                var rect = this.chart.svg.path(attr);
-                rect.MoveTo(obj.x, obj.y).LineTo(x, y).LineTo(innerX, innerY).LineTo(innerObj.x, innerObj.y).ClosePath();
-
-                g.append(rect);
-                g.order = 1;
-
-                return g;
-            };
-
-            this.drawUnit = function (index, data, g) {
-                var props = this.getProperty(index),
-                    centerX = props.centerX,
-                    centerY = props.centerY,
-                    innerRadius = props.innerRadius,
-                    outerRadius = props.outerRadius;
-
-                var target = this.brush.target,
-                    active = this.brush.active,
-                    all = 360,
-                    startAngle = 0,
-                    max = 0,
-                    totalValue = 0;
-
-                for (var i = 0; i < target.length; i++) {
-                    max += data[target[i]];
-                }
-
-                if (this.brush['3d']) {
-                    // 화면 블럭 그리기
-                    for (var i = 0; i < target.length; i++) {
-                        var value = data[target[i]],
-                            endAngle = all * (value / max),
-                            donut3d = this.drawDonut3dBlock(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
-                            fill: ColorUtil.darken(this.color(i), 0.5)
-                        }, i == target.length - 1);
-                        g.append(donut3d);
-
-                        startAngle += endAngle;
-                    }
-
-                    startAngle = 0;
-                    for (var i = 0; i < target.length; i++) {
-                        var value = data[target[i]],
-                            endAngle = all * (value / max),
-                            donut3d = this.drawDonut3d(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
-                            fill: ColorUtil.darken(this.color(i), 0.5)
-                        }, i == target.length - 1);
-                        g.append(donut3d);
-
-                        startAngle += endAngle;
-                    }
-                }
-
-                startAngle = 0;
-
-                for (var i = 0; i < target.length; i++) {
-                    if (data[target[i]] == 0) continue;
-
-                    var value = data[target[i]],
-                        endAngle = all * (value / max),
-                        centerAngle = startAngle + endAngle / 2 - 90,
-                        isOnlyOne = Math.abs(startAngle - endAngle) == 360,
-                        radius = this.brush.showText == "inside" ? this.brush.size + innerRadius + outerRadius : outerRadius,
-                        donut = this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, {
-                        stroke: this.color(i),
-                        fill: 'transparent'
-                    }),
-                        text = this.drawText(centerX, centerY, centerAngle, radius, this.getFormatText(target[i], value));
-
-                    // 파이 액티브상태 캐싱하는 객체
-                    cache_active[centerAngle] = {
-                        active: false,
-                        pie: donut,
-                        text: text,
-                        centerX: centerX,
-                        centerY: centerY,
-                        centerAngle: centerAngle,
-                        outerRadius: radius
-                    };
-
-                    // TODO: 파이가 한개일 경우, 액티브 처리를 할 필요가 없다.
-                    if (!isOnlyOne) {
-                        // 설정된 키 활성화
-                        if (active == target[i] || _.inArray(target[i], active) != -1) {
-                            cache_active[centerAngle].active = true;
-                        } else {
-                            cache_active[centerAngle].active = false;
-                        }
-
-                        // 파이 및 텍스트 액티브 상태 처리
-                        if (this.brush.showText == "inside") {
-                            this.setActiveTextEvent(cache_active);
-                        }
-
-                        // 파이 및 텍스트 액티브 상태 처리
-                        this.setActiveEvent(cache_active, false);
-
-                        // 활성화 이벤트 설정
-                        if (this.brush.activeEvent != null) {
-                            (function (p, t, cx, cy, ca, r) {
-                                p.on(self.brush.activeEvent, function (e) {
-                                    if (!cache_active[ca].active) {
-                                        cache_active[ca].active = true;
-                                    } else {
-                                        cache_active[ca].active = false;
-                                    }
-
-                                    if (self.brush.showText == "inside") {
-                                        self.setActiveTextEvent(cache_active);
-                                    }
-
-                                    self.setActiveEvent(cache_active, false);
-                                });
-
-                                p.attr({ cursor: "pointer" });
-                            })(donut, text.get(0), centerX, centerY, centerAngle, radius);
-                        }
-                    }
-
-                    this.addEvent(donut, index, i);
-                    g.append(donut);
-                    g.append(text);
-
-                    startAngle += endAngle;
-                    totalValue += value;
-                }
-
-                // Show total value
-                if (this.brush.showValue) {
-                    this.drawTotalValue(g, centerX, centerY, totalValue);
-                }
-            };
-
-            this.drawNoData = function (g) {
-                var props = this.getProperty(0);
-
-                g.append(this.drawDonut(props.centerX, props.centerY, props.innerRadius, props.outerRadius, 0, 360, {
-                    stroke: this.chart.theme("pieNoDataBackgroundColor"),
-                    fill: "transparent"
-                }));
-
-                // Show total value
-                if (this.brush.showValue) {
-                    this.drawTotalValue(g, props.centerX, props.centerY, 0);
-                }
-            };
-
-            this.drawTotalValue = function (g, centerX, centerY, value) {
-                var size = this.chart.theme("pieTotalValueFontSize");
-
-                var text = this.chart.text({
-                    "font-size": size,
-                    "font-weight": this.chart.theme("pieTotalValueFontWeight"),
-                    fill: this.chart.theme("pieTotalValueFontColor"),
-                    "text-anchor": "middle",
-                    dy: size / 3
-                }, this.format(value));
-
-                text.translate(centerX, centerY);
-                g.append(text);
-            };
-
-            this.getProperty = function (index) {
-                var obj = this.axis.c(index);
-
-                var width = obj.width,
-                    height = obj.height,
-                    x = obj.x,
-                    y = obj.y,
-                    min = width;
-
-                if (height < min) {
-                    min = height;
-                }
-
-                if (this.brush.size >= min / 2) {
-                    this.brush.size = min / 4;
-                }
-
-                var outerRadius = min / 2 - this.brush.size / 2;
-
-                return {
-                    centerX: width / 2 + x,
-                    centerY: height / 2 + y,
-                    outerRadius: outerRadius,
-                    innerRadius: outerRadius - this.brush.size
-                };
-            };
-        };
-
-        DonutBrush.setup = function () {
-            return {
-                /** @cfg {Number} [size=50] donut stroke width  */
-                size: 50,
-                /** @cfg {Boolean} [showValue=false] donut stroke width  */
-                showValue: false
-            };
-        };
-
-        return DonutBrush;
     }
 };
 
@@ -22496,11 +22504,11 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _base = __webpack_require__(8);
+var _base = __webpack_require__(9);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _kinetic = __webpack_require__(9);
+var _kinetic = __webpack_require__(10);
 
 var _kinetic2 = _interopRequireDefault(_kinetic);
 
@@ -22810,11 +22818,11 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _base = __webpack_require__(8);
+var _base = __webpack_require__(9);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _kinetic = __webpack_require__(9);
+var _kinetic = __webpack_require__(10);
 
 var _kinetic2 = _interopRequireDefault(_kinetic);
 
@@ -23067,6 +23075,255 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
+var _donut = __webpack_require__(8);
+
+var _donut2 = _interopRequireDefault(_donut);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_donut2.default);
+
+exports.default = {
+    name: 'chart.brush.fullgauge',
+    extend: 'chart.brush.donut',
+    component: function component() {
+        var math = _main2.default.include('util.math');
+
+        var FullGaugeBrush = function FullGaugeBrush() {
+            var group, w, centerX, centerY, outerRadius, innerRadius, textScale;
+
+            this.createText = function (value, index, centerX, centerY, textScale) {
+                var g = this.svg.group().translate(centerX, centerY),
+                    size = this.chart.theme('gaugeFontSize');
+
+                g.append(this.chart.text({
+                    'text-anchor': 'middle',
+                    'font-size': size,
+                    'font-weight': this.chart.theme('gaugeFontWeight'),
+                    'fill': this.color(index),
+                    y: size / 3
+                }, this.format(value, index)).scale(textScale));
+
+                return g;
+            };
+
+            this.createTitle = function (title, index, centerX, centerY, dx, dy, textScale) {
+                var g = this.svg.group().translate(centerX + dx, centerY + dy),
+                    anchor = dx == 0 ? 'middle' : dx < 0 ? 'end' : 'start',
+                    size = this.chart.theme('gaugeTitleFontSize');
+
+                g.append(this.chart.text({
+                    'text-anchor': anchor,
+                    'font-size': size,
+                    'font-weight': this.chart.theme('gaugeTitleFontWeight'),
+                    fill: this.chart.theme('gaugeTitleFontColor'),
+                    y: size / 3
+                }, title).scale(textScale));
+
+                return g;
+            };
+
+            this.drawUnit = function (index, data) {
+                var obj = this.axis.c(index),
+                    value = this.getValue(data, 'value', 0),
+                    title = this.getValue(data, 'title'),
+                    max = this.getValue(data, 'max', 100),
+                    min = this.getValue(data, 'min', 0);
+
+                var startAngle = this.brush.startAngle;
+                var endAngle = this.brush.endAngle;
+
+                if (endAngle >= 360) {
+                    endAngle = 359.99999;
+                }
+
+                var rate = (value - min) / (max - min),
+                    currentAngle = endAngle * rate;
+
+                if (currentAngle > endAngle) {
+                    currentAngle = endAngle;
+                }
+
+                var width = obj.width,
+                    height = obj.height,
+                    x = obj.x,
+                    y = obj.y;
+
+                // center
+                w = Math.min(width, height) / 2;
+                centerX = width / 2 + x;
+                centerY = height / 2 + y;
+                outerRadius = w - this.brush.size;
+                innerRadius = outerRadius - this.brush.size;
+                textScale = math.scaleValue(w, 40, 400, 1, 1.5);
+
+                // 심볼 타입에 따라 여백 각도 설정
+                var paddingAngle = this.brush.symbol == 'butt' ? this.chart.theme('gaugePaddingAngle') : 0;
+
+                group.append(this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle + currentAngle + paddingAngle, endAngle - currentAngle - paddingAngle * 2, {
+                    stroke: this.chart.theme('gaugeBackgroundColor'),
+                    fill: 'transparent'
+                }));
+
+                group.append(this.drawDonut(centerX, centerY, innerRadius, outerRadius, startAngle, currentAngle, {
+                    stroke: this.color(index),
+                    'stroke-linecap': this.brush.symbol,
+                    fill: 'transparent'
+                }));
+
+                if (this.brush.showText) {
+                    group.append(this.createText(value, index, centerX, centerY - outerRadius * 0.1, textScale));
+                }
+
+                if (title != '') {
+                    group.append(this.createTitle(title, index, centerX, centerY - outerRadius * 0.1, this.brush.titleX, this.brush.titleY, textScale));
+                }
+
+                return group;
+            };
+
+            this.draw = function () {
+                group = this.chart.svg.group();
+
+                this.eachData(function (data, i) {
+                    this.drawUnit(i, data);
+                });
+
+                return group;
+            };
+        };
+
+        FullGaugeBrush.setup = function () {
+            return {
+                symbol: 'butt',
+
+                /** @cfg {Number} [size=30] Determines the stroke width of a gauge.  */
+                size: 60,
+                /** @cfg {Number} [startAngle=0] Determines the start angle(as start point) of a gauge. */
+                startAngle: 0,
+                /** @cfg {Number} [endAngle=360] Determines the end angle(as draw point) of a gauge. */
+                endAngle: 360,
+                /** @cfg {Boolean} [showText=true] */
+                showText: true,
+                /** @cfg {Number} [titleX=0] */
+                titleX: 0,
+                /** @cfg {Number} [titleY=0]  */
+                titleY: 0,
+                /** @cfg {Function} [format=null] */
+                format: null
+            };
+        };
+
+        return FullGaugeBrush;
+    }
+};
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = {
+    name: "chart.brush.bargauge",
+    extend: "chart.brush.core",
+    component: function component() {
+        var BarGaugeBrush = function BarGaugeBrush(chart, axis, brush) {
+
+            this.draw = function () {
+                var group = chart.svg.group();
+
+                var obj = axis.c(0),
+                    width = obj.width,
+                    x = obj.x,
+                    y = obj.y;
+
+                this.eachData(function (data, i) {
+                    var g = chart.svg.group(),
+                        v = this.getValue(data, "value", 0),
+                        t = this.getValue(data, "title", ""),
+                        max = this.getValue(data, "max", 100),
+                        min = this.getValue(data, "min", 0);
+
+                    var value = width / (max - min) * v,
+                        textY = y + brush.size / 2 + brush.cut - 1;
+
+                    g.append(chart.svg.rect({
+                        x: x + brush.cut,
+                        y: y,
+                        width: width,
+                        height: brush.size,
+                        fill: chart.theme("bargaugeBackgroundColor")
+                    }));
+
+                    g.append(chart.svg.rect({
+                        x: x,
+                        y: y,
+                        width: value,
+                        height: brush.size,
+                        fill: chart.color(i)
+                    }));
+
+                    g.append(chart.text({
+                        x: x + brush.cut,
+                        y: textY,
+                        "text-anchor": "start",
+                        "font-size": chart.theme("bargaugeFontSize"),
+                        fill: chart.theme("bargaugeFontColor")
+                    }, t));
+
+                    g.append(chart.text({
+                        x: width - brush.cut,
+                        y: textY,
+                        "text-anchor": "end",
+                        "font-size": chart.theme("bargaugeFontSize"),
+                        fill: chart.theme("bargaugeFontColor")
+                    }, this.format(v, i)));
+
+                    this.addEvent(g, i, null);
+                    group.append(g);
+
+                    y += brush.size + brush.cut;
+                });
+
+                return group;
+            };
+        };
+
+        BarGaugeBrush.setup = function () {
+            return {
+                /** @cfg {Number} [cut=5] Determines the spacing of a bar gauge. */
+                cut: 5,
+                /** @cfg {Number} [size=20] Determines the size of a bar gauge. */
+                size: 20,
+                /** @cfg {Function} [format=null] bar gauge format callback */
+                format: null
+            };
+        };
+
+        return BarGaugeBrush;
+    }
+};
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
@@ -23237,7 +23494,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23578,7 +23835,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23699,7 +23956,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24008,7 +24265,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24220,7 +24477,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24463,7 +24720,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24599,7 +24856,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24654,18 +24911,20 @@ exports.default = {
 
                     thumbWidth = e.bgX - mouseStart;
 
-                    if (thumbWidth > 0) {
-                        thumb.attr({
-                            width: thumbWidth
-                        });
+                    if (thumb != null) {
+                        if (thumbWidth > 0) {
+                            thumb.attr({
+                                width: thumbWidth
+                            });
 
-                        thumb.translate(mouseStart, top + axis.area("y"));
-                    } else {
-                        thumb.attr({
-                            width: Math.abs(thumbWidth)
-                        });
+                            thumb.translate(mouseStart, top + axis.area("y"));
+                        } else {
+                            thumb.attr({
+                                width: Math.abs(thumbWidth)
+                            });
 
-                        thumb.translate(mouseStart + thumbWidth, top + axis.area("y"));
+                            thumb.translate(mouseStart + thumbWidth, top + axis.area("y"));
+                        }
                     }
                 }, axisIndex);
 
@@ -24702,7 +24961,10 @@ exports.default = {
                     // 차트 줌
                     if (start < end) {
                         axis.zoom(start, end);
-                        bg.attr({ "visibility": "visible" });
+
+                        if (bg != null) {
+                            bg.attr({ "visibility": "visible" });
+                        }
 
                         // 차트 렌더링이 활성화되지 않았을 경우
                         if (!self.chart.isRender()) {
@@ -24736,7 +24998,10 @@ exports.default = {
                         interval: interval != null ? interval : axis.get("x").interval,
                         format: format != null ? format : axis.get("x").format
                     });
-                    bg.attr({ "visibility": "visible" });
+
+                    if (bg != null) {
+                        bg.attr({ "visibility": "visible" });
+                    }
 
                     // 차트 렌더링이 활성화되지 않았을 경우
                     if (!self.chart.isRender()) {
@@ -24753,18 +25018,17 @@ exports.default = {
                     thumbWidth = 0;
                     startDate = null;
 
-                    thumb.attr({
-                        width: 0
-                    });
+                    if (thumb != null) {
+                        thumb.attr({
+                            width: 0
+                        });
+                    }
                 }
             }
 
-            this.drawSection = function (axisIndex) {
-                var axis = this.chart.axis(axisIndex),
-                    xtype = axis.get("x").type,
-                    domain = axis.get("x").domain,
-                    interval = axis.get("x").interval,
-                    format = axis.get("x").format,
+            this.drawSection = function (axisIndex, axisSeq) {
+                var integrate = this.widget.integrate,
+                    axis = this.chart.axis(axisIndex),
                     cw = axis.area("width"),
                     ch = axis.area("height"),
                     r = 12;
@@ -24803,28 +25067,54 @@ exports.default = {
                         }).on("click", function (e) {
                             bg.attr({ visibility: "hidden" });
 
-                            if (xtype == "block") {
-                                axis.screen(1);
-                            } else if (xtype == "date") {
-                                axis.updateGrid("x", {
-                                    domain: domain,
-                                    interval: interval,
-                                    format: format
-                                });
+                            // 줌을 멀티 축에서 겹쳐서 사용할 때
+                            if (integrate) {
+                                self.rollbackZoom(self.getAxisList());
+                            } else {
+                                self.rollbackZoom([axisIndex]);
                             }
-
-                            // 차트 렌더링이 활성화되지 않았을 경우
-                            if (!self.chart.isRender()) {
-                                self.chart.render();
-                            }
-
-                            // 줌 종료
-                            self.chart.emit("zoom.close");
                         });
                     }).translate(left + axis.area("x"), top + axis.area("y"));
 
-                    setDragEvent(axisIndex, thumb, bg);
+                    // 줌을 멀티 축에서 겹쳐서 사용할 때, 첫번째 axis에 대한 줌만 그린다.
+                    if (!integrate || axisSeq === 0) {
+                        setDragEvent(axisIndex, thumb, bg);
+                    } else {
+                        setDragEvent(axisIndex, null, null);
+                    }
                 });
+            };
+
+            this.rollbackZoom = function (axisList) {
+                for (var i = 0; i < axisList.length; i++) {
+                    var axis = this.chart.axis(axisList[i]),
+                        xtype = axis.get("x").type,
+                        domain = axis.get("x").domain,
+                        interval = axis.get("x").interval,
+                        format = axis.get("x").format;
+
+                    if (xtype == "block") {
+                        axis.screen(1);
+                    } else if (xtype == "date") {
+                        axis.updateGrid("x", {
+                            domain: domain,
+                            interval: interval,
+                            format: format
+                        });
+                    }
+
+                    // 차트 렌더링이 활성화되지 않았을 경우
+                    if (!this.chart.isRender()) {
+                        this.chart.render();
+                    }
+
+                    // 줌 종료
+                    this.chart.emit("zoom.close");
+                }
+            };
+
+            this.getAxisList = function () {
+                return _.typeCheck("array", this.widget.axis) ? this.widget.axis : [this.widget.axis];
             };
 
             this.drawBefore = function () {
@@ -24834,10 +25124,10 @@ exports.default = {
 
             this.draw = function () {
                 var g = this.chart.svg.group(),
-                    list = _.typeCheck("array", this.widget.axis) ? this.widget.axis : [this.widget.axis];
+                    axisList = this.getAxisList();
 
-                for (var i = 0; i < list.length; i++) {
-                    g.append(this.drawSection(list[i]));
+                for (var i = 0; i < axisList.length; i++) {
+                    g.append(this.drawSection(axisList[i], i));
                 }
 
                 return g;
@@ -24847,10 +25137,11 @@ exports.default = {
         ZoomWidget.setup = function () {
             return {
                 axis: 0,
-
-                /** @cfg {Number} [interval=1000] Sets the interval of the scale displayed on a grid.*/
+                /** @cfg {Boolean} [integrate=false] When zooming is used on multiple axes, only one drawing option */
+                integrate: false,
+                /** @cfg {Number} [interval=1000] Sets the interval of the scale displayed on a grid */
                 interval: null,
-                /** @cfg {Function} [format=null]  Determines whether to format the value on an axis. */
+                /** @cfg {Function} [format=null]  Determines whether to format the value on an axis */
                 format: null
             };
         };
@@ -24860,7 +25151,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25175,7 +25466,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25259,7 +25550,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25340,7 +25631,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 60 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

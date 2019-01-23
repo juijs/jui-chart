@@ -1,116 +1,72 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
-import HeatmapScatterBrush from '../src/brush/heatmapscatter.js'
+import LineBrush from '../src/brush/line.js'
 import TitleWidget from '../src/widget/title.js'
-import DragselectWidget from '../src/widget/dragselect.js'
-import TooltipWidget from '../src/widget/tooltip.js'
+import LegendWidget from '../src/widget/legend.js'
+import ZoomWidget from '../src/widget/zoom.js'
 
-jui.use([ ClassicTheme, HeatmapScatterBrush, TitleWidget, DragselectWidget, TooltipWidget ]);
+jui.use([ ClassicTheme, LineBrush, TitleWidget, LegendWidget, ZoomWidget ]);
 
-var chart = jui.include("chart.builder"),
-    time = jui.include("util.time"),
-    txData = [];
+var chart = jui.include("chart.builder");
 
-var c = chart("#chart", {
-    height : 400,
-    axis : {
-        x : {
-            type : "date",
-            domain : getDomain(),
-            interval : 1,
-            realtime : "minutes",
-            format : "HH:mm",
-            key : "time",
-            line : true
+var data = [
+    { month : "Jan", rainfall : 49.9, sealevel : 1016, temperature : 7.0},
+    { month : "Feb", rainfall : 71.5, sealevel : 1016, temperature : 6.9 },
+    { month : "Mar", rainfall : 106.49, sealevel : 1015.9, temperature : 9.5 },
+    { month : "Apr", rainfall : 129.2, sealevel : 1015.5, temperature : 14.5 },
+    { month : "May", rainfall : 144.0, sealevel : 1012.3, temperature : 18.2 },
+    { month : "Jun", rainfall : 176.0, sealevel : 1009.5, temperature : 21.5 },
+    { month : "Jul", rainfall : 135.6, sealevel : 1009.6, temperature : 25.2 },
+    { month : "Aug", rainfall : 148.5, sealevel : 1010.2, temperature : 26.5 },
+    { month :  "Sep", rainfall : 216.4, sealevel : 1013.1, temperature : 23.3 },
+    { month :  "Oct", rainfall : 194.1, sealevel : 1016.9, temperature : 18.3 },
+    { month :  "Nov", rainfall : 95.6, sealevel : 1018.2, temperature : 13.9},
+    { month :  "Dec", rainfall : 54.4, sealevel : 1016.7, temperature : 9.6}
+];
+
+chart("#chart", {
+    height : 300,
+    padding : {
+        right : 120
+    },
+    axis : [
+        {
+            x : {
+                domain : "month",
+                line : true
+            },
+            y : {
+                type : "range",
+                domain : [ 1008, 1020 ],
+                color : "#434348",
+                format : function(value) {
+                    return value + " mb";
+                },
+                orient : "right",
+                step: 6
+            },
+            data: data
         },
-        y : {
-            type : "range",
-            domain : [ 0, 10000 ],
-            step : 5,
-            line : true,
-            orient : "left"
-        },
-        buffer : 100000
-    },
-    brush : {
-        type : "heatmapscatter",
-        target : [ "delay" ],
-        yInterval : 250,
-        xInterval : 5000,
-        colors : function(d) {
-            if(d.level == 0) {
-                return "#ff0000"
-            } else if(d.level == 1) {
-                return "#f2ab14";
-            }
-
-            return "#4692ca";
+        {
+            y : {
+                type : "range",
+                domain: [ 5, 35 ],
+                color: "#90ed7d",
+                orient: "left",
+                format: function (value) {
+                    return value + " ℃";
+                }
+            },
+            extend : 0
         }
-    },
-    event : {
-        "dragselect.end": function(data) {
-            console.log(data.length);
-        }
-    },
-    widget : [{
-        type : "title",
-        text : "Heat-Map Transaction View (0)"
-    }, {
-        type : "dragselect",
-        dataType : "list"
-    }, {
-        type: "tooltip"
-    }],
-    style : {
-        tooltipBorderColor: "#000"
-    }
+    ],
+    brush : [
+        { type : "line", target : "sealevel", axis : 0, colors : [ "#434348" ] , symbol : "curve" },
+        { type : "line", target : "temperature", axis : 1, colors: [ "#90ed7d" ], symbol : "curve" }
+    ],
+    widget : [
+        { type : "title", text : "Combination Sample" },
+        { type : "legend", brush : [ 0, 1 ], align : "end" },
+        { type : "zoom", axis : [ 0, 1 ], integrate : true }
+    ]
 });
-
-setInterval(function() {
-    var domain = getDomain();
-
-    appendTxData(txData, domain);
-}, 5000);
-
-setInterval(function() {
-    var domain = getDomain();
-
-    c.axis(0).update(txData);
-    c.axis(0).set("x", { domain: domain });
-
-    c.updateWidget(0, { text: "Heat-Map Transaction View (+" + txData.length + ")" });
-    c.render(true);
-}, 7000);
-
-function appendTxData(list, domain) {
-    var count = Math.floor(Math.random() * 100);
-
-    for(var i = 0; i < list.length; i++) {
-        if(list[i].time < domain[0]){
-            list.shift();
-        } else {
-            break;
-        }
-    }
-
-    for(var i = 0; i < count; i++) {
-        var type = Math.floor(Math.random() * 6),
-            data = {
-                delay: Math.floor(Math.random() * 10000),
-                level: 2,
-                time: domain[1]
-            };
-
-        if(type > 2 && type < 5) {
-            data.level = 1;
-        } else if(type > 4) {
-            data.level = 0;
-        }
-
-        list.push(data);
-    }
-}
-
-function getDomain() {
-    return [ new Date() - time.MINUTE * 5, new Date().getTime() ];
-}
