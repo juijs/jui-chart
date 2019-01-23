@@ -10,18 +10,11 @@ jui.use([ ClassicTheme, LineBrush, TitleWidget, LegendWidget, ZoomWidget ]);
 var chart = jui.include("chart.builder");
 
 var data = [
-    { month : "Jan", rainfall : 49.9, sealevel : 1016, temperature : 7.0},
-    { month : "Feb", rainfall : 71.5, sealevel : 1016, temperature : 6.9 },
-    { month : "Mar", rainfall : 106.49, sealevel : 1015.9, temperature : 9.5 },
-    { month : "Apr", rainfall : 129.2, sealevel : 1015.5, temperature : 14.5 },
-    { month : "May", rainfall : 144.0, sealevel : 1012.3, temperature : 18.2 },
-    { month : "Jun", rainfall : 176.0, sealevel : 1009.5, temperature : 21.5 },
-    { month : "Jul", rainfall : 135.6, sealevel : 1009.6, temperature : 25.2 },
-    { month : "Aug", rainfall : 148.5, sealevel : 1010.2, temperature : 26.5 },
-    { month :  "Sep", rainfall : 216.4, sealevel : 1013.1, temperature : 23.3 },
-    { month :  "Oct", rainfall : 194.1, sealevel : 1016.9, temperature : 18.3 },
-    { month :  "Nov", rainfall : 95.6, sealevel : 1018.2, temperature : 13.9},
-    { month :  "Dec", rainfall : 54.4, sealevel : 1016.7, temperature : 9.6}
+    { date : new Date("2015/01/01 00:00:00"), sales : 50, profit : 35 },
+    { date : new Date("2015/01/01 06:00:00"), sales : 20, profit : 30 },
+    { date : new Date("2015/01/01 12:00:00"), sales : 10, profit : 5 },
+    { date : new Date("2015/01/01 18:00:00"), sales : 30, profit : 25 },
+    { date : new Date("2015/01/02 00:00:00"), sales : 25, profit : 20 }
 ];
 
 chart("#chart", {
@@ -32,25 +25,26 @@ chart("#chart", {
     axis : [
         {
             x : {
-                domain : "month",
+                type : "date",
+                domain : [ new Date("2015/01/01"), new Date("2015/01/02") ],
+                interval : 1000 * 60 * 60 * 6, // // 6hours
+                format : "MM/dd HH:mm",
+                key : "date",
                 line : true
             },
             y : {
                 type : "range",
-                domain : [ 1008, 1020 ],
-                color : "#434348",
-                format : function(value) {
-                    return value + " mb";
-                },
-                orient : "right",
-                step: 6
+                domain : [ 0, 100 ],
+                step : 5,
+                line : true,
+                orient : "right"
             },
             data: data
         },
         {
             y : {
                 type : "range",
-                domain: [ 5, 35 ],
+                domain: [ 5, 50 ],
                 color: "#90ed7d",
                 orient: "left",
                 format: function (value) {
@@ -61,8 +55,8 @@ chart("#chart", {
         }
     ],
     brush : [
-        { type : "line", target : "sealevel", axis : 0, colors : [ "#434348" ] , symbol : "curve" },
-        { type : "line", target : "temperature", axis : 1, colors: [ "#90ed7d" ], symbol : "curve" }
+        { type : "line", target : "sales", axis : 0, colors : [ "#434348" ] , symbol : "curve" },
+        { type : "line", target : "profit", axis : 1, colors: [ "#90ed7d" ], symbol : "curve" }
     ],
     widget : [
         { type : "title", text : "Combination Sample" },
