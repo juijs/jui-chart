@@ -37,18 +37,20 @@ export default {
 
                     thumbWidth = e.bgX - mouseStart;
 
-                    if(thumbWidth > 0) {
-                        thumb.attr({
-                            width: thumbWidth
-                        });
+                    if(thumb != null) {
+                        if (thumbWidth > 0) {
+                            thumb.attr({
+                                width: thumbWidth
+                            });
 
-                        thumb.translate(mouseStart, top + axis.area("y"));
-                    } else {
-                        thumb.attr({
-                            width: Math.abs(thumbWidth)
-                        });
+                            thumb.translate(mouseStart, top + axis.area("y"));
+                        } else {
+                            thumb.attr({
+                                width: Math.abs(thumbWidth)
+                            });
 
-                        thumb.translate(mouseStart + thumbWidth, top + axis.area("y"));
+                            thumb.translate(mouseStart + thumbWidth, top + axis.area("y"));
+                        }
                     }
                 }, axisIndex);
 
@@ -85,7 +87,10 @@ export default {
                     // 차트 줌
                     if(start < end) {
                         axis.zoom(start, end);
-                        bg.attr({ "visibility": "visible" });
+
+                        if(bg != null) {
+                            bg.attr({"visibility": "visible"});
+                        }
 
                         // 차트 렌더링이 활성화되지 않았을 경우
                         if(!self.chart.isRender()) {
@@ -119,7 +124,10 @@ export default {
                         interval: (interval != null) ? interval : axis.get("x").interval,
                         format: (format != null) ? format : axis.get("x").format
                     });
-                    bg.attr({ "visibility": "visible" });
+
+                    if(bg != null) {
+                        bg.attr({"visibility": "visible"});
+                    }
 
                     // 차트 렌더링이 활성화되지 않았을 경우
                     if(!self.chart.isRender()) {
@@ -135,30 +143,29 @@ export default {
                     thumbWidth = 0;
                     startDate = null;
 
-                    thumb.attr({
-                        width: 0
-                    });
+                    if(thumb != null) {
+                        thumb.attr({
+                            width: 0
+                        });
+                    }
                 }
             }
 
-            this.drawSection = function(axisIndex) {
-                var axis = this.chart.axis(axisIndex),
-                    xtype = axis.get("x").type,
-                    domain = axis.get("x").domain,
-                    interval = axis.get("x").interval,
-                    format = axis.get("x").format,
+            this.drawSection = function(axisIndex, axisSeq) {
+                let integrate = this.widget.integrate,
+                    axis = this.chart.axis(axisIndex),
                     cw = axis.area("width"),
                     ch = axis.area("height"),
                     r = 12;
 
                 return this.chart.svg.group({}, function() {
-                    var thumb = self.chart.svg.rect({
+                    let thumb = self.chart.svg.rect({
                         height: ch,
                         fill: self.chart.theme("zoomBackgroundColor"),
                         opacity: 0.3
                     });
 
-                    var bg = self.chart.svg.group({
+                    let bg = self.chart.svg.group({
                         visibility: "hidden"
                     }, function() {
                         self.chart.svg.rect({
@@ -185,29 +192,55 @@ export default {
                         }).on("click", function(e) {
                             bg.attr({ visibility: "hidden" });
 
-                            if(xtype == "block") {
-                                axis.screen(1);
-                            } else if(xtype == "date") {
-                                axis.updateGrid("x", {
-                                    domain: domain,
-                                    interval: interval,
-                                    format: format
-                                });
+                            // 줌을 멀티 축에서 겹쳐서 사용할 때
+                            if(integrate) {
+                                self.rollbackZoom(self.getAxisList());
+                            } else {
+                                self.rollbackZoom([ axisIndex ]);
                             }
-
-                            // 차트 렌더링이 활성화되지 않았을 경우
-                            if(!self.chart.isRender()) {
-                                self.chart.render();
-                            }
-
-                            // 줌 종료
-                            self.chart.emit("zoom.close");
                         });
 
                     }).translate(left + axis.area("x"), top + axis.area("y"));
 
-                    setDragEvent(axisIndex, thumb, bg);
+                    // 줌을 멀티 축에서 겹쳐서 사용할 때, 첫번째 axis에 대한 줌만 그린다.
+                    if(!integrate || axisSeq === 0) {
+                        setDragEvent(axisIndex, thumb, bg);
+                    } else {
+                        setDragEvent(axisIndex, null, null);
+                    }
                 });
+            }
+
+            this.rollbackZoom = function(axisList) {
+                for(let i = 0; i < axisList.length; i++) {
+                    let axis = this.chart.axis(axisList[i]),
+                        xtype = axis.get("x").type,
+                        domain = axis.get("x").domain,
+                        interval = axis.get("x").interval,
+                        format = axis.get("x").format;
+
+                    if(xtype == "block") {
+                        axis.screen(1);
+                    } else if(xtype == "date") {
+                        axis.updateGrid("x", {
+                            domain: domain,
+                            interval: interval,
+                            format: format
+                        });
+                    }
+
+                    // 차트 렌더링이 활성화되지 않았을 경우
+                    if(!this.chart.isRender()) {
+                        this.chart.render();
+                    }
+
+                    // 줌 종료
+                    this.chart.emit("zoom.close");
+                }
+            }
+
+            this.getAxisList = function() {
+                return (_.typeCheck("array", this.widget.axis)) ? this.widget.axis : [ this.widget.axis ];
             }
 
             this.drawBefore = function() {
@@ -216,11 +249,11 @@ export default {
             }
 
             this.draw = function() {
-                var g = this.chart.svg.group(),
-                    list = (_.typeCheck("array", this.widget.axis)) ? this.widget.axis : [ this.widget.axis ];
+                let g = this.chart.svg.group(),
+                    axisList = this.getAxisList();
 
-                for (var i = 0; i < list.length; i++) {
-                    g.append(this.drawSection(list[i]));
+                for(let i = 0; i < axisList.length; i++) {
+                    g.append(this.drawSection(axisList[i], i));
                 }
 
                 return g;
@@ -230,10 +263,11 @@ export default {
         ZoomWidget.setup = function() {
             return {
                 axis: 0,
-
-                /** @cfg {Number} [interval=1000] Sets the interval of the scale displayed on a grid.*/
+                /** @cfg {Boolean} [integrate=false] When zooming is used on multiple axes, only one drawing option */
+                integrate: false,
+                /** @cfg {Number} [interval=1000] Sets the interval of the scale displayed on a grid */
                 interval: null,
-                /** @cfg {Function} [format=null]  Determines whether to format the value on an axis. */
+                /** @cfg {Function} [format=null]  Determines whether to format the value on an axis */
                 format: null
             }
         }
