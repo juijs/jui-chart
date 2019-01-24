@@ -24994,9 +24994,12 @@ exports.default = {
                         format = format.apply(self.chart, [stime, etime]);
                     }
 
-                    // 이전 x축 도메인 값 캐싱하기
+                    // 이전 x축 옵션 값들 캐싱하기
                     self.chart.setCache("prevDomain_" + axisIndex, axis.get("x").domain);
+                    self.chart.setCache("prevInterval_" + axisIndex, axis.get("x").interval);
+                    self.chart.setCache("prevFormat_" + axisIndex, axis.get("x").format);
 
+                    // x축 새로운 값으로 갱신하기
                     axis.updateGrid("x", {
                         domain: [stime, etime],
                         interval: interval != null ? interval : axis.get("x").interval,
@@ -25093,20 +25096,20 @@ exports.default = {
                 for (var i = 0; i < axisList.length; i++) {
                     var axisIndex = axisList[i],
                         axis = this.chart.axis(axisIndex),
-                        xtype = axis.get("x").type,
-                        interval = axis.get("x").interval,
-                        format = axis.get("x").format;
+                        xtype = axis.get("x").type;
 
                     if (xtype == "block") {
                         axis.screen(1);
                     } else if (xtype == "date") {
                         // 이전 x축 도메인 값 가져오기
                         var prevDomain = this.chart.getCache("prevDomain_" + axisIndex);
+                        var prevInterval = this.chart.getCache("prevInterval_" + axisIndex);
+                        var prevFormat = this.chart.getCache("prevFormat_" + axisIndex);
 
                         axis.updateGrid("x", {
                             domain: prevDomain,
-                            interval: interval,
-                            format: format
+                            interval: prevInterval,
+                            format: prevFormat
                         });
                     }
 
