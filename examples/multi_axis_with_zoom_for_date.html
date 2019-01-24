@@ -61,7 +61,8 @@ graph.ready([ "chart.builder", "util.base" ], function(builder, _) {
         ],
         widget : [
             { type : "title", text : "Combination Sample" },
-            { type : "legend", brush : [ 0, 1 ], align : "end" },
+            { type : "legend", brush : [ 0 ], align : "start", filter : true },
+            { type : "legend", brush : [ 1 ], align : "end", filter : true },
             { type : "zoom", axis : [ 0, 1 ], integrate : true }
         ]
     });

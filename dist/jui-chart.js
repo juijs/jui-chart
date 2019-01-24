@@ -23724,7 +23724,7 @@ exports.default = {
                     // brushSync가 true일 경우, 한번만 실행함
                     if (widget.brushSync && i > 0) continue;
 
-                    var brush = chart.get("brush", brushes[index]),
+                    var brush = chart.get("brush", index),
                         arr = this.getLegendIcon(brush);
 
                     for (var k = 0; k < arr.length; k++) {
@@ -24995,9 +24995,13 @@ exports.default = {
                     }
 
                     // 이전 x축 옵션 값들 캐싱하기
-                    self.chart.setCache("prevDomain_" + axisIndex, axis.get("x").domain);
-                    self.chart.setCache("prevInterval_" + axisIndex, axis.get("x").interval);
-                    self.chart.setCache("prevFormat_" + axisIndex, axis.get("x").format);
+                    var zoomDepth = self.chart.getCache("zoomDepth_" + axisIndex, 0);
+                    if (zoomDepth == 0) {
+                        self.chart.setCache("prevDomain_" + axisIndex, axis.get("x").domain);
+                        self.chart.setCache("prevInterval_" + axisIndex, axis.get("x").interval);
+                        self.chart.setCache("prevFormat_" + axisIndex, axis.get("x").format);
+                    }
+                    self.chart.setCache("zoomDepth_" + axisIndex, zoomDepth + 1);
 
                     // x축 새로운 값으로 갱신하기
                     axis.updateGrid("x", {
@@ -25111,6 +25115,9 @@ exports.default = {
                             interval: prevInterval,
                             format: prevFormat
                         });
+
+                        // close 버튼을 클릭하면 zoomDepth를 0으로 초기화 한다.
+                        this.chart.setCache("zoomDepth_" + axisIndex, 0);
                     }
 
                     // 차트 렌더링이 활성화되지 않았을 경우

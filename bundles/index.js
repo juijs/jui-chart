@@ -9,7 +9,15 @@ jui.use([ ClassicTheme, LineBrush, TitleWidget, LegendWidget, ZoomWidget ]);
 
 var chart = jui.include("chart.builder");
 
-var data = [
+var data1 = [
+    { date : new Date("2015/01/01 00:00:00"), sales : 50, profit : 35 },
+    { date : new Date("2015/01/01 06:00:00"), sales : 20, profit : 30 },
+    { date : new Date("2015/01/01 12:00:00"), sales : 10, profit : 5 },
+    { date : new Date("2015/01/01 18:00:00"), sales : 30, profit : 25 },
+    { date : new Date("2015/01/02 00:00:00"), sales : 25, profit : 20 }
+];
+
+var data2 = [
     { date : new Date("2015/01/01 00:00:00"), sales : 50, profit : 35 },
     { date : new Date("2015/01/01 06:00:00"), sales : 20, profit : 30 },
     { date : new Date("2015/01/01 12:00:00"), sales : 10, profit : 5 },
@@ -39,7 +47,7 @@ chart("#chart", {
                 line : true,
                 orient : "right"
             },
-            data: data
+            data: data1
         },
         {
             y : {
@@ -60,7 +68,8 @@ chart("#chart", {
     ],
     widget : [
         { type : "title", text : "Combination Sample" },
-        { type : "legend", brush : [ 0, 1 ], align : "end" },
+        { type : "legend", brush : [ 0 ], align : "start", filter : true },
+        { type : "legend", brush : [ 1 ], align : "end", filter : true },
         { type : "zoom", axis : [ 0, 1 ], integrate : true }
     ]
 });
