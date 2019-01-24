@@ -102,12 +102,12 @@ export default {
                 }
 
                 function updateDateGrid(endDate) {
-                    var stime = startDate.getTime(),
+                    let stime = startDate.getTime(),
                         etime = endDate.getTime();
 
                     if(stime >= etime) return;
 
-                    var interval = self.widget.interval,
+                    let interval = self.widget.interval,
                         format = self.widget.format;
 
                     // interval 콜백 옵션 설정
@@ -121,9 +121,13 @@ export default {
                     }
 
                     // 이전 x축 옵션 값들 캐싱하기
-                    self.chart.setCache(`prevDomain_${axisIndex}`, axis.get("x").domain);
-                    self.chart.setCache(`prevInterval_${axisIndex}`, axis.get("x").interval);
-                    self.chart.setCache(`prevFormat_${axisIndex}`, axis.get("x").format);
+                    let zoomDepth = self.chart.getCache(`zoomDepth_${axisIndex}`, 0);
+                    if(zoomDepth == 0) {
+                        self.chart.setCache(`prevDomain_${axisIndex}`, axis.get("x").domain);
+                        self.chart.setCache(`prevInterval_${axisIndex}`, axis.get("x").interval);
+                        self.chart.setCache(`prevFormat_${axisIndex}`, axis.get("x").format);
+                    }
+                    self.chart.setCache(`zoomDepth_${axisIndex}`, zoomDepth + 1);
 
                     // x축 새로운 값으로 갱신하기
                     axis.updateGrid("x", {
@@ -237,6 +241,9 @@ export default {
                             interval: prevInterval,
                             format: prevFormat
                         });
+
+                        // close 버튼을 클릭하면 zoomDepth를 0으로 초기화 한다.
+                        this.chart.setCache(`zoomDepth_${axisIndex}`, 0);
                     }
 
                     // 차트 렌더링이 활성화되지 않았을 경우
