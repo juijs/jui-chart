@@ -179,12 +179,12 @@ export default {
                     let bg = self.chart.svg.group({
                         visibility: "hidden"
                     }, function() {
-                        self.chart.svg.rect({
-                            width: cw,
-                            height: ch,
-                            fill: self.chart.theme("zoomFocusColor"),
-                            opacity: 0.2
-                        });
+                        // self.chart.svg.rect({
+                        //     width: cw,
+                        //     height: ch,
+                        //     fill: self.chart.theme("zoomFocusColor"),
+                        //     opacity: 0.2
+                        // });
 
                         self.chart.svg.group({
                             cursor: "pointer"
