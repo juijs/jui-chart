@@ -1,11 +1,13 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
+import ScatterBrush from '../src/brush/scatter.js'
 import LineBrush from '../src/brush/line.js'
 import TitleWidget from '../src/widget/title.js'
 import LegendWidget from '../src/widget/legend.js'
 import ZoomWidget from '../src/widget/zoom.js'
+import TooltipWidget from '../src/widget/tooltip.js'
 
-jui.use([ ClassicTheme, LineBrush, TitleWidget, LegendWidget, ZoomWidget ]);
+jui.use([ ClassicTheme, ScatterBrush, LineBrush, TitleWidget, LegendWidget, ZoomWidget ]);
 
 var chart = jui.include("chart.builder");
 
@@ -63,8 +65,9 @@ chart("#chart", {
         }
     ],
     brush : [
-        { type : "line", target : "sales", axis : 0, colors : [ "#434348" ] , symbol : "curve" },
-        { type : "line", target : "profit", axis : 1, colors: [ "#90ed7d" ], symbol : "curve" }
+        { type : "line", target : "sales", axis : 0, colors : [ "#434348" ] , symbol : "curve", clip: true },
+        { type : "scatter", target : "sales", axis : 0, colors : [ "#434348" ], clip: true },
+        { type : "line", target : "profit", axis : 1, colors: [ "#90ed7d" ], symbol : "curve", clip: true }
     ],
     widget : [
         { type : "title", text : "Combination Sample" },
