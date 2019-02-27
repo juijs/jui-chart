@@ -72,14 +72,11 @@ export default {
                         if(brush.showText) {
                             var p = Math.round((list[j] / sum) * max),
                                 x = startX + bar_width / 2,
-                                y = startY + height / 2 + 8;
+                                y = startY + height / 2 + 8,
+                                text = this.drawText(p, x, y);
 
-
-                            if (isNaN(x) || isNaN(y)) {
-                                // 정상적인 숫자가 아니면 객체를 추가하지 않는다.
-                            } else {
-                                group.append(this.drawText(p, x, y));
-                            }
+                            if(text != null)
+                                group.append(text);
 
                         }
 

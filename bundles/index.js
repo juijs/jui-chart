@@ -1,116 +1,46 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
-import HeatmapScatterBrush from '../src/brush/heatmapscatter.js'
+import FullStackBar from '../src/brush/fullstackbar.js'
 import TitleWidget from '../src/widget/title.js'
-import DragselectWidget from '../src/widget/dragselect.js'
 import TooltipWidget from '../src/widget/tooltip.js'
 
-jui.use([ ClassicTheme, HeatmapScatterBrush, TitleWidget, DragselectWidget, TooltipWidget ]);
+jui.use([ ClassicTheme, FullStackBar, TitleWidget, TooltipWidget ]);
 
-var chart = jui.include("chart.builder"),
-    time = jui.include("util.time"),
-    txData = [];
+var chart = jui.include("chart.builder");;
 
-var c = chart("#chart", {
+chart("#chart", {
+    width: 400,
     height : 400,
+    theme : "classic",
     axis : {
+        data : [
+            { name : 100, value : 0, test : 0 },
+            { name : 15, value : 6, test : 20 },
+            { name : 8, value : 10, test : 20 },
+            { name : 18, value : 5, test : 20 }
+        ],
+            y : {
+            domain : [ "week1", "week2", "week3", "week4" ],
+                line : true
+        },
         x : {
-            type : "date",
-            domain : getDomain(),
-            interval : 1,
-            realtime : "minutes",
-            format : "HH:mm",
-            key : "time",
+            type : 'range',
+                domain : [0, 100],
+                format : function(value) { return value + "%" ;},
             line : true
-        },
-        y : {
-            type : "range",
-            domain : [ 0, 10000 ],
-            step : 5,
-            line : true,
-            orient : "left"
-        },
-        buffer : 100000
+        }
     },
     brush : {
-        type : "heatmapscatter",
-        target : [ "delay" ],
-        yInterval : 250,
-        xInterval : 5000,
-        colors : function(d) {
-            if(d.level == 0) {
-                return "#ff0000"
-            } else if(d.level == 1) {
-                return "#f2ab14";
-            }
-
-            return "#4692ca";
-        }
+        type : 'fullstackbar',
+            target : ['name', 'value', 'test'],
+            showText: true,
+            activeEvent : "click",
+            active : 1,
+            size : 20
     },
-    event : {
-        "dragselect.end": function(data) {
-            console.log(data.length);
+    event: {
+        click: function(obj, e) {
+            console.log(obj);
         }
-    },
-    widget : [{
-        type : "title",
-        text : "Heat-Map Transaction View (0)"
-    }, {
-        type : "dragselect",
-        dataType : "list"
-    }, {
-        type: "tooltip"
-    }],
-    style : {
-        tooltipBorderColor: "#000"
     }
 });
-
-setInterval(function() {
-    var domain = getDomain();
-
-    appendTxData(txData, domain);
-}, 5000);
-
-setInterval(function() {
-    var domain = getDomain();
-
-    c.axis(0).update(txData);
-    c.axis(0).set("x", { domain: domain });
-
-    c.updateWidget(0, { text: "Heat-Map Transaction View (+" + txData.length + ")" });
-    c.render(true);
-}, 7000);
-
-function appendTxData(list, domain) {
-    var count = Math.floor(Math.random() * 100);
-
-    for(var i = 0; i < list.length; i++) {
-        if(list[i].time < domain[0]){
-            list.shift();
-        } else {
-            break;
-        }
-    }
-
-    for(var i = 0; i < count; i++) {
-        var type = Math.floor(Math.random() * 6),
-            data = {
-                delay: Math.floor(Math.random() * 10000),
-                level: 2,
-                time: domain[1]
-            };
-
-        if(type > 2 && type < 5) {
-            data.level = 1;
-        } else if(type > 4) {
-            data.level = 0;
-        }
-
-        list.push(data);
-    }
-}
-
-function getDomain() {
-    return [ new Date() - time.MINUTE * 5, new Date().getTime() ];
-}

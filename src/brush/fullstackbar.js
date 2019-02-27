@@ -20,12 +20,14 @@ export default {
             }
 
             this.drawText = function(percent, x, y) {
+                if(isNaN(percent) || isNaN(x) || isNaN(y)) return null;
+
                 var text = this.chart.text({
-                    "font-size" : this.chart.theme("barFontSize"),
-                    fill : this.chart.theme("barFontColor"),
-                    x : x,
-                    y : y,
-                    "text-anchor" : "middle"
+                    "font-size": this.chart.theme("barFontSize"),
+                    fill: this.chart.theme("barFontColor"),
+                    x: x,
+                    y: y,
+                    "text-anchor": "middle"
                 }, percent + "%");
 
                 return text;
@@ -66,9 +68,11 @@ export default {
                         if(brush.showText) {
                             var p = Math.round((list[j] / sum) * max),
                                 x = startX + width / 2,
-                                y = startY + bar_height / 2 + 5;
+                                y = startY + bar_height / 2 + 5,
+                                text = this.drawText(p, x, y);
 
-                            group.append(this.drawText(p, x, y));
+                            if(text != null)
+                                group.append(text);
                         }
 
                         // 액티브 엘리먼트 이벤트 설정
