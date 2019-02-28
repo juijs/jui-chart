@@ -37,7 +37,12 @@
             widget : [{
                 type: "title",
                 text: "hihi"
-            }]
+            }],
+            event: {
+                "click": function(obj, e) {
+                    console.log(obj, e);
+                }
+            }
         });
     });
 </script>

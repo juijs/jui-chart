@@ -805,6 +805,8 @@ exports.default = {
             };
 
             this.drawText = function (percent, x, y) {
+                if (isNaN(percent) || isNaN(x) || isNaN(y)) return null;
+
                 var text = this.chart.text({
                     "font-size": this.chart.theme("barFontSize"),
                     fill: this.chart.theme("barFontColor"),
@@ -851,9 +853,10 @@ exports.default = {
                         if (brush.showText) {
                             var p = Math.round(list[j] / sum * max),
                                 x = startX + width / 2,
-                                y = startY + bar_height / 2 + 5;
+                                y = startY + bar_height / 2 + 5,
+                                text = this.drawText(p, x, y);
 
-                            group.append(this.drawText(p, x, y));
+                            if (text != null) group.append(text);
                         }
 
                         // 액티브 엘리먼트 이벤트 설정
@@ -17723,13 +17726,10 @@ exports.default = {
                         if (brush.showText) {
                             var p = Math.round(list[j] / sum * max),
                                 x = startX + bar_width / 2,
-                                y = startY + height / 2 + 8;
+                                y = startY + height / 2 + 8,
+                                text = this.drawText(p, x, y);
 
-                            if (isNaN(x) || isNaN(y)) {
-                                // 정상적인 숫자가 아니면 객체를 추가하지 않는다.
-                            } else {
-                                group.append(this.drawText(p, x, y));
-                            }
+                            if (text != null) group.append(text);
                         }
 
                         // 액티브 엘리먼트 이벤트 설정
@@ -22099,10 +22099,12 @@ exports.default = {
             this.getBarElement = function (dataIndex, targetIndex) {
                 var style = this.getBarStyle(),
                     color = this.color(targetIndex),
-                    value = this.getData(dataIndex)[this.brush.target[targetIndex]];
+                    value = this.getData(dataIndex)[this.brush.target[targetIndex]],
+                    opacity = dataIndex === this.brush.active ? 1 : style.disableOpacity;
 
                 return {
                     fill: color,
+                    "fill-opacity": opacity,
                     stroke: style.borderColor,
                     "stroke-width": style.borderWidth,
                     "stroke-opacity": style.borderOpacity,
@@ -22159,6 +22161,8 @@ exports.default = {
                             targetY -= height;
                             y += is_reverse ? height : -height;
 
+                            this.canvas.save();
+                            this.canvas.globalAlpha = r["fill-opacity"];
                             this.canvas.beginPath();
                             this.canvas.fillStyle = r.fill;
                             this.canvas.strokeStyle = r.stroke;
@@ -22166,6 +22170,7 @@ exports.default = {
                             this.canvas.lineWidth = r["stroke-width"];
                             this.canvas.rect(r.x, r.y, r.width, r.height);
                             this.canvas.fill();
+                            this.canvas.restore();
 
                             stackList.push(r);
                         }
@@ -22226,6 +22231,8 @@ exports.default = {
 
                         var ry = r.y + status.distance + TOP_PADDING;
 
+                        this.canvas.save();
+                        this.canvas.globalAlpha = r["fill-opacity"];
                         this.canvas.strokeStyle = r.fill;
                         this.canvas.lineWidth = r.height * 0.7;
                         this.canvas.beginPath();
@@ -22240,6 +22247,7 @@ exports.default = {
                         this.canvas.textBaseline = "middle";
                         this.canvas.fillText(total, r.x + r.width / 2, ry + TOTAL_PADDING);
                         this.canvas.fill();
+                        this.canvas.restore();
 
                         this.chart.setCache("equalizer_move_" + i, status);
                     }
@@ -22258,7 +22266,11 @@ exports.default = {
                 /** @cfg {Number} [innerPadding=1] Determines the inner margin of a bar. */
                 innerPadding: 1,
                 /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
-                unit: 1
+                unit: 1,
+                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
+                active: null,
+                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
+                activeEvent: null
             };
         };
 
@@ -25206,7 +25218,8 @@ exports.default = {
                     if (e.chartX >= area.x1 && e.chartX <= area.x2 && e.chartY >= area.y1 && e.chartY <= area.y2) {
                         this.chart.emit(eventType, [{
                             brush: brush,
-                            data: datas[blockValue]
+                            data: datas[blockValue],
+                            dataIndex: blockValue
                         }, e]);
                     }
                 }

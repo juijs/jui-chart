@@ -1,46 +1,76 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
-import FullStackBar from '../src/brush/fullstackbar.js'
+import EqualizerColumnBrush from '../src/brush/canvas/equalizercolumn.js'
 import TitleWidget from '../src/widget/title.js'
-import TooltipWidget from '../src/widget/tooltip.js'
+import LegendWidget from '../src/widget/legend.js'
+import RaycastWidget from '../src/widget/raycast.js'
 
-jui.use([ ClassicTheme, FullStackBar, TitleWidget, TooltipWidget ]);
+jui.use([ ClassicTheme, EqualizerColumnBrush, TitleWidget, LegendWidget, RaycastWidget ]);
 
-var chart = jui.include("chart.builder");;
+var animation = jui.include("chart.animation");;
 
-chart("#chart", {
-    width: 400,
-    height : 400,
-    theme : "classic",
-    axis : {
-        data : [
-            { name : 100, value : 0, test : 0 },
-            { name : 15, value : 6, test : 20 },
-            { name : 8, value : 10, test : 20 },
-            { name : 18, value : 5, test : 20 }
-        ],
-            y : {
-            domain : [ "week1", "week2", "week3", "week4" ],
-                line : true
-        },
+var c = animation("#chart", {
+    width: 500,
+    height: 300,
+    axis: [{
         x : {
-            type : 'range',
-                domain : [0, 100],
-                format : function(value) { return value + "%" ;},
+            domain : [ "1 year ago", "1 month ago", "Yesterday", "Today" ],
             line : true
+        },
+        y : {
+            type : "range",
+            domain : [ 0, 30 ],
+            // domain : function(d) {
+            //     return Math.max(d.normal, d.warning, d.fatal);
+            // },
+            step : 5,
+            line : false
+        }
+    }],
+    brush : [{
+        type : "canvas.equalizercolumn",
+        target : [ "normal", "warning", "fatal" ],
+        unit : 10,
+        active : 1
+    }],
+    widget : [
+        {
+            type : "title",
+            text : "Equalizer Sample"
+        }, {
+            type : "legend",
+            format : function(key) {
+                if(key == "normal") return "Default";
+                else if(key == "warning") return "Warning";
+                else return "Critical";
+            }
+        }, {
+            type : "raycast"
+        }
+    ],
+    event : {
+        "raycast.click": function(obj, e) {
+            // TODO: Clicking on the equalizer will give the following effect
+            this.updateBrush(0, { active: obj.dataIndex });
         }
     },
-    brush : {
-        type : 'fullstackbar',
-            target : ['name', 'value', 'test'],
-            showText: true,
-            activeEvent : "click",
-            active : 1,
-            size : 20
-    },
-    event: {
-        click: function(obj, e) {
-            console.log(obj);
-        }
+    interval : 100
+});
+
+c.run(function(runningTime) {
+    if(runningTime > 10000) {
+        c.update([
+            { normal : 7, warning : 7, fatal : 7 },
+            { normal : 10, warning : 8, fatal : 5 },
+            { normal : 6, warning : 4, fatal : 10 },
+            { normal : 5, warning : 5, fatal : 7 }
+        ]);
+    } else {
+        c.update([
+            { normal : 5, warning : 5, fatal : 5 },
+            { normal : 10, warning : 8, fatal : 5 },
+            { normal : 6, warning : 4, fatal : 10 },
+            { normal : 5, warning : 5, fatal : 7 }
+        ]);
     }
 });

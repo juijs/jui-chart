@@ -27,7 +27,8 @@
                 brush : [{
                     type : "canvas.equalizercolumn",
                     target : [ "normal", "warning", "fatal" ],
-                    unit : 10
+                    unit : 10,
+                    active : 1,
                 }],
                 widget : [
                     {
@@ -46,7 +47,8 @@
                 ],
                 event : {
                     "raycast.click": function(obj, e) {
-                        console.log(obj.data);
+                        // TODO: Clicking on the equalizer will give the following effect
+                        this.updateBrush(0, { active: obj.dataIndex });
                     }
                 },
                 interval : 100

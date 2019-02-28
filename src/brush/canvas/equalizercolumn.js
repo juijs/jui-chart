@@ -23,10 +23,12 @@ export default {
             this.getBarElement = function(dataIndex, targetIndex) {
                 let style = this.getBarStyle(),
                     color = this.color(targetIndex),
-                    value = this.getData(dataIndex)[this.brush.target[targetIndex]];
+                    value = this.getData(dataIndex)[this.brush.target[targetIndex]],
+                    opacity = (dataIndex === this.brush.active) ? 1 : style.disableOpacity;
 
                 return {
                     fill : color,
+                    "fill-opacity": opacity,
                     stroke : style.borderColor,
                     "stroke-width" : style.borderWidth,
                     "stroke-opacity" : style.borderOpacity,
@@ -83,6 +85,8 @@ export default {
                             targetY -= height;
                             y += (is_reverse) ? height : -height;
 
+                            this.canvas.save();
+                            this.canvas.globalAlpha = r["fill-opacity"];
                             this.canvas.beginPath();
                             this.canvas.fillStyle = r.fill;
                             this.canvas.strokeStyle = r.stroke;
@@ -90,6 +94,7 @@ export default {
                             this.canvas.lineWidth = r["stroke-width"];
                             this.canvas.rect(r.x, r.y, r.width, r.height);
                             this.canvas.fill();
+                            this.canvas.restore();
 
                             stackList.push(r);
                         }
@@ -150,6 +155,8 @@ export default {
 
                         const ry = r.y + status.distance + TOP_PADDING;
 
+                        this.canvas.save();
+                        this.canvas.globalAlpha = r["fill-opacity"];
                         this.canvas.strokeStyle = r.fill;
                         this.canvas.lineWidth = r.height * 0.7;
                         this.canvas.beginPath();
@@ -164,6 +171,7 @@ export default {
                         this.canvas.textBaseline = "middle";
                         this.canvas.fillText(total, r.x + r.width/2, ry + TOTAL_PADDING);
                         this.canvas.fill();
+                        this.canvas.restore();
 
                         this.chart.setCache(`equalizer_move_${i}`, status);
                     }
@@ -182,7 +190,9 @@ export default {
                 /** @cfg {Number} [innerPadding=1] Determines the inner margin of a bar. */
                 innerPadding: 1,
                 /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
-                unit: 1
+                unit: 1,
+                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
+                active: null
             };
         }
 
