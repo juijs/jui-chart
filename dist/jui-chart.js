@@ -22268,9 +22268,7 @@ exports.default = {
                 /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
                 unit: 1,
                 /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
-                active: null,
-                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
-                activeEvent: null
+                active: null
             };
         };
 
