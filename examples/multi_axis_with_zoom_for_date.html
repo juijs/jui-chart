@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+
+    <script src="../dist/jui-chart.js"></script>
+</head>
+<body>
+<div id="chart"></div>
+
+<script>
+var data = [
+    { date : new Date("2015/01/01 00:00:00"), sales : 50, profit : 35 },
+    { date : new Date("2015/01/01 06:00:00"), sales : 20, profit : 30 },
+    { date : new Date("2015/01/01 12:00:00"), sales : 10, profit : 5 },
+    { date : new Date("2015/01/01 18:00:00"), sales : 30, profit : 25 },
+    { date : new Date("2015/01/02 00:00:00"), sales : 25, profit : 20 }
+];
+
+graph.ready([ "chart.builder", "util.base" ], function(builder, _) {
+    c = builder("#chart", {
+        height : 300,
+        padding : {
+            right : 120
+        },
+        axis : [
+            {
+                x : {
+                    type : "date",
+                    domain : [ new Date("2015/01/01"), new Date("2015/01/02") ],
+                    interval : 1000 * 60 * 60 * 6, // // 6hours
+                    format : "MM/dd HH:mm",
+                    key : "date",
+                    line : true
+                },
+                y : {
+                    type : "range",
+                    domain : [ 0, 100 ],
+                    step : 5,
+                    line : true,
+                    orient : "right"
+                },
+                data: data
+            },
+            {
+                y : {
+                    type : "range",
+                    domain: [ 5, 50 ],
+                    color: "#90ed7d",
+                    orient: "left",
+                    format: function (value) {
+                        return value + " ℃";
+                    }
+                },
+                extend : 0
+            }
+        ],
+        brush : [
+            { type : "line", target : "sales", axis : 0, colors : [ "#434348" ] , symbol : "curve" },
+            { type : "line", target : "profit", axis : 1, colors: [ "#90ed7d" ], symbol : "curve" }
+        ],
+        widget : [
+            { type : "title", text : "Combination Sample" },
+            { type : "legend", brush : [ 0 ], align : "start", filter : true },
+            { type : "legend", brush : [ 1 ], align : "end", filter : true },
+            { type : "zoom", axis : [ 0, 1 ], integrate : true }
+        ]
+    });
+});
+</script>
+
+
+</body>
+</html>

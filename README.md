@@ -17,12 +17,12 @@ npm install juijs-chart
 The difference with the existing method is that you need to add the module directly using the 'use' function.
 
 ```js
-import jui from 'juijs-chart'
+import graph from 'juijs-chart'
 import BarBrush from 'juijs-chart/src/brush/bar.js'
 import ColumnBrush from 'juijs-chart/src/brush/column.js'
 import TitleWidget from 'juijs-chart/src/widget/title.js'
 
-jui.use(BarBrush, ColumnBrush, TitleWidget);
+graph.use(BarBrush, ColumnBrush, TitleWidget);
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ jui.use(BarBrush, ColumnBrush, TitleWidget);
 The UI component creation code is the same as the existing one.
 
 ```js
-jui.ready([ "chart.builder" ], function(builder) {
+graph.ready([ "chart.builder" ], function(builder) {
     var obj = builder("#chart", {
         width: 600,
         height : 600,

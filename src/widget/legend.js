@@ -209,7 +209,7 @@ export default {
                     // brushSync가 true일 경우, 한번만 실행함
                     if(widget.brushSync && i > 0) continue;
 
-                    var brush = chart.get("brush", brushes[index]),
+                    var brush = chart.get("brush", index),
                         arr = this.getLegendIcon(brush);
 
                     for(var k = 0; k < arr.length; k++) {
