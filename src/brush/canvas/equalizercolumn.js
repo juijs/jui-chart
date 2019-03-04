@@ -24,7 +24,8 @@ export default {
                 let style = this.getBarStyle(),
                     color = this.color(targetIndex),
                     value = this.getData(dataIndex)[this.brush.target[targetIndex]],
-                    opacity = (dataIndex === this.brush.active) ? 1 : style.disableOpacity;
+                    active = this.brush.active,
+                    opacity = (active === null || dataIndex === active) ? 1 : style.disableOpacity;
 
                 return {
                     fill : color,
