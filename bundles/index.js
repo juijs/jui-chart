@@ -1,46 +1,144 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
-import FullStackBar from '../src/brush/fullstackbar.js'
+import LineBrush from '../src/brush/line.js'
+import ScatterBrush from '../src/brush/scatter.js'
 import TitleWidget from '../src/widget/title.js'
-import TooltipWidget from '../src/widget/tooltip.js'
+import GuideLineWidget from '../src/widget/guideline.js'
 
-jui.use([ ClassicTheme, FullStackBar, TitleWidget, TooltipWidget ]);
+jui.use([ ClassicTheme, LineBrush, ScatterBrush, TitleWidget, GuideLineWidget ]);
 
-var chart = jui.include("chart.builder");;
+const time = jui.include('util.time');
+const builder = jui.include('chart.builder');
+const dataCount = 60;
+const realtimeData = getMemoryData(dataCount);
 
-chart("#chart", {
-    width: 400,
-    height : 400,
-    theme : "classic",
-    axis : {
-        data : [
-            { name : 100, value : 0, test : 0 },
-            { name : 15, value : 6, test : 20 },
-            { name : 8, value : 10, test : 20 },
-            { name : 18, value : 5, test : 20 }
-        ],
-        y : {
-            domain : [ "week1", "week2", "week3", "week4" ],
-            line : true
-        },
+window.chart = builder('#chart', {
+    width: 1000,
+    height : 300,
+    theme : 'classic',
+    axis : [{
         x : {
+            type : 'dateblock',
+            realtime : 'minutes',
+            interval : 1, // But number for the real-time basis
+            format : 'HH:mm',
+            domain : [ new Date() - time.MINUTE * 5, new Date() ]
+        },
+        y : {
             type : 'range',
-            domain : [0, 100],
-            format : function(value) { return value + "%" ;},
-            line : true
+            domain : [ 0, 100 ],
+            step : 4,
+            line : 'solid',
+            format : function(d) {
+                return d + '%';
+            }
+        },
+        data : realtimeData
+    }],
+    brush : [{
+        type : 'line',
+        target : [ 'memory', 'cpu', 'disk' ]
+    }, {
+        type : 'scatter',
+        target : [ 'memory', 'cpu', 'disk' ]
+    }],
+    widget : [{
+        type : 'guideline',
+        format : function(d) {
+            return time.format(d, 'HH:mm:ss');
         }
-    },
-    brush : {
-        type : 'fullstackbar',
-        target : ['name', 'value', 'test'],
-        showText: true,
-        activeEvent : "click",
-        active : 1,
-        size : 20
-    },
+    }],
     event: {
-        click: function(obj, e) {
-            console.log(obj);
+        'guideline.active': function(time) {
+            if(time) {
+                window.chart2.emit('guideline.show', time);
+            } else {
+                window.chart2.emit('guideline.hide');
+            }
         }
     }
 });
+
+window.chart2 = builder('#chart2', {
+    width: 500,
+    height : 200,
+    theme : 'classic',
+    axis : [{
+        x : {
+            type : 'dateblock',
+            realtime : 'minutes',
+            interval : 1, // But number for the real-time basis
+            format : 'HH:mm',
+            domain : [ new Date() - time.MINUTE * 5, new Date() ]
+        },
+        y : {
+            type : 'range',
+            domain : [ 0, 100 ],
+            step : 4,
+            line : 'solid',
+            format : function(d) {
+                return d + '%';
+            }
+        },
+        data : realtimeData
+    }],
+    brush : [{
+        type : 'line',
+        target : [ 'memory', 'cpu', 'disk' ]
+    }],
+    widget : [{
+        type : 'guideline',
+        format : function(d) {
+            return time.format(d, 'HH:mm:ss');
+        }
+    }],
+    event: {
+        'guideline.active': function(time) {
+            if(time) {
+                window.chart.emit('guideline.show', time);
+            } else {
+                window.chart.emit('guideline.hide');
+            }
+        }
+    }
+});
+
+function getMemoryData(count) {
+    const data = [];
+
+    for(let i = 0; i < count; i++) {
+        data.push({
+            memory: (Math.floor(Math.random() * 30) == 1) ? 85 : 35,
+            cpu: (Math.floor(Math.random() * 30) == 1) ? 55 : 25,
+            disk: (Math.floor(Math.random() * 30) == 1) ? 30 : 10,
+        });
+    }
+
+    return data;
+}
+
+function updateMemory() {
+    var axis = chart.axis(0);
+    var axis2 = chart2.axis(0);
+
+    if(realtimeData.length == dataCount) {
+        realtimeData.shift();
+        realtimeData.push(getMemoryData(1)[0]);
+        axis.update(realtimeData);
+        axis2.update(realtimeData);
+    }
+
+    axis.set('x', {
+        domain : [ new Date() - time.MINUTE * 5, new Date() ]
+    });
+    axis2.set('x', {
+        domain : [ new Date() - time.MINUTE * 5, new Date() ]
+    });
+}
+
+setInterval(function() {
+    updateMemory();
+
+    chart.render();
+    chart2.render();
+}, 5000);

@@ -301,6 +301,7 @@ export default {
             crossBorderColor : "#a9a9a9",
             crossBorderWidth : 1,
             crossBorderOpacity : 0.8,
+            crossBorderDashArray : "2,2",
             crossBalloonFontSize : 11,
             crossBalloonFontColor : "#fff",
             crossBalloonBackgroundColor : "#000",
