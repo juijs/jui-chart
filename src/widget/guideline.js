@@ -10,9 +10,8 @@ export default {
             const self = this;
             const tw = 50, th = 18, ta = tw / 10; // 툴팁 넓이, 높이, 앵커 크기
             let pl = 0, pt = 0; // 엑시스까지의 여백
-            let g, line, tooltip, points;
+            let g, line, tooltip, points = {};
             let tspan = [];
-            let brush;
 
             function printTooltip(index, text, message) {
                 if(!tspan[index]) {
@@ -25,14 +24,16 @@ export default {
             }
 
             this.drawBefore = function() {
+                const brush = this.chart.get('brush', widget.brush);
+
                 // 위젯 옵션에 따라 엑시스 변경
-                brush = this.chart.get('brush', widget.brush);
                 axis = this.chart.axis(brush.axis);
 
                 // 엑시스 여백 값 가져오기
                 pl = chart.padding("left") + axis.area("x");
                 pt = chart.padding("top") + axis.area("y");
 
+                // 가이드라인 그리기
                 g = chart.svg.group({
                     visibility: "hidden"
                 }, function() {
@@ -64,13 +65,22 @@ export default {
                                 y: 17
                             });
                         }).translate(0, axis.area("height") + ta);
+
+                        // 포인트 그리기
+                        brush.target.forEach((target, index) => {
+                            points[target] = chart.svg.circle({
+                                fill: chart.color(index),
+                                stroke: chart.theme("crossPointBorderColor"),
+                                "stroke-width": chart.theme("crossPointBorderWidth"),
+                                r: chart.theme("crossPointRadius"),
+                                visibility: "hidden"
+                            });
+                        });
                     }
                 }).translate(pl, pt);
             }
 
             this.drawGuildLine = function(left, value) {
-                g.attr({ visibility: "visible" });
-
                 if(line) {
                     line.attr({
                         x1: left,
@@ -89,6 +99,8 @@ export default {
                 const self = this;
 
                 chart.on("guideline.show", function(time) {
+                    g.attr({ visibility: "visible" });
+
                     const domain = axis.get('x').domain;
                     const range = +domain[1] - +domain[0];
                     const interval = range / axis.data.length;
