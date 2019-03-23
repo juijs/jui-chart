@@ -86,32 +86,27 @@ export default {
                         });
 
                         // 본문 툴팁 그리기
-                        if(axis.data.length > 0) {
-                            contentTooltip = chart.svg.group({}, function () {
-                                chart.svg.rect({
-                                    fill: chart.theme("tooltipBackgroundColor"),
-                                    "fill-opacity": chart.theme("tooltipBackgroundOpacity"),
-                                    "stroke": chart.theme("tooltipBorderColor"),
-                                    "stroke-width": chart.theme("tooltipBorderWidth")
-                                });
-
-                                chart.svg.group({}, function () {
-                                    // 데이터 키 가져오기
-                                    const keys = Object.keys(axis.data[0]);
-
-                                    for (let i = 1; i <= keys.length; i++) {
-                                        let text = chart.svg.text({
-                                            "font-size": chart.theme("tooltipFontSize"),
-                                            fill: chart.theme("tooltipFontColor"),
-                                            y: (chart.theme("tooltipFontSize") * 1.2) * i
-                                        });
-
-                                        text.append(chart.svg.tspan({"text-anchor": "start", "font-weight": "bold"}));
-                                        text.append(chart.svg.tspan({"text-anchor": "end"}));
-                                    }
-                                }).translate(cp, cp);
+                        contentTooltip = chart.svg.group({}, function () {
+                            chart.svg.rect({
+                                fill: chart.theme("tooltipBackgroundColor"),
+                                "fill-opacity": chart.theme("tooltipBackgroundOpacity"),
+                                "stroke": chart.theme("tooltipBorderColor"),
+                                "stroke-width": chart.theme("tooltipBorderWidth")
                             });
-                        }
+
+                            chart.svg.group({}, function () {
+                                brush.target.forEach((key, i) => {
+                                    let text = chart.svg.text({
+                                        "font-size": chart.theme("tooltipFontSize"),
+                                        fill: chart.theme("tooltipFontColor"),
+                                        y: (chart.theme("tooltipFontSize") * 1.2) * (i + 1)
+                                    });
+
+                                    text.append(chart.svg.tspan({"text-anchor": "start", "font-weight": "bold"}));
+                                    text.append(chart.svg.tspan({"text-anchor": "end"}));
+                                });
+                            }).translate(cp, cp);
+                        });
                     }
                 }).translate(pl, pt);
             }
