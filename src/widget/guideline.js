@@ -8,12 +8,13 @@ export default {
 
         const GuideLineWidget = function(chart, axis, widget) {
             const self = this;
-            const tw = 50, th = 18, ta = tw / 10; // 툴팁 넓이, 높이, 앵커 크기
+            const tw = 50, th = 18, ta = tw / 10; // x축 툴팁 넓이, 높이, 앵커 크기
+            const cp = 5, lh = 3; // 본문 툴팁 패딩
             let pl = 0, pt = 0; // 엑시스까지의 여백
-            let g, line, tooltip, points = {};
+            let g, line, xTooltip, contentTooltip, points = {};
             let tspan = [];
 
-            function printTooltip(index, text, message) {
+            function printXAxisTooltip(index, text, message) {
                 if(!tspan[index]) {
                     const elem = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
                     text.element.appendChild(elem);
@@ -21,6 +22,15 @@ export default {
                 }
 
                 tspan[index].textContent = message;
+            }
+
+            function getTextWidth(text, font) {
+                // re-use canvas object for better performance
+                var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+                var context = canvas.getContext("2d");
+                context.font = font;
+                var metrics = context.measureText(text);
+                return metrics.width * 1.5;
             }
 
             this.drawBefore = function() {
@@ -37,8 +47,7 @@ export default {
                 g = chart.svg.group({
                     visibility: "hidden"
                 }, function() {
-
-                    if(_.typeCheck("function", widget.format)) {
+                    if(_.typeCheck("function", widget.xFormat)) {
                         line = chart.svg.line({
                             x1: 0,
                             y1: 0,
@@ -50,7 +59,7 @@ export default {
                             opacity: chart.theme("crossBorderOpacity")
                         });
 
-                        tooltip = chart.svg.group({}, function () {
+                        xTooltip = chart.svg.group({}, function() {
                             chart.svg.polygon({
                                 fill: chart.theme("crossBalloonBackgroundColor"),
                                 "fill-opacity": chart.theme("crossBalloonBackgroundOpacity"),
@@ -72,10 +81,37 @@ export default {
                                 fill: chart.color(index),
                                 stroke: chart.theme("crossPointBorderColor"),
                                 "stroke-width": chart.theme("crossPointBorderWidth"),
-                                r: chart.theme("crossPointRadius"),
-                                visibility: "hidden"
+                                r: chart.theme("crossPointRadius")
                             });
                         });
+
+                        // 본문 툴팁 그리기
+                        if(axis.data.length > 0) {
+                            contentTooltip = chart.svg.group({}, function () {
+                                chart.svg.rect({
+                                    fill: chart.theme("tooltipBackgroundColor"),
+                                    "fill-opacity": chart.theme("tooltipBackgroundOpacity"),
+                                    "stroke": chart.theme("tooltipBorderColor"),
+                                    "stroke-width": chart.theme("tooltipBorderWidth")
+                                });
+
+                                chart.svg.group({}, function () {
+                                    // 데이터 키 가져오기
+                                    const keys = Object.keys(axis.data[0]);
+
+                                    for (let i = 1; i <= keys.length; i++) {
+                                        let text = chart.svg.text({
+                                            "font-size": chart.theme("tooltipFontSize"),
+                                            fill: chart.theme("tooltipFontColor"),
+                                            y: (chart.theme("tooltipFontSize") * 1.2) * i
+                                        });
+
+                                        text.append(chart.svg.tspan({"text-anchor": "start", "font-weight": "bold"}));
+                                        text.append(chart.svg.tspan({"text-anchor": "end"}));
+                                    }
+                                }).translate(cp, cp);
+                            });
+                        }
                     }
                 }).translate(pl, pt);
             }
@@ -88,28 +124,72 @@ export default {
                     });
                 }
 
-                if(tooltip) {
-                    tooltip.translate(left - (tw / 2), axis.area("height") + ta);
-                    const message = widget.format.call(self.chart, value);
-                    printTooltip(1, tooltip.get(1), message);
+                if(xTooltip) {
+                    xTooltip.translate(left - (tw / 2), axis.area("height") + ta);
+                    const message = widget.xFormat.call(self.chart, value);
+                    printXAxisTooltip(1, xTooltip.get(1), message);
                 }
+            }
+
+            this.drawContentTooltip = function(left, data) {
+                if(contentTooltip == null) return;
+
+                const rect = contentTooltip.children[0];
+                const texts = contentTooltip.children[1];
+                const keys = Object.keys(data);
+                let width = 0;
+                let height = (chart.theme("tooltipFontSize") * 1.2) * (keys.length + 1);
+
+                keys.forEach((key, index) => {
+                    if(_.typeCheck("function", widget.tooltipFormat)) {
+                        let ret = widget.tooltipFormat.apply(this, [ data, key ]);
+
+                        width = Math.max(width, getTextWidth(`${ret.key} ${ret.value}`,
+                            `bold ${chart.theme("tooltipFontSize")}px ${chart.theme("fontFamily")}`));
+
+                        texts.get(index).get(0).text(ret.key);
+                        texts.get(index).get(1).text(ret.value);
+                    }
+
+                    points[key].translate(left, axis.y(data[key]));
+                });
+
+                rect.attr({
+                    width: width + cp,
+                    height: height
+                });
+
+                for(let i = 0; i < texts.children.length; i++) {
+                    texts.children[i].get(1).attr({ x: width - cp });
+                }
+
+                contentTooltip.translate(
+                    left + width > axis.area("width") ? left - width - cp : left,
+                    axis.area("height")/2 - height/2
+                );
             }
 
             this.draw = function() {
                 const self = this;
 
                 chart.on("guideline.show", function(time) {
+                    if(axis.data.length == 0) return;
+
                     g.attr({ visibility: "visible" });
 
                     const domain = axis.get('x').domain;
                     const range = +domain[1] - +domain[0];
                     const interval = range / axis.data.length;
                     const index = Math.floor((+time - +domain[0]) / interval);
+                    const left = axis.x(index)
 
-                    self.drawGuildLine(axis.x(index), time);
+                    self.drawGuildLine(left, time);
+                    self.drawContentTooltip(left, axis.data[index]);
                 });
 
                 chart.on("guideline.hide", function() {
+                    if(axis.data.length == 0) return;
+
                     g.attr({ visibility: "hidden" });
                 });
 
@@ -131,7 +211,8 @@ export default {
         GuideLineWidget.setup = function() {
             return {
                 brush: 0,
-                format: null
+                xFormat: null,
+                tooltipFormat: null
             };
         }
 

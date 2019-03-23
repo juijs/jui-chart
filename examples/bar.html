@@ -37,6 +37,14 @@
             widget : [{
                 type: "title",
                 text: "hihi"
+            }, {
+                type: "tooltip",
+                format : function(data, key) {
+                    return {
+                        key: key,
+                        value: data[key]
+                    }
+                }
             }],
             event: {
                 "click": function(obj, e) {

@@ -11,6 +11,11 @@ const time = jui.include('util.time');
 const builder = jui.include('chart.builder');
 const dataCount = 60;
 const realtimeData = getMemoryData(dataCount);
+const names = {
+    memory: '메모리 (MB)',
+    cpu: '시스템 사용률 (%)',
+    disk: '디스크 용량 (MB)'
+}
 
 window.chart = builder('#chart', {
     width: 1000,
@@ -33,19 +38,22 @@ window.chart = builder('#chart', {
                 return d + '%';
             }
         },
-        data : realtimeData
+        data : []
     }],
     brush : [{
         type : 'line',
         target : [ 'memory', 'cpu', 'disk' ]
-    }, {
-        type : 'scatter',
-        target : [ 'memory', 'cpu', 'disk' ]
     }],
     widget : [{
         type : 'guideline',
-        format : function(d) {
-            return time.format(d, 'HH:mm:ss');
+        xFormat : function(d) {
+            return time.format(d, 'HH:mm');
+        },
+        tooltipFormat : function(data, key) {
+            return {
+                key: names[key],
+                value: data[key]
+            }
         }
     }],
     event: {
@@ -56,6 +64,9 @@ window.chart = builder('#chart', {
                 window.chart2.emit('guideline.hide');
             }
         }
+    },
+    style: {
+        tooltipBackgroundColor: "#dcdcdc"
     }
 });
 
@@ -88,8 +99,14 @@ window.chart2 = builder('#chart2', {
     }],
     widget : [{
         type : 'guideline',
-        format : function(d) {
-            return time.format(d, 'HH:mm:ss');
+        xFormat : function(d) {
+            return time.format(d, 'HH:mm');
+        },
+        tooltipFormat : function(data, key) {
+            return {
+                key: names[key],
+                value: data[key]
+            }
         }
     }],
     event: {
@@ -100,6 +117,9 @@ window.chart2 = builder('#chart2', {
                 window.chart.emit('guideline.hide');
             }
         }
+    },
+    style: {
+        tooltipBackgroundColor: "#dcdcdc"
     }
 });
 
