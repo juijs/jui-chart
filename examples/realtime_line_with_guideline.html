@@ -1,15 +1,26 @@
-import jui from '../src/main.js'
-import ClassicTheme from '../src/theme/classic.js'
-import DarkTheme from '../src/theme/dark.js'
-import LineBrush from '../src/brush/line.js'
-import ScatterBrush from '../src/brush/scatter.js'
-import TitleWidget from '../src/widget/title.js'
-import GuideLineWidget from '../src/widget/guideline.js'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
 
-jui.use([ ClassicTheme, DarkTheme, LineBrush, ScatterBrush, TitleWidget, GuideLineWidget ]);
+    <script src="../dist/jui-chart.js"></script>
+    <style>
+        body {
+            background-color: #dcdcdc;
+        }
+    </style>
+</head>
+<body>
 
-const time = jui.include('util.time');
-const builder = jui.include('chart.builder');
+<div id="chart"></div>
+<br>
+<div id="chart2"></div>
+<br>
+<div id="chart3"></div>
+
+<script>
+const time = graph.include('util.time');
+const builder = graph.include('chart.builder');
 const countMap = [ 300, 150, 60 ];
 const dataMap = countMap.map(count => createRealtimeData(count));
 
@@ -70,10 +81,24 @@ window.chart = builder('#chart', {
         }
     },
     style: {
+        // TODO: A list of styles for the Guidelines widget. It can be customized and used.
+        // guidelineBorderColor : "#a9a9a9",
+        // guidelineBorderWidth : 1,
+        // guidelineBorderOpacity : 0.8,
+        // guidelineBalloonFontSize : 11,
+        // guidelineBalloonFontColor : "#fff",
+        // guidelineBalloonBackgroundColor : "#000",
+        // guidelineBalloonBackgroundOpacity : 0.5,
+        // guidelineBorderDashArray : "2,2",
+        // guidelinePointRadius : 3,
+        // guidelinePointBorderColor : "#fff",
+        // guidelinePointBorderWidth : 1,
         guidelineTooltipFontColor : "#dcdcdc",
         guidelineTooltipFontSize : 14,
         guidelineTooltipBackgroundColor : "#000",
-        guidelineTooltipBackgroundOpacity : 0.3
+        guidelineTooltipBackgroundOpacity : 0.3,
+        // guidelineTooltipBorderColor : "#a9a9a9",
+        // guidelineTooltipBorderWidth : 1,
     }
 });
 
@@ -217,3 +242,7 @@ setInterval(function() {
     chart2.render();
     chart3.render();
 }, 2000);
+</script>
+
+</body>
+</html>
