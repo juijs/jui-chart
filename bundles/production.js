@@ -53,6 +53,7 @@ import VScrollWidget from '../src/widget/vscroll.js'
 import ZoomWidget from '../src/widget/zoom.js'
 import ZoomScrollWidget from '../src/widget/zoomscroll.js'
 import RayCastWidget from '../src/widget/raycast.js'
+import GuideLineWidget from '../src/widget/guideline.js'
 import PickerWidget from '../src/widget/canvas/picker.js'
 import Rotate3dWidget from '../src/widget/polygon/rotate3d.js'
 
@@ -111,6 +112,7 @@ jui.use([
     ZoomWidget,
     ZoomScrollWidget,
     RayCastWidget,
+    GuideLineWidget,
     PickerWidget,
     Rotate3dWidget
 ]);

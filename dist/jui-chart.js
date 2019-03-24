@@ -2677,17 +2677,21 @@ var _raycast = __webpack_require__(60);
 
 var _raycast2 = _interopRequireDefault(_raycast);
 
-var _picker = __webpack_require__(61);
+var _guideline = __webpack_require__(61);
+
+var _guideline2 = _interopRequireDefault(_guideline);
+
+var _picker = __webpack_require__(62);
 
 var _picker2 = _interopRequireDefault(_picker);
 
-var _rotate3d = __webpack_require__(62);
+var _rotate3d = __webpack_require__(63);
 
 var _rotate3d2 = _interopRequireDefault(_rotate3d);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _fullgauge2.default, _bargauge2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _zoom2.default, _zoomscroll2.default, _raycast2.default, _picker2.default, _rotate3d2.default]);
+_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _fullgauge2.default, _bargauge2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _zoom2.default, _zoomscroll2.default, _raycast2.default, _guideline2.default, _picker2.default, _rotate3d2.default]);
 
 if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) == "object") {
     window.graph = _main2.default;
@@ -16406,6 +16410,24 @@ exports.default = {
             dragSelectBorderColor: "#7BBAE7",
             dragSelectBorderWidth: 1,
 
+            guidelineBorderColor: "#a9a9a9",
+            guidelineBorderWidth: 1,
+            guidelineBorderOpacity: 0.8,
+            guidelineBalloonFontSize: 11,
+            guidelineBalloonFontColor: "#fff",
+            guidelineBalloonBackgroundColor: "#000",
+            guidelineBalloonBackgroundOpacity: 0.5,
+            guidelineBorderDashArray: "2,2",
+            guidelinePointRadius: 3,
+            guidelinePointBorderColor: "#fff",
+            guidelinePointBorderWidth: 1,
+            guidelineTooltipFontColor: "#333",
+            guidelineTooltipFontSize: 12,
+            guidelineTooltipBackgroundColor: "#fff",
+            guidelineTooltipBackgroundOpacity: 0.7,
+            guidelineTooltipBorderColor: "#a9a9a9",
+            guidelineTooltipBorderWidth: 1,
+
             // mapPathBackgroundColor : "#67B7DC",
             // mapPathBackgroundOpacity : 1,
             // mapPathBorderColor : "#fff",
@@ -16778,6 +16800,24 @@ exports.default = {
             dragSelectBorderColor: "#7BBAE7",
             dragSelectBorderWidth: 1,
 
+            guidelineBorderColor: "#a9a9a9",
+            guidelineBorderWidth: 1,
+            guidelineBorderOpacity: 0.8,
+            guidelineBalloonFontSize: 11,
+            guidelineBalloonFontColor: "#fff",
+            guidelineBalloonBackgroundColor: "#000",
+            guidelineBalloonBackgroundOpacity: 0.5,
+            guidelineBorderDashArray: "2,2",
+            guidelinePointRadius: 3,
+            guidelinePointBorderColor: "#fff",
+            guidelinePointBorderWidth: 1,
+            guidelineTooltipFontColor: "#333",
+            guidelineTooltipFontSize: 12,
+            guidelineTooltipBackgroundColor: "#fff",
+            guidelineTooltipBackgroundOpacity: 0.7,
+            guidelineTooltipBorderColor: "#a9a9a9",
+            guidelineTooltipBorderWidth: 1,
+
             // mapPathBackgroundColor : "#67B7DC",
             // mapPathBackgroundOpacity : 1,
             // mapPathBorderColor : "#fff",
@@ -17135,6 +17175,7 @@ exports.default = {
             crossBorderColor: "#a9a9a9",
             crossBorderWidth: 1,
             crossBorderOpacity: 0.8,
+            crossBorderDashArray: "2,2",
             crossBalloonFontSize: 11,
             crossBalloonFontColor: "#fff",
             crossBalloonBackgroundColor: "#000",
@@ -17143,6 +17184,24 @@ exports.default = {
             dragSelectBackgroundOpacity: 0.3,
             dragSelectBorderColor: "#7BBAE7",
             dragSelectBorderWidth: 1,
+
+            guidelineBorderColor: "#a9a9a9",
+            guidelineBorderWidth: 1,
+            guidelineBorderOpacity: 0.8,
+            guidelineBalloonFontSize: 11,
+            guidelineBalloonFontColor: "#fff",
+            guidelineBalloonBackgroundColor: "#000",
+            guidelineBalloonBackgroundOpacity: 0.5,
+            guidelineBorderDashArray: "2,2",
+            guidelinePointRadius: 3,
+            guidelinePointBorderColor: "#fff",
+            guidelinePointBorderWidth: 1,
+            guidelineTooltipFontColor: "#333",
+            guidelineTooltipFontSize: 12,
+            guidelineTooltipBackgroundColor: "#fff",
+            guidelineTooltipBackgroundOpacity: 0.7,
+            guidelineTooltipBorderColor: "#a9a9a9",
+            guidelineTooltipBorderWidth: 1,
 
             // mapPathBackgroundColor : "#67B7DC",
             // mapPathBackgroundOpacity : 1,
@@ -17502,6 +17561,7 @@ exports.default = {
             crossBorderColor: "#a9a9a9",
             crossBorderWidth: 1,
             crossBorderOpacity: 0.8,
+            crossBorderDashArray: "2,2",
             crossBalloonFontSize: 11,
             crossBalloonFontColor: "#fff",
             crossBalloonBackgroundColor: "#000",
@@ -17510,6 +17570,24 @@ exports.default = {
             dragSelectBackgroundOpacity: 0.3,
             dragSelectBorderColor: "#7BBAE7",
             dragSelectBorderWidth: 1,
+
+            guidelineBorderColor: "#a9a9a9",
+            guidelineBorderWidth: 1,
+            guidelineBorderOpacity: 0.8,
+            guidelineBalloonFontSize: 11,
+            guidelineBalloonFontColor: "#fff",
+            guidelineBalloonBackgroundColor: "#000",
+            guidelineBalloonBackgroundOpacity: 0.5,
+            guidelineBorderDashArray: "2,2",
+            guidelinePointRadius: 3,
+            guidelinePointBorderColor: "#fff",
+            guidelinePointBorderWidth: 1,
+            guidelineTooltipFontColor: "#333",
+            guidelineTooltipFontSize: 12,
+            guidelineTooltipBackgroundColor: "#fff",
+            guidelineTooltipBackgroundOpacity: 0.7,
+            guidelineTooltipBorderColor: "#a9a9a9",
+            guidelineTooltipBorderWidth: 1,
 
             // mapPathBackgroundColor : "#67B7DC",
             // mapPathBackgroundOpacity : 1,
@@ -25596,6 +25674,254 @@ var _main2 = _interopRequireDefault(_main);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
+    name: "chart.widget.guideline",
+    extend: "chart.widget.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var GuideLineWidget = function GuideLineWidget(chart, axis, widget) {
+            var self = this;
+            var tw = 50,
+                th = 18,
+                ta = tw / 10; // x축 툴팁 넓이, 높이, 앵커 크기
+            var cp = 5; // 본문 툴팁 패딩
+            var pl = 0,
+                pt = 0; // 엑시스까지의 여백
+            var g = void 0,
+                line = void 0,
+                xTooltip = void 0,
+                contentTooltip = void 0,
+                points = {};
+            var tspan = [];
+
+            function printXAxisTooltip(index, text, message) {
+                if (!tspan[index]) {
+                    var elem = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+                    text.element.appendChild(elem);
+                    tspan[index] = elem;
+                }
+
+                tspan[index].textContent = message;
+            }
+
+            function getTextWidth(text, font) {
+                // re-use canvas object for better performance
+                var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+                var context = canvas.getContext("2d");
+                context.font = font;
+                var metrics = context.measureText(text);
+                return metrics.width * 1.5;
+            }
+
+            this.drawBefore = function () {
+                var brush = this.chart.get('brush', widget.brush);
+
+                // 위젯 옵션에 따라 엑시스 변경
+                axis = this.chart.axis(brush.axis);
+
+                // 엑시스 여백 값 가져오기
+                pl = chart.padding("left") + axis.area("x");
+                pt = chart.padding("top") + axis.area("y");
+
+                // 가이드라인 그리기
+                g = chart.svg.group({
+                    visibility: "hidden"
+                }, function () {
+                    if (_.typeCheck("function", widget.xFormat)) {
+                        xTooltip = chart.svg.group({}, function () {
+                            chart.svg.polygon({
+                                fill: chart.theme("guidelineBalloonBackgroundColor"),
+                                "fill-opacity": chart.theme("guidelineBalloonBackgroundOpacity"),
+                                points: self.balloonPoints("bottom", tw, th, ta)
+                            });
+
+                            chart.text({
+                                "font-size": chart.theme("guidelineBalloonFontSize"),
+                                "fill": chart.theme("guidelineBalloonFontColor"),
+                                "text-anchor": "middle",
+                                x: tw / 2,
+                                y: 17
+                            });
+                        }).translate(0, axis.area("height") + ta);
+                    }
+
+                    // 가이드라인 그리기
+                    line = chart.svg.line({
+                        x1: 0,
+                        y1: 0,
+                        x2: 0,
+                        y2: axis.area("height"),
+                        stroke: chart.theme("guidelineBorderColor"),
+                        "stroke-width": chart.theme("guidelineBorderWidth"),
+                        "stroke-dasharray": chart.theme("guidelineBorderDashArray"),
+                        opacity: chart.theme("guidelineBorderOpacity")
+                    });
+
+                    // 포인트 그리기
+                    brush.target.forEach(function (target, index) {
+                        points[target] = chart.svg.circle({
+                            fill: chart.color(index),
+                            stroke: chart.theme("guidelinePointBorderColor"),
+                            "stroke-width": chart.theme("guidelinePointBorderWidth"),
+                            r: chart.theme("guidelinePointRadius")
+                        });
+                    });
+
+                    // 본문 툴팁 그리기
+                    contentTooltip = chart.svg.group({}, function () {
+                        chart.svg.rect({
+                            fill: chart.theme("guidelineTooltipBackgroundColor"),
+                            "fill-opacity": chart.theme("guidelineTooltipBackgroundOpacity"),
+                            "stroke": chart.theme("guidelineTooltipBorderColor"),
+                            "stroke-width": chart.theme("guidelineTooltipBorderWidth")
+                        });
+
+                        chart.svg.group({}, function () {
+                            brush.target.forEach(function (key, i) {
+                                var text = chart.svg.text({
+                                    "font-size": chart.theme("guidelineTooltipFontSize"),
+                                    fill: chart.theme("guidelineTooltipFontColor"),
+                                    y: chart.theme("guidelineTooltipFontSize") * 1.2 * (i + 1)
+                                });
+
+                                text.append(chart.svg.tspan({ "text-anchor": "start", "font-weight": "bold", x: cp * 1.5 }));
+                                text.append(chart.svg.tspan({ "text-anchor": "end" }));
+                            });
+                        }).translate(cp, cp);
+
+                        chart.svg.group({}, function () {
+                            brush.target.forEach(function (key, i) {
+                                chart.svg.circle({
+                                    fill: chart.color(i),
+                                    r: chart.theme("guidelinePointRadius"),
+                                    cy: chart.theme("guidelineTooltipFontSize") * 1.2 * (i + 1)
+                                });
+                            });
+                        }).translate(cp * 1.5, 0);
+                    });
+                }).translate(pl, pt);
+            };
+
+            this.drawGuildLine = function (left, value) {
+                if (line) {
+                    line.attr({
+                        x1: left,
+                        x2: left
+                    });
+                }
+
+                if (xTooltip) {
+                    xTooltip.translate(left - tw / 2, axis.area("height") + ta);
+                    var message = widget.xFormat.call(self.chart, value);
+                    printXAxisTooltip(1, xTooltip.get(1), message);
+                }
+            };
+
+            this.drawContentTooltip = function (left, data) {
+                var _this = this;
+
+                if (contentTooltip == null) return;
+
+                var rect = contentTooltip.children[0];
+                var texts = contentTooltip.children[1];
+                var keys = Object.keys(data);
+                var width = 0;
+                var height = chart.theme("guidelineTooltipFontSize") * 1.2 * (keys.length + 1);
+
+                keys.forEach(function (key, index) {
+                    if (_.typeCheck("function", widget.tooltipFormat)) {
+                        var ret = widget.tooltipFormat.apply(_this, [data, key]);
+
+                        width = Math.max(width, getTextWidth(ret.key + " " + ret.value, "bold " + chart.theme("guidelineTooltipFontSize") + "px " + chart.theme("fontFamily")));
+
+                        texts.get(index).get(0).text(ret.key);
+                        texts.get(index).get(1).text(ret.value);
+                    }
+
+                    points[key].translate(left, axis.y(data[key]));
+                });
+
+                rect.attr({
+                    width: width + cp,
+                    height: height
+                });
+
+                for (var i = 0; i < texts.children.length; i++) {
+                    texts.children[i].get(1).attr({ x: width - cp });
+                }
+
+                contentTooltip.translate(left + width > axis.area("width") ? left - width - cp - 3 : left + 3, axis.area("height") / 2 - height / 2);
+            };
+
+            this.draw = function () {
+                var self = this;
+
+                chart.on("guideline.show", function (time) {
+                    if (axis.data.length == 0) return;
+
+                    g.attr({ visibility: "visible" });
+
+                    var domain = axis.get('x').domain;
+                    var range = +domain[1] - +domain[0];
+                    var interval = range / axis.data.length;
+                    var index = Math.floor((+time - +domain[0]) / interval);
+                    var left = axis.x(index);
+
+                    self.drawGuildLine(left, time);
+                    self.drawContentTooltip(left, axis.data[index]);
+                });
+
+                chart.on("guideline.hide", function () {
+                    if (axis.data.length == 0) return;
+
+                    g.attr({ visibility: "hidden" });
+                });
+
+                this.on("axis.mouseout", function () {
+                    chart.emit('guideline.hide');
+                    chart.emit('guideline.active');
+                }, widget.axis);
+
+                this.on("axis.mousemove", function (e) {
+                    var time = axis.x.invert(e.chartX);
+                    chart.emit("guideline.show", time);
+                    chart.emit('guideline.active', time);
+                }, widget.axis);
+
+                return g;
+            };
+        };
+
+        GuideLineWidget.setup = function () {
+            return {
+                brush: 0,
+                xFormat: null,
+                tooltipFormat: null
+            };
+        };
+
+        return GuideLineWidget;
+    }
+};
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
     name: "chart.widget.canvas.picker",
     extend: "chart.widget.core",
     component: function component() {
@@ -25660,7 +25986,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

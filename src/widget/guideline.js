@@ -9,7 +9,7 @@ export default {
         const GuideLineWidget = function(chart, axis, widget) {
             const self = this;
             const tw = 50, th = 18, ta = tw / 10; // x축 툴팁 넓이, 높이, 앵커 크기
-            const cp = 5, lh = 3; // 본문 툴팁 패딩
+            const cp = 5; // 본문 툴팁 패딩
             let pl = 0, pt = 0; // 엑시스까지의 여백
             let g, line, xTooltip, contentTooltip, points = {};
             let tspan = [];
@@ -48,66 +48,77 @@ export default {
                     visibility: "hidden"
                 }, function() {
                     if(_.typeCheck("function", widget.xFormat)) {
-                        line = chart.svg.line({
-                            x1: 0,
-                            y1: 0,
-                            x2: 0,
-                            y2: axis.area("height"),
-                            stroke: chart.theme("crossBorderColor"),
-                            "stroke-width": chart.theme("crossBorderWidth"),
-                            "stroke-dasharray": chart.theme("crossBorderDashArray"),
-                            opacity: chart.theme("crossBorderOpacity")
-                        });
-
-                        xTooltip = chart.svg.group({}, function() {
+                        xTooltip = chart.svg.group({}, function () {
                             chart.svg.polygon({
-                                fill: chart.theme("crossBalloonBackgroundColor"),
-                                "fill-opacity": chart.theme("crossBalloonBackgroundOpacity"),
+                                fill: chart.theme("guidelineBalloonBackgroundColor"),
+                                "fill-opacity": chart.theme("guidelineBalloonBackgroundOpacity"),
                                 points: self.balloonPoints("bottom", tw, th, ta)
                             });
 
                             chart.text({
-                                "font-size": chart.theme("crossBalloonFontSize"),
-                                "fill": chart.theme("crossBalloonFontColor"),
+                                "font-size": chart.theme("guidelineBalloonFontSize"),
+                                "fill": chart.theme("guidelineBalloonFontColor"),
                                 "text-anchor": "middle",
                                 x: tw / 2,
                                 y: 17
                             });
                         }).translate(0, axis.area("height") + ta);
-
-                        // 포인트 그리기
-                        brush.target.forEach((target, index) => {
-                            points[target] = chart.svg.circle({
-                                fill: chart.color(index),
-                                stroke: chart.theme("crossPointBorderColor"),
-                                "stroke-width": chart.theme("crossPointBorderWidth"),
-                                r: chart.theme("crossPointRadius")
-                            });
-                        });
-
-                        // 본문 툴팁 그리기
-                        contentTooltip = chart.svg.group({}, function () {
-                            chart.svg.rect({
-                                fill: chart.theme("tooltipBackgroundColor"),
-                                "fill-opacity": chart.theme("tooltipBackgroundOpacity"),
-                                "stroke": chart.theme("tooltipBorderColor"),
-                                "stroke-width": chart.theme("tooltipBorderWidth")
-                            });
-
-                            chart.svg.group({}, function () {
-                                brush.target.forEach((key, i) => {
-                                    let text = chart.svg.text({
-                                        "font-size": chart.theme("tooltipFontSize"),
-                                        fill: chart.theme("tooltipFontColor"),
-                                        y: (chart.theme("tooltipFontSize") * 1.2) * (i + 1)
-                                    });
-
-                                    text.append(chart.svg.tspan({"text-anchor": "start", "font-weight": "bold"}));
-                                    text.append(chart.svg.tspan({"text-anchor": "end"}));
-                                });
-                            }).translate(cp, cp);
-                        });
                     }
+
+                    // 가이드라인 그리기
+                    line = chart.svg.line({
+                        x1: 0,
+                        y1: 0,
+                        x2: 0,
+                        y2: axis.area("height"),
+                        stroke: chart.theme("guidelineBorderColor"),
+                        "stroke-width": chart.theme("guidelineBorderWidth"),
+                        "stroke-dasharray": chart.theme("guidelineBorderDashArray"),
+                        opacity: chart.theme("guidelineBorderOpacity")
+                    });
+
+                    // 포인트 그리기
+                    brush.target.forEach((target, index) => {
+                        points[target] = chart.svg.circle({
+                            fill: chart.color(index),
+                            stroke: chart.theme("guidelinePointBorderColor"),
+                            "stroke-width": chart.theme("guidelinePointBorderWidth"),
+                            r: chart.theme("guidelinePointRadius")
+                        });
+                    });
+
+                    // 본문 툴팁 그리기
+                    contentTooltip = chart.svg.group({}, function () {
+                        chart.svg.rect({
+                            fill: chart.theme("guidelineTooltipBackgroundColor"),
+                            "fill-opacity": chart.theme("guidelineTooltipBackgroundOpacity"),
+                            "stroke": chart.theme("guidelineTooltipBorderColor"),
+                            "stroke-width": chart.theme("guidelineTooltipBorderWidth")
+                        });
+
+                        chart.svg.group({}, function () {
+                            brush.target.forEach((key, i) => {
+                                let text = chart.svg.text({
+                                    "font-size": chart.theme("guidelineTooltipFontSize"),
+                                    fill: chart.theme("guidelineTooltipFontColor"),
+                                    y: (chart.theme("guidelineTooltipFontSize") * 1.2) * (i + 1)
+                                });
+
+                                text.append(chart.svg.tspan({ "text-anchor": "start", "font-weight": "bold", x : cp * 1.5 }));
+                                text.append(chart.svg.tspan({ "text-anchor": "end" }));
+                            });
+                        }).translate(cp, cp);
+
+                        chart.svg.group({}, function() {
+                            brush.target.forEach((key, i) => {
+                                chart.svg.circle({
+                                    fill: chart.color(i),
+                                    r: chart.theme("guidelinePointRadius"),
+                                    cy: (chart.theme("guidelineTooltipFontSize") * 1.2) * (i + 1)
+                                });
+                            });
+                        }).translate(cp * 1.5, 0);
+                    });
                 }).translate(pl, pt);
             }
 
@@ -133,14 +144,14 @@ export default {
                 const texts = contentTooltip.children[1];
                 const keys = Object.keys(data);
                 let width = 0;
-                let height = (chart.theme("tooltipFontSize") * 1.2) * (keys.length + 1);
+                let height = (chart.theme("guidelineTooltipFontSize") * 1.2) * (keys.length + 1);
 
                 keys.forEach((key, index) => {
                     if(_.typeCheck("function", widget.tooltipFormat)) {
                         let ret = widget.tooltipFormat.apply(this, [ data, key ]);
 
                         width = Math.max(width, getTextWidth(`${ret.key} ${ret.value}`,
-                            `bold ${chart.theme("tooltipFontSize")}px ${chart.theme("fontFamily")}`));
+                            `bold ${chart.theme("guidelineTooltipFontSize")}px ${chart.theme("fontFamily")}`));
 
                         texts.get(index).get(0).text(ret.key);
                         texts.get(index).get(1).text(ret.value);
@@ -159,7 +170,7 @@ export default {
                 }
 
                 contentTooltip.translate(
-                    left + width > axis.area("width") ? left - width - cp : left,
+                    left + width > axis.area("width") ? left - width - cp - 3 : left + 3,
                     axis.area("height")/2 - height/2
                 );
             }
