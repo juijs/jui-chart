@@ -9,7 +9,8 @@ export default {
         const GuideLineWidget = function(chart, axis, widget) {
             const self = this;
             const tw = 50, th = 18, ta = tw / 10; // x축 툴팁 넓이, 높이, 앵커 크기
-            const cp = 5; // 본문 툴팁 패딩
+            const cp = 5, lrp = 5; // 본문 툴팁 패딩, 본물 툴팁 좌우 패딩
+            let brush;
             let pl = 0, pt = 0; // 엑시스까지의 여백
             let g, line, xTooltip, contentTooltip, points = {};
             let tspan = [];
@@ -34,7 +35,7 @@ export default {
             }
 
             this.drawBefore = function() {
-                const brush = this.chart.get('brush', widget.brush);
+                brush = this.chart.get('brush', widget.brush);
 
                 // 위젯 옵션에 따라 엑시스 변경
                 axis = this.chart.axis(brush.axis);
@@ -78,14 +79,16 @@ export default {
                     });
 
                     // 포인트 그리기
-                    brush.target.forEach((target, index) => {
-                        points[target] = chart.svg.circle({
-                            fill: chart.color(index),
-                            stroke: chart.theme("guidelinePointBorderColor"),
-                            "stroke-width": chart.theme("guidelinePointBorderWidth"),
-                            r: chart.theme("guidelinePointRadius")
+                    if(!widget.hidePoint) {
+                        brush.target.forEach((target, index) => {
+                            points[target] = chart.svg.circle({
+                                fill: chart.color(index),
+                                stroke: chart.theme("guidelinePointBorderColor"),
+                                "stroke-width": chart.theme("guidelinePointBorderWidth"),
+                                r: chart.theme("guidelinePointRadius")
+                            });
                         });
-                    });
+                    }
 
                     // 본문 툴팁 그리기
                     contentTooltip = chart.svg.group({}, function () {
@@ -142,11 +145,11 @@ export default {
 
                 const rect = contentTooltip.children[0];
                 const texts = contentTooltip.children[1];
-                const keys = Object.keys(data);
                 let width = 0;
-                let height = (chart.theme("guidelineTooltipFontSize") * 1.2) * (keys.length + 1);
+                let height = (chart.theme("guidelineTooltipFontSize") * 1.2) * (brush.target.length + 1);
+                let current = 0;
 
-                keys.forEach((key, index) => {
+                brush.target.forEach((key, index) => {
                     if(_.typeCheck("function", widget.tooltipFormat)) {
                         let ret = widget.tooltipFormat.apply(this, [ data, key ]);
 
@@ -157,7 +160,10 @@ export default {
                         texts.get(index).get(1).text(ret.value);
                     }
 
-                    points[key].translate(left, axis.y(data[key]));
+                    if(!widget.hidePoint) {
+                        current = (widget.stackPoint) ? current + data[key] : data[key];
+                        points[key].translate(left, axis.y(current));
+                    }
                 });
 
                 rect.attr({
@@ -170,7 +176,7 @@ export default {
                 }
 
                 contentTooltip.translate(
-                    left + width > axis.area("width") ? left - width - cp - 3 : left + 3,
+                    left + width > axis.area("width") ? left - width - cp - lrp : left + lrp,
                     axis.area("height")/2 - height/2
                 );
             }
@@ -218,7 +224,9 @@ export default {
             return {
                 brush: 0,
                 xFormat: null,
-                tooltipFormat: null
+                tooltipFormat: null,
+                stackPoint: false,
+                hidePoint: false
             };
         }
 

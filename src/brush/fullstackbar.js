@@ -20,15 +20,18 @@ export default {
             }
 
             this.drawText = function(percent, x, y) {
-                if(isNaN(percent) || isNaN(x) || isNaN(y)) return null;
+                if(percent === 0 || isNaN(percent)) return null;
 
-                var text = this.chart.text({
+                let result = _.typeCheck("function", this.brush.showText) ?
+                    this.brush.showText.call(this, percent) : percent + "%";
+
+                let text = this.chart.text({
                     "font-size": this.chart.theme("barFontSize"),
                     fill: this.chart.theme("barFontColor"),
                     x: x,
                     y: y,
                     "text-anchor": "middle"
-                }, percent + "%");
+                }, result);
 
                 return text;
             }
@@ -65,7 +68,7 @@ export default {
                         group.append(r);
 
                         // 퍼센트 노출 옵션 설정
-                        if(brush.showText) {
+                        if(brush.showText !== false) {
                             var p = Math.round((list[j] / sum) * max),
                                 x = startX + width / 2,
                                 y = startY + bar_height / 2 + 5,

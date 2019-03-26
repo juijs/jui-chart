@@ -805,7 +805,9 @@ exports.default = {
             };
 
             this.drawText = function (percent, x, y) {
-                if (isNaN(percent) || isNaN(x) || isNaN(y)) return null;
+                if (percent === 0 || isNaN(percent)) return null;
+
+                var result = _.typeCheck("function", this.brush.showText) ? this.brush.showText.call(this, percent) : percent + "%";
 
                 var text = this.chart.text({
                     "font-size": this.chart.theme("barFontSize"),
@@ -813,7 +815,7 @@ exports.default = {
                     x: x,
                     y: y,
                     "text-anchor": "middle"
-                }, percent + "%");
+                }, result);
 
                 return text;
             };
@@ -850,7 +852,7 @@ exports.default = {
                         group.append(r);
 
                         // 퍼센트 노출 옵션 설정
-                        if (brush.showText) {
+                        if (brush.showText !== false) {
                             var p = Math.round(list[j] / sum * max),
                                 x = startX + width / 2,
                                 y = startY + bar_height / 2 + 5,
@@ -25684,7 +25686,9 @@ exports.default = {
             var tw = 50,
                 th = 18,
                 ta = tw / 10; // x축 툴팁 넓이, 높이, 앵커 크기
-            var cp = 5; // 본문 툴팁 패딩
+            var cp = 5,
+                lrp = 5; // 본문 툴팁 패딩, 본물 툴팁 좌우 패딩
+            var brush = void 0;
             var pl = 0,
                 pt = 0; // 엑시스까지의 여백
             var g = void 0,
@@ -25714,7 +25718,7 @@ exports.default = {
             }
 
             this.drawBefore = function () {
-                var brush = this.chart.get('brush', widget.brush);
+                brush = this.chart.get('brush', widget.brush);
 
                 // 위젯 옵션에 따라 엑시스 변경
                 axis = this.chart.axis(brush.axis);
@@ -25758,14 +25762,16 @@ exports.default = {
                     });
 
                     // 포인트 그리기
-                    brush.target.forEach(function (target, index) {
-                        points[target] = chart.svg.circle({
-                            fill: chart.color(index),
-                            stroke: chart.theme("guidelinePointBorderColor"),
-                            "stroke-width": chart.theme("guidelinePointBorderWidth"),
-                            r: chart.theme("guidelinePointRadius")
+                    if (!widget.hidePoint) {
+                        brush.target.forEach(function (target, index) {
+                            points[target] = chart.svg.circle({
+                                fill: chart.color(index),
+                                stroke: chart.theme("guidelinePointBorderColor"),
+                                "stroke-width": chart.theme("guidelinePointBorderWidth"),
+                                r: chart.theme("guidelinePointRadius")
+                            });
                         });
-                    });
+                    }
 
                     // 본문 툴팁 그리기
                     contentTooltip = chart.svg.group({}, function () {
@@ -25824,11 +25830,11 @@ exports.default = {
 
                 var rect = contentTooltip.children[0];
                 var texts = contentTooltip.children[1];
-                var keys = Object.keys(data);
                 var width = 0;
-                var height = chart.theme("guidelineTooltipFontSize") * 1.2 * (keys.length + 1);
+                var height = chart.theme("guidelineTooltipFontSize") * 1.2 * (brush.target.length + 1);
+                var current = 0;
 
-                keys.forEach(function (key, index) {
+                brush.target.forEach(function (key, index) {
                     if (_.typeCheck("function", widget.tooltipFormat)) {
                         var ret = widget.tooltipFormat.apply(_this, [data, key]);
 
@@ -25838,7 +25844,10 @@ exports.default = {
                         texts.get(index).get(1).text(ret.value);
                     }
 
-                    points[key].translate(left, axis.y(data[key]));
+                    if (!widget.hidePoint) {
+                        current = widget.stackPoint ? current + data[key] : data[key];
+                        points[key].translate(left, axis.y(current));
+                    }
                 });
 
                 rect.attr({
@@ -25850,7 +25859,7 @@ exports.default = {
                     texts.children[i].get(1).attr({ x: width - cp });
                 }
 
-                contentTooltip.translate(left + width > axis.area("width") ? left - width - cp - 3 : left + 3, axis.area("height") / 2 - height / 2);
+                contentTooltip.translate(left + width > axis.area("width") ? left - width - cp - lrp : left + lrp, axis.area("height") / 2 - height / 2);
             };
 
             this.draw = function () {
@@ -25896,7 +25905,9 @@ exports.default = {
             return {
                 brush: 0,
                 xFormat: null,
-                tooltipFormat: null
+                tooltipFormat: null,
+                stackPoint: false,
+                hidePoint: false
             };
         };
 
