@@ -16425,6 +16425,7 @@ exports.default = {
             guidelinePointBorderWidth: 1,
             guidelineTooltipFontColor: "#333",
             guidelineTooltipFontSize: 12,
+            guidelineTooltipPointRadius: 3,
             guidelineTooltipBackgroundColor: "#fff",
             guidelineTooltipBackgroundOpacity: 0.7,
             guidelineTooltipBorderColor: "#a9a9a9",
@@ -16815,6 +16816,7 @@ exports.default = {
             guidelinePointBorderWidth: 1,
             guidelineTooltipFontColor: "#333",
             guidelineTooltipFontSize: 12,
+            guidelineTooltipPointRadius: 3,
             guidelineTooltipBackgroundColor: "#fff",
             guidelineTooltipBackgroundOpacity: 0.7,
             guidelineTooltipBorderColor: "#a9a9a9",
@@ -17200,6 +17202,7 @@ exports.default = {
             guidelinePointBorderWidth: 1,
             guidelineTooltipFontColor: "#333",
             guidelineTooltipFontSize: 12,
+            guidelineTooltipPointRadius: 3,
             guidelineTooltipBackgroundColor: "#fff",
             guidelineTooltipBackgroundOpacity: 0.7,
             guidelineTooltipBorderColor: "#a9a9a9",
@@ -17586,6 +17589,7 @@ exports.default = {
             guidelinePointBorderWidth: 1,
             guidelineTooltipFontColor: "#333",
             guidelineTooltipFontSize: 12,
+            guidelineTooltipPointRadius: 3,
             guidelineTooltipBackgroundColor: "#fff",
             guidelineTooltipBackgroundOpacity: 0.7,
             guidelineTooltipBorderColor: "#a9a9a9",
@@ -23676,6 +23680,7 @@ exports.default = {
                     chart.render();
                 }
 
+                chart.setCache("legend_target", target);
                 chart.emit("legend.filter", [target]);
             }
 
@@ -25762,16 +25767,14 @@ exports.default = {
                     });
 
                     // 포인트 그리기
-                    if (!widget.hidePoint) {
-                        brush.target.forEach(function (target, index) {
-                            points[target] = chart.svg.circle({
-                                fill: chart.color(index),
-                                stroke: chart.theme("guidelinePointBorderColor"),
-                                "stroke-width": chart.theme("guidelinePointBorderWidth"),
-                                r: chart.theme("guidelinePointRadius")
-                            });
+                    brush.target.forEach(function (target, index) {
+                        points[target] = chart.svg.circle({
+                            fill: chart.color(index),
+                            stroke: chart.theme("guidelinePointBorderColor"),
+                            "stroke-width": chart.theme("guidelinePointBorderWidth"),
+                            r: chart.theme("guidelinePointRadius")
                         });
-                    }
+                    });
 
                     // 본문 툴팁 그리기
                     contentTooltip = chart.svg.group({}, function () {
@@ -25785,9 +25788,7 @@ exports.default = {
                         chart.svg.group({}, function () {
                             brush.target.forEach(function (key, i) {
                                 var text = chart.svg.text({
-                                    "font-size": chart.theme("guidelineTooltipFontSize"),
-                                    fill: chart.theme("guidelineTooltipFontColor"),
-                                    y: chart.theme("guidelineTooltipFontSize") * 1.2 * (i + 1)
+                                    "font-size": chart.theme("guidelineTooltipFontSize")
                                 });
 
                                 text.append(chart.svg.tspan({ "text-anchor": "start", "font-weight": "bold", x: cp * 1.5 }));
@@ -25798,9 +25799,7 @@ exports.default = {
                         chart.svg.group({}, function () {
                             brush.target.forEach(function (key, i) {
                                 chart.svg.circle({
-                                    fill: chart.color(i),
-                                    r: chart.theme("guidelinePointRadius"),
-                                    cy: chart.theme("guidelineTooltipFontSize") * 1.2 * (i + 1)
+                                    r: chart.theme("guidelineTooltipPointRadius")
                                 });
                             });
                         }).translate(cp * 1.5, 0);
@@ -25828,11 +25827,34 @@ exports.default = {
 
                 if (contentTooltip == null) return;
 
+                var cacheTargets = chart.getCache("legend_target", brush.target);
                 var rect = contentTooltip.children[0];
                 var texts = contentTooltip.children[1];
                 var width = 0;
-                var height = chart.theme("guidelineTooltipFontSize") * 1.2 * (brush.target.length + 1);
+                var height = chart.theme("guidelineTooltipFontSize") * 1.2 * (cacheTargets.length + 1);
                 var current = 0;
+
+                brush.target.forEach(function (target, index) {
+                    var targetIndex = cacheTargets.indexOf(target);
+                    var text = contentTooltip.get(1).get(index);
+                    var point = contentTooltip.get(2).get(index);
+
+                    if (targetIndex != -1) {
+                        // 툴팁 그리기
+                        var y = chart.theme("guidelineTooltipFontSize") * 1.2 * (targetIndex + 1);
+                        text.attr({ fill: chart.theme("guidelineTooltipFontColor"), y: y });
+                        point.attr({ fill: chart.color(index), cy: y });
+                        points[target].attr({ fill: chart.color(index) });
+
+                        // 포인트 그리기
+                        current = widget.stackPoint ? current + data[target] : data[target];
+                        points[target].translate(left, axis.y(current));
+                    } else {
+                        text.attr({ fill: 'transparent' });
+                        point.attr({ fill: 'transparent' });
+                        points[target].attr({ fill: 'transparent' });
+                    }
+                });
 
                 brush.target.forEach(function (key, index) {
                     if (_.typeCheck("function", widget.tooltipFormat)) {
@@ -25842,11 +25864,6 @@ exports.default = {
 
                         texts.get(index).get(0).text(ret.key);
                         texts.get(index).get(1).text(ret.value);
-                    }
-
-                    if (!widget.hidePoint) {
-                        current = widget.stackPoint ? current + data[key] : data[key];
-                        points[key].translate(left, axis.y(current));
                     }
                 });
 
@@ -25906,8 +25923,7 @@ exports.default = {
                 brush: 0,
                 xFormat: null,
                 tooltipFormat: null,
-                stackPoint: false,
-                hidePoint: false
+                stackPoint: false
             };
         };
 

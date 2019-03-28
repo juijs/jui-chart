@@ -70,6 +70,7 @@ export default {
                     chart.render();
                 }
 
+                chart.setCache(`legend_target`, target);
                 chart.emit("legend.filter", [ target ]);
             }
 

@@ -69,7 +69,7 @@ window.chart = builder('#chart', {
                 value: data[key]
             }
         },
-        hidePoint : true
+        stackPoint : true
     }, {
         type : 'legend',
         orient : 'right',
@@ -201,6 +201,9 @@ window.chart3 = builder('#chart3', {
                 window.chart3.emit('guideline.hide');
             }
         }
+    },
+    style: {
+        guidelinePointRadius: 0
     }
 });
 

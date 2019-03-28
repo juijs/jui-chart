@@ -313,6 +313,7 @@ export default {
             guidelinePointBorderWidth : 1,
             guidelineTooltipFontColor : "#333",
             guidelineTooltipFontSize : 12,
+            guidelineTooltipPointRadius : 3,
             guidelineTooltipBackgroundColor : "#fff",
             guidelineTooltipBackgroundOpacity : 0.7,
             guidelineTooltipBorderColor : "#a9a9a9",
