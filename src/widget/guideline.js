@@ -209,6 +209,7 @@ export default {
 
                     self.drawGuildLine(left, time);
                     self.drawContentTooltip(left, axis.data[index]);
+                    chart.setCache("guideline_time", time);
                 });
 
                 chart.on("guideline.hide", function() {
@@ -217,6 +218,12 @@ export default {
                     g.attr({ visibility: "hidden" });
                 });
 
+                chart.on("render", function() {
+                    const time = chart.getCache("guideline_time", null);
+
+                    if(time != null)
+                        chart.emit("guideline.show", time);
+                });
                 this.on("axis.mouseout", function() {
                     chart.emit('guideline.hide');
                     chart.emit('guideline.active');
@@ -224,8 +231,11 @@ export default {
 
                 this.on("axis.mousemove", function(e) {
                     const time = axis.x.invert(e.chartX);
-                    chart.emit("guideline.show", time);
-                    chart.emit('guideline.active', time);
+
+                    if(time != chart.getCache("guideline_time", null)) {
+                        chart.emit("guideline.show", time);
+                        chart.emit('guideline.active', time);
+                    }
                 }, widget.axis);
 
                 return g;

@@ -85,7 +85,8 @@ window.chart = builder('#chart', {
         guidelineTooltipFontSize : 14,
         guidelineTooltipBackgroundColor : "#000",
         guidelineTooltipBackgroundOpacity : 0.3
-    }
+    },
+    render: false
 });
 
 window.chart2 = builder('#chart2', {
@@ -138,7 +139,8 @@ window.chart2 = builder('#chart2', {
                 window.chart3.emit('guideline.hide');
             }
         }
-    }
+    },
+    render: false
 });
 
 window.chart3 = builder('#chart3', {
@@ -193,7 +195,8 @@ window.chart3 = builder('#chart3', {
     },
     style: {
         guidelinePointRadius: 0
-    }
+    },
+    render: false
 });
 
 function createRealtimeData(count) {
