@@ -25,7 +25,7 @@ export default {
                     isMove = true;
                     mouseStart = e.bgX;
 
-                    if(xtype == "date") { // x축이 date일 때
+                    if(xtype == "date" || xtype == "dateblock") { // x축이 date일 때
                         startDate = axis.x.invert(e.chartX);
                     }
 
@@ -67,13 +67,19 @@ export default {
 
                     if(xtype == "block") {
                         args = updateBlockGrid();
-                    } else if(xtype == "date") {
+                    } else {
                         if(startDate != null) {
-                            args = updateDateGrid(axis.x.invert(e.chartX));
+                            args = updateDateObj(axis.x.invert(e.chartX));
+
+                            if(xtype == "dateblock") {
+                                args = args.concat(updateBlockGrid());
+                            }
                         }
                     }
 
+                    renderChart();
                     resetDragStatus();
+
                     self.chart.emit("zoom.end", args);
                 }
 
@@ -87,21 +93,11 @@ export default {
                     // 차트 줌
                     if(start < end) {
                         axis.zoom(start, end);
-
-                        if(bg != null) {
-                            bg.attr({"visibility": "visible"});
-                        }
-
-                        // 차트 렌더링이 활성화되지 않았을 경우
-                        if(!self.chart.isRender()) {
-                            self.chart.render();
-                        }
-
                         return [ start, end ];
                     }
                 }
 
-                function updateDateGrid(endDate) {
+                function updateDateObj(endDate) {
                     let stime = startDate.getTime(),
                         etime = endDate.getTime();
 
@@ -136,6 +132,10 @@ export default {
                         format: (format != null) ? format : axis.get("x").format
                     });
 
+                    return [ stime, etime ];
+                }
+
+                function renderChart() {
                     if(bg != null) {
                         bg.attr({"visibility": "visible"});
                     }
@@ -144,8 +144,6 @@ export default {
                     if(!self.chart.isRender()) {
                         self.chart.render();
                     }
-
-                    return [ stime, etime ];
                 }
 
                 function resetDragStatus() { // 엘리먼트 및 데이터 초기화
@@ -230,7 +228,7 @@ export default {
 
                     if(xtype == "block") {
                         axis.screen(1);
-                    } else if(xtype == "date") {
+                    } else if(xtype == "date" || xtype == "dateblock") {
                         // 이전 x축 도메인 값 가져오기
                         let prevDomain = this.chart.getCache(`prevDomain_${axisIndex}`);
                         let prevInterval = this.chart.getCache(`prevInterval_${axisIndex}`);
@@ -244,6 +242,11 @@ export default {
 
                         // close 버튼을 클릭하면 zoomDepth를 0으로 초기화 한다.
                         this.chart.setCache(`zoomDepth_${axisIndex}`, 0);
+
+                        // dateblock 타입은 예외처리하기
+                        if(xtype == "dateblock") {
+                            axis.screen(1);
+                        }
                     }
 
                     // 차트 렌더링이 활성화되지 않았을 경우

@@ -5,14 +5,16 @@ import StackAreaBrush from '../src/brush/stackarea.js'
 import LineBrush from '../src/brush/line.js'
 import LegendWidget from '../src/widget/legend.js'
 import GuideLineWidget from '../src/widget/guideline.js'
+import ZoomWidget from '../src/widget/zoom.js'
 
-jui.use([ ClassicTheme, DarkTheme, StackAreaBrush, LineBrush, LegendWidget, GuideLineWidget ]);
+jui.use([ ClassicTheme, DarkTheme, StackAreaBrush, LineBrush, LegendWidget, GuideLineWidget, ZoomWidget ]);
 
 const builder = jui.include('chart.builder');
 const time = jui.include('util.time');
 
 const countMap = [ 300, 150, 60 ];
 const dataMap = countMap.map(count => createRealtimeData(count));
+const domainMap = {};
 const names = {
     memory: 'Memory (MB)',
     cpu: 'CPU Usage (%)',
@@ -67,6 +69,8 @@ window.chart = builder('#chart', {
             return names[target];
         },
         dx : -20
+    }, {
+        type : 'zoom'
     }],
     event: {
         'guideline.active': function(time) {
@@ -77,6 +81,12 @@ window.chart = builder('#chart', {
                 window.chart2.emit('guideline.hide');
                 window.chart3.emit('guideline.hide');
             }
+        },
+        'zoom.end': function(stime, etime, sindex, eindex) {
+            domainMap[0] = [ stime, etime, sindex, eindex ];
+        },
+        'zoom.close': function() {
+            domainMap[0] = null;
         }
     },
     style: {
@@ -219,11 +229,17 @@ function updateRealtimeData() {
 
     axisMap.forEach((axis, index) => {
         if (dataMap[index].length == countMap[index]) {
-            dataMap[index].shift();
-            dataMap[index].push(createRealtimeData(1)[0]);
+            if(domainMap[index] == null) {
+                dataMap[index].shift();
+                dataMap[index].push(createRealtimeData(1)[0]);
 
-            axis.set('x', { domain: domain });
-            axis.update(dataMap[index]);
+                axis.set('x', { domain: domain });
+                axis.update(dataMap[index]);
+            } else {
+                const args = domainMap[index];
+                axis.set('x', { domain: [ args[0], args[1] ] });
+                axis.zoom(args[2], args[3]);
+            }
         }
     });
 }

@@ -135,7 +135,7 @@ export default {
             }
 
             this.drawContentTooltip = function(left, data) {
-                if(contentTooltip == null) return;
+                if(contentTooltip == null || data == null) return;
 
                 const cacheTargets = chart.getCache("legend_target", brush.target);
                 const rect = contentTooltip.children[0];
@@ -216,6 +216,7 @@ export default {
                     if(axis.data.length == 0) return;
 
                     g.attr({ visibility: "hidden" });
+                    chart.setCache("guideline_time", null);
                 });
 
                 chart.on("render", function() {
