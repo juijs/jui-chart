@@ -2671,29 +2671,33 @@ var _zoom = __webpack_require__(58);
 
 var _zoom2 = _interopRequireDefault(_zoom);
 
-var _zoomscroll = __webpack_require__(59);
+var _zoomselect = __webpack_require__(59);
+
+var _zoomselect2 = _interopRequireDefault(_zoomselect);
+
+var _zoomscroll = __webpack_require__(60);
 
 var _zoomscroll2 = _interopRequireDefault(_zoomscroll);
 
-var _raycast = __webpack_require__(60);
+var _raycast = __webpack_require__(61);
 
 var _raycast2 = _interopRequireDefault(_raycast);
 
-var _guideline = __webpack_require__(61);
+var _guideline = __webpack_require__(62);
 
 var _guideline2 = _interopRequireDefault(_guideline);
 
-var _picker = __webpack_require__(62);
+var _picker = __webpack_require__(63);
 
 var _picker2 = _interopRequireDefault(_picker);
 
-var _rotate3d = __webpack_require__(63);
+var _rotate3d = __webpack_require__(64);
 
 var _rotate3d2 = _interopRequireDefault(_rotate3d);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _fullgauge2.default, _bargauge2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _zoom2.default, _zoomscroll2.default, _raycast2.default, _guideline2.default, _picker2.default, _rotate3d2.default]);
+_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _fullgauge2.default, _bargauge2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _zoom2.default, _zoomselect2.default, _zoomscroll2.default, _raycast2.default, _guideline2.default, _picker2.default, _rotate3d2.default]);
 
 if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) == "object") {
     window.graph = _main2.default;
@@ -25281,6 +25285,242 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+    name: "chart.widget.zoomselect",
+    extend: "chart.widget.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+        var r = 12;
+
+        var ZoomSelectWidget = function ZoomSelectWidget() {
+            var self = this,
+                top = 0,
+                left = 0;
+
+            function setDragEvent(axisIndex, thumb, bg) {
+                var axis = self.chart.axis(axisIndex),
+                    xtype = axis.get("x").type,
+                    startDate = null,
+                    // only date
+                isMove = false,
+                    mouseStart = 0,
+                    thumbWidth = 0;
+
+                self.on("axis.mousedown", function (e) {
+                    if (isMove) return;
+
+                    isMove = true;
+                    mouseStart = e.bgX;
+
+                    if (xtype == "date" || xtype == "dateblock") {
+                        // x축이 date일 때
+                        startDate = axis.x.invert(e.chartX);
+                    }
+
+                    self.chart.emit("zoomselect.start");
+                }, axisIndex);
+
+                self.on("axis.mousemove", function (e) {
+                    if (!isMove) return;
+
+                    thumbWidth = e.bgX - mouseStart;
+
+                    if (thumb != null) {
+                        if (thumbWidth > 0) {
+                            thumb.attr({
+                                width: thumbWidth
+                            });
+
+                            thumb.translate(mouseStart, top + axis.area("y"));
+                            bg.translate(mouseStart, top + axis.area("y"));
+                        } else {
+                            thumb.attr({
+                                width: Math.abs(thumbWidth)
+                            });
+
+                            thumb.translate(mouseStart + thumbWidth, top + axis.area("y"));
+                            bg.translate(mouseStart + thumbWidth, top + axis.area("y"));
+                        }
+                    }
+                }, axisIndex);
+
+                self.on("axis.mouseup", endZoomAction, axisIndex);
+                self.on("chart.mouseup", endZoomAction);
+                self.on("bg.mouseup", endZoomAction);
+                self.on("bg.mouseout", endZoomAction);
+
+                function endZoomAction(e) {
+                    var args = [];
+
+                    isMove = false;
+                    if (thumbWidth == 0) return;
+
+                    if (xtype == "block") {
+                        args = updateBlockGrid();
+                    } else {
+                        if (startDate != null) {
+                            args = updateDateObj(axis.x.invert(e.chartX));
+
+                            if (xtype == "dateblock") {
+                                args = args.concat(updateBlockGrid());
+                            }
+                        }
+                    }
+
+                    renderChart();
+                    resetDragStatus();
+
+                    self.chart.emit("zoomselect.end", args);
+                }
+
+                function updateBlockGrid() {
+                    var range = axis.end - axis.start,
+                        tick = axis.area("width") / (range > 0 ? range : axis.data.length),
+                        x = (thumbWidth > 0 ? mouseStart : mouseStart + thumbWidth) - left,
+                        start = Math.floor(x / tick) + axis.start,
+                        end = Math.ceil((x + Math.abs(thumbWidth)) / tick) + axis.start;
+
+                    // 차트 줌
+                    if (start < end) {
+                        return [start, end];
+                    }
+                }
+
+                function updateDateObj(endDate) {
+                    var stime = startDate.getTime(),
+                        etime = endDate.getTime();
+
+                    if (stime >= etime) return;
+
+                    return [stime, etime];
+                }
+
+                function renderChart() {
+                    if (bg != null) {
+                        var w = thumb.attributes.width;
+
+                        bg.attr({ "visibility": "visible" });
+                        bg.get(0).attr({ width: w });
+                        bg.get(1).get(0).attr({ width: w });
+                        bg.get(1).get(1).translate(w - r, -r);
+                    }
+                }
+
+                function resetDragStatus() {
+                    // 엘리먼트 및 데이터 초기화
+                    isMove = false;
+                    mouseStart = 0;
+                    thumbWidth = 0;
+                    startDate = null;
+
+                    if (thumb != null) {
+                        thumb.attr({
+                            width: 0
+                        });
+                    }
+                }
+            }
+
+            this.drawSection = function (axisIndex) {
+                var axis = this.chart.axis(axisIndex),
+                    cw = axis.area("width"),
+                    ch = axis.area("height");
+
+                return this.chart.svg.group({}, function () {
+                    var thumb = self.chart.svg.rect({
+                        height: ch,
+                        fill: self.chart.theme("zoomBackgroundColor"),
+                        opacity: 0.3
+                    });
+
+                    var bg = self.chart.svg.group({
+                        visibility: "hidden"
+                    }, function () {
+                        self.chart.svg.rect({
+                            width: cw,
+                            height: ch,
+                            fill: self.chart.theme("zoomFocusColor"),
+                            opacity: 0.2
+                        });
+
+                        self.chart.svg.group({
+                            cursor: "pointer"
+                        }, function () {
+                            self.chart.svg.circle({
+                                r: r,
+                                cx: cw,
+                                cy: 0,
+                                opacity: 0
+                            });
+
+                            self.chart.svg.path({
+                                d: "M12,2C6.5,2,2,6.5,2,12c0,5.5,4.5,10,10,10s10-4.5,10-10C22,6.5,17.5,2,12,2z M16.9,15.5l-1.4,1.4L12,13.4l-3.5,3.5 l-1.4-1.4l3.5-3.5L7.1,8.5l1.4-1.4l3.5,3.5l3.5-3.5l1.4,1.4L13.4,12L16.9,15.5z",
+                                fill: self.chart.theme("zoomFocusColor")
+                            }).translate(cw - r, -r);
+                        }).on("click", function (e) {
+                            bg.attr({ visibility: "hidden" });
+
+                            // 줌을 멀티 축에서 겹쳐서 사용할 때
+                            self.rollbackZoom(axisIndex);
+                        });
+                    }).translate(left + axis.area("x"), top + axis.area("y"));
+
+                    setDragEvent(axisIndex, thumb, bg);
+                });
+            };
+
+            this.rollbackZoom = function () {
+                this.chart.emit("zoomselect.close");
+            };
+
+            this.getAxisList = function () {
+                return _.typeCheck("array", this.widget.axis) ? this.widget.axis : [this.widget.axis];
+            };
+
+            this.drawBefore = function () {
+                top = this.chart.padding("top");
+                left = this.chart.padding("left");
+            };
+
+            this.draw = function () {
+                var g = this.chart.svg.group(),
+                    axisList = this.getAxisList();
+
+                for (var i = 0; i < axisList.length; i++) {
+                    g.append(this.drawSection(axisList[i], i));
+                }
+
+                return g;
+            };
+        };
+
+        ZoomSelectWidget.setup = function () {
+            return {
+                axis: 0
+            };
+        };
+
+        return ZoomSelectWidget;
+    }
+};
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
 var _area = __webpack_require__(3);
 
 var _area2 = _interopRequireDefault(_area);
@@ -25582,7 +25822,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25667,7 +25907,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25945,7 +26185,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26026,7 +26266,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

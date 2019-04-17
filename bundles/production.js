@@ -51,6 +51,7 @@ import TopologyCtrlWidget from '../src/widget/topologyctrl.js'
 import DragSelectWidget from '../src/widget/dragselect.js'
 import VScrollWidget from '../src/widget/vscroll.js'
 import ZoomWidget from '../src/widget/zoom.js'
+import ZoomSelectWidget from '../src/widget/zoomselect.js'
 import ZoomScrollWidget from '../src/widget/zoomscroll.js'
 import RayCastWidget from '../src/widget/raycast.js'
 import GuideLineWidget from '../src/widget/guideline.js'
@@ -110,6 +111,7 @@ jui.use([
     DragSelectWidget,
     VScrollWidget,
     ZoomWidget,
+    ZoomSelectWidget,
     ZoomScrollWidget,
     RayCastWidget,
     GuideLineWidget,
