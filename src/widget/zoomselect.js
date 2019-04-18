@@ -93,17 +93,18 @@ export default {
                         start = Math.floor(x / tick) + axis.start,
                         end = Math.ceil((x + Math.abs(thumbWidth)) / tick) + axis.start;
 
-                    // 차트 줌
-                    if(start < end) {
+                    if(start >= end)
                         return [ start, end ];
-                    }
+
+                    return [ start, end ];
                 }
 
                 function updateDateObj(endDate) {
                     let stime = startDate.getTime(),
                         etime = endDate.getTime();
 
-                    if(stime >= etime) return;
+                    if(stime >= etime)
+                        return [ etime, stime ];
 
                     return [ stime, etime ];
                 }
