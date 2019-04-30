@@ -54,9 +54,11 @@ export default {
                     var startX = 0,
                         max = axis.x.max();
 
-                    for(var j = list.length - 1; j >= 0; j--) {
+                    for(var j = 0; j < list.length; j++) {
                         var width = axis.x.rate(list[j], sum),
                             r = this.getBarElement(i, j);
+
+                        if(isNaN(width)) continue;
 
                         r.attr({
                             x : startX,
