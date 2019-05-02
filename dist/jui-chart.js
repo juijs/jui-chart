@@ -1117,7 +1117,7 @@ exports.default = {
                 };
 
                 var g = this.svg.group(),
-                    p = null;
+                    p = this.svg.path();
 
                 if (pos.length > 0) {
                     var start = null,
@@ -1133,7 +1133,7 @@ exports.default = {
                             newOpacity = this.getOpacity(i);
 
                         if (color != newColor || opacity != newOpacity) {
-                            p = this.svg.path(_.extend({
+                            p.attr(_.extend({
                                 "stroke-opacity": newOpacity,
                                 stroke: newColor,
                                 x1: x[start] // Start coordinates of area brush
@@ -1144,7 +1144,6 @@ exports.default = {
                             });
 
                             p.MoveTo(x[start], y[start]);
-                            g.append(p);
 
                             color = newColor;
                             opacity = newOpacity;
@@ -1167,6 +1166,8 @@ exports.default = {
                             p.LineTo(x[end], y[end]);
                         }
                     }
+
+                    g.append(p);
                 }
 
                 return g;
@@ -1236,7 +1237,9 @@ exports.default = {
                 }
 
                 // 액티브 라인 설정
-                this.setActiveEffects();
+                if (this.brush.active != null) {
+                    this.setActiveEffects();
+                }
 
                 return g;
             };
