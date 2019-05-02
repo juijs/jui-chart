@@ -25,7 +25,12 @@ export default {
                     color = this.color(targetIndex),
                     value = this.getData(dataIndex)[this.brush.target[targetIndex]],
                     active = this.brush.active,
-                    opacity = (active === null || dataIndex === active) ? 1 : style.disableOpacity;
+                    opacity = 1;
+
+                if ((_.typeCheck("array", active) && !active.includes(dataIndex)) ||
+                    (_.typeCheck("integer", active) && active !== dataIndex)) {
+                    opacity = style.disableOpacity;
+                }
 
                 return {
                     fill : color,
@@ -192,7 +197,7 @@ export default {
                 innerPadding: 1,
                 /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
                 unit: 1,
-                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
+                /** @cfg {Number | Array} [active=null] Activates the bar of an applicable index. */
                 active: null
             };
         }

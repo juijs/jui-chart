@@ -22199,7 +22199,11 @@ exports.default = {
                     color = this.color(targetIndex),
                     value = this.getData(dataIndex)[this.brush.target[targetIndex]],
                     active = this.brush.active,
-                    opacity = active === null || dataIndex === active ? 1 : style.disableOpacity;
+                    opacity = 1;
+
+                if (_.typeCheck("array", active) && !active.includes(dataIndex) || _.typeCheck("integer", active) && active !== dataIndex) {
+                    opacity = style.disableOpacity;
+                }
 
                 return {
                     fill: color,
