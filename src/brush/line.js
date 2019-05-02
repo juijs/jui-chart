@@ -25,6 +25,27 @@ export default {
                 }
             }
 
+            this.setActiveEffects = function() {
+                var lines = this.lineList,
+                    active = this.brush.active;
+
+                for(var i = 0; i < lines.length; i++) {
+                    var target = this.brush.target[i],
+                        opacity = disableOpacity,
+                        color = lines[i].element.get(0).attr("stroke");
+
+                    if(active === null || active === target || (_.typeCheck("array", active) && active.includes(target))) {
+                        opacity = lineBorderOpacity;
+                    }
+
+                    if(lines[i].tooltip != null) {
+                        lines[i].tooltip.style(color, circleColor, opacity);
+                    }
+
+                    lines[i].element.attr({ opacity: opacity });
+                }
+            }
+
             this.addLineElement = function(elem) {
                 if(!this.lineList) {
                     this.lineList = [];
@@ -170,11 +191,7 @@ export default {
                 }
 
                 // 액티브 라인 설정
-                for(var k = 0; k < path.length; k++) {
-                    if(this.brush.active == this.brush.target[k]) {
-                        this.setActiveEffect(this.lineList[k].element);
-                    }
-                }
+                this.setActiveEffects();
 
                 return g;
             }

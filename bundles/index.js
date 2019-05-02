@@ -1,77 +1,63 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
 import DarkTheme from '../src/theme/dark.js'
-import CanvasEqualizerColumn from '../src/brush/canvas/equalizercolumn.js'
-import TitleWidget from '../src/widget/title.js'
-import LegendWidget from '../src/widget/legend.js'
-import RaycastWidget from '../src/widget/raycast.js'
+import LineBrush from '../src/brush/line.js'
+import ZoomSelectWidget from '../src/widget/zoomselect.js'
+import CrossWidget from '../src/widget/cross.js'
 
-jui.use([ ClassicTheme, DarkTheme, CanvasEqualizerColumn, TitleWidget, LegendWidget, RaycastWidget ]);
+jui.use([ ClassicTheme, DarkTheme, LineBrush, ZoomSelectWidget, CrossWidget ]);
 
-var animation = jui.include("chart.animation");
+var data = [
+    { date : new Date("2015/01/01 00:00:00"), sales : 50, profit : 35, etc : 10 },
+    { date : new Date("2015/01/01 06:00:00"), sales : 20, profit : 30, etc : 10 },
+    { date : new Date("2015/01/01 12:00:00"), sales : 10, profit : 5, etc : 10 },
+    { date : new Date("2015/01/01 18:00:00"), sales : 30, profit : 25, etc : 10 },
+    { date : new Date("2015/01/02 00:00:00"), sales : 25, profit : 20, etc : 10 }
+];
 
-var c = animation("#chart", {
-    width: 500,
-    height: 300,
-    axis: [{
-        x : {
-            domain : [ "1 year ago", "1 month ago", "Yesterday", "Today" ],
-            line : true
-        },
-        y : {
-            type : "range",
-            domain : [ 0, 30 ],
-            // domain : function(d) {
-            //     return Math.max(d.normal, d.warning, d.fatal);
-            // },
-            step : 5,
-            line : false
-        }
-    }],
-    brush : [{
-        type : "canvas.equalizercolumn",
-        target : [ "normal", "warning", "fatal" ],
-        active : [ 0, 2 ],
-        unit : 10
-    }],
-    widget : [
+var time = jui.include("util.time");
+var builder = jui.include("chart.builder");
+
+var c = builder("#chart", {
+    height : 300,
+    padding : {
+        right : 120
+    },
+    axis : [
         {
-            type : "title",
-            text : "Equalizer Sample"
-        }, {
-            type : "legend",
-            format : function(key) {
-                if(key == "normal") return "Default";
-                else if(key == "warning") return "Warning";
-                else return "Critical";
-            }
-        }, {
-            type : "raycast"
+            x : {
+                type : "date",
+                domain : [ new Date("2015/01/01"), new Date("2015/01/02") ],
+                interval : 1000 * 60 * 60 * 6, // // 6hours
+                format : "MM/dd HH:mm",
+                key : "date",
+                line : true
+            },
+            y : {
+                type : "range",
+                domain : [ 0, 100 ],
+                step : 5,
+                line : true,
+                orient : "right"
+            },
+            data: data
         }
     ],
-    event : {
-        "raycast.click": function(obj, e) {
-            // TODO: Clicking on the equalizer will give the following effect
-            this.updateBrush(0, { active: obj.dataIndex });
+    brush : [
+        {
+            type : "line",
+            target : [ "sales", "profit", "etc" ],
+            active: [ "sales", "etc" ],
+            symbol : "curve"
         }
-    },
-    interval : 100
-});
-
-c.run(function(runningTime) {
-    if(runningTime > 10000) {
-        c.update([
-            { normal : 7, warning : 7, fatal : 7 },
-            { normal : 10, warning : 8, fatal : 5 },
-            { normal : 6, warning : 4, fatal : 10 },
-            { normal : 5, warning : 5, fatal : 7 }
-        ]);
-    } else {
-        c.update([
-            { normal : 5, warning : 5, fatal : 5 },
-            { normal : 10, warning : 8, fatal : 5 },
-            { normal : 6, warning : 4, fatal : 10 },
-            { normal : 5, warning : 5, fatal : 7 }
-        ]);
+    ],
+    widget : [
+        { type : "zoomselect" },
+        { type : "cross", xFormat: function(d) { return time.format(d, "HH:mm:ss"); }}
+    ],
+    event : {
+        "zoomselect.end": function(stime, etime) {
+            console.log(new Date(stime), new Date(etime));
+        }
     }
 });
