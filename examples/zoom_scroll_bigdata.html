@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="content-type" content="charset=utf-8;"/>
+
+    <script src="../dist/jui-chart.js"></script>
+    <script src="resources/bigdata.js"></script>
+
+    <script>
+        (function initData() {
+            for(var i = 0, len = data.length; i < len; i++) {
+                var d = data[i];
+                d.date = new Date(d.date);
+                d.month = d.date.getMonth(); // pre-calculate month for better performance
+                d.close = +d.close; // coerce to number
+                d.open = +d.open;
+            }
+        })();
+
+        function getVolumeData() {
+            var nd = [],
+                total = 0;
+            for(var i = 0, len = data.length; i < len; i++) {
+                var d = data[i],
+                    move = (d.open + d.close) / 2,
+                    days = i + 1;
+                total += move;
+                nd.push({
+                    date: d.date,
+                    days: days,
+                    move: move,
+                    avg: Math.round(total / days)
+                });
+            }
+            return nd;
+        }
+
+        graph.ready([ "util.base", "util.time", "chart.builder" ], function(_, time, builder) {
+            var volumnData = getVolumeData();
+            var volumnChart = builder("#monthly_index", {
+                padding : {
+                    bottom : 90
+                },
+                width : 1024,
+                height : 300,
+                axis : [{
+                    x : {
+                        type : "date",
+                        domain : [ volumnData[0].date, volumnData[volumnData.length - 1].date ],
+                        interval : time.DAY * 365,
+                        format : "yyyy",
+                        realtime : true,
+                        key : "date",
+                        line : false
+                    },
+                    y : {
+                        type : "range",
+                        domain: [ 0, 7000 ],
+                        unit: 1000,
+                        line : true
+                    }
+                }],
+                brush : [{
+                    type : "area",
+                    line : true,
+                    target : [ "move", "avg" ]
+                }],
+                widget : [{
+                    type : "zoomscroll",
+                    key : "move",
+                    format : function(d, i) {
+                        return time.format(d, "yyyy");
+                    },
+                    dy : 30
+                }],
+                event : {
+                    "zoomscroll.dragend": function(start, end) {
+                        this.axis(0).set("x", {
+                            domain: [ volumnData[start].date, volumnData[end - 1].date ]
+                        });
+                    }
+                },
+                render : false
+            });
+
+            volumnChart.axis(0).set("start", 0);
+            volumnChart.axis(0).set("end", 1000);
+            volumnChart.axis(0).update(volumnData);
+            volumnChart.render(true);
+        });
+    </script>
+</head>
+<body class="jui">
+
+<div class="row">
+    <div id="monthly_index"></div>
+</div>
+
+</body>
+</html>

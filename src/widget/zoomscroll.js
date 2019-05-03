@@ -189,7 +189,7 @@ export default {
                     }
                 });
 
-                return image.svg.toDataURI();
+                return "data:image/svg+xml;utf8," + encodeURIComponent(image.svg.toXML());
             }
 
             this.drawBefore = function() {
