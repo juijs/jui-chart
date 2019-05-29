@@ -25357,16 +25357,20 @@ exports.default = {
                         if (thumbWidth > 0) {
                             thumb.attr({
                                 width: thumbWidth
-                            });
+                            }).translate(mouseStart, top + axis.area("y"));
 
-                            thumb.translate(mouseStart, top + axis.area("y"));
+                            bg.get(1).get(0).attr({
+                                cx: thumbWidth
+                            });
                             bg.translate(mouseStart, top + axis.area("y"));
                         } else {
                             thumb.attr({
                                 width: Math.abs(thumbWidth)
-                            });
+                            }).translate(mouseStart + thumbWidth, top + axis.area("y"));
 
-                            thumb.translate(mouseStart + thumbWidth, top + axis.area("y"));
+                            bg.get(1).get(0).attr({
+                                cx: Math.abs(thumbWidth)
+                            });
                             bg.translate(mouseStart + thumbWidth, top + axis.area("y"));
                         }
                     }
@@ -25475,8 +25479,6 @@ exports.default = {
                         }, function () {
                             self.chart.svg.circle({
                                 r: r,
-                                cx: cw,
-                                cy: 0,
                                 opacity: 0
                             });
 
