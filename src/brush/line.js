@@ -70,7 +70,7 @@ export default {
                     };
 
                 var g = this.svg.group(),
-                    p = this.svg.path();
+                    p = null;
 
                 if(pos.length > 0) {
                     var start = null, end = null;
@@ -88,7 +88,7 @@ export default {
                             newOpacity = this.getOpacity(i);
 
                         if(color != newColor || opacity != newOpacity) {
-                            p.attr(_.extend({
+                            p = this.svg.path(_.extend({
                                 "stroke-opacity": newOpacity,
                                 stroke: newColor,
                                 x1: x[start] // Start coordinates of area brush
@@ -99,6 +99,7 @@ export default {
                             });
 
                             p.MoveTo(x[start], y[start]);
+                            g.append(p);
 
                             color = newColor;
                             opacity = newOpacity;
@@ -121,8 +122,6 @@ export default {
                             p.LineTo(x[end], y[end]);
                         }
                     }
-
-                    g.append(p);
                 }
 
                 return g;

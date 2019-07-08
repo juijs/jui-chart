@@ -48,7 +48,19 @@ var c = builder("#chart", {
             type : "line",
             target : [ "sales", "profit", "etc" ],
             active: [ "sales", "etc" ],
-            symbol : "curve"
+            symbol : "curve",
+            colors : function(data) {
+                var hours = data.date.getHours();
+
+                if(hours === 0)
+                    return "red";
+                else if(hours === 6)
+                    return "blue";
+                else if(hours === 12)
+                    return "orange"
+
+                return "yellow";
+            }
         }
     ],
     widget : [
