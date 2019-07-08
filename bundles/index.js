@@ -1,75 +1,79 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
 import DarkTheme from '../src/theme/dark.js'
-import LineBrush from '../src/brush/line.js'
-import ZoomSelectWidget from '../src/widget/zoomselect.js'
-import CrossWidget from '../src/widget/cross.js'
+import CanvasEqualizerColumn from '../src/brush/canvas/equalizercolumn.js'
+import TitleWidget from '../src/widget/title'
+import LegendWidget from '../src/widget/legend'
+import RaycastWidget from '../src/widget/raycast'
 
-jui.use([ ClassicTheme, DarkTheme, LineBrush, ZoomSelectWidget, CrossWidget ]);
+jui.use([ ClassicTheme, DarkTheme, CanvasEqualizerColumn, TitleWidget, LegendWidget, RaycastWidget ]);
 
-var data = [
-    { date : new Date("2015/01/01 00:00:00"), sales : 50, profit : 35, etc : 10 },
-    { date : new Date("2015/01/01 06:00:00"), sales : 20, profit : 30, etc : 10 },
-    { date : new Date("2015/01/01 12:00:00"), sales : 10, profit : 5, etc : 10 },
-    { date : new Date("2015/01/01 18:00:00"), sales : 30, profit : 25, etc : 10 },
-    { date : new Date("2015/01/02 00:00:00"), sales : 25, profit : 20, etc : 10 }
-];
+var animation = jui.include("chart.animation");
 
-var time = jui.include("util.time");
-var builder = jui.include("chart.builder");
-
-var c = builder("#chart", {
-    height : 300,
-    padding : {
-        right : 120
-    },
-    axis : [
-        {
-            x : {
-                type : "date",
-                domain : [ new Date("2015/01/01"), new Date("2015/01/02") ],
-                interval : 1000 * 60 * 60 * 6, // // 6hours
-                format : "MM/dd HH:mm",
-                key : "date",
-                line : true
-            },
-            y : {
-                type : "range",
-                domain : [ 0, 100 ],
-                step : 5,
-                line : true,
-                orient : "right"
-            },
-            data: data
+var c = animation("#chart", {
+    width: 500,
+    height: 300,
+    axis: [{
+        x : {
+            domain : [ "1 year ago", "1 month ago", "Yesterday", "Today" ],
+            line : true
+        },
+        y : {
+            type : "range",
+            domain : [ 0, 30 ],
+            // domain : function(d) {
+            //     return Math.max(d.normal, d.warning, d.fatal);
+            // },
+            step : 5,
+            line : false
         }
-    ],
-    brush : [
-        {
-            type : "line",
-            target : [ "sales", "profit", "etc" ],
-            active: [ "sales", "etc" ],
-            symbol : "curve",
-            colors : function(data) {
-                var hours = data.date.getHours();
-
-                if(hours === 0)
-                    return "red";
-                else if(hours === 6)
-                    return "blue";
-                else if(hours === 12)
-                    return "orange"
-
-                return "yellow";
-            }
-        }
-    ],
+    }],
+    brush : [{
+        type : "canvas.equalizercolumn",
+        target : [ "normal", "warning", "fatal" ],
+        active : [ 0, 2 ],
+        error : [ 0 ],
+        errorText : "Stopped",
+        unit : 10
+    }],
     widget : [
-        { type : "zoomselect" },
-        { type : "cross", xFormat: function(d) { return time.format(d, "HH:mm:ss"); }}
+        {
+            type : "title",
+            text : "Equalizer Sample"
+        }, {
+            type : "legend",
+            format : function(key) {
+                if(key == "normal") return "Default";
+                else if(key == "warning") return "Warning";
+                else return "Critical";
+            }
+        }, {
+            type : "raycast"
+        }
     ],
     event : {
-        "zoomselect.end": function(stime, etime) {
-            console.log(new Date(stime), new Date(etime));
+        "raycast.click": function(obj, e) {
+            // TODO: Clicking on the equalizer will give the following effect
+            this.updateBrush(0, { active: obj.dataIndex });
         }
+    },
+    interval : 100
+});
+
+c.run(function(runningTime) {
+    if(runningTime > 10000) {
+        c.update([
+            { normal : 7, warning : 7, fatal : 7 },
+            { normal : 10, warning : 8, fatal : 5 },
+            { normal : 6, warning : 4, fatal : 10 },
+            { normal : 5, warning : 5, fatal : 7 }
+        ]);
+    } else {
+        c.update([
+            { normal : 5, warning : 5, fatal : 5 },
+            { normal : 10, warning : 8, fatal : 5 },
+            { normal : 6, warning : 4, fatal : 10 },
+            { normal : 5, warning : 5, fatal : 7 }
+        ]);
     }
 });
