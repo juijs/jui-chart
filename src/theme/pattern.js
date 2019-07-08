@@ -383,7 +383,10 @@ export default {
             // Animation Brushes
             bubbleCloudFontColor: "#fff",
             bubbleCloudFontSize: 11,
-            bubbleCloudFontWeight: "bold"
+            bubbleCloudFontWeight: "bold",
+
+            equalizerColumnErrorBackgroundColor: "#ff0000",
+            equalizerColumnErrorFontColor: "#fff"
         }
     }
 }

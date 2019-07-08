@@ -61,6 +61,7 @@ export default {
 
             this.draw = function() {
                 const targets = this.brush.target,
+                    error = this.brush.error,
                     padding = this.brush.innerPadding,
                     band = this.axis.y.rangeBand(),
                     unit = band / (this.brush.unit * padding),
@@ -68,7 +69,8 @@ export default {
                     translateY = (is_reverse) ? 0 : -unit;
 
                 this.eachData(function(data, i) {
-                    let startX = this.offset("x", i) - bar_width / 2,
+                    let offsetX = this.offset("x", i),
+                        startX = offsetX - bar_width / 2,
                         startY = this.axis.y(0),
                         y = startY,
                         value = 0,
@@ -80,29 +82,63 @@ export default {
                             targetHeight = Math.abs(startY - endY),
                             targetY = targetHeight;
 
-                        while(targetY >= height) {
-                            let r = _.extend(this.getBarElement(i, j), {
-                                x : startX,
-                                y : y + translateY,
-                                width : bar_width,
-                                height : unit
-                            });
+                        if ((_.typeCheck("array", error) && !error.includes(i)) ||
+                            (_.typeCheck("integer", error) && error !== i)) {
+                            while(targetY >= height) {
+                                let r = _.extend(this.getBarElement(i, j), {
+                                    x : startX,
+                                    y : y + translateY,
+                                    width : bar_width,
+                                    height : unit
+                                });
 
-                            targetY -= height;
-                            y += (is_reverse) ? height : -height;
+                                targetY -= height;
+                                y += (is_reverse) ? height : -height;
+
+                                this.canvas.save();
+                                this.canvas.globalAlpha = r["fill-opacity"];
+                                this.canvas.beginPath();
+                                this.canvas.fillStyle = r.fill;
+                                this.canvas.strokeStyle = r.stroke;
+                                this.canvas.strokeOpacity = r["stroke-opacity"];
+                                this.canvas.lineWidth = r["stroke-width"];
+                                this.canvas.rect(r.x, r.y, r.width, r.height);
+                                this.canvas.fill();
+                                this.canvas.restore();
+
+                                stackList.push(r);
+                            }
+                        } else {
+                            let width = this.axis.x.rangeBand() * 0.4;
+                            let height = width * 2;
+                            let tick = width * 0.3;
+                            let startX = offsetX - width / 2;
+                            let fontSize = width / 3;
+                            let yt = y - tick;
+                            let yht = y - height - tick;
+                            let round = 5;
 
                             this.canvas.save();
-                            this.canvas.globalAlpha = r["fill-opacity"];
                             this.canvas.beginPath();
-                            this.canvas.fillStyle = r.fill;
-                            this.canvas.strokeStyle = r.stroke;
-                            this.canvas.strokeOpacity = r["stroke-opacity"];
-                            this.canvas.lineWidth = r["stroke-width"];
-                            this.canvas.rect(r.x, r.y, r.width, r.height);
+                            this.canvas.fillStyle = this.chart.theme("equalizerColumnErrorBackgroundColor");
+                            this.canvas.moveTo(offsetX, y);
+                            this.canvas.lineTo(startX, yt);
+                            this.canvas.lineTo(startX, yht + round);
+                            this.canvas.arcTo(startX, yht, startX + round, yht, round);
+                            this.canvas.lineTo(startX + width - round, yht);
+                            this.canvas.arcTo(startX + width, yht, startX + width, yht + round, round);
+                            this.canvas.lineTo(startX + width, yt);
                             this.canvas.fill();
-                            this.canvas.restore();
 
-                            stackList.push(r);
+                            this.canvas.save();
+                            this.canvas.font = `${fontSize}px ${this.chart.theme("fontFamily")}`;
+                            this.canvas.translate(offsetX, y - height - tick);
+                            this.canvas.rotate(Math.PI / 2);
+                            this.canvas.textAlign = "center";
+                            this.canvas.fillStyle = this.chart.theme("equalizerColumnErrorFontColor");
+                            this.canvas.fillText(this.brush.errorText, height / 2, fontSize / 3, height);
+
+                            this.canvas.restore();
                         }
 
                         startY = endY;
@@ -198,7 +234,10 @@ export default {
                 /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
                 unit: 1,
                 /** @cfg {Number | Array} [active=null] Activates the bar of an applicable index. */
-                active: null
+                active: null,
+                /** @cfg {Number | Array} [active=null] Activates the bar of an applicable index. */
+                error: null,
+                errorText: "Stopped"
             };
         }
 

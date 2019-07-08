@@ -1117,7 +1117,7 @@ exports.default = {
                 };
 
                 var g = this.svg.group(),
-                    p = this.svg.path();
+                    p = null;
 
                 if (pos.length > 0) {
                     var start = null,
@@ -1133,7 +1133,7 @@ exports.default = {
                             newOpacity = this.getOpacity(i);
 
                         if (color != newColor || opacity != newOpacity) {
-                            p.attr(_.extend({
+                            p = this.svg.path(_.extend({
                                 "stroke-opacity": newOpacity,
                                 stroke: newColor,
                                 x1: x[start] // Start coordinates of area brush
@@ -1144,6 +1144,7 @@ exports.default = {
                             });
 
                             p.MoveTo(x[start], y[start]);
+                            g.append(p);
 
                             color = newColor;
                             opacity = newOpacity;
@@ -1166,8 +1167,6 @@ exports.default = {
                             p.LineTo(x[end], y[end]);
                         }
                     }
-
-                    g.append(p);
                 }
 
                 return g;
@@ -16521,7 +16520,10 @@ exports.default = {
             // Animation Brushes
             bubbleCloudFontColor: "#fff",
             bubbleCloudFontSize: 11,
-            bubbleCloudFontWeight: "bold"
+            bubbleCloudFontWeight: "bold",
+
+            equalizerColumnErrorBackgroundColor: "#ff0000",
+            equalizerColumnErrorFontColor: "#fff"
         };
     }
 };
@@ -16912,7 +16914,10 @@ exports.default = {
             // Animation Brushes
             bubbleCloudFontColor: "#fff",
             bubbleCloudFontSize: 11,
-            bubbleCloudFontWeight: "bold"
+            bubbleCloudFontWeight: "bold",
+
+            equalizerColumnErrorBackgroundColor: "#ff0000",
+            equalizerColumnErrorFontColor: "#fff"
         };
     }
 };
@@ -17298,7 +17303,10 @@ exports.default = {
             // Animation Brushes
             bubbleCloudFontColor: "#fff",
             bubbleCloudFontSize: 11,
-            bubbleCloudFontWeight: "bold"
+            bubbleCloudFontWeight: "bold",
+
+            equalizerColumnErrorBackgroundColor: "#ff0000",
+            equalizerColumnErrorFontColor: "#fff"
         };
     }
 };
@@ -17685,7 +17693,10 @@ exports.default = {
             // Animation Brushes
             bubbleCloudFontColor: "#fff",
             bubbleCloudFontSize: 11,
-            bubbleCloudFontWeight: "bold"
+            bubbleCloudFontWeight: "bold",
+
+            equalizerColumnErrorBackgroundColor: "#ff0000",
+            equalizerColumnErrorFontColor: "#fff"
         };
     }
 };
@@ -22254,6 +22265,7 @@ exports.default = {
 
             this.draw = function () {
                 var targets = this.brush.target,
+                    error = this.brush.error,
                     padding = this.brush.innerPadding,
                     band = this.axis.y.rangeBand(),
                     unit = band / (this.brush.unit * padding),
@@ -22261,7 +22273,8 @@ exports.default = {
                     translateY = is_reverse ? 0 : -unit;
 
                 this.eachData(function (data, i) {
-                    var startX = this.offset("x", i) - bar_width / 2,
+                    var offsetX = this.offset("x", i),
+                        startX = offsetX - bar_width / 2,
                         startY = this.axis.y(0),
                         y = startY,
                         value = 0,
@@ -22273,29 +22286,62 @@ exports.default = {
                             targetHeight = Math.abs(startY - endY),
                             targetY = targetHeight;
 
-                        while (targetY >= height) {
-                            var r = _.extend(this.getBarElement(i, j), {
-                                x: startX,
-                                y: y + translateY,
-                                width: bar_width,
-                                height: unit
-                            });
+                        if (_.typeCheck("array", error) && !error.includes(i) || _.typeCheck("integer", error) && error !== i) {
+                            while (targetY >= height) {
+                                var r = _.extend(this.getBarElement(i, j), {
+                                    x: startX,
+                                    y: y + translateY,
+                                    width: bar_width,
+                                    height: unit
+                                });
 
-                            targetY -= height;
-                            y += is_reverse ? height : -height;
+                                targetY -= height;
+                                y += is_reverse ? height : -height;
+
+                                this.canvas.save();
+                                this.canvas.globalAlpha = r["fill-opacity"];
+                                this.canvas.beginPath();
+                                this.canvas.fillStyle = r.fill;
+                                this.canvas.strokeStyle = r.stroke;
+                                this.canvas.strokeOpacity = r["stroke-opacity"];
+                                this.canvas.lineWidth = r["stroke-width"];
+                                this.canvas.rect(r.x, r.y, r.width, r.height);
+                                this.canvas.fill();
+                                this.canvas.restore();
+
+                                stackList.push(r);
+                            }
+                        } else {
+                            var width = this.axis.x.rangeBand() * 0.4;
+                            var _height = width * 2;
+                            var tick = width * 0.3;
+                            var _startX = offsetX - width / 2;
+                            var fontSize = width / 3;
+                            var yt = y - tick;
+                            var yht = y - _height - tick;
+                            var round = 5;
 
                             this.canvas.save();
-                            this.canvas.globalAlpha = r["fill-opacity"];
                             this.canvas.beginPath();
-                            this.canvas.fillStyle = r.fill;
-                            this.canvas.strokeStyle = r.stroke;
-                            this.canvas.strokeOpacity = r["stroke-opacity"];
-                            this.canvas.lineWidth = r["stroke-width"];
-                            this.canvas.rect(r.x, r.y, r.width, r.height);
+                            this.canvas.fillStyle = this.chart.theme("equalizerColumnErrorBackgroundColor");
+                            this.canvas.moveTo(offsetX, y);
+                            this.canvas.lineTo(_startX, yt);
+                            this.canvas.lineTo(_startX, yht + round);
+                            this.canvas.arcTo(_startX, yht, _startX + round, yht, round);
+                            this.canvas.lineTo(_startX + width - round, yht);
+                            this.canvas.arcTo(_startX + width, yht, _startX + width, yht + round, round);
+                            this.canvas.lineTo(_startX + width, yt);
                             this.canvas.fill();
-                            this.canvas.restore();
 
-                            stackList.push(r);
+                            this.canvas.save();
+                            this.canvas.font = fontSize + "px " + this.chart.theme("fontFamily");
+                            this.canvas.translate(offsetX, y - _height - tick);
+                            this.canvas.rotate(Math.PI / 2);
+                            this.canvas.textAlign = "center";
+                            this.canvas.fillStyle = this.chart.theme("equalizerColumnErrorFontColor");
+                            this.canvas.fillText(this.brush.errorText, _height / 2, fontSize / 3, _height);
+
+                            this.canvas.restore();
                         }
 
                         startY = endY;
@@ -22391,7 +22437,10 @@ exports.default = {
                 /** @cfg {Number} [unit=5] Determines the reference value that represents the color.*/
                 unit: 1,
                 /** @cfg {Number | Array} [active=null] Activates the bar of an applicable index. */
-                active: null
+                active: null,
+                /** @cfg {Number | Array} [active=null] Activates the bar of an applicable index. */
+                error: null,
+                errorText: "Stopped"
             };
         };
 
