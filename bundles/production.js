@@ -43,12 +43,17 @@ import CanvasBubbleCloudBrush from '../src/brush/canvas/bubblecloud.js'
 import CanvasActiveCircleBrush from '../src/brush/canvas/activecircle.js'
 import FullGaugeBrush from '../src/brush/fullgauge.js'
 import BarGaugeBrush from '../src/brush/bargauge.js'
+import StackLineBrush from '../src/brush/stackline.js'
+import StackScatterBrush from '../src/brush/stackscatter.js'
+import ArcEqualizerBrush from '../src/brush/arcequalizer.js'
+import PyramidBrush from '../src/brush/pyramid.js'
 import CrossWidget from '../src/widget/cross.js'
 import LegendWidget from '../src/widget/legend.js'
 import TitleWidget from '../src/widget/title.js'
 import TooltipWidget from '../src/widget/tooltip.js'
 import TopologyCtrlWidget from '../src/widget/topologyctrl.js'
 import DragSelectWidget from '../src/widget/dragselect.js'
+import ScrollWidget from '../src/widget/scroll.js'
 import VScrollWidget from '../src/widget/vscroll.js'
 import ZoomWidget from '../src/widget/zoom.js'
 import ZoomSelectWidget from '../src/widget/zoomselect.js'
@@ -103,12 +108,17 @@ jui.use([
     CanvasActiveCircleBrush,
     FullGaugeBrush,
     BarGaugeBrush,
+    StackLineBrush,
+    StackScatterBrush,
+    ArcEqualizerBrush,
+    PyramidBrush,
     CrossWidget,
     LegendWidget,
     TitleWidget,
     TooltipWidget,
     TopologyCtrlWidget,
     DragSelectWidget,
+    ScrollWidget,
     VScrollWidget,
     ZoomWidget,
     ZoomSelectWidget,
