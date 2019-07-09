@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 11);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -95,7 +95,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _juijsGraph = __webpack_require__(12);
+var _juijsGraph = __webpack_require__(13);
 
 var _juijsGraph2 = _interopRequireDefault(_juijsGraph);
 
@@ -671,380 +671,6 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _line = __webpack_require__(6);
-
-var _line2 = _interopRequireDefault(_line);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-_main2.default.use(_line2.default);
-
-exports.default = {
-    name: "chart.brush.area",
-    extend: "chart.brush.line",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-
-        var AreaBrush = function AreaBrush() {
-            this.drawArea = function (path) {
-                var g = this.chart.svg.group(),
-                    y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min()),
-                    opacity = _.typeCheck("number", this.brush.opacity) ? this.brush.opacity : this.chart.theme("areaBackgroundOpacity");
-
-                for (var k = 0; k < path.length; k++) {
-                    var children = this.createLine(path[k], k).children;
-
-                    for (var i = 0; i < children.length; i++) {
-                        var p = children[i];
-
-                        // opacity 옵션이 콜백함수 일때, 상위 클래스 설정을 따름.
-                        if (_.typeCheck("function", this.brush.opacity)) {
-                            opacity = p.attr("stroke-opacity");
-                        }
-
-                        if (path[k].length > 0) {
-                            p.LineTo(p.attr("x2"), y);
-                            p.LineTo(p.attr("x1"), y);
-                            p.ClosePath();
-                        }
-
-                        p.attr({
-                            fill: p.attr("stroke"),
-                            "fill-opacity": opacity,
-                            "stroke-width": 0
-                        });
-
-                        g.prepend(p);
-                    }
-
-                    if (this.brush.line) {
-                        g.prepend(this.createLine(path[k], k));
-                    }
-
-                    this.addEvent(g, null, k);
-                }
-
-                return g;
-            };
-
-            this.draw = function () {
-                return this.drawArea(this.getXY());
-            };
-
-            this.drawAnimate = function (root) {
-                root.append(this.chart.svg.animate({
-                    attributeName: "opacity",
-                    from: "0",
-                    to: "1",
-                    begin: "0s",
-                    dur: "1.5s",
-                    repeatCount: "1",
-                    fill: "freeze"
-                }));
-            };
-        };
-
-        AreaBrush.setup = function () {
-            return {
-                /** @cfg {"normal"/"curve"/"step"} [symbol="normal"] Sets the shape of a line (normal, curve, step). */
-                symbol: "normal", // normal, curve, step
-                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
-                active: null,
-                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
-                activeEvent: null,
-                /** @cfg {"max"/"min"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
-                display: null,
-                /** @cfg {Boolean} [startZero=true]  The end of the area is zero point. */
-                startZero: true,
-                /** @cfg {Boolean} [line=true]  Visible line */
-                line: true
-            };
-        };
-
-        return AreaBrush;
-    }
-};
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-var _stackbar = __webpack_require__(1);
-
-var _stackbar2 = _interopRequireDefault(_stackbar);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-_main2.default.use(_stackbar2.default);
-
-exports.default = {
-    name: "chart.brush.fullstackbar",
-    extend: "chart.brush.stackbar",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-
-        var FullStackBarBrush = function FullStackBarBrush(chart, axis, brush) {
-            var g, zeroX, height, bar_height;
-
-            this.drawBefore = function () {
-                g = chart.svg.group();
-                zeroX = axis.x(0);
-                height = axis.y.rangeBand();
-                bar_height = this.getTargetSize();
-            };
-
-            this.drawText = function (percent, x, y) {
-                if (percent === 0 || isNaN(percent)) return null;
-
-                var result = _.typeCheck("function", this.brush.showText) ? this.brush.showText.call(this, percent) : percent + "%";
-
-                var text = this.chart.text({
-                    "font-size": this.chart.theme("barFontSize"),
-                    fill: this.chart.theme("barFontColor"),
-                    x: x,
-                    y: y,
-                    "text-anchor": "middle"
-                }, result);
-
-                return text;
-            };
-
-            this.draw = function () {
-                this.eachData(function (data, i) {
-                    var group = chart.svg.group();
-
-                    var startY = this.offset("y", i) - bar_height / 2,
-                        sum = 0,
-                        list = [];
-
-                    for (var j = 0; j < brush.target.length; j++) {
-                        var width = data[brush.target[j]];
-
-                        sum += width;
-                        list.push(width);
-                    }
-
-                    var startX = 0,
-                        max = axis.x.max();
-
-                    for (var j = 0; j < list.length; j++) {
-                        var width = axis.x.rate(list[j], sum),
-                            r = this.getBarElement(i, j);
-
-                        if (isNaN(width)) continue;
-
-                        r.attr({
-                            x: startX,
-                            y: startY,
-                            width: width,
-                            height: bar_height
-                        });
-
-                        group.append(r);
-
-                        // 퍼센트 노출 옵션 설정
-                        if (brush.showText !== false) {
-                            var p = Math.round(list[j] / sum * max),
-                                x = startX + width / 2,
-                                y = startY + bar_height / 2 + 5,
-                                text = this.drawText(p, x, y);
-
-                            if (text != null) group.append(text);
-                        }
-
-                        // 액티브 엘리먼트 이벤트 설정
-                        this.setActiveEventOption(group);
-
-                        startX += width;
-                    }
-
-                    this.addBarElement(group);
-                    g.append(group);
-                });
-
-                // 액티브 엘리먼트 설정
-                this.setActiveEffectOption();
-
-                return g;
-            };
-        };
-
-        FullStackBarBrush.setup = function () {
-            return {
-                /** @cfg {Number} [outerPadding=15] */
-                outerPadding: 15,
-                /** @cfg {Boolean} [showText=false] Configures settings to let the percent text of a full stack bar revealed. */
-                showText: false
-            };
-        };
-
-        return FullStackBarBrush;
-    }
-};
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-var _stackbar = __webpack_require__(1);
-
-var _stackbar2 = _interopRequireDefault(_stackbar);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-_main2.default.use(_stackbar2.default);
-
-exports.default = {
-    name: "chart.brush.stackcolumn",
-    extend: "chart.brush.stackbar",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-
-        var StackColumnBrush = function StackColumnBrush(chart, axis, brush) {
-            var g, zeroY, bar_width;
-
-            this.getTargetSize = function () {
-                var width = this.axis.x.rangeBand();
-
-                if (this.brush.size > 0) {
-                    return this.brush.size;
-                } else {
-                    var size = width - this.brush.outerPadding * 2;
-                    return size < this.brush.minSize ? this.brush.minSize : size;
-                }
-            };
-
-            this.drawBefore = function () {
-                g = chart.svg.group();
-                zeroY = axis.y(0);
-                bar_width = this.getTargetSize();
-
-                this.stackTooltips = [];
-                this.tooltipIndexes = [];
-                this.edgeData = [];
-            };
-
-            this.draw = function () {
-                var maxIndex = null,
-                    maxValue = 0,
-                    minIndex = null,
-                    minValue = this.axis.y.max(),
-                    isReverse = this.axis.get("y").reverse;
-
-                this.eachData(function (data, i) {
-                    var group = chart.svg.group();
-
-                    var offsetX = this.offset("x", i),
-                        startX = offsetX - bar_width / 2,
-                        startY = axis.y(0),
-                        value = 0,
-                        sumValue = 0;
-
-                    for (var j = 0; j < brush.target.length; j++) {
-                        var yValue = data[brush.target[j]] + value,
-                            endY = axis.y(yValue),
-                            opts = {
-                            x: startX,
-                            y: startY > endY ? endY : startY,
-                            width: bar_width,
-                            height: Math.abs(startY - endY)
-                        },
-                            r = this.getBarElement(i, j).attr(opts);
-
-                        if (!this.edgeData[i]) {
-                            this.edgeData[i] = {};
-                        }
-
-                        this.edgeData[i][j] = _.extend({
-                            color: this.color(j),
-                            dx: 0,
-                            dy: isReverse ? opts.height : 0,
-                            ex: 0,
-                            ey: isReverse ? 0 : opts.height
-                        }, opts);
-
-                        startY = endY;
-                        value = yValue;
-                        sumValue += data[brush.target[j]];
-
-                        group.append(r);
-                    }
-
-                    // min & max 인덱스 가져오기
-                    if (sumValue > maxValue) {
-                        maxValue = sumValue;
-                        maxIndex = i;
-                    }
-                    if (sumValue < minValue) {
-                        minValue = sumValue;
-                        minIndex = i;
-                    }
-
-                    this.drawStackTooltip(group, i, sumValue, offsetX, startY, isReverse ? "bottom" : "top");
-                    this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
-                    this.addBarElement(group);
-
-                    g.append(group);
-                });
-
-                // 스탭 연결선 그리기
-                if (this.brush.edge) {
-                    this.drawStackEdge(g);
-                }
-
-                // 최소/최대/전체 값 표시하기
-                if (this.brush.display != null) {
-                    this.setActiveTooltips(minIndex, maxIndex);
-                }
-
-                // 액티브 엘리먼트 설정
-                this.setActiveEffectOption();
-
-                return g;
-            };
-        };
-
-        return StackColumnBrush;
-    }
-};
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
@@ -1313,7 +939,693 @@ exports.default = {
 };
 
 /***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _line = __webpack_require__(3);
+
+var _line2 = _interopRequireDefault(_line);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_line2.default);
+
+exports.default = {
+    name: "chart.brush.area",
+    extend: "chart.brush.line",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var AreaBrush = function AreaBrush() {
+            this.drawArea = function (path) {
+                var g = this.chart.svg.group(),
+                    y = this.axis.y(this.brush.startZero ? 0 : this.axis.y.min()),
+                    opacity = _.typeCheck("number", this.brush.opacity) ? this.brush.opacity : this.chart.theme("areaBackgroundOpacity");
+
+                for (var k = 0; k < path.length; k++) {
+                    var children = this.createLine(path[k], k).children;
+
+                    for (var i = 0; i < children.length; i++) {
+                        var p = children[i];
+
+                        // opacity 옵션이 콜백함수 일때, 상위 클래스 설정을 따름.
+                        if (_.typeCheck("function", this.brush.opacity)) {
+                            opacity = p.attr("stroke-opacity");
+                        }
+
+                        if (path[k].length > 0) {
+                            p.LineTo(p.attr("x2"), y);
+                            p.LineTo(p.attr("x1"), y);
+                            p.ClosePath();
+                        }
+
+                        p.attr({
+                            fill: p.attr("stroke"),
+                            "fill-opacity": opacity,
+                            "stroke-width": 0
+                        });
+
+                        g.prepend(p);
+                    }
+
+                    if (this.brush.line) {
+                        g.prepend(this.createLine(path[k], k));
+                    }
+
+                    this.addEvent(g, null, k);
+                }
+
+                return g;
+            };
+
+            this.draw = function () {
+                return this.drawArea(this.getXY());
+            };
+
+            this.drawAnimate = function (root) {
+                root.append(this.chart.svg.animate({
+                    attributeName: "opacity",
+                    from: "0",
+                    to: "1",
+                    begin: "0s",
+                    dur: "1.5s",
+                    repeatCount: "1",
+                    fill: "freeze"
+                }));
+            };
+        };
+
+        AreaBrush.setup = function () {
+            return {
+                /** @cfg {"normal"/"curve"/"step"} [symbol="normal"] Sets the shape of a line (normal, curve, step). */
+                symbol: "normal", // normal, curve, step
+                /** @cfg {Number} [active=null] Activates the bar of an applicable index. */
+                active: null,
+                /** @cfg {String} [activeEvent=null]  Activates the bar in question when a configured event occurs (click, mouseover, etc). */
+                activeEvent: null,
+                /** @cfg {"max"/"min"} [display=null]  Shows a tool tip on the bar for the minimum/maximum value.  */
+                display: null,
+                /** @cfg {Boolean} [startZero=true]  The end of the area is zero point. */
+                startZero: true,
+                /** @cfg {Boolean} [line=true]  Visible line */
+                line: true
+            };
+        };
+
+        return AreaBrush;
+    }
+};
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _stackbar = __webpack_require__(1);
+
+var _stackbar2 = _interopRequireDefault(_stackbar);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_stackbar2.default);
+
+exports.default = {
+    name: "chart.brush.fullstackbar",
+    extend: "chart.brush.stackbar",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var FullStackBarBrush = function FullStackBarBrush(chart, axis, brush) {
+            var g, zeroX, height, bar_height;
+
+            this.drawBefore = function () {
+                g = chart.svg.group();
+                zeroX = axis.x(0);
+                height = axis.y.rangeBand();
+                bar_height = this.getTargetSize();
+            };
+
+            this.drawText = function (percent, x, y) {
+                if (percent === 0 || isNaN(percent)) return null;
+
+                var result = _.typeCheck("function", this.brush.showText) ? this.brush.showText.call(this, percent) : percent + "%";
+
+                var text = this.chart.text({
+                    "font-size": this.chart.theme("barFontSize"),
+                    fill: this.chart.theme("barFontColor"),
+                    x: x,
+                    y: y,
+                    "text-anchor": "middle"
+                }, result);
+
+                return text;
+            };
+
+            this.draw = function () {
+                this.eachData(function (data, i) {
+                    var group = chart.svg.group();
+
+                    var startY = this.offset("y", i) - bar_height / 2,
+                        sum = 0,
+                        list = [];
+
+                    for (var j = 0; j < brush.target.length; j++) {
+                        var width = data[brush.target[j]];
+
+                        sum += width;
+                        list.push(width);
+                    }
+
+                    var startX = 0,
+                        max = axis.x.max();
+
+                    for (var j = 0; j < list.length; j++) {
+                        var width = axis.x.rate(list[j], sum),
+                            r = this.getBarElement(i, j);
+
+                        if (isNaN(width)) continue;
+
+                        r.attr({
+                            x: startX,
+                            y: startY,
+                            width: width,
+                            height: bar_height
+                        });
+
+                        group.append(r);
+
+                        // 퍼센트 노출 옵션 설정
+                        if (brush.showText !== false) {
+                            var p = Math.round(list[j] / sum * max),
+                                x = startX + width / 2,
+                                y = startY + bar_height / 2 + 5,
+                                text = this.drawText(p, x, y);
+
+                            if (text != null) group.append(text);
+                        }
+
+                        // 액티브 엘리먼트 이벤트 설정
+                        this.setActiveEventOption(group);
+
+                        startX += width;
+                    }
+
+                    this.addBarElement(group);
+                    g.append(group);
+                });
+
+                // 액티브 엘리먼트 설정
+                this.setActiveEffectOption();
+
+                return g;
+            };
+        };
+
+        FullStackBarBrush.setup = function () {
+            return {
+                /** @cfg {Number} [outerPadding=15] */
+                outerPadding: 15,
+                /** @cfg {Boolean} [showText=false] Configures settings to let the percent text of a full stack bar revealed. */
+                showText: false
+            };
+        };
+
+        return FullStackBarBrush;
+    }
+};
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _stackbar = __webpack_require__(1);
+
+var _stackbar2 = _interopRequireDefault(_stackbar);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_stackbar2.default);
+
+exports.default = {
+    name: "chart.brush.stackcolumn",
+    extend: "chart.brush.stackbar",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var StackColumnBrush = function StackColumnBrush(chart, axis, brush) {
+            var g, zeroY, bar_width;
+
+            this.getTargetSize = function () {
+                var width = this.axis.x.rangeBand();
+
+                if (this.brush.size > 0) {
+                    return this.brush.size;
+                } else {
+                    var size = width - this.brush.outerPadding * 2;
+                    return size < this.brush.minSize ? this.brush.minSize : size;
+                }
+            };
+
+            this.drawBefore = function () {
+                g = chart.svg.group();
+                zeroY = axis.y(0);
+                bar_width = this.getTargetSize();
+
+                this.stackTooltips = [];
+                this.tooltipIndexes = [];
+                this.edgeData = [];
+            };
+
+            this.draw = function () {
+                var maxIndex = null,
+                    maxValue = 0,
+                    minIndex = null,
+                    minValue = this.axis.y.max(),
+                    isReverse = this.axis.get("y").reverse;
+
+                this.eachData(function (data, i) {
+                    var group = chart.svg.group();
+
+                    var offsetX = this.offset("x", i),
+                        startX = offsetX - bar_width / 2,
+                        startY = axis.y(0),
+                        value = 0,
+                        sumValue = 0;
+
+                    for (var j = 0; j < brush.target.length; j++) {
+                        var yValue = data[brush.target[j]] + value,
+                            endY = axis.y(yValue),
+                            opts = {
+                            x: startX,
+                            y: startY > endY ? endY : startY,
+                            width: bar_width,
+                            height: Math.abs(startY - endY)
+                        },
+                            r = this.getBarElement(i, j).attr(opts);
+
+                        if (!this.edgeData[i]) {
+                            this.edgeData[i] = {};
+                        }
+
+                        this.edgeData[i][j] = _.extend({
+                            color: this.color(j),
+                            dx: 0,
+                            dy: isReverse ? opts.height : 0,
+                            ex: 0,
+                            ey: isReverse ? 0 : opts.height
+                        }, opts);
+
+                        startY = endY;
+                        value = yValue;
+                        sumValue += data[brush.target[j]];
+
+                        group.append(r);
+                    }
+
+                    // min & max 인덱스 가져오기
+                    if (sumValue > maxValue) {
+                        maxValue = sumValue;
+                        maxIndex = i;
+                    }
+                    if (sumValue < minValue) {
+                        minValue = sumValue;
+                        minIndex = i;
+                    }
+
+                    this.drawStackTooltip(group, i, sumValue, offsetX, startY, isReverse ? "bottom" : "top");
+                    this.setActiveEventOption(group); // 액티브 엘리먼트 이벤트 설정
+                    this.addBarElement(group);
+
+                    g.append(group);
+                });
+
+                // 스탭 연결선 그리기
+                if (this.brush.edge) {
+                    this.drawStackEdge(g);
+                }
+
+                // 최소/최대/전체 값 표시하기
+                if (this.brush.display != null) {
+                    this.setActiveTooltips(minIndex, maxIndex);
+                }
+
+                // 액티브 엘리먼트 설정
+                this.setActiveEffectOption();
+
+                return g;
+            };
+        };
+
+        return StackColumnBrush;
+    }
+};
+
+/***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+    name: "chart.brush.scatter",
+    extend: "chart.brush.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var ScatterBrush = function ScatterBrush() {
+
+            this.getSymbolType = function (key, value) {
+                var symbol = this.brush.symbol,
+                    target = this.brush.target[key];
+
+                if (_.typeCheck("function", symbol)) {
+                    var res = symbol.apply(this.chart, [target, value]);
+
+                    if (res == "triangle" || res == "cross" || res == "rectangle" || res == "rect" || res == "circle") {
+                        return {
+                            type: "default",
+                            uri: res
+                        };
+                    } else {
+                        return {
+                            type: "image",
+                            uri: res
+                        };
+                    }
+                }
+
+                return {
+                    type: "default",
+                    uri: symbol
+                };
+            };
+
+            this.createScatter = function (pos, dataIndex, targetIndex, symbol) {
+                var self = this,
+                    elem = null,
+                    w = this.brush.size,
+                    h = this.brush.size;
+
+                var color = this.color(dataIndex, targetIndex),
+                    borderColor = this.chart.theme("scatterBorderColor"),
+                    borderWidth = this.chart.theme("scatterBorderWidth"),
+                    bgOpacity = this.brush.opacity;
+
+                if (symbol.type == "image") {
+                    elem = this.chart.svg.image({
+                        "xlink:href": symbol.uri,
+                        width: w + borderWidth,
+                        height: h + borderWidth,
+                        x: pos.x - w / 2 - borderWidth,
+                        y: pos.y - h / 2
+                    });
+                } else {
+                    if (symbol.uri == "triangle" || symbol.uri == "cross") {
+                        elem = this.chart.svg.group({
+                            width: w,
+                            height: h,
+                            opacity: bgOpacity
+                        }, function () {
+                            if (symbol.uri == "triangle") {
+                                var poly = self.chart.svg.polygon();
+
+                                poly.point(0, h).point(w, h).point(w / 2, 0);
+                            } else {
+                                self.chart.svg.line({ stroke: color, "stroke-width": borderWidth * 2, x1: 0, y1: 0, x2: w, y2: h });
+                                self.chart.svg.line({ stroke: color, "stroke-width": borderWidth * 2, x1: 0, y1: w, x2: h, y2: 0 });
+                            }
+                        }).translate(pos.x - w / 2, pos.y - h / 2);
+                    } else {
+                        if (symbol.uri == "rectangle" || symbol.uri == "rect") {
+                            elem = this.chart.svg.rect({
+                                width: w,
+                                height: h,
+                                x: pos.x - w / 2,
+                                y: pos.y - h / 2,
+                                opacity: bgOpacity
+                            });
+                        } else {
+                            elem = this.chart.svg.ellipse({
+                                rx: w / 2,
+                                ry: h / 2,
+                                cx: pos.x,
+                                cy: pos.y,
+                                opacity: bgOpacity
+                            });
+                        }
+                    }
+
+                    if (symbol.uri != "cross") {
+                        elem.attr({
+                            fill: color,
+                            stroke: borderColor,
+                            "stroke-width": borderWidth
+                        }).hover(function () {
+                            if (elem == self.activeScatter) return;
+
+                            var opts = {
+                                fill: self.chart.theme("scatterHoverColor"),
+                                stroke: color,
+                                "stroke-width": borderWidth * 2,
+                                opacity: bgOpacity
+                            };
+
+                            if (self.brush.hoverSync) {
+                                for (var i = 0; i < self.cachedSymbol[dataIndex].length; i++) {
+                                    opts.stroke = self.color(dataIndex, i);
+                                    self.cachedSymbol[dataIndex][i].attr(opts);
+                                }
+                            } else {
+                                elem.attr(opts);
+                            }
+                        }, function () {
+                            if (elem == self.activeScatter) return;
+
+                            var opts = {
+                                fill: color,
+                                stroke: borderColor,
+                                "stroke-width": borderWidth,
+                                opacity: self.brush.hide ? 0 : bgOpacity
+                            };
+
+                            if (self.brush.hoverSync) {
+                                for (var i = 0; i < self.cachedSymbol[dataIndex].length; i++) {
+                                    opts.fill = self.color(dataIndex, i);
+                                    self.cachedSymbol[dataIndex][i].attr(opts);
+                                }
+                            } else {
+                                elem.attr(opts);
+                            }
+                        });
+                    }
+                }
+
+                return elem;
+            };
+
+            this.drawScatter = function (points) {
+                // hoverSync 옵션 처리를 위한 캐싱 처리
+                this.cachedSymbol = {};
+
+                var self = this,
+                    g = this.chart.svg.group(),
+                    borderColor = this.chart.theme("scatterBorderColor"),
+                    borderWidth = this.chart.theme("scatterBorderWidth"),
+                    bgOpacity = this.brush.opacity,
+                    isTooltipDraw = false;
+
+                for (var i = 0; i < points.length; i++) {
+                    for (var j = 0; j < points[i].length; j++) {
+                        if (!this.cachedSymbol[j]) {
+                            this.cachedSymbol[j] = [];
+                        }
+
+                        if (this.brush.hideZero && points[i].value[j] === 0) {
+                            continue;
+                        }
+
+                        var data = {
+                            x: points[i].x[j],
+                            y: points[i].y[j],
+                            max: points[i].max[j],
+                            min: points[i].min[j],
+                            value: points[i].value[j]
+                        };
+
+                        // 값이 null이나 undefined일 때, 그리지 않음
+                        if (_.typeCheck(["undefined", "null"], data.value)) continue;
+
+                        var symbol = this.getSymbolType(i, data.value),
+                            p = this.createScatter(data, j, i, symbol),
+                            d = this.brush.display;
+
+                        // hoverSync 옵션을 위한 엘리먼트 캐싱
+                        if (symbol.type == "default" && symbol.uri != "cross") {
+                            this.cachedSymbol[j].push(p);
+                        }
+
+                        // Max & Min & All 툴팁 생성
+                        if (d == "max" && data.max || d == "min" && data.min || d == "all") {
+                            // 최소/최대 값은 무조건 한개만 보여야 함.
+                            if (d == "all" || !isTooltipDraw) {
+                                g.append(this.drawTooltip(data.x, data.y, this.format(data.value)));
+                                isTooltipDraw = true;
+                            }
+                        }
+
+                        // 컬럼 및 기본 브러쉬 이벤트 설정
+                        if (this.brush.activeEvent != null) {
+                            (function (scatter, data, color, symbol) {
+                                var x = data.x,
+                                    y = data.y,
+                                    text = self.format(data.value);
+
+                                scatter.on(self.brush.activeEvent, function (e) {
+                                    if (symbol.type == "default" && symbol.uri != "cross") {
+                                        if (self.activeScatter != null) {
+                                            self.activeScatter.attr({
+                                                fill: self.activeScatter.attributes["stroke"],
+                                                stroke: borderColor,
+                                                "stroke-width": borderWidth,
+                                                opacity: self.brush.hide ? 0 : bgOpacity
+                                            });
+                                        }
+
+                                        self.activeScatter = scatter;
+                                        self.activeScatter.attr({
+                                            fill: self.chart.theme("scatterHoverColor"),
+                                            stroke: color,
+                                            "stroke-width": borderWidth * 2,
+                                            opacity: bgOpacity
+                                        });
+                                    }
+
+                                    self.activeTooltip.html(text);
+                                    self.activeTooltip.translate(x, y);
+                                });
+
+                                scatter.attr({ cursor: "pointer" });
+                            })(p, data, this.color(j, i), this.getSymbolType(i, data.value));
+                        }
+
+                        if (this.brush.hide) {
+                            p.attr({ opacity: 0 });
+                        }
+
+                        this.addEvent(p, j, i);
+                        g.append(p);
+                    }
+                }
+
+                // 액티브 툴팁
+                this.activeTooltip = this.drawTooltip(0, 0, "");
+                g.append(this.activeTooltip);
+
+                return g;
+            };
+
+            this.drawTooltip = function (x, y, text) {
+                return this.chart.text({
+                    y: -this.brush.size,
+                    "text-anchor": "middle",
+                    fill: this.chart.theme("tooltipPointFontColor"),
+                    "font-size": this.chart.theme("tooltipPointFontSize"),
+                    "font-weight": this.chart.theme("tooltipPointFontWeight"),
+                    opacity: this.brush.opacity
+                }, text).translate(x, y);
+            };
+
+            this.draw = function () {
+                return this.drawScatter(this.getXY());
+            };
+
+            this.drawAnimate = function () {
+                var area = this.chart.area();
+
+                return this.chart.svg.animateTransform({
+                    attributeName: "transform",
+                    type: "translate",
+                    from: area.x + " " + area.height,
+                    to: area.x + " " + area.y,
+                    begin: "0s",
+                    dur: "0.4s",
+                    repeatCount: "1"
+                });
+            };
+        };
+
+        ScatterBrush.setup = function () {
+            return {
+                /** @cfg {"circle"/"triangle"/"rectangle"/"cross"/"callback"} [symbol="circle"] Determines the shape of a (circle, rectangle, cross, triangle).  */
+                symbol: "circle",
+                /** @cfg {Number} [size=7]  Determines the size of a starter. */
+                size: 7,
+                /** @cfg {Boolean} [hide=false]  Hide the scatter, will be displayed only when the mouse is over. */
+                hide: false,
+                /** @cfg {Boolean} [hideZero=false]  When scatter value is zero, will be hidden. */
+                hideZero: false,
+                /** @cfg {Boolean} [hoverSync=false]  Over effect synchronization of all the target's symbol. */
+                hoverSync: false,
+                /** @cfg {String} [activeEvent=null]  Activates the scatter in question when a configured event occurs (click, mouseover, etc). */
+                activeEvent: null,
+                /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tooltip on the scatter for the minimum/maximum value.  */
+                display: null,
+                /** @cfg {Number} [opacity=1]  Stroke opacity.  */
+                opacity: 1,
+                /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
+                clip: false
+            };
+        };
+
+        return ScatterBrush;
+    }
+};
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1743,7 +2055,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1757,7 +2069,7 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _pie = __webpack_require__(7);
+var _pie = __webpack_require__(8);
 
 var _pie2 = _interopRequireDefault(_pie);
 
@@ -2114,7 +2426,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2391,7 +2703,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2472,7 +2784,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2484,31 +2796,31 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _classic = __webpack_require__(13);
+var _classic = __webpack_require__(14);
 
 var _classic2 = _interopRequireDefault(_classic);
 
-var _classic3 = __webpack_require__(14);
+var _classic3 = __webpack_require__(15);
 
 var _classic4 = _interopRequireDefault(_classic3);
 
-var _classic5 = __webpack_require__(15);
+var _classic5 = __webpack_require__(16);
 
 var _classic6 = _interopRequireDefault(_classic5);
 
-var _dark = __webpack_require__(16);
+var _dark = __webpack_require__(17);
 
 var _dark2 = _interopRequireDefault(_dark);
 
-var _gradient = __webpack_require__(17);
+var _gradient = __webpack_require__(18);
 
 var _gradient2 = _interopRequireDefault(_gradient);
 
-var _pattern = __webpack_require__(18);
+var _pattern = __webpack_require__(19);
 
 var _pattern2 = _interopRequireDefault(_pattern);
 
-var _topologytable = __webpack_require__(19);
+var _topologytable = __webpack_require__(20);
 
 var _topologytable2 = _interopRequireDefault(_topologytable);
 
@@ -2520,47 +2832,47 @@ var _stackbar = __webpack_require__(1);
 
 var _stackbar2 = _interopRequireDefault(_stackbar);
 
-var _fullstackbar = __webpack_require__(4);
+var _fullstackbar = __webpack_require__(5);
 
 var _fullstackbar2 = _interopRequireDefault(_fullstackbar);
 
-var _rangebar = __webpack_require__(20);
+var _rangebar = __webpack_require__(21);
 
 var _rangebar2 = _interopRequireDefault(_rangebar);
 
-var _column = __webpack_require__(21);
+var _column = __webpack_require__(22);
 
 var _column2 = _interopRequireDefault(_column);
 
-var _stackcolumn = __webpack_require__(5);
+var _stackcolumn = __webpack_require__(6);
 
 var _stackcolumn2 = _interopRequireDefault(_stackcolumn);
 
-var _fullstackcolumn = __webpack_require__(22);
+var _fullstackcolumn = __webpack_require__(23);
 
 var _fullstackcolumn2 = _interopRequireDefault(_fullstackcolumn);
 
-var _rangecolumn = __webpack_require__(23);
+var _rangecolumn = __webpack_require__(24);
 
 var _rangecolumn2 = _interopRequireDefault(_rangecolumn);
 
-var _line = __webpack_require__(6);
+var _line = __webpack_require__(3);
 
 var _line2 = _interopRequireDefault(_line);
 
-var _area = __webpack_require__(3);
+var _area = __webpack_require__(4);
 
 var _area2 = _interopRequireDefault(_area);
 
-var _stackarea = __webpack_require__(24);
+var _stackarea = __webpack_require__(25);
 
 var _stackarea2 = _interopRequireDefault(_stackarea);
 
-var _rangearea = __webpack_require__(25);
+var _rangearea = __webpack_require__(26);
 
 var _rangearea2 = _interopRequireDefault(_rangearea);
 
-var _scatter = __webpack_require__(26);
+var _scatter = __webpack_require__(7);
 
 var _scatter2 = _interopRequireDefault(_scatter);
 
@@ -2568,11 +2880,11 @@ var _bubble = __webpack_require__(27);
 
 var _bubble2 = _interopRequireDefault(_bubble);
 
-var _pie = __webpack_require__(7);
+var _pie = __webpack_require__(8);
 
 var _pie2 = _interopRequireDefault(_pie);
 
-var _donut = __webpack_require__(8);
+var _donut = __webpack_require__(9);
 
 var _donut2 = _interopRequireDefault(_donut);
 
@@ -2660,72 +2972,92 @@ var _bargauge = __webpack_require__(50);
 
 var _bargauge2 = _interopRequireDefault(_bargauge);
 
-var _cross = __webpack_require__(51);
+var _stackline = __webpack_require__(51);
+
+var _stackline2 = _interopRequireDefault(_stackline);
+
+var _stackscatter = __webpack_require__(52);
+
+var _stackscatter2 = _interopRequireDefault(_stackscatter);
+
+var _arcequalizer = __webpack_require__(53);
+
+var _arcequalizer2 = _interopRequireDefault(_arcequalizer);
+
+var _pyramid = __webpack_require__(54);
+
+var _pyramid2 = _interopRequireDefault(_pyramid);
+
+var _cross = __webpack_require__(55);
 
 var _cross2 = _interopRequireDefault(_cross);
 
-var _legend = __webpack_require__(52);
+var _legend = __webpack_require__(56);
 
 var _legend2 = _interopRequireDefault(_legend);
 
-var _title = __webpack_require__(53);
+var _title = __webpack_require__(57);
 
 var _title2 = _interopRequireDefault(_title);
 
-var _tooltip = __webpack_require__(54);
+var _tooltip = __webpack_require__(58);
 
 var _tooltip2 = _interopRequireDefault(_tooltip);
 
-var _topologyctrl = __webpack_require__(55);
+var _topologyctrl = __webpack_require__(59);
 
 var _topologyctrl2 = _interopRequireDefault(_topologyctrl);
 
-var _dragselect = __webpack_require__(56);
+var _dragselect = __webpack_require__(60);
 
 var _dragselect2 = _interopRequireDefault(_dragselect);
 
-var _vscroll = __webpack_require__(57);
+var _scroll = __webpack_require__(61);
+
+var _scroll2 = _interopRequireDefault(_scroll);
+
+var _vscroll = __webpack_require__(62);
 
 var _vscroll2 = _interopRequireDefault(_vscroll);
 
-var _zoom = __webpack_require__(58);
+var _zoom = __webpack_require__(63);
 
 var _zoom2 = _interopRequireDefault(_zoom);
 
-var _zoomselect = __webpack_require__(59);
+var _zoomselect = __webpack_require__(64);
 
 var _zoomselect2 = _interopRequireDefault(_zoomselect);
 
-var _zoomscroll = __webpack_require__(60);
+var _zoomscroll = __webpack_require__(65);
 
 var _zoomscroll2 = _interopRequireDefault(_zoomscroll);
 
-var _raycast = __webpack_require__(61);
+var _raycast = __webpack_require__(66);
 
 var _raycast2 = _interopRequireDefault(_raycast);
 
-var _guideline = __webpack_require__(62);
+var _guideline = __webpack_require__(67);
 
 var _guideline2 = _interopRequireDefault(_guideline);
 
-var _picker = __webpack_require__(63);
+var _picker = __webpack_require__(68);
 
 var _picker2 = _interopRequireDefault(_picker);
 
-var _rotate3d = __webpack_require__(64);
+var _rotate3d = __webpack_require__(69);
 
 var _rotate3d2 = _interopRequireDefault(_rotate3d);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _fullgauge2.default, _bargauge2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _vscroll2.default, _zoom2.default, _zoomselect2.default, _zoomscroll2.default, _raycast2.default, _guideline2.default, _picker2.default, _rotate3d2.default]);
+_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _fullgauge2.default, _bargauge2.default, _stackline2.default, _stackscatter2.default, _arcequalizer2.default, _pyramid2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _scroll2.default, _vscroll2.default, _zoom2.default, _zoomselect2.default, _zoomscroll2.default, _raycast2.default, _guideline2.default, _picker2.default, _rotate3d2.default]);
 
 if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) == "object") {
     window.graph = _main2.default;
 }
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15703,7 +16035,7 @@ _$1.extend(jui$1, manager$1, true);
 exports.default = jui$1;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15914,7 +16246,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16137,7 +16469,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16529,7 +16861,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16923,7 +17255,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17312,7 +17644,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17702,7 +18034,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17912,7 +18244,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17993,7 +18325,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18136,7 +18468,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18150,7 +18482,7 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _fullstackbar = __webpack_require__(4);
+var _fullstackbar = __webpack_require__(5);
 
 var _fullstackbar2 = _interopRequireDefault(_fullstackbar);
 
@@ -18254,7 +18586,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18332,7 +18664,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18346,7 +18678,7 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _area = __webpack_require__(3);
+var _area = __webpack_require__(4);
 
 var _area2 = _interopRequireDefault(_area);
 
@@ -18369,7 +18701,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18425,318 +18757,6 @@ exports.default = {
         };
 
         return RangeAreaBrush;
-    }
-};
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _main = __webpack_require__(0);
-
-var _main2 = _interopRequireDefault(_main);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-    name: "chart.brush.scatter",
-    extend: "chart.brush.core",
-    component: function component() {
-        var _ = _main2.default.include("util.base");
-
-        var ScatterBrush = function ScatterBrush() {
-
-            this.getSymbolType = function (key, value) {
-                var symbol = this.brush.symbol,
-                    target = this.brush.target[key];
-
-                if (_.typeCheck("function", symbol)) {
-                    var res = symbol.apply(this.chart, [target, value]);
-
-                    if (res == "triangle" || res == "cross" || res == "rectangle" || res == "rect" || res == "circle") {
-                        return {
-                            type: "default",
-                            uri: res
-                        };
-                    } else {
-                        return {
-                            type: "image",
-                            uri: res
-                        };
-                    }
-                }
-
-                return {
-                    type: "default",
-                    uri: symbol
-                };
-            };
-
-            this.createScatter = function (pos, dataIndex, targetIndex, symbol) {
-                var self = this,
-                    elem = null,
-                    w = this.brush.size,
-                    h = this.brush.size;
-
-                var color = this.color(dataIndex, targetIndex),
-                    borderColor = this.chart.theme("scatterBorderColor"),
-                    borderWidth = this.chart.theme("scatterBorderWidth"),
-                    bgOpacity = this.brush.opacity;
-
-                if (symbol.type == "image") {
-                    elem = this.chart.svg.image({
-                        "xlink:href": symbol.uri,
-                        width: w + borderWidth,
-                        height: h + borderWidth,
-                        x: pos.x - w / 2 - borderWidth,
-                        y: pos.y - h / 2
-                    });
-                } else {
-                    if (symbol.uri == "triangle" || symbol.uri == "cross") {
-                        elem = this.chart.svg.group({
-                            width: w,
-                            height: h,
-                            opacity: bgOpacity
-                        }, function () {
-                            if (symbol.uri == "triangle") {
-                                var poly = self.chart.svg.polygon();
-
-                                poly.point(0, h).point(w, h).point(w / 2, 0);
-                            } else {
-                                self.chart.svg.line({ stroke: color, "stroke-width": borderWidth * 2, x1: 0, y1: 0, x2: w, y2: h });
-                                self.chart.svg.line({ stroke: color, "stroke-width": borderWidth * 2, x1: 0, y1: w, x2: h, y2: 0 });
-                            }
-                        }).translate(pos.x - w / 2, pos.y - h / 2);
-                    } else {
-                        if (symbol.uri == "rectangle" || symbol.uri == "rect") {
-                            elem = this.chart.svg.rect({
-                                width: w,
-                                height: h,
-                                x: pos.x - w / 2,
-                                y: pos.y - h / 2,
-                                opacity: bgOpacity
-                            });
-                        } else {
-                            elem = this.chart.svg.ellipse({
-                                rx: w / 2,
-                                ry: h / 2,
-                                cx: pos.x,
-                                cy: pos.y,
-                                opacity: bgOpacity
-                            });
-                        }
-                    }
-
-                    if (symbol.uri != "cross") {
-                        elem.attr({
-                            fill: color,
-                            stroke: borderColor,
-                            "stroke-width": borderWidth
-                        }).hover(function () {
-                            if (elem == self.activeScatter) return;
-
-                            var opts = {
-                                fill: self.chart.theme("scatterHoverColor"),
-                                stroke: color,
-                                "stroke-width": borderWidth * 2,
-                                opacity: bgOpacity
-                            };
-
-                            if (self.brush.hoverSync) {
-                                for (var i = 0; i < self.cachedSymbol[dataIndex].length; i++) {
-                                    opts.stroke = self.color(dataIndex, i);
-                                    self.cachedSymbol[dataIndex][i].attr(opts);
-                                }
-                            } else {
-                                elem.attr(opts);
-                            }
-                        }, function () {
-                            if (elem == self.activeScatter) return;
-
-                            var opts = {
-                                fill: color,
-                                stroke: borderColor,
-                                "stroke-width": borderWidth,
-                                opacity: self.brush.hide ? 0 : bgOpacity
-                            };
-
-                            if (self.brush.hoverSync) {
-                                for (var i = 0; i < self.cachedSymbol[dataIndex].length; i++) {
-                                    opts.fill = self.color(dataIndex, i);
-                                    self.cachedSymbol[dataIndex][i].attr(opts);
-                                }
-                            } else {
-                                elem.attr(opts);
-                            }
-                        });
-                    }
-                }
-
-                return elem;
-            };
-
-            this.drawScatter = function (points) {
-                // hoverSync 옵션 처리를 위한 캐싱 처리
-                this.cachedSymbol = {};
-
-                var self = this,
-                    g = this.chart.svg.group(),
-                    borderColor = this.chart.theme("scatterBorderColor"),
-                    borderWidth = this.chart.theme("scatterBorderWidth"),
-                    bgOpacity = this.brush.opacity,
-                    isTooltipDraw = false;
-
-                for (var i = 0; i < points.length; i++) {
-                    for (var j = 0; j < points[i].length; j++) {
-                        if (!this.cachedSymbol[j]) {
-                            this.cachedSymbol[j] = [];
-                        }
-
-                        if (this.brush.hideZero && points[i].value[j] === 0) {
-                            continue;
-                        }
-
-                        var data = {
-                            x: points[i].x[j],
-                            y: points[i].y[j],
-                            max: points[i].max[j],
-                            min: points[i].min[j],
-                            value: points[i].value[j]
-                        };
-
-                        // 값이 null이나 undefined일 때, 그리지 않음
-                        if (_.typeCheck(["undefined", "null"], data.value)) continue;
-
-                        var symbol = this.getSymbolType(i, data.value),
-                            p = this.createScatter(data, j, i, symbol),
-                            d = this.brush.display;
-
-                        // hoverSync 옵션을 위한 엘리먼트 캐싱
-                        if (symbol.type == "default" && symbol.uri != "cross") {
-                            this.cachedSymbol[j].push(p);
-                        }
-
-                        // Max & Min & All 툴팁 생성
-                        if (d == "max" && data.max || d == "min" && data.min || d == "all") {
-                            // 최소/최대 값은 무조건 한개만 보여야 함.
-                            if (d == "all" || !isTooltipDraw) {
-                                g.append(this.drawTooltip(data.x, data.y, this.format(data.value)));
-                                isTooltipDraw = true;
-                            }
-                        }
-
-                        // 컬럼 및 기본 브러쉬 이벤트 설정
-                        if (this.brush.activeEvent != null) {
-                            (function (scatter, data, color, symbol) {
-                                var x = data.x,
-                                    y = data.y,
-                                    text = self.format(data.value);
-
-                                scatter.on(self.brush.activeEvent, function (e) {
-                                    if (symbol.type == "default" && symbol.uri != "cross") {
-                                        if (self.activeScatter != null) {
-                                            self.activeScatter.attr({
-                                                fill: self.activeScatter.attributes["stroke"],
-                                                stroke: borderColor,
-                                                "stroke-width": borderWidth,
-                                                opacity: self.brush.hide ? 0 : bgOpacity
-                                            });
-                                        }
-
-                                        self.activeScatter = scatter;
-                                        self.activeScatter.attr({
-                                            fill: self.chart.theme("scatterHoverColor"),
-                                            stroke: color,
-                                            "stroke-width": borderWidth * 2,
-                                            opacity: bgOpacity
-                                        });
-                                    }
-
-                                    self.activeTooltip.html(text);
-                                    self.activeTooltip.translate(x, y);
-                                });
-
-                                scatter.attr({ cursor: "pointer" });
-                            })(p, data, this.color(j, i), this.getSymbolType(i, data.value));
-                        }
-
-                        if (this.brush.hide) {
-                            p.attr({ opacity: 0 });
-                        }
-
-                        this.addEvent(p, j, i);
-                        g.append(p);
-                    }
-                }
-
-                // 액티브 툴팁
-                this.activeTooltip = this.drawTooltip(0, 0, "");
-                g.append(this.activeTooltip);
-
-                return g;
-            };
-
-            this.drawTooltip = function (x, y, text) {
-                return this.chart.text({
-                    y: -this.brush.size,
-                    "text-anchor": "middle",
-                    fill: this.chart.theme("tooltipPointFontColor"),
-                    "font-size": this.chart.theme("tooltipPointFontSize"),
-                    "font-weight": this.chart.theme("tooltipPointFontWeight"),
-                    opacity: this.brush.opacity
-                }, text).translate(x, y);
-            };
-
-            this.draw = function () {
-                return this.drawScatter(this.getXY());
-            };
-
-            this.drawAnimate = function () {
-                var area = this.chart.area();
-
-                return this.chart.svg.animateTransform({
-                    attributeName: "transform",
-                    type: "translate",
-                    from: area.x + " " + area.height,
-                    to: area.x + " " + area.y,
-                    begin: "0s",
-                    dur: "0.4s",
-                    repeatCount: "1"
-                });
-            };
-        };
-
-        ScatterBrush.setup = function () {
-            return {
-                /** @cfg {"circle"/"triangle"/"rectangle"/"cross"/"callback"} [symbol="circle"] Determines the shape of a (circle, rectangle, cross, triangle).  */
-                symbol: "circle",
-                /** @cfg {Number} [size=7]  Determines the size of a starter. */
-                size: 7,
-                /** @cfg {Boolean} [hide=false]  Hide the scatter, will be displayed only when the mouse is over. */
-                hide: false,
-                /** @cfg {Boolean} [hideZero=false]  When scatter value is zero, will be hidden. */
-                hideZero: false,
-                /** @cfg {Boolean} [hoverSync=false]  Over effect synchronization of all the target's symbol. */
-                hoverSync: false,
-                /** @cfg {String} [activeEvent=null]  Activates the scatter in question when a configured event occurs (click, mouseover, etc). */
-                activeEvent: null,
-                /** @cfg {"max"/"min"/"all"} [display=null]  Shows a tooltip on the scatter for the minimum/maximum value.  */
-                display: null,
-                /** @cfg {Number} [opacity=1]  Stroke opacity.  */
-                opacity: 1,
-                /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
-                clip: false
-            };
-        };
-
-        return ScatterBrush;
     }
 };
 
@@ -21629,7 +21649,7 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _stackcolumn = __webpack_require__(5);
+var _stackcolumn = __webpack_require__(6);
 
 var _stackcolumn2 = _interopRequireDefault(_stackcolumn);
 
@@ -22678,11 +22698,11 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _base = __webpack_require__(9);
+var _base = __webpack_require__(10);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _kinetic = __webpack_require__(10);
+var _kinetic = __webpack_require__(11);
 
 var _kinetic2 = _interopRequireDefault(_kinetic);
 
@@ -22992,11 +23012,11 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _base = __webpack_require__(9);
+var _base = __webpack_require__(10);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _kinetic = __webpack_require__(10);
+var _kinetic = __webpack_require__(11);
 
 var _kinetic2 = _interopRequireDefault(_kinetic);
 
@@ -23249,7 +23269,7 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _donut = __webpack_require__(8);
+var _donut = __webpack_require__(9);
 
 var _donut2 = _interopRequireDefault(_donut);
 
@@ -23498,6 +23518,450 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
+var _line = __webpack_require__(3);
+
+var _line2 = _interopRequireDefault(_line);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_line2.default);
+
+exports.default = {
+    name: "chart.brush.stackline",
+    extend: "chart.brush.line",
+    component: function component() {
+        var StackLineBrush = function StackLineBrush() {
+            this.draw = function () {
+                return this.drawLine(this.getStackXY());
+            };
+        };
+
+        return StackLineBrush;
+    }
+};
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+var _scatter = __webpack_require__(7);
+
+var _scatter2 = _interopRequireDefault(_scatter);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_main2.default.use(_scatter2.default);
+
+exports.default = {
+    name: "chart.brush.stackscatter",
+    extend: "chart.brush.scatter",
+    component: function component() {
+        var StackScatterBrush = function StackScatterBrush() {
+            this.draw = function () {
+                return this.drawScatter(this.getStackXY());
+            };
+        };
+
+        return StackScatterBrush;
+    }
+};
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+    name: "chart.brush.arcequalizer",
+    extend: "chart.brush.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var ArcEqualizerBrush = function ArcEqualizerBrush() {
+            var self = this;
+            var g,
+                r = 0,
+                cx = 0,
+                cy = 0;
+            var stackSize = 0,
+                stackAngle = 0,
+                dataCount = 0;
+
+            function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+                var angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+
+                return {
+                    x: centerX + radius * Math.cos(angleInRadians),
+                    y: centerY + radius * Math.sin(angleInRadians)
+                };
+            }
+
+            function describeArc(radius, startAngle, endAngle) {
+                var endAngleOriginal = endAngle;
+
+                if (endAngleOriginal - startAngle === 360) {
+                    endAngle = 359.9;
+                }
+
+                var start = polarToCartesian(cx, cy, radius, endAngle),
+                    end = polarToCartesian(cx, cy, radius, startAngle),
+                    arcSweep = endAngle - startAngle <= 180 ? false : true;
+
+                return {
+                    sx: end.x,
+                    sy: end.y,
+                    ex: start.x,
+                    ey: start.y,
+                    sweep: arcSweep
+                };
+            }
+
+            function drawPath(p, radius, startAngle, endAngle) {
+                var arc1 = describeArc(radius, startAngle, endAngle),
+                    arc2 = describeArc(radius + stackSize, startAngle, endAngle);
+
+                p.MoveTo(arc1.sx, arc1.sy);
+                p.Arc(radius, radius, 0, arc1.sweep, 1, arc1.ex, arc1.ey);
+                p.LineTo(arc2.ex, arc2.ey);
+                p.Arc(radius + stackSize, radius + stackSize, 0, arc2.sweep, 0, arc2.sx, arc2.sy);
+                p.LineTo(arc1.sx, arc1.sy);
+                p.ClosePath();
+            }
+
+            function calculateData() {
+                var total = 0,
+                    targets = self.brush.target,
+                    maxValue = self.brush.maxValue,
+                    stackData = [];
+
+                // 스택의 최대 개수를 콜백으로 설정
+                if (_.typeCheck("function", maxValue)) {
+                    maxValue = 0;
+
+                    self.eachData(function (data) {
+                        maxValue = Math.max(maxValue, self.brush.maxValue.call(self, data));
+                    });
+                }
+
+                self.eachData(function (data, i) {
+                    stackData[i] = [];
+
+                    for (var j = 0; j < targets.length; j++) {
+                        var key = targets[j],
+                            rate = data[key] / maxValue;
+
+                        total += data[key];
+                        stackData[i][j] = Math.ceil(self.brush.stackCount * rate);
+                    }
+                });
+
+                // 값이 없을 경우
+                if (stackData.length == 0) {
+                    stackData[0] = [];
+
+                    for (var j = 0; j < targets.length; j++) {
+                        stackData[0][j] = j == 0 ? self.brush.stackCount : 0;
+                    }
+                }
+
+                return {
+                    total: total,
+                    data: stackData
+                };
+            }
+
+            this.drawBefore = function () {
+                g = this.svg.group();
+
+                var area = this.axis.c(0),
+                    dist = Math.abs(area.width - area.height);
+
+                r = Math.min(area.width, area.height) / 2;
+                cx = r + (area.width > area.height ? dist / 2 : 0);
+                cy = r + (area.width < area.height ? dist / 2 : 0);
+
+                dataCount = this.listData().length;
+                stackSize = (r - this.brush.textRadius) / this.brush.stackCount;
+                stackAngle = 360 / (dataCount == 0 ? 1 : dataCount);
+            };
+
+            this.draw = function () {
+                var info = calculateData(),
+                    data = info.data,
+                    total = info.total;
+
+                var stackBorderColor = this.chart.theme("arcEqualizerBorderColor"),
+                    stackBorderWidth = this.chart.theme("arcEqualizerBorderWidth"),
+                    textFontSize = this.chart.theme("arcEqualizerFontSize"),
+                    textFontColor = this.chart.theme("arcEqualizerFontColor");
+
+                for (var i = 0; i < data.length; i++) {
+                    var start = 0;
+
+                    for (var j = 0; j < data[i].length; j++) {
+                        var p = this.svg.path({
+                            fill: dataCount == 0 ? this.chart.theme("arcEqualizerBackgroundColor") : this.color(j),
+                            stroke: stackBorderColor,
+                            "stroke-width": stackBorderWidth
+                        });
+
+                        for (var k = start; k < start + data[i][j]; k++) {
+                            drawPath(p, this.brush.textRadius + k * stackSize, i * stackAngle, (i + 1) * stackAngle);
+                        }
+
+                        start += data[i][j];
+
+                        this.addEvent(p, i, j);
+                        g.append(p);
+                    }
+                }
+
+                var text = this.chart.text({
+                    "font-size": textFontSize,
+                    "text-anchor": "middle",
+                    fill: textFontColor,
+                    x: cx,
+                    y: cy,
+                    dy: textFontSize / 3
+                }).text(this.format(total));
+                g.append(text);
+
+                return g;
+            };
+        };
+
+        ArcEqualizerBrush.setup = function () {
+            return {
+                clip: false,
+                maxValue: 100,
+                stackCount: 25,
+                textRadius: 50,
+                format: null
+            };
+        };
+
+        return ArcEqualizerBrush;
+    }
+};
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+    name: "chart.brush.pyramid",
+    extend: "chart.brush.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var PyramidBrush = function PyramidBrush() {
+            function getCalculatedData(obj, targets) {
+                var total = 0,
+                    list = [];
+
+                for (var key in obj) {
+                    var index = _.inArray(key, targets);
+                    if (index == -1) continue;
+
+                    total += obj[key];
+
+                    list.push({
+                        key: key,
+                        value: obj[key],
+                        rate: 0,
+                        index: index
+                    });
+                }
+
+                for (var i = 0; i < list.length; i++) {
+                    list[i].rate = list[i].value / total;
+                }
+
+                list.sort(function (a, b) {
+                    return b.value - a.value;
+                });
+
+                return list;
+            }
+
+            this.createText = function (text, cx, cy, dist) {
+                var l_size = this.chart.theme("pyramidTextLineSize"),
+                    f_size = this.chart.theme("pyramidTextFontSize"),
+                    x = cx + l_size,
+                    y = cy + (dist > 0 && dist < l_size ? cy - dist / 2 : 0);
+
+                var g = this.svg.group();
+
+                var l = this.svg.line({
+                    stroke: this.chart.theme("pyramidTextLineColor"),
+                    "stroke-width": this.chart.theme("pyramidTextLineWidth"),
+                    x1: cx,
+                    y1: cy,
+                    x2: x,
+                    y2: y
+                });
+
+                var t = this.chart.text({
+                    "font-size": this.chart.theme("pyramidTextFontSize"),
+                    fill: this.chart.theme("pyramidTextFontColor"),
+                    x: x,
+                    y: y,
+                    dx: 3,
+                    dy: f_size / 3
+                }).text(text);
+
+                g.append(l);
+                g.append(t);
+
+                return g;
+            };
+
+            this.draw = function () {
+                var g = this.svg.group(),
+                    obj = this.axis.data.length > 0 ? this.axis.data[0] : {},
+                    data = getCalculatedData(obj, this.brush.target),
+                    area = this.axis.area(),
+                    dx = area.width / 2,
+                    dy = area.height;
+
+                var startX = 0,
+                    endX = dx * 2,
+                    startRad = Math.atan2(dy, dx),
+                    distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2)),
+                    textY = 0,
+                    isReverse = this.brush.reverse;
+
+                if (isReverse) dy = 0;
+
+                for (var i = 0; i < data.length; i++) {
+                    var d = data[i],
+                        dist = d.rate * distance,
+                        sx = startX + dist * Math.cos(startRad),
+                        ex = endX - dist * Math.cos(-startRad),
+                        ty = dist * Math.sin(startRad),
+                        y = isReverse ? dy + ty : dy - ty;
+
+                    var poly = this.svg.polygon({
+                        fill: this.color(i),
+                        "stroke-width": 0
+                    });
+
+                    this.addEvent(poly, 0, d.index);
+                    g.append(poly);
+
+                    // 라인 그리기
+                    if (i > 0) {
+                        var width = this.chart.theme("pyramidLineWidth");
+
+                        var line = this.svg.line({
+                            stroke: this.chart.theme("pyramidLineColor"),
+                            "stroke-width": width,
+                            x1: startX - width / 2,
+                            y1: dy,
+                            x2: endX + width / 2,
+                            y2: dy
+                        });
+
+                        line.translate(area.x, area.y);
+                        g.append(line);
+                    }
+
+                    // 텍스트 그리기
+                    if (this.brush.showText) {
+                        var tx = (ex + endX) / 2,
+                            ty = (y + dy) / 2;
+
+                        var text = this.createText(_.typeCheck("function", this.brush.format) ? this.format(d.key, d.value, d.rate) : d.value, tx, ty, textY - ty);
+
+                        text.translate(area.x, area.y);
+
+                        g.append(text);
+                        textY = ty;
+                    }
+
+                    poly.point(startX, dy);
+                    poly.point(sx, y);
+                    poly.point(ex, y);
+                    poly.point(endX, dy);
+                    poly.translate(area.x, area.y);
+
+                    startX = sx;
+                    endX = ex;
+                    dy = y;
+                }
+
+                return g;
+            };
+        };
+
+        PyramidBrush.setup = function () {
+            return {
+                /** @cfg {Boolean} [clip=false] If the brush is drawn outside of the chart, cut the area. */
+                clip: false,
+                /** @cfg {Boolean} [showText=false] Set the text appear. */
+                showText: false,
+                /** @cfg {Function} [format=null] Returns a value from the format callback function of a defined option. */
+                format: null,
+                /** @cfg {Boolean} [reverse=false]  */
+                reverse: false
+            };
+        };
+
+        return PyramidBrush;
+    }
+};
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
@@ -23668,7 +24132,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 52 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24010,7 +24474,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 53 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24131,7 +24595,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 54 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24440,7 +24904,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 55 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24652,7 +25116,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 56 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24895,7 +25359,143 @@ exports.default = {
 };
 
 /***/ }),
-/* 57 */
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = {
+    name: "chart.widget.scroll",
+    extend: "chart.widget.core",
+    component: function component() {
+        var ScrollWidget = function ScrollWidget(chart, axis, widget) {
+            var self = this;
+            var thumbWidth = 0,
+                thumbLeft = 0,
+                bufferCount = 0,
+                dataLength = 0,
+                totalWidth = 0,
+                piece = 0,
+                rate = 0;
+
+            function setScrollEvent(thumb) {
+                var isMove = false,
+                    mouseStart = 0,
+                    thumbStart = 0,
+                    axies = chart.axis();
+
+                self.on("bg.mousedown", mousedown);
+                self.on("chart.mousedown", mousedown);
+                self.on("bg.mousemove", mousemove);
+                self.on("bg.mouseup", mouseup);
+                self.on("chart.mousemove", mousemove);
+                self.on("chart.mouseup", mouseup);
+
+                function mousedown(e) {
+                    if (isMove && thumb.element != e.target) return;
+
+                    isMove = true;
+                    mouseStart = e.bgX;
+                    thumbStart = thumbLeft;
+                }
+
+                function mousemove(e) {
+                    if (!isMove) return;
+
+                    var gap = thumbStart + e.bgX - mouseStart;
+
+                    if (gap < 0) {
+                        gap = 0;
+                    } else {
+                        if (gap + thumbWidth > chart.area("width")) {
+                            gap = chart.area("width") - thumbWidth;
+                        }
+                    }
+
+                    thumb.translate(gap, 1);
+                    thumbLeft = gap;
+
+                    var startgap = gap * rate,
+                        start = startgap == 0 ? 0 : Math.floor(startgap / piece);
+
+                    if (gap + thumbWidth == chart.area("width")) {
+                        start += 1;
+                    }
+
+                    for (var i = 0; i < axies.length; i++) {
+                        axies[i].zoom(start, start + bufferCount);
+                    }
+
+                    // 차트 렌더링이 활성화되지 않았을 경우
+                    if (!chart.isRender()) {
+                        chart.render();
+                    }
+                }
+
+                function mouseup(e) {
+                    if (!isMove) return;
+
+                    isMove = false;
+                    mouseStart = 0;
+                    thumbStart = 0;
+                }
+            }
+
+            this.drawBefore = function () {
+                dataLength = axis.origin.length;
+                bufferCount = axis.buffer;
+                piece = chart.area("width") / bufferCount;
+                totalWidth = piece * (dataLength || 1);
+                rate = totalWidth / chart.area("width");
+                thumbWidth = chart.area("width") * (bufferCount / (dataLength || 1)) + 2;
+            };
+
+            this.draw = function () {
+                var bgSize = chart.theme("scrollBackgroundSize"),
+                    bgY = widget.orient == "top" ? chart.area("y") - bgSize : chart.area("y2");
+
+                if (dataLength == 0) {
+                    return chart.svg.group();
+                }
+
+                return chart.svg.group({}, function () {
+                    chart.svg.rect({
+                        width: chart.area("width"),
+                        height: bgSize,
+                        fill: chart.theme("scrollBackgroundColor")
+                    });
+
+                    var thumb = chart.svg.rect({
+                        width: thumbWidth,
+                        height: bgSize - 2,
+                        fill: chart.theme("scrollThumbBackgroundColor"),
+                        stroke: chart.theme("scrollThumbBorderColor"),
+                        cursor: "pointer",
+                        "stroke-width": 1
+                    }).translate(thumbLeft, 1);
+
+                    // 차트 스크롤 이벤트
+                    setScrollEvent(thumb);
+                }).translate(chart.area("x"), bgY);
+            };
+        };
+
+        ScrollWidget.setup = function () {
+            return {
+                orient: "bottom"
+            };
+        };
+
+        return ScrollWidget;
+    }
+};
+
+/***/ }),
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25031,7 +25631,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 58 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25346,7 +25946,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 59 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25583,7 +26183,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 60 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25597,7 +26197,7 @@ var _main = __webpack_require__(0);
 
 var _main2 = _interopRequireDefault(_main);
 
-var _area = __webpack_require__(3);
+var _area = __webpack_require__(4);
 
 var _area2 = _interopRequireDefault(_area);
 
@@ -25898,7 +26498,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 61 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25983,7 +26583,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 62 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26261,7 +26861,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 63 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26342,7 +26942,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 64 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
