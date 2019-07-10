@@ -15,7 +15,7 @@ var c = animation("#chart", {
     height: 300,
     axis: [{
         x : {
-            domain : [ "1 year ago", "1 month ago", "Yesterday", "Today" ],
+            domain : [ "1 year ago", "1 month ago" ],
             line : true
         },
         y : {
@@ -33,7 +33,7 @@ var c = animation("#chart", {
         target : [ "normal", "warning", "fatal" ],
         active : [ 0, 2 ],
         error : [ 0 ],
-        errorText : "Stopped",
+        errorText : "Server Down",
         unit : 10
     }],
     widget : [
@@ -57,7 +57,10 @@ var c = animation("#chart", {
             this.updateBrush(0, { active: obj.dataIndex });
         }
     },
-    interval : 100
+    interval : 100,
+    style : {
+
+    }
 });
 
 c.run(function(runningTime) {
@@ -65,15 +68,11 @@ c.run(function(runningTime) {
         c.update([
             { normal : 7, warning : 7, fatal : 7 },
             { normal : 10, warning : 8, fatal : 5 },
-            { normal : 6, warning : 4, fatal : 10 },
-            { normal : 5, warning : 5, fatal : 7 }
         ]);
     } else {
         c.update([
             { normal : 5, warning : 5, fatal : 5 },
             { normal : 10, warning : 8, fatal : 5 },
-            { normal : 6, warning : 4, fatal : 10 },
-            { normal : 5, warning : 5, fatal : 7 }
         ]);
     }
 });

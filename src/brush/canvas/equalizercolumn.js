@@ -53,6 +53,17 @@ export default {
                 }
             }
 
+            this.isErrorColumn = function(i) {
+                const error = this.brush.error;
+
+                if ((_.typeCheck("array", error) && !error.includes(i)) ||
+                    (_.typeCheck("integer", error) && error !== i) || error === null) {
+                    return false;
+                }
+
+                return true;
+            }
+
             this.drawBefore = function() {
                 zeroY = this.axis.y(0);
                 bar_width = this.getTargetSize();
@@ -61,7 +72,6 @@ export default {
 
             this.draw = function() {
                 const targets = this.brush.target,
-                    error = this.brush.error,
                     padding = this.brush.innerPadding,
                     band = this.axis.y.rangeBand(),
                     unit = band / (this.brush.unit * padding),
@@ -82,8 +92,7 @@ export default {
                             targetHeight = Math.abs(startY - endY),
                             targetY = targetHeight;
 
-                        if ((_.typeCheck("array", error) && !error.includes(i)) ||
-                            (_.typeCheck("integer", error) && error !== i)) {
+                        if (!this.isErrorColumn(i)) {
                             while(targetY >= height) {
                                 let r = _.extend(this.getBarElement(i, j), {
                                     x : startX,
@@ -109,11 +118,11 @@ export default {
                                 stackList.push(r);
                             }
                         } else {
-                            let width = this.axis.x.rangeBand() * 0.4;
-                            let height = width * 2;
-                            let tick = width * 0.3;
-                            let startX = offsetX - width / 2;
-                            let fontSize = width / 3;
+                            let size = Math.min(this.axis.x.rangeBand(), this.axis.area("height")) * 0.4;
+                            let height = this.axis.area("height") * 0.5;
+                            let tick = size * 0.3;
+                            let startX = offsetX - size / 2;
+                            let fontSize = height / 5;
                             let yt = y - tick;
                             let yht = y - height - tick;
                             let round = 5;
@@ -125,9 +134,9 @@ export default {
                             this.canvas.lineTo(startX, yt);
                             this.canvas.lineTo(startX, yht + round);
                             this.canvas.arcTo(startX, yht, startX + round, yht, round);
-                            this.canvas.lineTo(startX + width - round, yht);
-                            this.canvas.arcTo(startX + width, yht, startX + width, yht + round, round);
-                            this.canvas.lineTo(startX + width, yt);
+                            this.canvas.lineTo(startX + size - round, yht);
+                            this.canvas.arcTo(startX + size, yht, startX + size, yht + round, round);
+                            this.canvas.lineTo(startX + size, yt);
                             this.canvas.fill();
 
                             this.canvas.save();
@@ -136,7 +145,7 @@ export default {
                             this.canvas.rotate(Math.PI / 2);
                             this.canvas.textAlign = "center";
                             this.canvas.fillStyle = this.chart.theme("equalizerColumnErrorFontColor");
-                            this.canvas.fillText(this.brush.errorText, height / 2, fontSize / 3, height);
+                            this.canvas.fillText(this.brush.errorText, height / 1.75, fontSize / 3, height);
 
                             this.canvas.restore();
                         }
@@ -167,55 +176,57 @@ export default {
                 const TOTAL_PADDING = -8;
 
                 this.eachData(function (data, i) {
-                    const r = this.chart.getCache(`equalizer_${i}`);
-                    let total = 0;
+                    if (!this.isErrorColumn(i)) {
+                        const r = this.chart.getCache(`equalizer_${i}`);
+                        let total = 0;
 
-                    for(let j = 0; j < this.brush.target.length; j++) {
-                        total += data[this.brush.target[j]];
-                    }
-
-                    if(r != null) {
-                        const tpf = this.chart.getCache(`tpf`, 1);
-                        const status = this.chart.getCache(`equalizer_move_${i}`, { direction: -1, distance: 0 });
-                        const speed = status.direction == -1 ? UP_SEC_PER_MOVE : DOWN_SEC_PER_MOVE;
-
-                        status.distance += status.direction * speed * tpf;
-
-                        // 애니메이션-바 방향 벡터 설정
-                        if(Math.abs(status.distance) >= MAX_DISTANCE) {
-                            status.direction = 1;
-                        } else if(status.distance >= 0) {
-                            status.direction = -1;
+                        for(let j = 0; j < this.brush.target.length; j++) {
+                            total += data[this.brush.target[j]];
                         }
 
-                        // 애니메이션-바 최소/최대 위치 설정
-                        if(status.distance < -MAX_DISTANCE) {
-                            status.distance = -MAX_DISTANCE;
-                        } else if(status.distance > 0) {
-                            status.distance = 0;
+                        if(r != null) {
+                            const tpf = this.chart.getCache(`tpf`, 1);
+                            const status = this.chart.getCache(`equalizer_move_${i}`, { direction: -1, distance: 0 });
+                            const speed = status.direction == -1 ? UP_SEC_PER_MOVE : DOWN_SEC_PER_MOVE;
+
+                            status.distance += status.direction * speed * tpf;
+
+                            // 애니메이션-바 방향 벡터 설정
+                            if(Math.abs(status.distance) >= MAX_DISTANCE) {
+                                status.direction = 1;
+                            } else if(status.distance >= 0) {
+                                status.direction = -1;
+                            }
+
+                            // 애니메이션-바 최소/최대 위치 설정
+                            if(status.distance < -MAX_DISTANCE) {
+                                status.distance = -MAX_DISTANCE;
+                            } else if(status.distance > 0) {
+                                status.distance = 0;
+                            }
+
+                            const ry = r.y + status.distance + TOP_PADDING;
+
+                            this.canvas.save();
+                            this.canvas.globalAlpha = r["fill-opacity"];
+                            this.canvas.strokeStyle = r.fill;
+                            this.canvas.lineWidth = r.height * 0.7;
+                            this.canvas.beginPath();
+                            this.canvas.moveTo(r.x, ry);
+                            this.canvas.lineTo(r.x + r.width, ry);
+                            this.canvas.closePath();
+                            this.canvas.stroke();
+
+                            this.canvas.fillStyle = this.chart.theme("barFontColor");
+                            this.canvas.font = this.chart.theme("barFontSize") + "px";
+                            this.canvas.textAlign = "center";
+                            this.canvas.textBaseline = "middle";
+                            this.canvas.fillText(total, r.x + r.width/2, ry + TOTAL_PADDING);
+                            this.canvas.fill();
+                            this.canvas.restore();
+
+                            this.chart.setCache(`equalizer_move_${i}`, status);
                         }
-
-                        const ry = r.y + status.distance + TOP_PADDING;
-
-                        this.canvas.save();
-                        this.canvas.globalAlpha = r["fill-opacity"];
-                        this.canvas.strokeStyle = r.fill;
-                        this.canvas.lineWidth = r.height * 0.7;
-                        this.canvas.beginPath();
-                        this.canvas.moveTo(r.x, ry);
-                        this.canvas.lineTo(r.x + r.width, ry);
-                        this.canvas.closePath();
-                        this.canvas.stroke();
-
-                        this.canvas.fillStyle = this.chart.theme("barFontColor");
-                        this.canvas.font = this.chart.theme("barFontSize") + "px";
-                        this.canvas.textAlign = "center";
-                        this.canvas.textBaseline = "middle";
-                        this.canvas.fillText(total, r.x + r.width/2, ry + TOTAL_PADDING);
-                        this.canvas.fill();
-                        this.canvas.restore();
-
-                        this.chart.setCache(`equalizer_move_${i}`, status);
                     }
                 });
             }
