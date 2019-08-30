@@ -42,7 +42,17 @@ export default {
                         }
 
                         if(this.brush.line) {
-                            g.prepend(this.createLine(path[k], k));
+                            var p = this.createLine(path[k], k);
+                            g.prepend(p);
+
+                            this.addLineElement({
+                                element: p,
+                                tooltip: null
+                            });
+
+                            if(this.brush.display) {
+                                this.createTooltip(g, path[k], k);
+                            }
                         }
 
                         this.addEvent(g, null, k);
