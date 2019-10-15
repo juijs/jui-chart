@@ -1,78 +1,113 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
 import DarkTheme from '../src/theme/dark.js'
-import CanvasEqualizerColumn from '../src/brush/canvas/equalizercolumn.js'
-import TitleWidget from '../src/widget/title'
+import StackAreaBrush from '../src/brush/stackarea.js'
+import GuidelineWidget from '../src/widget/guideline'
 import LegendWidget from '../src/widget/legend'
-import RaycastWidget from '../src/widget/raycast'
+import ZoomWidget from '../src/widget/zoom'
 
-jui.use([ ClassicTheme, DarkTheme, CanvasEqualizerColumn, TitleWidget, LegendWidget, RaycastWidget ]);
+jui.use([ ClassicTheme, DarkTheme, StackAreaBrush, GuidelineWidget, LegendWidget, ZoomWidget ]);
 
-var animation = jui.include("chart.animation");
+const time = jui.include('util.time');
+const builder = jui.include('chart.builder');
 
-var c = animation("#chart", {
-    width: 500,
-    height: 300,
-    axis: [{
+const countMap = [ 300, 150, 60 ];
+const dataMap = countMap.map(count => createRealtimeData(count));
+const domainMap = {};
+const names = {
+    memory: 'Memory (MB)',
+    cpu: 'CPU Usage (%)',
+    disk: 'Disk Size (MB)'
+}
+
+builder('#chart', {
+    width: 1000,
+    height : 300,
+    padding : {
+        right : 200
+    },
+    theme : 'classic',
+    axis : [{
+        // area: {
+        //     x: "50%",
+        //     width: "50%"
+        // },
         x : {
-            domain : [ "1 year ago", "1 month ago" ],
-            line : true
+            type : 'dateblock',
+            realtime : 'minutes',
+            interval : 1, // But number for the real-time basis
+            format : 'HH:mm',
+            domain : [ new Date() - time.MINUTE * 5, new Date() ]
         },
         y : {
-            type : "range",
-            domain : [ 0, 30 ],
-            // domain : function(d) {
-            //     return Math.max(d.normal, d.warning, d.fatal);
-            // },
-            step : 5,
-            line : false
-        }
+            type : 'range',
+            domain : [ 0, 200 ],
+            step : 4,
+            line : 'solid'
+        },
+        data : dataMap[0]
     }],
     brush : [{
-        type : "canvas.equalizercolumn",
-        target : [ "normal", "warning", "fatal" ],
-        active : [ 0, 2 ],
-        error : [ 0 ],
-        errorText : "Server Down",
-        unit : 10
+        type : 'stackarea',
+        target : [ 'memory', 'cpu', 'disk' ],
+        line : false
     }],
-    widget : [
-        {
-            type : "title",
-            text : "Equalizer Sample"
-        }, {
-            type : "legend",
-            format : function(key) {
-                if(key == "normal") return "Default";
-                else if(key == "warning") return "Warning";
-                else return "Critical";
+    widget : [{
+        type : 'guideline',
+        xFormat : function(d) {
+            return time.format(d, 'HH:mm');
+        },
+        tooltipFormat : function(data, key) {
+            return {
+                key: names[key],
+                value: data[key]
             }
-        }, {
-            type : "raycast"
-        }
-    ],
-    event : {
-        "raycast.click": function(obj, e) {
-            // TODO: Clicking on the equalizer will give the following effect
-            this.updateBrush(0, { active: obj.dataIndex });
+        },
+        stackPoint : true
+    }, {
+        type : 'legend',
+        orient : 'right',
+        filter : true,
+        format : function(target) {
+            return names[target];
+        },
+        dx : -20
+    }, {
+        type : 'zoom'
+    }],
+    event: {
+        'guideline.active': function(time) {
+            if(time) {
+            } else {
+            }
+        },
+        'zoom.end': function(stime, etime, sindex, eindex) {
+            domainMap[0] = [ stime, etime, sindex, eindex ];
+        },
+        'zoom.close': function() {
+            domainMap[0] = null;
         }
     },
-    interval : 100,
-    style : {
-
-    }
+    style: {
+        guidelineBorderColor: "#333",
+        guidelineTooltipFontColor : "#dcdcdc",
+        guidelineTooltipFontSize : 14,
+        guidelineTooltipBackgroundColor : "#000",
+        guidelineTooltipBackgroundOpacity : 0.3
+    },
+    render: false
 });
 
-c.run(function(runningTime) {
-    if(runningTime > 10000) {
-        c.update([
-            { normal : 7, warning : 7, fatal : 7 },
-            { normal : 10, warning : 8, fatal : 5 },
-        ]);
-    } else {
-        c.update([
-            { normal : 5, warning : 5, fatal : 5 },
-            { normal : 10, warning : 8, fatal : 5 },
-        ]);
+function createRealtimeData(count) {
+    const data = [];
+
+    for(let i = 0; i < count; i++) {
+        data.push({
+            memory: (Math.floor(Math.random() * 30) == 1) ? 85 : 35,
+            cpu: (Math.floor(Math.random() * 30) == 1) ? 55 : 25,
+            disk: (Math.floor(Math.random() * 30) == 1) ? 30 : 10,
+        });
     }
-});
+
+    return data;
+}
