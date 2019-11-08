@@ -2998,69 +2998,73 @@ var _pyramid = __webpack_require__(54);
 
 var _pyramid2 = _interopRequireDefault(_pyramid);
 
-var _cross = __webpack_require__(55);
+var _ratebar = __webpack_require__(55);
+
+var _ratebar2 = _interopRequireDefault(_ratebar);
+
+var _cross = __webpack_require__(56);
 
 var _cross2 = _interopRequireDefault(_cross);
 
-var _legend = __webpack_require__(56);
+var _legend = __webpack_require__(57);
 
 var _legend2 = _interopRequireDefault(_legend);
 
-var _title = __webpack_require__(57);
+var _title = __webpack_require__(58);
 
 var _title2 = _interopRequireDefault(_title);
 
-var _tooltip = __webpack_require__(58);
+var _tooltip = __webpack_require__(59);
 
 var _tooltip2 = _interopRequireDefault(_tooltip);
 
-var _topologyctrl = __webpack_require__(59);
+var _topologyctrl = __webpack_require__(60);
 
 var _topologyctrl2 = _interopRequireDefault(_topologyctrl);
 
-var _dragselect = __webpack_require__(60);
+var _dragselect = __webpack_require__(61);
 
 var _dragselect2 = _interopRequireDefault(_dragselect);
 
-var _scroll = __webpack_require__(61);
+var _scroll = __webpack_require__(62);
 
 var _scroll2 = _interopRequireDefault(_scroll);
 
-var _vscroll = __webpack_require__(62);
+var _vscroll = __webpack_require__(63);
 
 var _vscroll2 = _interopRequireDefault(_vscroll);
 
-var _zoom = __webpack_require__(63);
+var _zoom = __webpack_require__(64);
 
 var _zoom2 = _interopRequireDefault(_zoom);
 
-var _zoomselect = __webpack_require__(64);
+var _zoomselect = __webpack_require__(65);
 
 var _zoomselect2 = _interopRequireDefault(_zoomselect);
 
-var _zoomscroll = __webpack_require__(65);
+var _zoomscroll = __webpack_require__(66);
 
 var _zoomscroll2 = _interopRequireDefault(_zoomscroll);
 
-var _raycast = __webpack_require__(66);
+var _raycast = __webpack_require__(67);
 
 var _raycast2 = _interopRequireDefault(_raycast);
 
-var _guideline = __webpack_require__(67);
+var _guideline = __webpack_require__(68);
 
 var _guideline2 = _interopRequireDefault(_guideline);
 
-var _picker = __webpack_require__(68);
+var _picker = __webpack_require__(69);
 
 var _picker2 = _interopRequireDefault(_picker);
 
-var _rotate3d = __webpack_require__(69);
+var _rotate3d = __webpack_require__(70);
 
 var _rotate3d2 = _interopRequireDefault(_rotate3d);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _fullgauge2.default, _bargauge2.default, _stackline2.default, _stackscatter2.default, _arcequalizer2.default, _pyramid2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _scroll2.default, _vscroll2.default, _zoom2.default, _zoomselect2.default, _zoomscroll2.default, _raycast2.default, _guideline2.default, _picker2.default, _rotate3d2.default]);
+_main2.default.use([_classic2.default, _classic4.default, _classic6.default, _dark2.default, _gradient2.default, _pattern2.default, _topologytable2.default, _bar2.default, _stackbar2.default, _fullstackbar2.default, _rangebar2.default, _column2.default, _stackcolumn2.default, _fullstackcolumn2.default, _rangecolumn2.default, _line2.default, _area2.default, _stackarea2.default, _rangearea2.default, _scatter2.default, _bubble2.default, _pie2.default, _donut2.default, _treemap2.default, _heatmap2.default, _heatmapscatter2.default, _timeline2.default, _topologynode2.default, _focus2.default, _pin2.default, _selectbox2.default, _equalizer2.default, _equalizerbar2.default, _equalizercolumn2.default, _candlestick2.default, _column3d2.default, _line3d2.default, _dot3d2.default, _equalizercolumn4.default, _activebubble2.default, _bubblecloud2.default, _activecircle2.default, _fullgauge2.default, _bargauge2.default, _stackline2.default, _stackscatter2.default, _arcequalizer2.default, _pyramid2.default, _ratebar2.default, _cross2.default, _legend2.default, _title2.default, _tooltip2.default, _topologyctrl2.default, _dragselect2.default, _scroll2.default, _vscroll2.default, _zoom2.default, _zoomselect2.default, _zoomscroll2.default, _raycast2.default, _guideline2.default, _picker2.default, _rotate3d2.default]);
 
 if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) == "object") {
     window.graph = _main2.default;
@@ -16558,6 +16562,17 @@ exports.default = {
             barPointBorderColor: "#fff",
             barDisableBackgroundOpacity: 0.4,
             barStackEdgeBorderWidth: 1,
+            rateBarFontSize: 11,
+            rateBarFontColor: "#333",
+            rateBarBorderColor: "none",
+            rateBarBorderWidth: 0,
+            rateBarBorderOpacity: 0,
+            rateBarBorderRadius: 5,
+            rateBarDisableBackgroundOpacity: 0.7,
+            rateBarTooltipFontSize: 10,
+            rateBarTooltipFontColor: "#333",
+            rateBarTooltipBackgroundColor: "#fff",
+            rateBarTooltipBorderColor: "#666666",
             gaugeBackgroundColor: "#ececec",
             gaugeArrowColor: "#a9a9a9",
             gaugeFontColor: "#666666",
@@ -16951,6 +16966,17 @@ exports.default = {
             barPointBorderColor: "#fff",
             barDisableBackgroundOpacity: 0.4,
             barStackEdgeBorderWidth: 1,
+            rateBarFontSize: 11,
+            rateBarFontColor: "#868686",
+            rateBarBorderColor: "none",
+            rateBarBorderWidth: 0,
+            rateBarBorderOpacity: 0,
+            rateBarBorderRadius: 5,
+            rateBarDisableBackgroundOpacity: 0.7,
+            rateBarTooltipFontSize: 10,
+            rateBarTooltipFontColor: "#868686",
+            rateBarTooltipBackgroundColor: "#222",
+            rateBarTooltipBorderColor: "#666666",
             gaugeBackgroundColor: "#3e3e3e",
             gaugeArrowColor: "#a6a6a6",
             gaugeFontColor: "#c5c5c5",
@@ -17344,6 +17370,17 @@ exports.default = {
             barPointBorderColor: "#fff",
             barDisableBackgroundOpacity: 0.4,
             barStackEdgeBorderWidth: 1,
+            rateBarFontSize: 11,
+            rateBarFontColor: "#333",
+            rateBarBorderColor: "none",
+            rateBarBorderWidth: 0,
+            rateBarBorderOpacity: 0,
+            rateBarBorderRadius: 5,
+            rateBarDisableBackgroundOpacity: 0.7,
+            rateBarTooltipFontSize: 10,
+            rateBarTooltipFontColor: "#333",
+            rateBarTooltipBackgroundColor: "#fff",
+            rateBarTooltipBorderColor: "#666666",
             gaugeBackgroundColor: "#ececec",
             gaugeArrowColor: "#666666",
             gaugeFontColor: "#666666",
@@ -17734,6 +17771,17 @@ exports.default = {
             barPointBorderColor: "#fff",
             barDisableBackgroundOpacity: 0.4,
             barStackEdgeBorderWidth: 1,
+            rateBarFontSize: 11,
+            rateBarFontColor: "#333",
+            rateBarBorderColor: "none",
+            rateBarBorderWidth: 0,
+            rateBarBorderOpacity: 0,
+            rateBarBorderRadius: 5,
+            rateBarDisableBackgroundOpacity: 0.7,
+            rateBarTooltipFontSize: 10,
+            rateBarTooltipFontColor: "#333",
+            rateBarTooltipBackgroundColor: "#fff",
+            rateBarTooltipBorderColor: "#666666",
             gaugeBackgroundColor: "#ececec",
             gaugeArrowColor: "#666666",
             gaugeFontColor: "#666666",
@@ -23986,6 +24034,235 @@ var _main2 = _interopRequireDefault(_main);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
+    name: "chart.brush.ratebar",
+    extend: "chart.brush.core",
+    component: function component() {
+        var _ = _main2.default.include("util.base");
+
+        var RateBarBrush = function RateBarBrush() {
+            this.getBarStyle = function () {
+                return {
+                    fontColor: this.chart.theme("rateBarFontColor"),
+                    fontSize: this.chart.theme("rateBarFontSize"),
+                    borderColor: this.chart.theme("rateBarBorderColor"),
+                    borderWidth: this.chart.theme("rateBarBorderWidth"),
+                    borderRadius: this.chart.theme("rateBarBorderRadius"),
+                    disableOpacity: this.chart.theme("rateBarDisableBackgroundOpacity"),
+                    tooltipFontColor: this.chart.theme("rateBarTooltipFontColor"),
+                    tooltipFontSize: this.chart.theme("rateBarTooltipFontSize"),
+                    tooltipBackgroundColor: this.chart.theme("rateBarTooltipBackgroundColor"),
+                    tooltipBorderColor: this.chart.theme("rateBarTooltipBorderColor"),
+                    disableBackgroundOpacity: this.chart.theme("rateBarDisableBackgroundOpacity")
+                };
+            };
+
+            this.createTextElement = function (width, height, text) {
+                var style = this.getBarStyle();
+
+                var t = this.svg.text({
+                    "font-size": style.fontSize,
+                    "font-weight": "bold",
+                    fill: style.fontColor,
+                    x: width / 2,
+                    y: height / 2,
+                    "text-anchor": "middle",
+                    "alignment-baseline": "middle"
+                }).text(text);
+
+                return t;
+            };
+
+            this.createTooltipElement = function (width, tooltip) {
+                var style = this.getBarStyle();
+                var tooltipSize = this.brush.tooltipSize;
+                var textSize = this.svg.getTextSize(tooltip);
+
+                var t = this.svg.group();
+
+                var l = this.svg.path({
+                    stroke: style.tooltipBorderColor,
+                    "stroke-dasharray": "2,2",
+                    fill: "transparent"
+                });
+                l.MoveTo(1, tooltipSize);
+                l.VLineTo(tooltipSize / 2);
+                l.HLineTo(width - 1);
+                l.VLineTo(tooltipSize);
+
+                var r = this.svg.rect({
+                    fill: style.tooltipBackgroundColor,
+                    width: textSize.width,
+                    height: tooltipSize - 2,
+                    x: width / 2 - textSize.width / 2,
+                    y: 1
+                });
+
+                var b = this.svg.text({
+                    "font-size": style.tooltipFontSize,
+                    fill: style.tooltipFontColor,
+                    x: width / 2,
+                    y: tooltipSize / 2,
+                    "text-anchor": "middle",
+                    "alignment-baseline": "middle"
+                }).text(tooltip);
+
+                t.append(l);
+                t.append(r);
+                t.append(b);
+                t.translate(0, -tooltipSize);
+
+                return t;
+            };
+
+            this.createBarElement = function (dataIndex, targetIndex, width, height) {
+                var leftRadius = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+                var rightRadius = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+                var text = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "";
+                var tooltip = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : "";
+
+                var style = this.getBarStyle();
+                var color = this.color(dataIndex, targetIndex);
+                var value = this.getData(dataIndex)[this.brush.target[targetIndex]];
+                var activeEvent = this.brush.activeEvent;
+
+                var r = this.svg.path({
+                    fill: color,
+                    stroke: style.borderColor,
+                    "stroke-width": style.borderWidth
+                });
+                r.MoveTo(leftRadius, 0);
+                r.LineTo(width - rightRadius, 0);
+                r.Arc(rightRadius, rightRadius, 0, 0, 1, width, rightRadius);
+                r.LineTo(width, height - rightRadius);
+                r.Arc(rightRadius, rightRadius, 0, 0, 1, width - rightRadius, height);
+                r.LineTo(leftRadius, height);
+                r.Arc(leftRadius, leftRadius, 0, 0, 1, 0, height - leftRadius);
+                r.LineTo(0, leftRadius);
+                r.Arc(leftRadius, leftRadius, 0, 0, 1, leftRadius, 0);
+                r.ClosePath();
+
+                var g = this.svg.group();
+                g.append(r);
+                g.append(this.createTextElement(width, height, text));
+                g.append(this.createTooltipElement(width, tooltip));
+
+                if (value != 0) {
+                    this.addEvent(g, dataIndex, targetIndex);
+
+                    // 컬럼 및 기본 브러쉬 이벤트 설정
+                    if (activeEvent != null) {
+                        var self = this;
+
+                        (function (bar, index, target) {
+                            bar.on(activeEvent, function (e) {
+                                self.setActiveBarElement(index, target);
+                            });
+
+                            bar.attr({ cursor: "pointer" });
+                        })(g, dataIndex, this.brush.target[targetIndex]);
+                    }
+                }
+
+                return g;
+            };
+
+            this.setActiveBarElement = function (activeIndex, activeTarget) {
+                var style = this.getBarStyle();
+
+                this.barList.forEach(function (bar, index) {
+                    for (var key in bar) {
+                        if (activeIndex != null && activeIndex == index && activeTarget != null && activeTarget != key) {
+                            bar[key].attr({
+                                "fill-opacity": style.disableBackgroundOpacity
+                            });
+                        } else {
+                            bar[key].attr({
+                                "fill-opacity": 1
+                            });
+                        }
+                    }
+                });
+            };
+
+            this.drawBefore = function () {
+                this.barList = [];
+            };
+
+            this.draw = function () {
+                var _this = this;
+
+                var style = this.getBarStyle();
+                var keys = this.brush.target;
+                var tooltipSize = this.brush.tooltipSize;
+                var padding = this.brush.padding;
+                var g = this.chart.svg.group();
+                var height = this.axis.y.rangeBand() - tooltipSize - padding / 2;
+
+                this.eachData(function (data, i) {
+                    var sumValues = keys.reduce(function (acc, cur) {
+                        return data[acc] + data[cur];
+                    });
+                    var startX = 0;
+                    var startY = _this.offset("y", i) - height / 2 + tooltipSize / 2;
+
+                    keys.forEach(function (key, j) {
+                        var width = _this.axis.x.rate(data[key], sumValues);
+                        var percent = Math.round(data[key] / sumValues * _this.axis.x.max());
+
+                        var text = _.typeCheck("function", _this.brush.showText) ? _this.brush.showText.call(_this, data[key], percent, key) : percent + "%";
+                        var tooltip = _.typeCheck("function", _this.brush.showTooltip) ? _this.brush.showTooltip.call(_this, data[key], percent, key) : data[key];
+                        var r = _this.createBarElement(i, j, width, height, j == 0 || keys.length == 1 ? style.borderRadius : 0, j == keys.length - 1 || keys.length == 1 ? style.borderRadius : 0, text, tooltip);
+
+                        r.translate(startX, startY);
+                        g.append(r);
+
+                        startX += width;
+
+                        if (!_this.barList[i]) _this.barList[i] = {};
+                        _this.barList[i][key] = r;
+                    });
+                });
+
+                this.setActiveBarElement(this.brush.activeIndex, this.brush.activeTarget);
+
+                return g;
+            };
+        };
+
+        RateBarBrush.setup = function () {
+            return {
+                activeIndex: null,
+                activeTarget: null,
+                activeEvent: null,
+                showText: null,
+                showTooltip: null,
+                tooltipSize: 14,
+                padding: 0
+            };
+        };
+
+        return RateBarBrush;
+    }
+};
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _main = __webpack_require__(0);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
     name: "chart.widget.cross",
     extend: "chart.widget.core",
     component: function component() {
@@ -24153,7 +24430,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24495,7 +24772,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24616,7 +24893,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24925,7 +25202,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25137,7 +25414,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25380,7 +25657,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25516,7 +25793,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25652,7 +25929,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25967,7 +26244,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26204,7 +26481,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26519,7 +26796,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26604,7 +26881,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26882,7 +27159,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26963,7 +27240,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
