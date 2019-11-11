@@ -47,6 +47,7 @@ import StackLineBrush from '../src/brush/stackline.js'
 import StackScatterBrush from '../src/brush/stackscatter.js'
 import ArcEqualizerBrush from '../src/brush/arcequalizer.js'
 import PyramidBrush from '../src/brush/pyramid.js'
+import RateBar from '../src/brush/ratebar.js'
 import CrossWidget from '../src/widget/cross.js'
 import LegendWidget from '../src/widget/legend.js'
 import TitleWidget from '../src/widget/title.js'
@@ -112,6 +113,7 @@ jui.use([
     StackScatterBrush,
     ArcEqualizerBrush,
     PyramidBrush,
+    RateBar,
     CrossWidget,
     LegendWidget,
     TitleWidget,

@@ -41,8 +41,8 @@ export default {
                 axis = this.chart.axis(brush.axis);
 
                 // 엑시스 여백 값 가져오기
-                pl = chart.padding("left") + axis.area("x");
-                pt = chart.padding("top") + axis.area("y");
+                pl = chart.padding("left");
+                pt = chart.padding("top");
 
                 // 가이드라인 그리기
                 g = chart.svg.group({

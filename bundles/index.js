@@ -1,78 +1,50 @@
 import jui from '../src/main.js'
 import ClassicTheme from '../src/theme/classic.js'
 import DarkTheme from '../src/theme/dark.js'
-import CanvasEqualizerColumn from '../src/brush/canvas/equalizercolumn.js'
-import TitleWidget from '../src/widget/title'
-import LegendWidget from '../src/widget/legend'
-import RaycastWidget from '../src/widget/raycast'
+import RateBarBrush from '../src/brush/ratebar.js'
 
-jui.use([ ClassicTheme, DarkTheme, CanvasEqualizerColumn, TitleWidget, LegendWidget, RaycastWidget ]);
+jui.use([ ClassicTheme, DarkTheme, RateBarBrush ]);
 
-var animation = jui.include("chart.animation");
+const builder = jui.include('chart.builder');
 
-var c = animation("#chart", {
-    width: 500,
-    height: 300,
-    axis: [{
-        x : {
-            domain : [ "1 year ago", "1 month ago" ],
-            line : true
-        },
+builder('#chart', {
+    theme : 'classic',
+    padding : 0,
+    axis : [{
         y : {
-            type : "range",
-            domain : [ 0, 30 ],
-            // domain : function(d) {
-            //     return Math.max(d.normal, d.warning, d.fatal);
-            // },
-            step : 5,
-            line : false
-        }
+            type : 'block',
+            domain : [ '1' ],
+            line: false
+        },
+        x : {
+            type : 'range',
+            domain : [0, 100],
+            line: false
+        },
+        data : [{
+            server: 120,
+            client: 3
+        }]
     }],
     brush : [{
-        type : "canvas.equalizercolumn",
-        target : [ "normal", "warning", "fatal" ],
-        active : [ 0, 2 ],
-        error : [ 0 ],
-        errorText : "Server Down",
-        unit : 10
+        type : 'ratebar',
+        target : [ 'server', 'client' ],
+        // activeIndex : 1,
+        // activeTarget : "server",
+        activeEvent: "click",
+        showText: function(value, percent, key) {
+            console.log(arguments)
+            return key;
+        },
+        showTooltip: function(value, percent, key) {
+            return `${value}ms`;
+        }
     }],
-    widget : [
-        {
-            type : "title",
-            text : "Equalizer Sample"
-        }, {
-            type : "legend",
-            format : function(key) {
-                if(key == "normal") return "Default";
-                else if(key == "warning") return "Warning";
-                else return "Critical";
-            }
-        }, {
-            type : "raycast"
-        }
-    ],
-    event : {
-        "raycast.click": function(obj, e) {
-            // TODO: Clicking on the equalizer will give the following effect
-            this.updateBrush(0, { active: obj.dataIndex });
-        }
-    },
-    interval : 100,
-    style : {
-
-    }
-});
-
-c.run(function(runningTime) {
-    if(runningTime > 10000) {
-        c.update([
-            { normal : 7, warning : 7, fatal : 7 },
-            { normal : 10, warning : 8, fatal : 5 },
-        ]);
-    } else {
-        c.update([
-            { normal : 5, warning : 5, fatal : 5 },
-            { normal : 10, warning : 8, fatal : 5 },
-        ]);
+    style: {
+        gridXAxisBorderWidth: 1,
+        gridYAxisBorderWidth: 1,
+        gridTickBorderSize: 0,
+        barFontSize: 13,
+        barBorderRadius: 5
     }
 });
