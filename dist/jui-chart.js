@@ -24142,9 +24142,11 @@ exports.default = {
                 r.ClosePath();
 
                 var g = this.svg.group();
-                g.append(r);
-                g.append(this.createTextElement(width, height, text));
 
+                if (value > 0) {
+                    g.append(r);
+                    g.append(this.createTextElement(width, height, text));
+                }
                 if (this.svg.getTextSize(tooltip).width < width) g.append(this.createTooltipElement(width, tooltip));
 
                 if (value != 0) {
@@ -24200,19 +24202,22 @@ exports.default = {
                 var height = this.axis.y.rangeBand() - tooltipSize - padding / 2;
 
                 this.eachData(function (data, i) {
+                    var nonZeroKeys = keys.filter(function (k) {
+                        return data[k] > 0;
+                    });
                     var sumValues = keys.reduce(function (acc, cur) {
                         return data[acc] + data[cur];
                     });
                     var startX = 0;
                     var startY = _this.offset("y", i) - height / 2 + tooltipSize / 2;
 
-                    keys.forEach(function (key, j) {
+                    nonZeroKeys.forEach(function (key, j) {
                         var width = _this.axis.x.rate(data[key], sumValues);
                         var percent = Math.round(data[key] / sumValues * _this.axis.x.max());
 
                         var text = _.typeCheck("function", _this.brush.showText) ? _this.brush.showText.call(_this, data[key], percent, key) : percent + "%";
                         var tooltip = _.typeCheck("function", _this.brush.showTooltip) ? _this.brush.showTooltip.call(_this, data[key], percent, key) : data[key];
-                        var r = _this.createBarElement(i, j, width, height, j == 0 || keys.length == 1 ? style.borderRadius : 0, j == keys.length - 1 || keys.length == 1 ? style.borderRadius : 0, text, tooltip);
+                        var r = _this.createBarElement(i, j, width, height, j == 0 || nonZeroKeys.length == 1 ? style.borderRadius : 0, j == nonZeroKeys.length - 1 || keys.length == 1 ? style.borderRadius : 0, text, tooltip);
 
                         r.translate(startX, startY);
                         g.append(r);

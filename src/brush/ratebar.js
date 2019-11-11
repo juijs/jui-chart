@@ -106,9 +106,11 @@ export default {
                 r.ClosePath();
 
                 const g = this.svg.group();
-                g.append(r);
-                g.append(this.createTextElement(width, height, text));
 
+                if(value > 0) {
+                    g.append(r);
+                    g.append(this.createTextElement(width, height, text));
+                }
                 if(this.svg.getTextSize(tooltip).width < width)
                     g.append(this.createTooltipElement(width, tooltip));
 
@@ -163,11 +165,12 @@ export default {
                 const height = this.axis.y.rangeBand() - tooltipSize - padding/2;
 
                 this.eachData((data, i) => {
+                    const nonZeroKeys = keys.filter(k => data[k] > 0);
                     const sumValues = keys.reduce((acc, cur) => data[acc] + data[cur]);
                     let startX = 0;
                     let startY = this.offset("y", i) - height/2 + tooltipSize/2;
 
-                    keys.forEach((key, j) => {
+                    nonZeroKeys.forEach((key, j) => {
                         const width = this.axis.x.rate(data[key], sumValues);
                         const percent = Math.round((data[key] / sumValues) * this.axis.x.max());
 
@@ -176,8 +179,8 @@ export default {
                         const tooltip = _.typeCheck("function", this.brush.showTooltip) ?
                             this.brush.showTooltip.call(this, data[key], percent, key) : data[key];
                         const r = this.createBarElement(i, j, width, height,
-                            j == 0 || keys.length == 1 ? style.borderRadius : 0,
-                            j == keys.length-1 || keys.length == 1 ? style.borderRadius : 0,
+                            j == 0 || nonZeroKeys.length == 1 ? style.borderRadius : 0,
+                            j == nonZeroKeys.length-1 || keys.length == 1 ? style.borderRadius : 0,
                             text, tooltip);
 
                         r.translate(startX, startY);
