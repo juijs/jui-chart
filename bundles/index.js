@@ -23,7 +23,7 @@ builder('#chart', {
         },
         data : [{
             server: 120,
-            client: 80
+            client: 3
         }]
     }],
     brush : [{

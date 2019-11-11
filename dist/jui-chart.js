@@ -24144,7 +24144,8 @@ exports.default = {
                 var g = this.svg.group();
                 g.append(r);
                 g.append(this.createTextElement(width, height, text));
-                g.append(this.createTooltipElement(width, tooltip));
+
+                if (this.svg.getTextSize(tooltip).width < width) g.append(this.createTooltipElement(width, tooltip));
 
                 if (value != 0) {
                     this.addEvent(g, dataIndex, targetIndex);
