@@ -81,12 +81,14 @@ export default {
                 return t;
             }
 
-            this.createBarElement = function(dataIndex, targetIndex, width, height,
+            this.createBarElement = function(dataIndex, target, width, height,
                                              leftRadius=0, rightRadius=0,
                                              text="", tooltip="") {
+                const g = this.svg.group();
                 const style = this.getBarStyle();
+                const targetIndex = this.brush.target.indexOf(target);
                 const color = this.color(dataIndex, targetIndex);
-                const value = this.getData(dataIndex)[this.brush.target[targetIndex]];
+                const value = this.getData(dataIndex)[target];
                 const activeEvent = this.brush.activeEvent;
 
                 const r = this.svg.path({
@@ -105,28 +107,26 @@ export default {
                 r.Arc(leftRadius, leftRadius, 0, 0, 1, leftRadius, 0);
                 r.ClosePath();
 
-                const g = this.svg.group();
                 g.append(r);
                 g.append(this.createTextElement(width, height, text));
 
-                if(this.svg.getTextSize(tooltip).width < width)
+                if(this.svg.getTextSize(tooltip).width < width) {
                     g.append(this.createTooltipElement(width, tooltip));
+                }
 
-                if(value != 0) {
-                    this.addEvent(g, dataIndex, targetIndex);
+                this.addEvent(g, dataIndex, targetIndex);
 
-                    // 컬럼 및 기본 브러쉬 이벤트 설정
-                    if(activeEvent != null) {
-                        const self = this;
+                // 컬럼 및 기본 브러쉬 이벤트 설정
+                if(activeEvent != null) {
+                    const self = this;
 
-                        (function(bar, index, target) {
-                            bar.on(activeEvent, function(e) {
-                                self.setActiveBarElement(index, target);
-                            });
+                    (function(bar, index, target) {
+                        bar.on(activeEvent, function(e) {
+                            self.setActiveBarElement(index, target);
+                        });
 
-                            bar.attr({ cursor: "pointer" });
-                        })(g, dataIndex, this.brush.target[targetIndex]);
-                    }
+                        bar.attr({ cursor: "pointer" });
+                    })(g, dataIndex, target);
                 }
 
                 return g;
@@ -163,11 +163,12 @@ export default {
                 const height = this.axis.y.rangeBand() - tooltipSize - padding/2;
 
                 this.eachData((data, i) => {
-                    const sumValues = keys.reduce((acc, cur) => data[acc] + data[cur]);
+                    const nonZeroKeys = keys.filter(k => data[k] > 0);
+                    const sumValues = nonZeroKeys.reduce((acc, cur) => acc + data[cur], 0);
                     let startX = 0;
                     let startY = this.offset("y", i) - height/2 + tooltipSize/2;
 
-                    keys.forEach((key, j) => {
+                    nonZeroKeys.forEach((key, j) => {
                         const width = this.axis.x.rate(data[key], sumValues);
                         const percent = Math.round((data[key] / sumValues) * this.axis.x.max());
 
@@ -175,9 +176,9 @@ export default {
                             this.brush.showText.call(this, data[key], percent, key) : `${percent}%`;
                         const tooltip = _.typeCheck("function", this.brush.showTooltip) ?
                             this.brush.showTooltip.call(this, data[key], percent, key) : data[key];
-                        const r = this.createBarElement(i, j, width, height,
-                            j == 0 || keys.length == 1 ? style.borderRadius : 0,
-                            j == keys.length-1 || keys.length == 1 ? style.borderRadius : 0,
+                        const r = this.createBarElement(i, key, width, height,
+                            j == 0 || nonZeroKeys.length == 1 ? style.borderRadius : 0,
+                            j == nonZeroKeys.length-1 || keys.length == 1 ? style.borderRadius : 0,
                             text, tooltip);
 
                         r.translate(startX, startY);

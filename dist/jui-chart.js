@@ -24114,15 +24114,17 @@ exports.default = {
                 return t;
             };
 
-            this.createBarElement = function (dataIndex, targetIndex, width, height) {
+            this.createBarElement = function (dataIndex, target, width, height) {
                 var leftRadius = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
                 var rightRadius = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
                 var text = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : "";
                 var tooltip = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : "";
 
+                var g = this.svg.group();
                 var style = this.getBarStyle();
+                var targetIndex = this.brush.target.indexOf(target);
                 var color = this.color(dataIndex, targetIndex);
-                var value = this.getData(dataIndex)[this.brush.target[targetIndex]];
+                var value = this.getData(dataIndex)[target];
                 var activeEvent = this.brush.activeEvent;
 
                 var r = this.svg.path({
@@ -24141,27 +24143,26 @@ exports.default = {
                 r.Arc(leftRadius, leftRadius, 0, 0, 1, leftRadius, 0);
                 r.ClosePath();
 
-                var g = this.svg.group();
                 g.append(r);
                 g.append(this.createTextElement(width, height, text));
 
-                if (this.svg.getTextSize(tooltip).width < width) g.append(this.createTooltipElement(width, tooltip));
+                if (this.svg.getTextSize(tooltip).width < width) {
+                    g.append(this.createTooltipElement(width, tooltip));
+                }
 
-                if (value != 0) {
-                    this.addEvent(g, dataIndex, targetIndex);
+                this.addEvent(g, dataIndex, targetIndex);
 
-                    // 컬럼 및 기본 브러쉬 이벤트 설정
-                    if (activeEvent != null) {
-                        var self = this;
+                // 컬럼 및 기본 브러쉬 이벤트 설정
+                if (activeEvent != null) {
+                    var self = this;
 
-                        (function (bar, index, target) {
-                            bar.on(activeEvent, function (e) {
-                                self.setActiveBarElement(index, target);
-                            });
+                    (function (bar, index, target) {
+                        bar.on(activeEvent, function (e) {
+                            self.setActiveBarElement(index, target);
+                        });
 
-                            bar.attr({ cursor: "pointer" });
-                        })(g, dataIndex, this.brush.target[targetIndex]);
-                    }
+                        bar.attr({ cursor: "pointer" });
+                    })(g, dataIndex, target);
                 }
 
                 return g;
@@ -24200,19 +24201,22 @@ exports.default = {
                 var height = this.axis.y.rangeBand() - tooltipSize - padding / 2;
 
                 this.eachData(function (data, i) {
-                    var sumValues = keys.reduce(function (acc, cur) {
-                        return data[acc] + data[cur];
+                    var nonZeroKeys = keys.filter(function (k) {
+                        return data[k] > 0;
                     });
+                    var sumValues = nonZeroKeys.reduce(function (acc, cur) {
+                        return acc + data[cur];
+                    }, 0);
                     var startX = 0;
                     var startY = _this.offset("y", i) - height / 2 + tooltipSize / 2;
 
-                    keys.forEach(function (key, j) {
+                    nonZeroKeys.forEach(function (key, j) {
                         var width = _this.axis.x.rate(data[key], sumValues);
                         var percent = Math.round(data[key] / sumValues * _this.axis.x.max());
 
                         var text = _.typeCheck("function", _this.brush.showText) ? _this.brush.showText.call(_this, data[key], percent, key) : percent + "%";
                         var tooltip = _.typeCheck("function", _this.brush.showTooltip) ? _this.brush.showTooltip.call(_this, data[key], percent, key) : data[key];
-                        var r = _this.createBarElement(i, j, width, height, j == 0 || keys.length == 1 ? style.borderRadius : 0, j == keys.length - 1 || keys.length == 1 ? style.borderRadius : 0, text, tooltip);
+                        var r = _this.createBarElement(i, key, width, height, j == 0 || nonZeroKeys.length == 1 ? style.borderRadius : 0, j == nonZeroKeys.length - 1 || keys.length == 1 ? style.borderRadius : 0, text, tooltip);
 
                         r.translate(startX, startY);
                         g.append(r);
