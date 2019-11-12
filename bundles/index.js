@@ -23,12 +23,13 @@ builder('#chart', {
         },
         data : [{
             server: 120,
-            client: 0
+            client: 50,
+            test: 123
         }]
     }],
     brush : [{
         type : 'ratebar',
-        target : [ 'server', 'client' ],
+        target : [ 'server', 'client', 'test' ],
         // activeIndex : 1,
         // activeTarget : "server",
         activeEvent: "click",
