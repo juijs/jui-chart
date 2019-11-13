@@ -24058,15 +24058,16 @@ exports.default = {
 
             this.createTextElement = function (width, height, text) {
                 var style = this.getBarStyle();
+                var textSize = this.svg.getTextSize(text);
+                console.log(height, textSize);
 
                 var t = this.svg.text({
                     "font-size": style.fontSize,
                     "font-weight": "bold",
                     fill: style.fontColor,
-                    x: width / 2,
-                    y: height / 2,
-                    "text-anchor": "middle",
-                    "alignment-baseline": "middle"
+                    dx: width / 2,
+                    dy: textSize.height,
+                    "text-anchor": "middle"
                 }).text(text);
 
                 return t;
@@ -24124,7 +24125,6 @@ exports.default = {
                 var style = this.getBarStyle();
                 var targetIndex = this.brush.target.indexOf(target);
                 var color = this.color(dataIndex, targetIndex);
-                var value = this.getData(dataIndex)[target];
                 var activeEvent = this.brush.activeEvent;
 
                 var r = this.svg.path({

@@ -25,15 +25,16 @@ export default {
 
             this.createTextElement = function(width, height, text) {
                 const style = this.getBarStyle();
+                const textSize = this.svg.getTextSize(text);
+                console.log(height, textSize);
 
                 const t = this.svg.text({
                     "font-size": style.fontSize,
                     "font-weight": "bold",
                     fill: style.fontColor,
-                    x: width/2,
-                    y: height/2,
-                    "text-anchor": "middle",
-                    "alignment-baseline": "middle"
+                    dx: width/2,
+                    dy: textSize.height,
+                    "text-anchor": "middle"
                 }).text(text);
 
                 return t;
@@ -88,7 +89,6 @@ export default {
                 const style = this.getBarStyle();
                 const targetIndex = this.brush.target.indexOf(target);
                 const color = this.color(dataIndex, targetIndex);
-                const value = this.getData(dataIndex)[target];
                 const activeEvent = this.brush.activeEvent;
 
                 const r = this.svg.path({
