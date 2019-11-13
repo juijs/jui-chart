@@ -25,15 +25,13 @@ export default {
 
             this.createTextElement = function(width, height, text) {
                 const style = this.getBarStyle();
-                const textSize = this.svg.getTextSize(text);
-                console.log(height, textSize);
 
                 const t = this.svg.text({
                     "font-size": style.fontSize,
                     "font-weight": "bold",
                     fill: style.fontColor,
                     dx: width/2,
-                    dy: textSize.height,
+                    dy: height/2 + style.fontSize/3,
                     "text-anchor": "middle"
                 }).text(text);
 

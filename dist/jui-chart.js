@@ -24058,15 +24058,13 @@ exports.default = {
 
             this.createTextElement = function (width, height, text) {
                 var style = this.getBarStyle();
-                var textSize = this.svg.getTextSize(text);
-                console.log(height, textSize);
 
                 var t = this.svg.text({
                     "font-size": style.fontSize,
                     "font-weight": "bold",
                     fill: style.fontColor,
                     dx: width / 2,
-                    dy: textSize.height,
+                    dy: height / 2 + style.fontSize / 3,
                     "text-anchor": "middle"
                 }).text(text);
 
