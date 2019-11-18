@@ -9801,7 +9801,7 @@ var axis = {
                 }
 
                 // _clipId = _.createId("clip-id-");
-                _clipId = "axis-clip-id-" + chart.index;
+                _clipId = "axis-clip-id-" + chart.index + "." + cloneAxis.index;
 
                 _clipPath = chart.svg.clipPath({
                     id: _clipId
@@ -24063,10 +24063,9 @@ exports.default = {
                     "font-size": style.fontSize,
                     "font-weight": "bold",
                     fill: style.fontColor,
-                    x: width / 2,
-                    y: height / 2,
-                    "text-anchor": "middle",
-                    "alignment-baseline": "middle"
+                    dx: width / 2,
+                    dy: height / 2 + style.fontSize / 3,
+                    "text-anchor": "middle"
                 }).text(text);
 
                 return t;
@@ -24124,7 +24123,6 @@ exports.default = {
                 var style = this.getBarStyle();
                 var targetIndex = this.brush.target.indexOf(target);
                 var color = this.color(dataIndex, targetIndex);
-                var value = this.getData(dataIndex)[target];
                 var activeEvent = this.brush.activeEvent;
 
                 var r = this.svg.path({

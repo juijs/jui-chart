@@ -30,10 +30,9 @@ export default {
                     "font-size": style.fontSize,
                     "font-weight": "bold",
                     fill: style.fontColor,
-                    x: width/2,
-                    y: height/2,
-                    "text-anchor": "middle",
-                    "alignment-baseline": "middle"
+                    dx: width/2,
+                    dy: height/2 + style.fontSize/3,
+                    "text-anchor": "middle"
                 }).text(text);
 
                 return t;
@@ -88,7 +87,6 @@ export default {
                 const style = this.getBarStyle();
                 const targetIndex = this.brush.target.indexOf(target);
                 const color = this.color(dataIndex, targetIndex);
-                const value = this.getData(dataIndex)[target];
                 const activeEvent = this.brush.activeEvent;
 
                 const r = this.svg.path({
