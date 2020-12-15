@@ -20399,7 +20399,7 @@ exports.default = {
                     this.addEvent(r1, i);
 
                     // 마우스 오버 효과 엘리먼트
-                    cacheRect[i].push({
+                    cacheRect.push({
                         r1: r1,
                         r2: r2,
                         t1: t1,
